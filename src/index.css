@@ -1,0 +1,174 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+@import "tailwindcss";
+
+/* Base Reset */
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+
+@layer base {
+  body {
+    @apply font-sans;
+    font-family: "Noto Sans", sans-serif;
+  }
+}
+
+/* Global transition for color variables */
+:root,
+html,
+body {
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease,
+    opacity 0.3s ease, --color-primary 0.3s ease, --color-secondary 0.3s ease,
+    --color-bg 0.3s ease, --color-text 0.3s ease;
+}
+
+/* -------------------------
+   Utility classes using CSS vars
+-------------------------- */
+@layer utilities {
+  .bg-primary {
+    background-color: rgb(var(--color-primary));
+    transition: background-color 0.3s ease;
+  }
+
+  .text-primary {
+    color: rgb(var(--color-primary));
+    transition: color 0.3s ease;
+  }
+
+  .border-primary {
+    border-color: rgb(var(--color-primary));
+    transition: border-color 0.3s ease;
+  }
+
+  .bg-secondary {
+    background-color: rgb(var(--color-secondary));
+    transition: background-color 0.3s ease;
+  }
+
+  .text-secondary {
+    color: rgb(var(--color-secondary));
+    transition: color 0.3s ease;
+  }
+
+  .border-secondary {
+    border-color: rgb(var(--color-secondary));
+    transition: border-color 0.3s ease;
+  }
+
+  .bg-surface {
+    background-color: rgb(var(--color-bg));
+    transition: background-color 0.3s ease;
+  }
+
+  .text-surface {
+    color: rgb(var(--color-text));
+    transition: color 0.3s ease;
+  }
+
+  /* --- Hover Utilities --- */
+  .hover\:bg-primary:hover {
+    background-color: rgb(var(--color-primary));
+  }
+
+  .hover\:text-primary:hover {
+    color: rgb(var(--color-primary));
+  }
+
+  .hover\:border-primary:hover {
+    border-color: rgb(var(--color-primary));
+  }
+
+  .hover\:bg-secondary:hover {
+    background-color: rgb(var(--color-secondary));
+  }
+
+  .hover\:text-secondary:hover {
+    color: rgb(var(--color-secondary));
+  }
+
+  .hover\:border-secondary:hover {
+    border-color: rgb(var(--color-secondary));
+  }
+
+  .hover\:bg-surface:hover {
+    background-color: rgb(var(--color-bg));
+  }
+
+  .hover\:text-surface:hover {
+    color: rgb(var(--color-text));
+  }
+
+  .hover\:border-surface:hover {
+    border-color: rgb(var(--color-text));
+  }
+}
+
+/* -------------------------
+   Base (Default Blue) Palette
+-------------------------- */
+:root {
+  --color-primary: 240 138 46; /* orange-500 */
+  --color-secondary: 207 108 18; /* orange-800 */
+  --color-bg: 255 255 255;
+  --color-text: 0 0 0;
+}
+
+/* -------------------------
+   Theme Palettes
+-------------------------- */
+.theme-blue {
+  --color-primary: 59 130 246;
+  --color-secondary: 30 41 59;
+
+}
+
+.theme-green {
+  --color-primary: 34 197 94;
+  --color-secondary: 20 83 45;
+}
+
+.theme-red {
+  --color-primary: 239 68 68;
+  --color-secondary: 127 29 29;
+}
+
+.theme-purple {
+  --color-primary: 168 85 247;
+  --color-secondary: 88 28 135;
+}
+
+.theme-orange {
+  --color-primary: 240 138 46;
+  --color-secondary: 207 108 18;
+}
+
+.theme-teal {
+  --color-primary: 13 148 136;
+  --color-secondary: 19 78 74;
+}
+
+.theme-rose {
+  --color-primary: 244 63 94;
+  --color-secondary: 136 19 55;
+}
+
+.theme-indigo {
+  --color-primary: 99 102 241;
+  --color-secondary: 55 48 163;
+}
+
+.theme-pink {
+  --color-primary: 236 72 153;
+  --color-secondary: 157 23 77;
+}
+
+/* -------------------------
+   Dark Mode Palette
+-------------------------- */
+.dark {
+  --color-bg: 30 30 30;
+  --color-text: 255 255 255;
+}
