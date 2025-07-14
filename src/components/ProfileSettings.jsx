@@ -2,7 +2,7 @@ import useThemeStore from "../store/themeStore";
 import { FiSun, FiMoon } from "react-icons/fi";
 import Profile from "./Profile";
 
-const Settings = () => {
+const ProfileSettings = () => {
   const { mode, toggleMode, palette, setPalette } = useThemeStore();
 
   const colorPalettes = {
@@ -87,4 +87,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default ProfileSettings;

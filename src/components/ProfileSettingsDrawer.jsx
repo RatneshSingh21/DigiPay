@@ -1,7 +1,7 @@
 import { IoClose } from "react-icons/io5";
-import Settings from "./Settings";
+import ProfileSettings from "./ProfileSettings";
 
-const SettingsDrawer = ({ isOpen, onClose }) => {
+const ProfileSettingsDrawer = ({ isOpen, onClose }) => {
   return (
     <div
       className={`fixed inset-0 z-50 transition-all duration-300 ${
@@ -37,11 +37,11 @@ const SettingsDrawer = ({ isOpen, onClose }) => {
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto px-4 py-4 text-sm flex-1">
-          <Settings />
+          <ProfileSettings />
         </div>
       </div>
     </div>
   );
 };
 
-export default SettingsDrawer;
+export default ProfileSettingsDrawer;
