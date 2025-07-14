@@ -52,7 +52,7 @@ const AdminSubmenuBox = ({ items, selectedMenu }) => {
   const base = `/admin-dashboard/${selectedMenu.toLowerCase()}`;
 
   return (
-    <div className="bg-white border-r p-4 h-full shadow-md rounded-lg">
+    <div className="bg-white border-r p-4 h-full  fixed shadow-md">
       <h3 className="text-xl font-semibold mb-3 text-gray-700">{selectedMenu}</h3>
       <ul className="space-y-2 text-sm">
         {items.map((item, idx) => {

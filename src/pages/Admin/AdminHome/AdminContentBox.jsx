@@ -27,7 +27,7 @@ const AdminContentBox = () => {
           <AdminSubmenuBox items={submenuItems} selectedMenu={selectedMenu} />
         </div>
       )}
-      <div className="flex-1 p-6 bg-white rounded-xl shadow-md">
+      <div className="flex-1 p-6 bg-white shadow-md">
         {submenuItems.length === 0 ? (
           <>
             <h2 className="text-xl font-semibold mb-4">{selectedMenu}</h2>

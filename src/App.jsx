@@ -109,7 +109,7 @@ const App = () => {
                   <Route path="salary" element={<Salary />} />
                 </Route>
 
-                <Route path="payschedule" element={<AdminContentBox />} />
+                <Route path="payschedule" element={<PaySchedule />} />
 
                 <Route path="reports/*" element={<AdminContentBox />}>
                   <Route index element={<Navigate to="attendance" />} />
