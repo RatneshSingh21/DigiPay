@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import useAuthStore from "./store/authStore";
 import useThemeStore from "./store/themeStore";
 import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 // Layouts
 import AuthLayout from "./Layout/AuthLayout";
@@ -42,6 +43,7 @@ import Salary from "./pages/Admin/Settings/Salary";
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
 import PayrollReport from "./pages/Admin/Reports/PayrollReport";
 import LeaveReport from "./pages/Admin/Reports/LeaveReport";
+import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -73,7 +75,7 @@ const App = () => {
 
   return (
     <div>
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         {/* If user is logged in, show only dashboard routes */}
         {token ? (
@@ -95,11 +97,17 @@ const App = () => {
                 </Route>
 
                 {/* Other Routes with no submenu */}
-                <Route path="dashboard" element={<AdminContentBox />} />
-                
+                <Route path="dashboard" element={<AdminDashboard />} />
+
                 <Route path="settings/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="organisation-profile" />} />
-                  <Route path="organisation-profile" element={<OrganisationProfile />} />
+                  <Route
+                    index
+                    element={<Navigate to="organisation-profile" />}
+                  />
+                  <Route
+                    path="organisation-profile"
+                    element={<OrganisationProfile />}
+                  />
                   <Route path="departments" element={<Departments />} />
                   <Route path="work-locations" element={<WorkLocations />} />
                   <Route path="permissions" element={<Permissions />} />

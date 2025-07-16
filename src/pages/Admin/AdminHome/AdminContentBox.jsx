@@ -21,13 +21,13 @@ const AdminContentBox = () => {
   const submenuItems = submenuMap[selectedMenu] || [];
 
   return (
-    <main className="flex">
+    <main className="flex h-full">
       {submenuItems.length > 0 && (
         <div className="w-48 h-[86vh]">
           <AdminSubmenuBox items={submenuItems} selectedMenu={selectedMenu} />
         </div>
       )}
-      <div className="flex-1 p-6 bg-white shadow-md">
+      <div className="flex-1 ml-4 bg-white shadow-md">
         {submenuItems.length === 0 ? (
           <>
             <h2 className="text-xl font-semibold mb-4">{selectedMenu}</h2>
