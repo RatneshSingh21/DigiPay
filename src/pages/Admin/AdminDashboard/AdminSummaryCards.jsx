@@ -9,7 +9,7 @@ import {
 const cards = [
   {
     label: "Total Employees",
-    value: 512,
+    value: 46,
     diff: "+10 this month",
     icon: <FaUserFriends />,
   },

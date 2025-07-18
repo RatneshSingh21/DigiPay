@@ -20,7 +20,7 @@ const DesignationList = ({
       fetchDesignations();
     } catch (error) {
       console.error("Error deleting designation:", error);
-      toast.error("Failed to delete designation");
+      toast.error(error?.response?.data?.message || "Failed to delete designation");
     }
   };
 

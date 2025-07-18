@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import assets from "../assets/assets";
 import SignInForm from "../pages/Admin/Auth/SignInForm";
 import SignUpForm from "../pages/Admin/Auth/SignUpForm";
+import SignInEmployeeForm from "../pages/EmployeePages/Auth/SignInEmployeeForm";
 
 const AuthLayout = () => {
   const [isSignIn, setIsSignIn] = useState(true);
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem("loginRole");
+    setRole(storedRole);
+  }, []);
 
   return (
     <div
@@ -15,22 +22,24 @@ const AuthLayout = () => {
         backgroundPosition: "center",
       }}
     >
-      <div className="relative w-full max-w-5xl h-[500px] overflow-hidden bg-white rounded-3xl shadow-2xl">
-        {/* Sliding Container */}
+      <div className="relative w-full max-w-5xl h-auto md:h-[500px] overflow-hidden bg-white rounded-3xl shadow-2xl">
+        {/* Desktop Sliding Container */}
         <div
-          className={`flex md:flex-row flex-col w-full md:w-[200%] h-full transition-transform duration-700 ease-in-out ${
-            isSignIn ? "md:translate-x-0" : "md:-translate-x-1/2"
+          className={`hidden md:flex w-[200%] h-full transition-transform duration-700 ease-in-out ${
+            isSignIn ? "translate-x-0" : "-translate-x-1/2"
           }`}
         >
-          {/* Sign In Panel: Form Left + Image Right */}
-          <div className="flex w-full md:w-1/2 h-full">
-            {/* Form */}
-            <div className="w-full md:w-1/2 flex items-center justify-center bg-white p-4">
-              <SignInForm switchToSignUp={() => setIsSignIn(false)} />
+          {/* Sign In Panel */}
+          <div className="flex w-1/2 h-full">
+            <div className="w-1/2 flex items-center justify-center bg-white p-4">
+              {role === "SuperAdmin" ? (
+                <SignInForm switchToSignUp={() => setIsSignIn(false)} />
+              ) : (
+                <SignInEmployeeForm />
+              )}
             </div>
-            {/* Image */}
-            <div className="hidden md:flex w-1/2 bg-[#fff6ef] flex-col justify-center items-center p-8">
-              <h1 className="text-3xl font-bold mb-4">Welcome Back</h1>
+            <div className="w-1/2 bg-[#fff6ef] flex flex-col justify-center items-center p-8">
+              <h1 className="text-3xl font-bold mb-4">Welcome</h1>
               <img
                 src={assets.LoginImage}
                 alt="Login"
@@ -39,10 +48,9 @@ const AuthLayout = () => {
             </div>
           </div>
 
-          {/* Sign Up Panel: Image Left + Form Right */}
-          <div className="flex w-full md:w-1/2 h-full">
-            {/* Image */}
-            <div className="hidden md:flex w-1/2 bg-[#fff6ef] flex-col justify-center items-center p-8">
+          {/* Sign Up Panel */}
+          <div className="flex w-1/2 h-full">
+            <div className="w-1/2 bg-[#fff6ef] flex flex-col justify-center items-center p-8">
               <h1 className="text-3xl font-bold mb-4">Join Us</h1>
               <img
                 src={assets.LoginImage}
@@ -50,15 +58,38 @@ const AuthLayout = () => {
                 className="w-full max-w-xs transition-all duration-700"
               />
             </div>
-            {/* Form */}
-            <div className="w-full md:w-1/2 flex items-center justify-center bg-white p-4">
+            <div className="w-1/2 flex items-center justify-center bg-white p-4">
               <SignUpForm switchToSignIn={() => setIsSignIn(true)} />
             </div>
           </div>
         </div>
+
+        {/* Mobile/Tablet Static Layout */}
+        <div className="flex flex-col md:hidden w-full space-y-6 p-6">
+          {isSignIn ? (
+            <>
+              <h1 className="text-center text-2xl font-bold">Welcome</h1>
+              {role === "SuperAdmin" ? (
+                <SignInForm switchToSignUp={() => setIsSignIn(false)} />
+              ) : (
+                <SignInEmployeeForm />
+              )}
+            </>
+          ) : (
+            <>
+              <h1 className="text-center text-2xl font-bold">Join Us</h1>
+              <SignUpForm switchToSignIn={() => setIsSignIn(true)} />
+            </>
+          )}
+          <img
+            src={assets.LoginImage}
+            alt="Auth"
+            className="w-full max-w-xs mx-auto"
+          />
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default AuthLayout;

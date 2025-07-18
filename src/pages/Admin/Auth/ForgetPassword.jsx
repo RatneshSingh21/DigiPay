@@ -39,8 +39,7 @@ const ForgetPassword = () => {
       });
     } catch (error) {
       const errMsg =
-        error.response?.data?.detail ||
-        error.response?.data?.title ||
+        error?.response?.data?.message ||
         "Something went wrong. Please try again.";
       toast.error(errMsg);
     } finally {

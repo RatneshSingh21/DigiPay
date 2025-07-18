@@ -4,8 +4,12 @@ import { GrMoney } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 
 const LandingSection = () => {
-
   const navigate = useNavigate();
+
+  const handleAuthNavigation = (role) => {
+    localStorage.setItem("loginRole", role); // 'SuperAdmin' or 'Employee'
+    navigate("/auth");
+  };
 
   return (
     <section
@@ -20,27 +24,40 @@ const LandingSection = () => {
           </p>
           <h1 className="text-2xl md:text-[30px] font-bold text-gray-900 leading-tight">
             Automated, Accurate & Hassle-Free{" "}
-            <span className="text-secondary">Payroll</span> in Just a Few Clicks!
+            <span className="text-[#CF6C12]">Payroll</span> in Just a Few
+            Clicks!
           </h1>
           <p className="text-gray-700 text-md mb-6">
             Say goodbye to manual errors and complex spreadsheets. Empower your
             team with real-time payroll processing that's secure, scalable, and
             100% compliant.
           </p>
-          <div className="flex flex-col items-center justify-start  md:flex-row gap-2 mb-6">
+
+          <div className="flex flex-col items-center justify-start md:flex-row gap-2 mt-6">
             <div className="flex items-center gap-2">
-              <SiPayloadcms className="w-6 h-6 text-secondary" />
-              <SiWebmoney className="w-6 h-6 text-secondary" />
-              <GrMoney className="w-6 h-6 text-secondary" />
+              <SiPayloadcms className="w-6 h-6 text-[#CF6C12]" />
+              <SiWebmoney className="w-6 h-6 text-[#CF6C12]" />
+              <GrMoney className="w-6 h-6 text-[#CF6C12]" />
             </div>
-            <p className="text-secondary text-sm font-bold ml-2">
+            <p className="text-[#CF6C12] text-sm font-bold ml-2">
               ⭐ 4.1 average ratings on global review platforms
             </p>
           </div>
-          <button className="bg-primary text-white px-6 py-3 rounded-md shadow hover:opacity-90 transition"
-          onClick={() => navigate("/auth")}>
-            Get Started
-          </button>
+
+          <div className="flex flex-col md:flex-row gap-3 mt-5">
+            <button
+              className="bg-[#F08A2E] text-white px-6 py-3 rounded-md shadow hover:opacity-90 transition"
+              onClick={() => handleAuthNavigation("SuperAdmin")}
+            >
+              Continue as Admin
+            </button>
+            <button
+              className="bg-[#CF6C12] text-white px-6 py-3 rounded-md shadow hover:opacity-90 transition"
+              onClick={() => handleAuthNavigation("Employee")}
+            >
+              Login as Employee
+            </button>
+          </div>
         </div>
 
         {/* Right Image Section */}

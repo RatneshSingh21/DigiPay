@@ -3,6 +3,7 @@ import { FiUsers } from "react-icons/fi";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
+import { toast } from "react-toastify";
 
 
 const EmployeeList = () => {
@@ -14,10 +15,11 @@ const EmployeeList = () => {
       try {
         const response = await axiosInstance.get("/Employee");
         setEmployees(response.data);
-        console.log(response.data);
+        // console.log(response.data);
         
       } catch (error) {
         console.error("Error fetching employee data:", error);
+        toast.error(error?.response?.data?.message || "Error fetching employee data:");
       } finally {
         setLoading(false);
       }

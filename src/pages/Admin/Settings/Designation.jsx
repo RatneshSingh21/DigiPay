@@ -29,7 +29,7 @@ const Designation = () => {
       setDesignations(response.data || []);
     } catch (error) {
       console.error("Error fetching designations:", error);
-      toast.error("Failed to load designations");
+      toast.error(error?.response?.data?.message || "Failed to load designations");
     }
   };
 
@@ -39,7 +39,7 @@ const Designation = () => {
 
   return (
     <>
-      <div className="p-4 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-3 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Designations</h2>
         {designations.length > 0 && (
           <div className="flex gap-2 items-center">

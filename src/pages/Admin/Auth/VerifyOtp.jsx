@@ -124,7 +124,7 @@ const VerifyOtp = () => {
         navigate("/");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.detail || "OTP verification failed.");
+      toast.error(err?.response?.data?.message || "OTP verification failed.");
     } finally {
       setLoading(false);
     }
@@ -138,7 +138,7 @@ const VerifyOtp = () => {
       toast.success("OTP resent successfully!");
       startResendTimer();
     } catch (err) {
-      toast.error(err?.response?.data?.detail || "Failed to resend OTP.");
+      toast.error(err?.response?.data?.message || "Failed to resend OTP.");
     }
   };
 

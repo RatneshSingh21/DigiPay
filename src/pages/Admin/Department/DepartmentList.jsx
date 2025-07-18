@@ -19,7 +19,7 @@ const DepartmentList = ({
       fetchDepartments();
     } catch (error) {
       console.error("Error deleting department:", error);
-      toast.error("Failed to delete department");
+      toast.error(error?.response?.data?.message || "Failed to delete department");
     }
   };
 

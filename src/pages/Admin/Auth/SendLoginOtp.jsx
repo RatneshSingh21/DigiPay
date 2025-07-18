@@ -30,7 +30,7 @@ const SendLoginOtp = () => {
         state: { emailOrPhone, flow: "login" },
       });
     } catch (err) {
-      toast.error(err?.response?.data?.detail || "Failed to send OTP. Try again.");
+      toast.error(err?.response?.data?.message || "Failed to send OTP. Try again.");
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ const SendLoginOtp = () => {
 
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">Login with OTP</h2>
           <p className="text-sm text-gray-600 mb-6">
-            Enter your registered email or phone number. We’ll send you an OTP to log in securely.
+            Enter your registered email or phone number. We'll send you an OTP to log in securely.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">

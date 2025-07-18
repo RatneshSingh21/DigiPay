@@ -51,13 +51,13 @@ const ImportDepartment = ({ onClose }) => {
 
         try {
           const response = await axiosInstance.post(
-            "/Designation/import",
+            "/Department/import",
             jsonData,
             
           );
 
           if (response.status === 200 || response.status === 201) {
-            toast.success("Designations imported successfully!");
+            toast.success("Departments imported successfully!");
             setFileName(null);
             setSelectedFile(null);
           } else {
@@ -65,7 +65,7 @@ const ImportDepartment = ({ onClose }) => {
           }
         } catch (error) {
           console.error(error);
-          toast.error("Something went wrong!");
+          toast.error(err?.response?.data?.message || "Something went wrong!");
         }
       },
     });

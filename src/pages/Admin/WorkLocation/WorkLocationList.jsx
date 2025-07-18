@@ -38,7 +38,7 @@ const WorkLocationList = ({
       fetchLocations(); // Refresh the list
     } catch (error) {
       console.error("Error deleting location:", error);
-      toast.error("Failed to delete work location");
+      toast.error(error?.response?.data?.message || "Failed to delete work location");
     }
   };
 

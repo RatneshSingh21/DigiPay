@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
-import assets from "../../../assets/assets";
-import Spinner from "../../../components/Spinner"; // assuming you already have this
-import { useNavigate } from "react-router-dom";
+import Spinner from "../../../components/Spinner";
 
-export default function SignInForm({ switchToSignUp }) {
+export default function SignInEmployeeForm() {
   const navigate = useNavigate(); // for redirecting after login
 
   const [formData, setFormData] = useState({
-    emailOrPhone: "",
+    workEmail: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -27,17 +26,17 @@ export default function SignInForm({ switchToSignUp }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { emailOrPhone, password } = formData;
+    const { workEmail, password } = formData;
 
-    if (!emailOrPhone || !password) {
+    if (!workEmail || !password) {
       toast.error("All fields are required.");
       return;
     }
 
     setLoading(true);
     try {
-      const response = await axiosInstance.post("/user-auth/login", {
-        emailOrPhone,
+      const response = await axiosInstance.post("/employee-auth/login", {
+        workEmail,
         password,
       });
 
@@ -65,28 +64,17 @@ export default function SignInForm({ switchToSignUp }) {
         </span>
       </h2>
 
-      <p className="text-sm text-gray-600 mb-4">
-        Don't have an account?{" "}
-        <button
-          onClick={switchToSignUp}
-          type="button"
-          className="text-orange-500 font-semibold hover:underline"
-        >
-          Sign Up
-        </button>
-      </p>
-
       {/* Email / Phone */}
       <div className="mb-4">
         <label className="block mb-1 text-sm font-medium text-gray-700">
-          Email or Phone
+          Email
         </label>
         <input
           type="text"
-          name="emailOrPhone"
-          value={formData.emailOrPhone}
+          name="workEmail"
+          value={formData.workEmail}
           onChange={handleChange}
-          placeholder="you@example.com or 9876543210"
+          placeholder="you@example.com"
           autoFocus
           required
           className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all"
@@ -146,22 +134,6 @@ export default function SignInForm({ switchToSignUp }) {
           Forgot Password?
         </button>
       </div>
-
-      {/* Divider */}
-      <div className="flex items-center my-5">
-        <div className="flex-grow h-px bg-gray-300" />
-        <span className="mx-3 text-sm text-gray-400">or</span>
-        <div className="flex-grow h-px bg-gray-300" />
-      </div>
-
-      {/* Google Login */}
-      <button
-        type="button"
-        className="w-full flex items-center justify-center gap-2 border text-sm py-2 rounded hover:bg-gray-50 transition-all"
-      >
-        <img src={assets.Google} alt="Google" className="w-6 h-6" />
-        Continue with Google
-      </button>
     </form>
   );
 }

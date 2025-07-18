@@ -63,7 +63,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
       onSuccess && onSuccess();
       onClose();
     } catch (error) {
-      toast.error("Error saving work location");
+      toast.error(error?.response?.data?.message || "Error saving work location");
       console.error(error);
     } finally {
       setLoading(false);

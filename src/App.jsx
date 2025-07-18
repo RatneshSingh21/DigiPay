@@ -3,11 +3,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import useAuthStore from "./store/authStore";
 import useThemeStore from "./store/themeStore";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 // Layouts
 import AuthLayout from "./Layout/AuthLayout";
-import AdminDashboardLayout from "./Layout/AdminDashboardLayout ";
+import AdminDashboardLayout from "./Layout/AdminDashboardLayout";
+import EmployeeDashboardLayout from "./Layout/EmployeeDashboardLayout";
 
 // Public Pages
 import LandingPageMain from "./pages/LandingPageDesign/LandingPageMain";
@@ -17,10 +18,11 @@ import ForgetPassword from "./pages/Admin/Auth/ForgetPassword";
 import ResetPassword from "./pages/Admin/Auth/ResetPassword";
 
 // Guard
-import ProtectedRoute from "./components/ProtectedRoute ";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Optional pages
-import Unauthorized from "./pages/Unauthorized ";
+import Unauthorized from "./pages/Unauthorized";
+import NotFound from "./pages/NotFound"; // 404 Page Not Found
 
 import AdminContentBox from "./pages/Admin/AdminHome/AdminContentBox";
 
@@ -44,6 +46,8 @@ import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
 import PayrollReport from "./pages/Admin/Reports/PayrollReport";
 import LeaveReport from "./pages/Admin/Reports/LeaveReport";
 import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
+import EmployeeDashboard from "./pages/EmployeePages/EmployeeDashboard";
+import EmployeeProfile from "./pages/EmployeePages/EmployeeProfile";
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -51,6 +55,7 @@ const App = () => {
   const mode = useThemeStore((state) => state.mode);
   const palette = useThemeStore((state) => state.palette);
 
+  // Apply theme mode and selected color palette to the root html element
   useEffect(() => {
     const root = document.documentElement;
     if (mode === "dark") {
@@ -59,6 +64,7 @@ const App = () => {
       root.classList.remove("dark");
     }
 
+    // Remove all possible theme color classes before adding new one
     root.classList.remove(
       "theme-orange",
       "theme-blue",
@@ -75,17 +81,35 @@ const App = () => {
 
   return (
     <div>
+      {/* Toast Notifications */}
       <ToastContainer position="top-right" autoClose={3000} />
+
       <Routes>
         {/* If user is logged in, show only dashboard routes */}
         {token ? (
           <>
+            {/* Redirect "/" to the correct dashboard based on role */}
+            <Route
+              path="/"
+              element={
+                user?.role === "SuperAdmin" || user?.role === "Admin" ? (
+                  <Navigate to="/admin-dashboard" replace />
+                ) : user?.role === "Employee" || user?.role === "User" ? (
+                  <Navigate to="/employee-dashboard" replace />
+                ) : (
+                  <Navigate to="/unauthorized" replace />
+                )
+              }
+            />
+
+            {/* Protected Admin Routes */}
             <Route
               element={
                 <ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]} />
               }
             >
               <Route path="/admin-dashboard" element={<AdminDashboardLayout />}>
+                {/* Default route for admin-dashboard */}
                 <Route index element={<Navigate to="dashboard" />} />
 
                 {/* Employees SubRoutes */}
@@ -96,9 +120,13 @@ const App = () => {
                   <Route path="teams" element={<Teams />} />
                 </Route>
 
-                {/* Other Routes with no submenu */}
+                {/* Dashboard Main Page */}
                 <Route path="dashboard" element={<AdminDashboard />} />
 
+                {/* PaySchedule Main Page */}
+                <Route path="payschedule" element={<PaySchedule />} />
+
+                {/* Settings SubRoutes */}
                 <Route path="settings/*" element={<AdminContentBox />}>
                   <Route
                     index
@@ -117,35 +145,60 @@ const App = () => {
                   <Route path="salary" element={<Salary />} />
                 </Route>
 
-                <Route path="payschedule" element={<PaySchedule />} />
-
+                {/* Reports SubRoutes */}
                 <Route path="reports/*" element={<AdminContentBox />}>
                   <Route index element={<Navigate to="attendance" />} />
                   <Route path="attendance" element={<AttendanceReport />} />
                   <Route path="payroll" element={<PayrollReport />} />
                   <Route path="leave" element={<LeaveReport />} />
                 </Route>
+
+                {/* Nested 404 Catcher for /admin-dashboard/* */}
+                <Route path="*" element={<NotFound />} />
               </Route>
             </Route>
-            {/* Redirect all other paths to /admin-dashboard */}
+
+            {/* Protected Employee Routes */}
             <Route
-              path="*"
-              element={<Navigate to="/admin-dashboard" replace />}
-            />
+              element={<ProtectedRoute allowedRoles={["Employee", "User"]} />}
+            >
+              <Route
+                path="/employee-dashboard"
+                element={<EmployeeDashboardLayout />}
+              >
+                <Route index element={<Navigate to="home" />} />
+                <Route path="home" element={<EmployeeDashboard />} />
+                <Route path="profile" element={<EmployeeProfile />} />
+                {/* <Route path="attendance" element={<Attendance />} />
+                <Route path="payslips" element={<PayslipHistory />} />
+                <Route path="leave" element={<LeaveRequest />} />
+                <Route path="notifications" element={<Notifications />} />
+                <Route path="settings" element={<Settings />} /> */}
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Route>
+
+            {/* Unauthorized Page for blocked access */}
+            <Route path="/unauthorized" element={<Unauthorized />} />
+
+            {/* Catch-all for logged-in user: show 404 */}
+            <Route path="*" element={<NotFound />} />
           </>
         ) : (
           <>
-            {/* Public Routes */}
+            {/* Public Routes (when user is not logged in) */}
             <Route path="/" element={<LandingPageMain />} />
             <Route path="/auth" element={<AuthLayout />} />
             <Route path="/login-otp" element={<SendLoginOtp />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-otp" element={<VerifyOtp />} />
+
+            {/* Unauthorized Page for public access violations */}
             <Route path="/unauthorized" element={<Unauthorized />} />
 
-            {/* Redirect all other paths to / (landing) */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* Catch-all for public users: show 404 */}
+            <Route path="*" element={<NotFound />} />
           </>
         )}
       </Routes>

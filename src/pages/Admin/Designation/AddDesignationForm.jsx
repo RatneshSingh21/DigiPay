@@ -45,7 +45,7 @@ const AddDesignationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
       onSuccess && onSuccess();
       onClose();
     } catch (error) {
-      toast.error("Error saving Designation");
+      toast.error(error?.response?.data?.message || "Error saving Designation");
       console.error(error);
     } finally {
       setLoading(false);

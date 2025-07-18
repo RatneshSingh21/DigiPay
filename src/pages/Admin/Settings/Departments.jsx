@@ -29,7 +29,7 @@ const Departments = () => {
       setDepartments(response.data || []);
     } catch (error) {
       console.error("Error fetching locations:", error);
-      toast.error("Failed to load work locations");
+      toast.error(error?.response?.data?.message || "Failed to load work locations");
     }
   };
 
@@ -39,7 +39,7 @@ const Departments = () => {
 
   return (
     <>
-      <div className="p-4 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Departments</h2>
         {departments.length > 0 && (
           <div className="flex gap-2 items-center">

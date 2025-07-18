@@ -2,7 +2,6 @@ import assets from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 
 const LandingNavbar = () => {
-
   const navigate = useNavigate();
 
   return (
@@ -22,9 +21,10 @@ const LandingNavbar = () => {
 
           {/* Buttons */}
           <div className="flex items-center space-x-4">
-            
-            <button className="bg-secondary text-white px-4 py-2 text-sm sm:text-base rounded-md hover:opacity-90 transition duration-200"
-             onClick={() => navigate("/auth")}>
+            <button
+              className="bg-[#CF6C12] text-white px-4 py-2 text-sm sm:text-base rounded-md hover:opacity-90 transition duration-200"
+              onClick={() => navigate("/auth")}
+            >
               Access DigiPay
             </button>
           </div>

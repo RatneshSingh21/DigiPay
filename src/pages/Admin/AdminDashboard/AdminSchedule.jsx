@@ -28,7 +28,7 @@ const AdminSchedule = () => {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <FaCalendarAlt className="text-primary" />
-          Your Schedule
+          To Do List
         </h3>
         <button className="text-sm text-gray-400">See all</button>
       </div>

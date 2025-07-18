@@ -46,8 +46,7 @@ const AddDepartmentForm = ({ onClose, isEdit, initialData, onSuccess }) => {
       onSuccess && onSuccess();
       onClose();
     } catch (error) {
-      toast.error("Error saving Departments");
-      console.error(error);
+      toast.error(error?.response?.data?.message || "Error saving Departments");
     } finally {
       setLoading(false);
     }

@@ -9,6 +9,7 @@ import {
 import useAuthStore from "../../../store/authStore";
 import ProfileSettingsDrawer from "../../../components/ProfileSettingsDrawer";
 import AdminSettingsDrawer from "./AdminSettingsDrawer";
+import { useNavigate } from "react-router-dom";
 
 const AdminNavbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -17,6 +18,16 @@ const AdminNavbar = () => {
   const profileRef = useRef();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
+
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    // Remove stored role info from localStorage
+    localStorage.removeItem("loginRole");
+    // Clear auth state (e.g., token, user info)
+    logout();
+    // Redirect to public landing page
+    navigate("/");
+  };
 
   // Close profile menu when clicked outside
   useEffect(() => {
@@ -93,7 +104,7 @@ const AdminNavbar = () => {
                 </button>
                 <hr className="my-1" />
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <FaSignOutAlt />
@@ -107,7 +118,7 @@ const AdminNavbar = () => {
           <button
             className="text-gray-600 hover:text-red-600"
             title="Logout"
-            onClick={logout}
+            onClick={handleLogout}
           >
             <FaLogout />
           </button>

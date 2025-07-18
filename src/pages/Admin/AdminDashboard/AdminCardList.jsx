@@ -1,22 +1,22 @@
 // components/CardList.jsx
 const cards = [
   {
-    type: "Primary",
-    bank: "Alli Bank",
+    type: "Saving",
+    bank: "SBI",
     name: "Jack Grealish",
     number: "**** 1234",
     status: "Active",
   },
   {
-    type: "Secondary",
-    bank: "Newyork Bank",
+    type: "Current",
+    bank: "Axis",
     name: "David Beckham",
     number: "**** 3344",
     status: "Inactive",
   },
   {
-    type: "Primary",
-    bank: "Brooklyn NY Bank",
+    type: "Others",
+    bank: "HDFC",
     name: "John Stones",
     number: "**** 5566",
     status: "Active",
@@ -27,17 +27,17 @@ const AdminCardList = () => {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-5">
       <div className="flex justify-between mb-4">
-        <h3 className="text-lg font-semibold">Card List</h3>
+        <h3 className="text-lg font-semibold">Bank Account Details</h3>
         <button className="text-sm text-gray-400">This Week</button>
       </div>
 
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-gray-400 border-b">
-            <th>Card Type</th>
+            <th>Account Type</th>
             <th>Bank Name</th>
             <th>Name</th>
-            <th>Card Number</th>
+            <th>Account Number</th>
             <th>Status</th>
           </tr>
         </thead>
