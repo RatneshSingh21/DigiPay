@@ -1,5 +1,5 @@
 import assets from "../../assets/assets";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const LandingNavbar = () => {
   const navigate = useNavigate();
@@ -11,12 +11,12 @@ const LandingNavbar = () => {
           {/* Logo + Brand */}
           <div className="flex items-center space-x-2">
             <img src={assets.logo} alt="DigiCode Logo" className="w-10 h-10" />
-            <a
-              href="#"
+            <Link
+              to="/"
               className="text-gray-900 text-xl sm:text-2xl font-bold hover:text-gray-700"
             >
               Digi<span className="text-secondary font-bold">Pay</span>
-            </a>
+            </Link>
           </div>
 
           {/* Buttons */}

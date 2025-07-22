@@ -29,13 +29,11 @@ const SignUpForm = ({ switchToSignIn }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate fields
     if (!formData.name || !formData.emailOrPhone || !formData.password) {
       toast.error("Please fill out all fields.");
       return;
     }
 
-    // Email or phone validation
     const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
       formData.emailOrPhone
     );
@@ -48,21 +46,24 @@ const SignUpForm = ({ switchToSignIn }) => {
       return;
     }
 
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      toast.error(
+        "Password must be at least 6 characters and include 1 uppercase letter, 1 number, and 1 special character."
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       await axiosInstance.post("/user-auth/signup", formData);
-
       toast.success("Account created! Redirecting for OTP verification...");
-
-      // Save contact info to localStorage
       localStorage.setItem("pendingContact", formData.emailOrPhone);
-
-      // Redirect to OTP page
       navigate("/verify-otp", {
         state: { emailOrPhone: formData.emailOrPhone },
       });
 
-      // Optional: clear form
       setFormData({
         name: "",
         emailOrPhone: "",

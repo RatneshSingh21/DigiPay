@@ -70,13 +70,13 @@ export default function BasicDetails({
   };
 
   const getEmployeeById = async (id) => {
-    const token = localStorage.getItem("token");
-
     try {
       const response = await axiosInstance.get(`/Employee/${id}`);
 
       if (response.status === 200) {
         const data = response.data;
+        console.log(data);
+        
 
         setFormData({
           ...formData,
@@ -100,6 +100,7 @@ export default function BasicDetails({
           workLocation: data.workLocationId
             ? { label: data.workLocationName, value: data.workLocationId }
             : null,
+          payScheduleId: data.payScheduleId || "",
         });
 
         setIsDirector(data.isDirector || false);
@@ -132,18 +133,16 @@ export default function BasicDetails({
       departmentId: formData.department?.value || null,
       designationId: formData.designation?.value || null,
       workLocationId: formData.workLocation?.value || null,
-      payScheduleId: 1,
+      payScheduleId: formData.payScheduleId || "",
       portalAccessEnabled: portalAccess,
     };
-
-    const token = localStorage.getItem("token");
 
     try {
       let response;
       if (isEdit) {
         response = await axiosInstance.put(`/Employee/${formData.id}`, payload);
       } else {
-        response = await axios.post("/Employee", payload);
+        response = await axiosInstance.post("/Employee", payload);
 
         const returnedId = response.data?.id || response.data;
         setFormData((prev) => ({ ...prev, id: returnedId }));
@@ -341,6 +340,20 @@ export default function BasicDetails({
             onChange={handleChange}
             options={department}
             allowAddOption={true}
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">
+            PayScheduleId <span className="text-red-500">*</span>
+          </label>
+          <input
+            required
+            placeholder="payscheduleId"
+            name="payScheduleId"
+            value={formData.payScheduleId || ""}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
       </div>

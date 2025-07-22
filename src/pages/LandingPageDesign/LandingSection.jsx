@@ -13,7 +13,7 @@ const LandingSection = () => {
 
   return (
     <section
-      className="py-16 mt-16 bg-no-repeat"
+      className="py-16 mt-16 bg-no-repeat bg-cover bg-center"
       style={{ backgroundImage: `url(${assets.Landingbg})` }}
     >
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-10">

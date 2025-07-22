@@ -19,7 +19,7 @@ const AddEmployeeForm = () => {
     firstName: "",
     middleName: "",
     lastName: "",
-    employeeId: "",
+    employeeId: "",    
     dateOfJoining: "",
     workEmail: "",
     mobileNumber: "",

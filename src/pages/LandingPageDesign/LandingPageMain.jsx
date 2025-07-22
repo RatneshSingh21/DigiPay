@@ -3,7 +3,7 @@ import LandingSection from './LandingSection'
 
 const LandingPageMain = () => {
   return (
-    <div>
+    <div className='h-full w-full'>
         <LandingNavbar />
         <LandingSection />
         {/* <div className="flex justify-center items-center min-h-[80vh] bg-cover bg-center">

@@ -6,11 +6,8 @@ import {
   HiOutlineMapPin,
   HiOutlineSquares2X2,
   HiOutlineIdentification,
-  HiOutlineUserGroup,
   HiOutlineBanknotes,
-  HiOutlineClipboardDocumentList,
   HiOutlineCalendarDays,
-  HiOutlineAdjustmentsVertical,
   HiOutlineCheckCircle,
 } from "react-icons/hi2";
 

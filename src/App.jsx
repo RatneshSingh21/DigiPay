@@ -46,8 +46,8 @@ import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
 import PayrollReport from "./pages/Admin/Reports/PayrollReport";
 import LeaveReport from "./pages/Admin/Reports/LeaveReport";
 import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
-import EmployeeDashboard from "./pages/EmployeePages/EmployeeDashboard";
-import EmployeeProfile from "./pages/EmployeePages/EmployeeProfile";
+import EmployeeDashboard from "./pages/EmployeePages/EmployeeDashboard/EmployeeDashboard";
+
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -168,7 +168,7 @@ const App = () => {
               >
                 <Route index element={<Navigate to="home" />} />
                 <Route path="home" element={<EmployeeDashboard />} />
-                <Route path="profile" element={<EmployeeProfile />} />
+                {/* <Route path="profile" element={<EmployeeProfile />} /> */}
                 {/* <Route path="attendance" element={<Attendance />} />
                 <Route path="payslips" element={<PayslipHistory />} />
                 <Route path="leave" element={<LeaveRequest />} />
@@ -207,3 +207,17 @@ const App = () => {
 };
 
 export default App;
+
+
+// import React from 'react'
+// import EmployeeDashboardLayout from './Layout/EmployeeDashboardLayout'
+
+// const App = () => {
+//   return (
+//     <div>
+//       <EmployeeDashboardLayout/>
+//     </div>
+//   )
+// }
+
+// export default App

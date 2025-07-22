@@ -3,6 +3,7 @@ import { RiFolderOpenFill } from "react-icons/ri";
 import { FaUsers } from "react-icons/fa6";
 import AdminSidebarItem from "./AdminSidebarItem";
 import assets from "../../../assets/assets";
+import { Link } from "react-router-dom";
 
 const menuItems = [
   {
@@ -49,9 +50,9 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
         <div className="flex items-center">
           <img src={assets.logo} alt="DigiCode Logo" className="w-8 h-8" />
           {!collapsed && (
-            <a href="#" className="text-orange-500 text-xl font-bold">
+            <Link to="/" className="text-orange-500 text-xl font-bold">
               Digi<span className="text-black">Pay</span>
-            </a>
+            </Link>
           )}
         </div>
       </div>
