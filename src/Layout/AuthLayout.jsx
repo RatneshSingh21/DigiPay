@@ -29,7 +29,7 @@ const AuthLayout = () => {
             isSignIn ? "translate-x-0" : "-translate-x-1/2"
           }`}
         >
-          {/* Sign In Panel */}
+          {/* Sign In Panel Overview */}
           <div className="flex w-1/2 h-full">
             <div className="w-1/2 flex items-center justify-center bg-white p-4">
               {role === "SuperAdmin" ? (
@@ -48,7 +48,7 @@ const AuthLayout = () => {
             </div>
           </div>
 
-          {/* Sign Up Panel */}
+          {/* Sign Up Panel Overview */}
           <div className="flex w-1/2 h-full">
             <div className="w-1/2 bg-[#fff6ef] flex flex-col justify-center items-center p-8">
               <h1 className="text-3xl font-bold mb-4">Join Us</h1>
@@ -64,7 +64,7 @@ const AuthLayout = () => {
           </div>
         </div>
 
-        {/* Mobile/Tablet Static Layout */}
+        {/* Mobile/Tablet Layout */}
         <div className="flex flex-col md:hidden w-full space-y-6 p-6">
           {isSignIn ? (
             <>

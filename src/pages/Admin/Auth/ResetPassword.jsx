@@ -33,7 +33,7 @@ const ResetPassword = () => {
     return strongRegex.test(password);
   };
 
-  // Live validation for password
+  // validation for password
   useEffect(() => {
     if (!newPassword) {
       setPasswordError("");
@@ -46,7 +46,7 @@ const ResetPassword = () => {
     }
   }, [newPassword]);
 
-  // Live validation for confirm password
+  // validation for confirm password
   useEffect(() => {
     if (!confirmPassword) {
       setConfirmError("");

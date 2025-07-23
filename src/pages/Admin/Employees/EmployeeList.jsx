@@ -4,7 +4,18 @@ import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 import { toast } from "react-toastify";
+import { format } from "date-fns";
 
+// Reusable Status Pill
+const StatusPill = ({ enabled }) => (
+  <span
+    className={`text-xs font-semibold px-2 py-1 rounded-full ${
+      enabled ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+    }`}
+  >
+    {enabled ? "Enabled" : "Disabled"}
+  </span>
+);
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
@@ -14,12 +25,12 @@ const EmployeeList = () => {
     const fetchEmployees = async () => {
       try {
         const response = await axiosInstance.get("/Employee");
-        setEmployees(response.data);
-        // console.log(response.data);
-        
+        setEmployees(response.data?.data || response.data || []);
       } catch (error) {
         console.error("Error fetching employee data:", error);
-        toast.error(error?.response?.data?.message || "Error fetching employee data:");
+        toast.error(
+          error?.response?.data?.message || "Error fetching employee data"
+        );
       } finally {
         setLoading(false);
       }
@@ -36,39 +47,40 @@ const EmployeeList = () => {
       </h2>
 
       {loading ? (
-        <div className="flex justify-center items-center h-48">
+        <div className="flex flex-col justify-center items-center h-48">
           <Spinner />
+          <p className="mt-2 text-sm text-gray-500">Loading employees...</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto border-collapse text-sm">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
-                <th className="px-4 py-2 text-left">#</th>
-                <th className="px-4 py-2 text-left">Name</th>
-                <th className="px-4 py-2 text-left">Email</th>
-                <th className="px-4 py-2 text-left">Mobile</th>
-                <th className="px-4 py-2 text-left">Code</th>
-                <th className="px-4 py-2 text-left">Gender</th>
-                <th className="px-4 py-2 text-left">Joining Date</th>
-                <th className="px-4 py-2 text-left">Director</th>
-                <th className="px-4 py-2 text-left">Portal Access</th>
+                <th scope="col" className="px-4 py-2 text-left">#</th>
+                <th scope="col" className="px-4 py-2 text-left">Name</th>
+                <th scope="col" className="px-4 py-2 text-left">Email</th>
+                <th scope="col" className="px-4 py-2 text-left">Mobile</th>
+                <th scope="col" className="px-4 py-2 text-left">Code</th>
+                <th scope="col" className="px-4 py-2 text-left">Gender</th>
+                <th scope="col" className="px-4 py-2 text-left">Joining Date</th>
+                <th scope="col" className="px-4 py-2 text-left">Director</th>
+                <th scope="col" className="px-4 py-2 text-left">Portal Access</th>
               </tr>
             </thead>
             <tbody>
               {employees.map((emp, index) => (
                 <tr
                   key={emp.id}
-                  className="border-b hover:bg-gray-50 transition-all"
+                  className={`border-b ${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition-all`}
                 >
                   <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2 font-medium">{emp.fullName}</td>
-                  <td className="px-4 py-2">{emp.workEmail}</td>
+                  <td className="px-4 py-2 font-medium truncate">{emp.fullName}</td>
+                  <td className="px-4 py-2 truncate">{emp.workEmail}</td>
                   <td className="px-4 py-2">{emp.mobileNumber}</td>
                   <td className="px-4 py-2">{emp.employeeCode}</td>
                   <td className="px-4 py-2">{emp.gender}</td>
                   <td className="px-4 py-2">
-                    {new Date(emp.dateOfJoining).toLocaleDateString()}
+                    {emp.dateOfJoining ? format(new Date(emp.dateOfJoining), "dd MMM yyyy") : "N/A"}
                   </td>
                   <td className="px-4 py-2">
                     {emp.isDirector ? (
@@ -82,15 +94,7 @@ const EmployeeList = () => {
                     )}
                   </td>
                   <td className="px-4 py-2">
-                    {emp.portalAccessEnabled ? (
-                      <span className="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-full">
-                        Enabled
-                      </span>
-                    ) : (
-                      <span className="bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded-full">
-                        Disabled
-                      </span>
-                    )}
+                    <StatusPill enabled={emp.portalAccessEnabled} />
                   </td>
                 </tr>
               ))}

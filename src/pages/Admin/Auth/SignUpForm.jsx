@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ⬅️ for redirect
+import { useNavigate } from "react-router-dom";
 import assets from "../../../assets/assets";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
@@ -7,7 +7,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Spinner from "../../../components/Spinner";
 
 const SignUpForm = ({ switchToSignIn }) => {
-  const navigate = useNavigate(); // ⬅️ initialize navigation
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -31,6 +31,12 @@ const SignUpForm = ({ switchToSignIn }) => {
 
     if (!formData.name || !formData.emailOrPhone || !formData.password) {
       toast.error("Please fill out all fields.");
+      return;
+    }
+
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!nameRegex.test(formData.name)) {
+      toast.error("Name can only contain letters and spaces.");
       return;
     }
 
@@ -133,6 +139,7 @@ const SignUpForm = ({ switchToSignIn }) => {
           onChange={handleChange}
           placeholder="you@example.com or +91 9234567890"
           required
+          autoFocus
           className="w-full px-4 py-2.5 text-sm border border-gray-300 bg-gray-50 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all"
         />
       </div>

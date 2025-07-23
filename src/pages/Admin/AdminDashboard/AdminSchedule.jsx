@@ -1,4 +1,3 @@
-// components/Schedule.jsx
 import { FaCalendarAlt, FaClock, FaUserCircle } from "react-icons/fa";
 
 const scheduleItems = [

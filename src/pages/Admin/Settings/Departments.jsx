@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { FiDownload } from "react-icons/fi";
 import AddDepartmentForm from "../Department/AddDepartmentForm";
-import ImportDepartment from "../Department/ImportDepartment";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import assets from "../../../assets/assets";
 import DepartmentList from "../Department/DepartmentList";
-import ImportDesignations from "../Designation/ImportDesignations";
+import ImportDepartments from "../Department/ImportDepartments";
 
 const Departments = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -118,7 +117,7 @@ const Departments = () => {
         />
       )}
 
-      {showImportModal && <ImportDesignations onClose={closeImport} />}
+      {showImportModal && <ImportDepartments onClose={closeImport} fetchDepartments={fetchDepartments} />}
     </>
   );
 };

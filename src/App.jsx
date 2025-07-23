@@ -47,6 +47,7 @@ import PayrollReport from "./pages/Admin/Reports/PayrollReport";
 import LeaveReport from "./pages/Admin/Reports/LeaveReport";
 import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeePages/EmployeeDashboard/EmployeeDashboard";
+import Attendance from "./pages/Admin/Settings/Attendance";
 
 
 const App = () => {
@@ -55,7 +56,8 @@ const App = () => {
   const mode = useThemeStore((state) => state.mode);
   const palette = useThemeStore((state) => state.palette);
 
-  // Apply theme mode and selected color palette to the root html element
+  const isLoading = token && !user;
+
   useEffect(() => {
     const root = document.documentElement;
     if (mode === "dark") {
@@ -64,7 +66,7 @@ const App = () => {
       root.classList.remove("dark");
     }
 
-    // Remove all possible theme color classes before adding new one
+    // Remove all theme color classes before adding new one
     root.classList.remove(
       "theme-orange",
       "theme-blue",
@@ -81,14 +83,11 @@ const App = () => {
 
   return (
     <div>
-      {/* Toast Notifications */}
       <ToastContainer position="top-right" autoClose={3000} />
 
       <Routes>
-        {/* If user is logged in, show only dashboard routes */}
         {token ? (
           <>
-            {/* Redirect "/" to the correct dashboard based on role */}
             <Route
               path="/"
               element={
@@ -143,14 +142,15 @@ const App = () => {
                   <Route path="shifts" element={<Shifts />} />
                   <Route path="designation" element={<Designation />} />
                   <Route path="salary" element={<Salary />} />
+                  <Route path="attendance"element={<Attendance/>}/>
                 </Route>
 
                 {/* Reports SubRoutes */}
                 <Route path="reports/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="attendance" />} />
-                  <Route path="attendance" element={<AttendanceReport />} />
-                  <Route path="payroll" element={<PayrollReport />} />
-                  <Route path="leave" element={<LeaveReport />} />
+                  <Route index element={<Navigate to="attendance-report" />} />
+                  <Route path="attendance-report" element={<AttendanceReport />} />
+                  <Route path="payroll-report" element={<PayrollReport />} />
+                  <Route path="leave-report" element={<LeaveReport />} />
                 </Route>
 
                 {/* Nested 404 Catcher for /admin-dashboard/* */}

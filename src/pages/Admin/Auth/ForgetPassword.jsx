@@ -30,7 +30,7 @@ const ForgetPassword = () => {
         response.data.message || "Verification code sent successfully."
       );
 
-      // ✅ Navigate to VerifyOtp with contact and flow
+      // Go to VerifyOtp with contact and flow
       navigate("/verify-otp", {
         state: {
           emailOrPhone: emailOrPhone.trim(),
@@ -56,7 +56,7 @@ const ForgetPassword = () => {
       }}
     >
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-lg p-5 text-center z-10">
-        {/* Illustration */}
+        {/* Illustration Image */}
         <img
           src={assets.ForgetImage}
           alt="Forgot Password Illustration"

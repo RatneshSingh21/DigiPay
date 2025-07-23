@@ -35,7 +35,7 @@ const WorkLocationList = ({
     try {
       await axiosInstance.delete(`/WorkLocation/${id}`);
       toast.success("Work location deleted successfully");
-      fetchLocations(); // Refresh the list
+      fetchLocations(); 
     } catch (error) {
       console.error("Error deleting location:", error);
       toast.error(error?.response?.data?.message || "Failed to delete work location");

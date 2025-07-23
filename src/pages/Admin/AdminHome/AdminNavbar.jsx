@@ -13,8 +13,8 @@ import { useNavigate } from "react-router-dom";
 
 const AdminNavbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [profileDrawerOpen, setProfileDrawerOpen] = useState(false); // ✅ for profile
-  const [adminDrawerOpen, setAdminDrawerOpen] = useState(false); // ✅ for admin settings
+  const [profileDrawerOpen, setProfileDrawerOpen] = useState(false); // profile
+  const [adminDrawerOpen, setAdminDrawerOpen] = useState(false); // for admin settings
   const profileRef = useRef();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
@@ -44,7 +44,6 @@ const AdminNavbar = () => {
     <>
       {/* Navbar */}
       <nav className="sticky top-0 w-full h-14 bg-white shadow-sm z-20 flex items-center justify-between px-4 md:px-6">
-        {/* Left Section */}
         <div className="flex items-center gap-2">
           <div className="flex flex-col leading-tight">
             <span className="font-bold text-sm">Digi Payroll</span>
@@ -54,9 +53,8 @@ const AdminNavbar = () => {
           </div>
         </div>
 
-        {/* Right Section */}
         <div className="flex items-center gap-4">
-          {/* Trial Warning */}
+          {/* Warning for trial */}
           <div className="text-xs text-red-600 hidden md:block">
             Your 7-day free trial ends in 2 days.{" "}
             <button className="text-blue-600 hover:underline">Upgrade</button>
@@ -68,7 +66,7 @@ const AdminNavbar = () => {
             <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full animate-ping" />
           </button>
 
-          {/* Settings Cog Icon (optional) */}
+          {/* Settings Icon */}
           <button
             className="text-gray-600 hover:text-black"
             onClick={() => setAdminDrawerOpen(true)}
@@ -96,7 +94,7 @@ const AdminNavbar = () => {
                 <button
                   className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
                   onClick={() => {
-                    setProfileDrawerOpen(true); // ✅ now opens profile drawer
+                    setProfileDrawerOpen(true); // now opens profile drawer
                     setProfileMenuOpen(false);
                   }}
                 >

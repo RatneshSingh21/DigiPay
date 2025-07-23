@@ -1,4 +1,3 @@
-// components/CardList.jsx
 const cards = [
   {
     type: "Saving",

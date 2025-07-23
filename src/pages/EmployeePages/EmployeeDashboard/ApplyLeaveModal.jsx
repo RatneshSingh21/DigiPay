@@ -1,5 +1,3 @@
-// src/components/Employee/ApplyLeaveModal.jsx
-
 import { Dialog } from "@headlessui/react";
 import { useState } from "react";
 import { X } from "lucide-react";
@@ -9,7 +7,6 @@ const ApplyLeaveModal = ({ isOpen, onClose, selectedDate }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Connect to API
     alert(`Leave requested for ${selectedDate}\nReason: ${reason}`);
     onClose();
     setReason("");

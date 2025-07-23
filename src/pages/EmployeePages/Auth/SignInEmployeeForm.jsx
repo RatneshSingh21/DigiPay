@@ -7,7 +7,7 @@ import useAuthStore from "../../../store/authStore";
 import Spinner from "../../../components/Spinner";
 
 export default function SignInEmployeeForm() {
-  const navigate = useNavigate(); // for redirecting after login
+  const navigate = useNavigate(); 
 
   const [formData, setFormData] = useState({
     workEmail: "",
@@ -43,8 +43,7 @@ export default function SignInEmployeeForm() {
       const { user, token, refreshToken } = response.data;
       useAuthStore.getState().login(user, token, refreshToken);
       toast.success("Login successful!");
-      // Redirect user or update UI
-      window.location.href = "/"; // or use useNavigate()
+      window.location.href = "/";
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed.");
     } finally {
@@ -64,7 +63,6 @@ export default function SignInEmployeeForm() {
         </span>
       </h2>
 
-      {/* Email / Phone */}
       <div className="mb-4">
         <label className="block mb-1 text-sm font-medium text-gray-700">
           Email
@@ -81,7 +79,6 @@ export default function SignInEmployeeForm() {
         />
       </div>
 
-      {/* Password */}
       <div className="mb-4 relative">
         <label className="block mb-1 text-sm font-medium text-gray-700">
           Password
@@ -104,7 +101,6 @@ export default function SignInEmployeeForm() {
         </button>
       </div>
 
-      {/* Login Button */}
       <button
         type="submit"
         disabled={loading}
@@ -117,7 +113,6 @@ export default function SignInEmployeeForm() {
         {loading ? <Spinner /> : "Login"}
       </button>
 
-      {/* Extra links */}
       <div className="flex justify-between text-xs text-orange-500 font-semibold mt-3">
         <button
           type="button"

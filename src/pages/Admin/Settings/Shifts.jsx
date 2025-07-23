@@ -1,5 +1,3 @@
-// Required libraries: react, react-select, tailwindcss
-
 import { useState, useEffect } from "react";
 import Select from "react-select";
 import { FiDownload, FiTrash } from "react-icons/fi";

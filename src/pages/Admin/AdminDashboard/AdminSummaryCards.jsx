@@ -1,4 +1,3 @@
-// components/SummaryCards.jsx
 import {
   FaUserFriends,
   FaMoneyCheckAlt,

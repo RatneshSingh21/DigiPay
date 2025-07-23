@@ -17,7 +17,6 @@ const LandingSection = () => {
       style={{ backgroundImage: `url(${assets.Landingbg})` }}
     >
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-10">
-        {/* Left Text Section */}
         <div className="md:w-1/2 text-center md:text-left">
           <p className="text-lg text-gray-900 font-medium mb-2">
             Payroll Software
@@ -60,7 +59,6 @@ const LandingSection = () => {
           </div>
         </div>
 
-        {/* Right Image Section */}
         <div className="md:w-1/2 flex justify-center">
           <img
             src={assets.LoginImage}

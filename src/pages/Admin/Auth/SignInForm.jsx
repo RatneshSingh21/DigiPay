@@ -45,7 +45,7 @@ export default function SignInForm({ switchToSignUp }) {
       useAuthStore.getState().login(user, token, refreshToken);
       toast.success("Login successful!");
       // Redirect user or update UI
-      window.location.href = "/"; // or use useNavigate()
+      window.location.href = "/"; 
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed.");
     } finally {

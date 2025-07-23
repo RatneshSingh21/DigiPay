@@ -44,7 +44,6 @@ const AttendanceReport = () => {
     const file = e.target.files[0];
     if (file) {
       setUploadedFile(file);
-      // You can add upload logic here (e.g., upload to server)
       console.log("Selected file:", file.name);
     }
   };

@@ -60,7 +60,6 @@ const AddEmployeeForm = () => {
 
   return (
     <div className="bg-white">
-      {/* Header */}
       <div className="flex justify-between items-center border-b p-4">
         <div className="flex items-center gap-3">
           <button
@@ -123,7 +122,6 @@ const AddEmployeeForm = () => {
           )}
         </div>
 
-        {/* Preview modal */}
         <PreviewModal
           visible={previewStep !== null}
           onClose={() => setPreviewStep(null)}

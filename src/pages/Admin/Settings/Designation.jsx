@@ -118,7 +118,7 @@ const Designation = () => {
         />
       )}
 
-      {showImportModal && <ImportDesignations onClose={closeImport} />}
+      {showImportModal && <ImportDesignations onClose={closeImport} fetchDesignations={fetchDesignations} />}
     </>
   );
 };

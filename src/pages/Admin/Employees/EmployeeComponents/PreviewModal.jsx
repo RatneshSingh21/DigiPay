@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 export default function PreviewModal({ visible, onClose, title, data, step }) {
   if (!visible) return null;
 
-  // Prepare display lines based on step
   let lines = [];
   if (step === "basic") {
     lines = [

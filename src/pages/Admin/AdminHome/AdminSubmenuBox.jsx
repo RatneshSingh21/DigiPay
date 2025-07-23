@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 
 // Icons
-import { FaUserPlus, FaList, FaUsers, FaBuilding } from "react-icons/fa";
+import { FaUserPlus, FaList, FaUsers, FaBuilding, FaUserCheck } from "react-icons/fa";
 import { MdOutlineCorporateFare } from "react-icons/md";
 import { GoLocation } from "react-icons/go";
 import { RiShieldKeyholeLine } from "react-icons/ri";
@@ -24,9 +24,10 @@ const labelToPath = {
   "Shifts": "shifts",
   "Designation": "designation",
   "Salary": "salary",
-  "Attendance Report": "attendance",
-  "Payroll Report": "payroll",
-  "Leave Report": "leave",
+  "Attendance Report": "attendance-report",
+  "Payroll Report": "payroll-report",
+  "Leave Report": "leave-report",
+  "Attendance": "attendance",
 };
 
 // Label to icon mapping
@@ -45,6 +46,7 @@ const labelToIcon = {
   "Attendance Report": <FaCalendarCheck className="mr-2" />,
   "Payroll Report": <FaMoneyCheckAlt className="mr-2" />,
   "Leave Report": <FaCalendarTimes className="mr-2" />,
+  "Attendance": <FaUserCheck className="mr-2" />,
 };
 
 const AdminSubmenuBox = ({ items, selectedMenu }) => {

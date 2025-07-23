@@ -1,4 +1,3 @@
-// components/Attendance.jsx
 import { useState } from "react";
 import { FaClock } from "react-icons/fa";
 

@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
-import * as XLSX from "xlsx";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 
-const ImportDesignations = ({ onClose , fetchDesignations }) => {
+const ImportDepartments = ({ onClose, fetchDepartments = () => {} }) => {
   const [fileName, setFileName] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -57,53 +56,42 @@ const ImportDesignations = ({ onClose , fetchDesignations }) => {
 
     setLoading(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const parsedData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      const formData = new FormData();
+      formData.append("file", selectedFile);
 
-        const jsonData = parsedData.map((row) => ({
-          title: row.title || row.Title || row.designation || "",
-          level: row.level || row.Level || "",
-        }));
+      const response = await axiosInstance.post("/Department/import", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-        const response = await axiosInstance.post("/Designation/import", jsonData);
-        if (response.status === 200 || response.status === 201) {
-          toast.success("Designations imported successfully!");
-          setFileName(null);
-          setSelectedFile(null);
-          fetchDesignations();
-          onClose();
-        } else {
-          toast.error("Import failed!");
-        }
-      };
-
-      reader.onerror = () => {
-        toast.error("Error reading the file");
-        setLoading(false);
-      };
-
-      reader.readAsArrayBuffer(selectedFile);
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Departments imported successfully!");
+        setFileName(null);
+        setSelectedFile(null);
+        fetchDepartments();
+        onClose();
+      } else {
+        toast.error("Import failed!");
+      }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong!");
+      toast.error("Something went wrong during import.");
+    } finally {
       setLoading(false);
     }
   };
 
   const handleDownloadSample = async () => {
     try {
-      const response = await axiosInstance.get("/Designation/export", {
+      const response = await axiosInstance.get("/Department/export", {
         responseType: "blob",
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "Designations.xlsx");
+      link.setAttribute("download", "Departments.xlsx");
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -127,7 +115,7 @@ const ImportDesignations = ({ onClose , fetchDesignations }) => {
         </button>
 
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          Designations - Upload Excel File
+          Departments - Upload Excel File
         </h2>
 
         <p className="text-gray-700 mb-6">
@@ -196,4 +184,4 @@ const ImportDesignations = ({ onClose , fetchDesignations }) => {
   );
 };
 
-export default ImportDesignations;
+export default ImportDepartments;

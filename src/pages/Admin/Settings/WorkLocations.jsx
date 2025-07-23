@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import WorkLocationForm from "../WorkLocation/WorkLocationForm";
-import ImportDesignations from "../Designation/ImportDesignations";
 import WorkLocationList from "../WorkLocation/WorkLocationList";
 import assets from "../../../assets/assets";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { FiDownload } from "react-icons/fi";
+import ImportWorkLocations from "../WorkLocation/ImportWorkLocations";
 
 const WorkLocations = () => {
   const [showAddModel, setShowAddModel] = useState(false);
@@ -65,7 +65,6 @@ const WorkLocations = () => {
       </div>
 
       {locations.length === 0 ? (
-        // Show Empty Illustration
         <div className="flex flex-col items-center justify-center bg-white px-4 py-16 mb-2">
           <img
             src={assets.WorkLocationIllustration}
@@ -100,7 +99,6 @@ const WorkLocations = () => {
           </div>
         </div>
       ) : (
-        // Show Work Location List and pass modal control props
         <WorkLocationList
           locations={locations}
           fetchLocations={fetchLocations}
@@ -110,7 +108,6 @@ const WorkLocations = () => {
         />
       )}
       
-      {/* Modals */}
       {showAddModel && (
         <WorkLocationForm
           onClose={closeModal}
@@ -119,7 +116,7 @@ const WorkLocations = () => {
           onSuccess={fetchLocations}
         />
       )}
-      {showImportModal && <ImportDesignations onClose={closeImport} />}
+      {showImportModal && <ImportWorkLocations onClose={closeImport} fetchLocations={fetchLocations} />}
     </>
   );
 };
