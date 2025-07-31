@@ -50,6 +50,7 @@ import EmployeeDashboard from "./pages/EmployeePages/EmployeeDashboard/EmployeeD
 import Attendance from "./pages/Admin/Settings/Attendance";
 
 
+
 const App = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
@@ -211,11 +212,12 @@ export default App;
 
 // import React from 'react'
 // import EmployeeDashboardLayout from './Layout/EmployeeDashboardLayout'
+// import SalaryDetails from './pages/Admin/Employees/EmployeeSteps/SalaryDetails'
 
 // const App = () => {
 //   return (
 //     <div>
-//       <EmployeeDashboardLayout/>
+//       <SalaryDetails/>
 //     </div>
 //   )
 // }

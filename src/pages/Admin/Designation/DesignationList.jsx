@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
+import ConfirmModal from "../../../components/ConfirmModal";
 
 const DesignationList = ({
   designations = [],
@@ -10,17 +11,20 @@ const DesignationList = ({
   setSelectedDesignation,
   openModal,
 }) => {
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this designation?"))
-      return;
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
+  const handleDelete = async (id) => {
     try {
       await axiosInstance.delete(`/Designation/${id}`);
       toast.success("Designation deleted successfully");
       fetchDesignations();
     } catch (error) {
       console.error("Error deleting designation:", error);
-      toast.error(error?.response?.data?.message || "Failed to delete designation");
+      toast.error(
+        error?.response?.data?.message || "Failed to delete designation"
+      );
+    } finally {
+      setConfirmDeleteId(null);
     }
   };
 
@@ -33,7 +37,7 @@ const DesignationList = ({
           <table className="min-w-full table-auto border border-gray-200 rounded-md overflow-hidden">
             <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
               <tr>
-                <th className="px-6 py-3 text-left">#</th>
+                <th className="px-6 py-3 text-left">Id</th>
                 <th className="px-6 py-3 text-left">Designation Name</th>
                 <th className="px-6 py-3 text-left">Level</th>
                 <th className="px-6 py-3 text-center">Actions</th>
@@ -45,7 +49,7 @@ const DesignationList = ({
                   key={desig.id}
                   className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
                 >
-                  <td className="px-6 py-4">{index + 1}</td>
+                  <td className="px-6 py-4">{desig.id}</td>
                   <td className="px-6 py-4 font-medium">{desig.title}</td>
                   <td className="px-6 py-4 text-gray-600">
                     {desig.level || "No Level"}
@@ -65,7 +69,7 @@ const DesignationList = ({
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(desig.id)}
+                        onClick={() => setConfirmDeleteId(desig.id)}
                         className="flex items-center gap-1 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 text-sm font-medium rounded-md transition duration-200"
                         title="Delete"
                       >
@@ -79,6 +83,15 @@ const DesignationList = ({
             </tbody>
           </table>
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmModal
+          title="Delete?"
+          message="Are you sure you want to delete? This action cannot be undone."
+          onCancel={() => setConfirmDeleteId(null)}
+          onConfirm={() => handleDelete(confirmDeleteId)}
+        />
       )}
     </div>
   );

@@ -5,6 +5,7 @@ import { FaUsers } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
+import ConfirmModal from "../../../components/ConfirmModal";
 
 const WorkLocationList = ({
   locations = [],
@@ -14,6 +15,7 @@ const WorkLocationList = ({
   openModal,
 }) => {
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -29,16 +31,18 @@ const WorkLocationList = ({
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this location?"))
-      return;
-
     try {
       await axiosInstance.delete(`/WorkLocation/${id}`);
       toast.success("Work location deleted successfully");
-      fetchLocations(); 
+      fetchLocations();
     } catch (error) {
       console.error("Error deleting location:", error);
-      toast.error(error?.response?.data?.message || "Failed to delete work location");
+      toast.error(
+        error?.response?.data?.message || "Failed to delete work location"
+      );
+    }
+    finally {
+      setConfirmDeleteId(null);
     }
   };
 
@@ -47,7 +51,7 @@ const WorkLocationList = ({
   };
 
   return (
-    <div className="bg-white p-6">
+    <div className="bg-white p-6 pt-0">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {locations.length === 0 ? (
           <p className="text-gray-500">No locations found.</p>
@@ -87,7 +91,7 @@ const WorkLocationList = ({
                     {activeDropdown === location.id && (
                       <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-10">
                         <button
-                          onClick={() => handleDelete(location.id)}
+                         onClick={() => setConfirmDeleteId(location.id)}
                           className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           Delete
@@ -121,6 +125,15 @@ const WorkLocationList = ({
           ))
         )}
       </div>
+
+      {confirmDeleteId && (
+        <ConfirmModal
+          title="Delete?"
+          message="Are you sure you want to delete? This action cannot be undone."
+          onCancel={() => setConfirmDeleteId(null)}
+          onConfirm={() => handleDelete(confirmDeleteId)}
+        />
+      )}
     </div>
   );
 };

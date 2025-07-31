@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 import Select from "react-select";
+import ConfirmModal from "../../../components/ConfirmModal";
 
 const SalaryConfig = () => {
   const user = useAuthStore((state) => state.user);
@@ -17,6 +18,7 @@ const SalaryConfig = () => {
     fixedAmount: "",
   });
   const [editId, setEditId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const calculationTypeOptions = [
     { label: "Percentage", value: 1 },
@@ -121,21 +123,20 @@ const SalaryConfig = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this component?"))
-      return;
-
     try {
       await axiosInstance.delete(`/OrgComponentConfig/${id}`);
       toast.success("Component deleted successfully.");
       fetchConfigs();
     } catch (err) {
       console.error("Delete error", err);
-      toast.error("Error deleting component.");
+      toast.error(err?.response?.data?.message || "Error deleting component.");
+    } finally {
+      setConfirmDeleteId(null);
     }
   };
 
   return (
-    <div className="p-4">
+    <div className="p-8">
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 rounded shadow"
@@ -150,6 +151,7 @@ const SalaryConfig = () => {
             }
             placeholder="Select Component"
             isSearchable
+            autoFocus
           />
         </div>
 
@@ -190,6 +192,7 @@ const SalaryConfig = () => {
                 setFormData({ ...formData, fixedAmount: e.target.value })
               }
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter Amount"
               required
             />
           </div>
@@ -275,7 +278,8 @@ const SalaryConfig = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(item.componentConfigId)}
+                      type="button"
+                      onClick={() => setConfirmDeleteId(item.componentConfigId)}
                       className="text-red-600 hover:underline"
                     >
                       Delete
@@ -287,6 +291,14 @@ const SalaryConfig = () => {
           </tbody>
         </table>
       </div>
+      {confirmDeleteId && (
+        <ConfirmModal
+          title="Delete?"
+          message="Are you sure you want to delete? This action cannot be undone."
+          onCancel={() => setConfirmDeleteId(null)}
+          onConfirm={() => handleDelete(confirmDeleteId)}
+        />
+      )}
     </div>
   );
 };

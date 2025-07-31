@@ -1,151 +1,247 @@
-export default function PersonalDetails({
-  onNext,
-  onBack,
-  formData,
-  setFormData,
-}) {
+import { useEffect, useState } from "react";
+import Select from "react-select";
+
+const differentlyAbledOptions = [
+  { label: "None", value: "" },
+  { label: "Visually Impaired", value: "Visually Impaired" },
+  { label: "Hearing Impaired", value: "Hearing Impaired" },
+  { label: "Locomotor Disability", value: "Locomotor Disability" },
+  { label: "Other", value: "Other" },
+];
+
+const indianStates = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Lakshadweep",
+  "Puducherry",
+];
+
+const stateOptions = indianStates.map((state) => ({
+  label: state,
+  value: state,
+}));
+
+const PersonalDetails = ({
+  data = {},
+  updateData = () => {},
+  goNext = () => {},
+}) => {
+  const [form, setForm] = useState(data.personalDetails || {});
+
+  useEffect(() => {
+    setForm(data.personalDetails || {});
+  }, [data]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (selectedOption, { name }) => {
+    setForm((prev) => ({ ...prev, [name]: selectedOption?.value || "" }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    updateData("personalDetails", form);
+    goNext();
   };
 
   return (
     <form
-      className="grid grid-cols-2 gap-4 text-sm"
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={handleSubmit}
+      className="px-12 py-8 bg-white shadow-xl rounded-2xl space-y-6"
     >
-      <div>
-        <label>
-          Date of Birth <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="date"
-          name="dob"
-          value={formData.dob || ""}
-          onChange={handleChange}
-          className="border px-2 py-1 rounded w-full"
-        />
-      </div>
+      <h2 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">
+        Personal Information
+      </h2>
 
-      <div>
-        <label>Age</label>
-        <input
-          name="age"
-          value={formData.age || ""}
-          onChange={handleChange}
-          className="border px-2 py-1 rounded w-full"
-        />
-      </div>
-
-      <div>
-        <label>
-          Father’s Name <span className="text-red-500">*</span>
-        </label>
-        <input
-          name="fatherName"
-          value={formData.fatherName || ""}
-          onChange={handleChange}
-          className="border px-2 py-1 rounded w-full"
-        />
-      </div>
-
-      <div>
-        <label>PAN</label>
-        <input
-          name="pan"
-          placeholder="AAAAA0000A"
-          value={formData.pan || ""}
-          onChange={handleChange}
-          className="border px-2 py-1 rounded w-full"
-        />
-      </div>
-
-      <div>
-        <label>Differently Abled Type</label>
-        <select
-          name="abledType"
-          value={formData.abledType || ""}
-          onChange={handleChange}
-          className="border px-2 py-1 rounded w-full"
-        >
-          <option value="">None</option>
-          <option value="Hearing">Hearing Impaired</option>
-          <option value="Vision">Visually Impaired</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Personal Email</label>
-        <input
-          name="email"
-          type="email"
-          value={formData.email || ""}
-          onChange={handleChange}
-          className="border px-2 py-1 rounded w-full"
-        />
-      </div>
-
-      <div className="col-span-2">
-        <label>Residential Address</label>
-        <input
-          name="address1"
-          placeholder="Address Line 1"
-          value={formData.address1 || ""}
-          onChange={handleChange}
-          className="border w-full px-2 py-1 rounded mb-2"
-        />
-        <input
-          name="address2"
-          placeholder="Address Line 2"
-          value={formData.address2 || ""}
-          onChange={handleChange}
-          className="border w-full px-2 py-1 rounded mb-2"
-        />
-        <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Father's Name */}
+        <div>
+          <label className="block text-sm font-medium">Father's Name</label>
           <input
-            name="city"
-            placeholder="City"
-            value={formData.city || ""}
+            type="text"
+            name="fatherName"
+            value={form.fatherName || ""}
             onChange={handleChange}
-            className="border px-2 py-1 rounded"
+            placeholder="Enter Father's Name"
+            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
+        </div>
+
+        {/* Date of Birth */}
+        <div>
+          <label className="block text-sm font-medium">Employee Date of Birth</label>
           <input
+            type="date"
+            name="dateOfBirth"
+            value={form.dateOfBirth || ""}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        {/* PAN */}
+        <div>
+          <label className="block text-sm font-medium">PAN Number</label>
+          <input
+            type="text"
+            name="pan"
+            value={form.pan || ""}
+            onChange={handleChange}
+            placeholder="ABCDE1234F"
+            maxLength={10}
+            className="w-full px-4 py-2 uppercase border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        {/* Personal Email */}
+        <div>
+          <label className="block text-sm font-medium">Personal Email</label>
+          <input
+            type="email"
+            name="personalEmailAddress"
+            value={form.personalEmailAddress || ""}
+            onChange={handleChange}
+            placeholder="Enter email"
+            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        {/* Differently Abled Type */}
+        <div>
+          <label className="block text-sm font-medium">
+            Differently Abled Type
+          </label>
+          <Select
+            name="differentlyAbledType"
+            value={
+              differentlyAbledOptions.find(
+                (opt) => opt.value === form.differentlyAbledType
+              ) || null
+            }
+            onChange={handleSelectChange}
+            options={differentlyAbledOptions}
+            isClearable
+            className="react-select-container"
+            classNamePrefix="select"
+          />
+        </div>
+
+        {/* Pincode */}
+        <div>
+          <label className="block text-sm font-medium">Pin Code</label>
+          <input
+            type="text"
+            name="pinCode"
+            value={form.pinCode || ""}
+            onChange={handleChange}
+            placeholder="110001"
+            maxLength={6}
+            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        {/* State */}
+        <div>
+          <label className="block text-sm font-medium">State</label>
+          <Select
             name="state"
-            placeholder="State"
-            value={formData.state || ""}
-            onChange={handleChange}
-            className="border px-2 py-1 rounded"
+            value={stateOptions.find((opt) => opt.value === form.state) || null}
+            onChange={handleSelectChange}
+            options={stateOptions}
+            isClearable
+            className="react-select-container"
+            classNamePrefix="select"
           />
+        </div>
+
+        {/* City */}
+        <div>
+          <label className="block text-sm font-medium">City</label>
           <input
-            name="pin"
-            placeholder="PIN Code"
-            value={formData.pin || ""}
+            type="text"
+            name="city"
+            value={form.city || ""}
             onChange={handleChange}
-            className="border px-2 py-1 rounded"
+            placeholder="Enter city"
+            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
       </div>
 
-      <div className="col-span-2 mt-6 flex gap-4">
-        <button
-          type="button"
-          onClick={onBack}
-          className="border px-4 py-2 rounded"
-        >
-          Back
-        </button>
+      {/* Address */}
 
+      {/* Address Line 1 & 2 in the same row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium">Address Line 1</label>
+          <input
+            type="text"
+            name="addressLine1"
+            value={form.addressLine1 || ""}
+            onChange={handleChange}
+            placeholder="House No, Street"
+            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Address Line 2</label>
+          <input
+            type="text"
+            name="addressLine2"
+            value={form.addressLine2 || ""}
+            onChange={handleChange}
+            placeholder="Locality, Landmark"
+            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+      </div>
+
+      {/* Submit */}
+      <div className="flex justify-between mt-6">
         <button
-          type="button"
-          onClick={onNext}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          type="submit"
+          className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded"
         >
           Save and Continue
-        </button>
-
-        <button type="button" className="border px-4 py-2 rounded">
-          Skip
         </button>
       </div>
     </form>
   );
-}
+};
+
+export default PersonalDetails;

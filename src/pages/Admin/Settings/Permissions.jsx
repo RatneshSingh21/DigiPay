@@ -121,10 +121,11 @@ const Permissions = () => {
         <input
           type="number"
           placeholder="Enter Admin ID"
-          className="border px-3 py-2 rounded-md w-60"
+          className="w-60 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={adminUserId}
           onChange={(e) => setAdminUserId(e.target.value)}
           disabled={saving}
+          autoFocus
         />
       </div>
 

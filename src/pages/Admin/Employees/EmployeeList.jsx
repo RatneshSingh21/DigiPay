@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { FiUsers } from "react-icons/fi";
+import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiDownload, FiUsers } from "react-icons/fi";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import Select from "react-select";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
+
+import assets from "../../../assets/assets";
 
 // Reusable Status Pill
 const StatusPill = ({ enabled }) => (
@@ -16,16 +20,57 @@ const StatusPill = ({ enabled }) => (
     {enabled ? "Enabled" : "Disabled"}
   </span>
 );
+// Reusable custmized select lable and value
+const createSelectValue = (id, dataArray, labelKey = "name") => {
+  const matched = dataArray.find((item) => item.id === Number(id));
+  return matched
+    ? { label: matched[labelKey], value: matched.id }
+    : { label: "Deleted", value: Number(id) };
+};
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [designations, setDesignations] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchLookups = async () => {
+      try {
+        const [deptRes, desigRes, locRes] = await Promise.all([
+          axiosInstance.get("/Department"),
+          axiosInstance.get("/Designation"),
+          axiosInstance.get("/WorkLocation"),
+        ]);
+        setDepartments(deptRes.data || []);
+        setDesignations(desigRes.data || []);
+        setLocations(locRes.data || []);
+      } catch (err) {
+        console.error("Error fetching lookup data", err);
+      }
+    };
+
+    fetchLookups();
+  }, []);
+
+  const [filters, setFilters] = useState({
+    location: "",
+    department: "",
+    designation: "",
+  });
+
+  const openImport = () => setShowImportModal(true);
+  const closeImport = () => setShowImportModal(false);
 
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const response = await axiosInstance.get("/Employee");
         setEmployees(response.data?.data || response.data || []);
+        // console.log(response.data);
       } catch (error) {
         console.error("Error fetching employee data:", error);
         toast.error(
@@ -39,71 +84,294 @@ const EmployeeList = () => {
     fetchEmployees();
   }, []);
 
-  return (
-    <div className="p-4 bg-white shadow rounded-xl">
-      <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-        <FiUsers className="text-primary" />
-        Employee List
-      </h2>
+  const filteredEmployees = employees.filter((emp) => {
+    const { location, department, designation } = filters;
+    return (
+      (!location || emp.workLocationId === Number(location)) &&
+      (!department || emp.departmentId === Number(department)) &&
+      (!designation || emp.designationId === Number(designation))
+    );
+  });
 
+  const getDepartmentName = (id) =>
+    departments.find((d) => d.id === id)?.name || "Deleted";
+
+  const getDesignationTitle = (id) =>
+    designations.find((d) => d.id === id)?.title || "Deleted";
+
+  const getLocationName = (id) =>
+    locations.find((l) => l.id === id)?.name || "Deleted";
+
+  return (
+    <div className="bg-white shadow rounded-xl">
+      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+        <h2 className="font-semibold text-xl  flex items-center gap-2">
+          <FiUsers className="text-primary" /> Employees List
+        </h2>
+        {employees.length > 0 && (
+          <div className="flex gap-2 items-center">
+            <button
+              className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
+              onClick={() => navigate("/admin-dashboard/employees/add")}
+            >
+              Add Employee
+            </button>
+            <button
+              className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
+              onClick={openImport}
+            >
+              <FiDownload />
+              Import
+            </button>
+          </div>
+        )}
+      </div>
       {loading ? (
-        <div className="flex flex-col justify-center items-center h-48">
+        <div className="flex justify-center py-20">
           <Spinner />
-          <p className="mt-2 text-sm text-gray-500">Loading employees...</p>
+        </div>
+      ) : employees.length > 0 ? (
+        <div className="px-4 mt-4">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4 mb-4">
+            <div className="min-w-[200px]">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Work Location
+              </label>
+              <Select
+                options={locations.map((l) => ({ label: l.name, value: l.id }))}
+                value={
+                  filters.location
+                    ? createSelectValue(filters.location, locations)
+                    : null
+                }
+                onChange={(selected) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    location: selected?.value || "",
+                  }))
+                }
+                isClearable
+                menuPortalTarget={document.body}
+                styles={{
+                  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                }}
+                autoFocus
+              />
+            </div>
+
+            <div className="min-w-[200px]">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Department
+              </label>
+              <Select
+                options={departments.map((d) => ({
+                  label: d.name,
+                  value: d.id,
+                }))}
+                value={
+                  filters.department
+                    ? createSelectValue(filters.department, departments)
+                    : null
+                }
+                onChange={(selected) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    department: selected?.value || "",
+                  }))
+                }
+                isClearable
+                menuPortalTarget={document.body}
+                styles={{
+                  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                }}
+              />
+            </div>
+
+            <div className="min-w-[200px]">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Designation
+              </label>
+              <Select
+                options={designations.map((d) => ({
+                  label: d.title,
+                  value: d.id,
+                }))}
+                value={
+                  filters.designation
+                    ? createSelectValue(
+                        filters.designation,
+                        designations,
+                        "title"
+                      )
+                    : null
+                }
+                onChange={(selected) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    designation: selected?.value || "",
+                  }))
+                }
+                isClearable
+                menuPortalTarget={document.body}
+                styles={{
+                  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                }}
+              />
+            </div>
+            {Object.values(filters).some((val) => val) && (
+              <div className="flex items-end">
+                <button
+                  onClick={() =>
+                    setFilters({
+                      location: "",
+                      department: "",
+                      designation: "",
+                    })
+                  }
+                  className="text-sm px-4 py-2 rounded-md border border-gray-300 bg-gray-50 hover:bg-gray-100 text-gray-700 transition"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Employee Table */}
+
+          {filteredEmployees.length > 0 ? (
+            <div className="border max-w-5xl border-gray-200 rounded-lg overflow-x-scroll max-h-[65vh]">
+              <table className="text-sm w-full">
+                <thead className="bg-gray-100 text-gray-700 sticky top-0 z-20">
+                  <tr className="text-center">
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      EmpCode
+                    </th>
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      EmpName
+                    </th>
+                    <th scope="col" className="px-4 py-2  bg-gray-100">
+                      WorkEmail
+                    </th>
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      Department
+                    </th>
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      Designation
+                    </th>
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      Work Location
+                    </th>
+
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      Gender
+                    </th>
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      Mobile
+                    </th>
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      Joining Date
+                    </th>
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      Director
+                    </th>
+                    <th scope="col" className="px-4 py-2 bg-gray-100">
+                      Portal Access
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEmployees.map((emp, index) => (
+                    <tr
+                      key={emp.id}
+                      className={`border-b text-center ${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      } hover:bg-gray-100 transition-all`}
+                    >
+                      <td className="px-4 py-2">{emp.employeeCode}</td>
+                      <td className="py-3 px-4 flex items-center gap-3">
+                        <img
+                          src={
+                            emp.profilePic
+                              ? emp.profilePic
+                              : `https://i.pravatar.cc/150?u=${
+                                  emp.id || emp.workEmail
+                                }`
+                          }
+                          alt={emp.fullName}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+
+                        <div className="font-medium text-gray-800">
+                          {emp.fullName}
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-2 truncate">{emp.workEmail}</td>
+                      <td>{getDepartmentName(emp.departmentId)}</td>
+                      <td>{getDesignationTitle(emp.designationId)}</td>
+                      <td>{getLocationName(emp.workLocationId)}</td>
+
+                      <td className="px-4 py-2">{emp.gender}</td>
+                      <td className="px-4 py-2">{emp.mobileNumber}</td>
+                      <td className="px-4 py-2">
+                        {emp.dateOfJoining
+                          ? format(new Date(emp.dateOfJoining), "dd MMM yyyy")
+                          : "N/A"}
+                      </td>
+                      <td className="px-4 py-2">
+                        {emp.isDirector ? (
+                          <span className="text-green-600 font-bold flex items-center gap-1">
+                            <FaCheckCircle /> Yes
+                          </span>
+                        ) : (
+                          <span className="text-gray-500 flex items-center gap-1">
+                            <FaTimesCircle /> No
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2">
+                        <StatusPill enabled={emp.portalAccessEnabled} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 mt-4">
+              No employees match the filters.
+            </p>
+          )}
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border-collapse text-sm">
-            <thead className="bg-gray-100 text-gray-700">
-              <tr>
-                <th scope="col" className="px-4 py-2 text-left">#</th>
-                <th scope="col" className="px-4 py-2 text-left">Name</th>
-                <th scope="col" className="px-4 py-2 text-left">Email</th>
-                <th scope="col" className="px-4 py-2 text-left">Mobile</th>
-                <th scope="col" className="px-4 py-2 text-left">Code</th>
-                <th scope="col" className="px-4 py-2 text-left">Gender</th>
-                <th scope="col" className="px-4 py-2 text-left">Joining Date</th>
-                <th scope="col" className="px-4 py-2 text-left">Director</th>
-                <th scope="col" className="px-4 py-2 text-left">Portal Access</th>
-              </tr>
-            </thead>
-            <tbody>
-              {employees.map((emp, index) => (
-                <tr
-                  key={emp.id}
-                  className={`border-b ${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition-all`}
-                >
-                  <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2 font-medium truncate">{emp.fullName}</td>
-                  <td className="px-4 py-2 truncate">{emp.workEmail}</td>
-                  <td className="px-4 py-2">{emp.mobileNumber}</td>
-                  <td className="px-4 py-2">{emp.employeeCode}</td>
-                  <td className="px-4 py-2">{emp.gender}</td>
-                  <td className="px-4 py-2">
-                    {emp.dateOfJoining ? format(new Date(emp.dateOfJoining), "dd MMM yyyy") : "N/A"}
-                  </td>
-                  <td className="px-4 py-2">
-                    {emp.isDirector ? (
-                      <span className="text-green-600 font-bold flex items-center gap-1">
-                        <FaCheckCircle /> Yes
-                      </span>
-                    ) : (
-                      <span className="text-gray-500 flex items-center gap-1">
-                        <FaTimesCircle /> No
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    <StatusPill enabled={emp.portalAccessEnabled} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {employees.length === 0 && (
-            <div className="text-center text-gray-500 py-4">No employees found.</div>
-          )}
+        <div className="flex flex-col items-center justify-center py-14">
+          <img
+            src={assets.EmployeeIllustration}
+            alt="Employee Onboarding"
+            className="w-64 h-auto mb-6"
+          />
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2 text-center">
+            Get your employees onboard
+          </h1>
+          <p className="text-center text-gray-600 pb-6">
+            Easily onboard employees and manage payroll, benefits, and
+            reimbursements—all in one place.
+          </p>
+          <div className="flex gap-4">
+            <button
+              className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-lg font-medium transition duration-200"
+              onClick={() => navigate("/admin-dashboard/employees/add")}
+            >
+              Add Employee
+            </button>
+            <button
+              className="border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition duration-200"
+              onClick={openImport}
+            >
+              Import Employees
+            </button>
+          </div>
         </div>
       )}
     </div>

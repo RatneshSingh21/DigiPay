@@ -13,8 +13,13 @@ import OtpLogin from "./OtpLogin.webp";
 import DesignationIllustration from "./DesignationIllustration.webp";
 import EmployeeIllustration from "./EmployeeIllustration.webp";
 import WorkLocationIllustration from "./WorkLocationIllustration.png";
-import DepartmentIllustration from "./DepartmentIllustration.png"
-
+import DepartmentIllustration from "./DepartmentIllustration.png";
+import PaySchuduleIllustration from "./PaySchuduleIllustration.webp";
+import ShiftIllustration from "./ShiftIllustration.png";
+import BankTransfer from "./BankTransfer.png";
+import Cash from "./Cash.png";
+import Cheque from "./Cheque.png";
+import NEFT from "./NEFT.png";
 
 const assets = {
   bg: bg,
@@ -33,6 +38,12 @@ const assets = {
   EmployeeIllustration: EmployeeIllustration,
   WorkLocationIllustration: WorkLocationIllustration,
   DepartmentIllustration: DepartmentIllustration,
+  PaySchuduleIllustration: PaySchuduleIllustration,
+  ShiftIllustration: ShiftIllustration,
+  BankTransfer: BankTransfer,
+  Cash: Cash,
+  NEFT: NEFT,
+  Cheque: Cheque,
 };
 
 export default assets;

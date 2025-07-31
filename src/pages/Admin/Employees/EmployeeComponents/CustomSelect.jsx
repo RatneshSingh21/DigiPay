@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import Select from "react-select";
+import { useEffect, useState } from "react";
 import { FaPlusCircle } from "react-icons/fa";
+import Select from "react-select";
 
 const CustomSelect = ({
   label,
@@ -10,6 +10,7 @@ const CustomSelect = ({
   onChange,
   options = [],
   allowAddOption = false,
+  onAddNewOption = () => {}, 
 }) => {
   const [localOptions, setLocalOptions] = useState([]);
 
@@ -18,16 +19,7 @@ const CustomSelect = ({
   }, [options]);
 
   const handleAddNew = () => {
-    const newLabel = prompt("Enter new option:");
-    if (newLabel) {
-      const newOption = {
-        value: newLabel.toLowerCase().replace(/\s+/g, "_"),
-        label: newLabel,
-        name: name,
-      };
-      setLocalOptions((prev) => [...prev, newOption]);
-      onChange(newOption);
-    }
+    onAddNewOption(name); // notify parent with field name
   };
 
   const CustomMenuList = (props) => (
@@ -72,4 +64,3 @@ const CustomSelect = ({
 };
 
 export default CustomSelect;
- 

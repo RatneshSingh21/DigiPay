@@ -29,7 +29,9 @@ const Designation = () => {
       setDesignations(response.data || []);
     } catch (error) {
       console.error("Error fetching designations:", error);
-      toast.error(error?.response?.data?.message || "Failed to load designations");
+      toast.error(
+        error?.response?.data?.message || "Failed to load designations"
+      );
     }
   };
 
@@ -118,7 +120,12 @@ const Designation = () => {
         />
       )}
 
-      {showImportModal && <ImportDesignations onClose={closeImport} fetchDesignations={fetchDesignations} />}
+      {showImportModal && (
+        <ImportDesignations
+          onClose={closeImport}
+          fetchDesignations={fetchDesignations}
+        />
+      )}
     </>
   );
 };
