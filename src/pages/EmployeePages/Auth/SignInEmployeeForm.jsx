@@ -7,7 +7,7 @@ import useAuthStore from "../../../store/authStore";
 import Spinner from "../../../components/Spinner";
 
 export default function SignInEmployeeForm() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     workEmail: "",
@@ -54,8 +54,28 @@ export default function SignInEmployeeForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm px-6 py-8 bg-white rounded-md shadow-sm"
+      className="w-full max-w-sm px-6 pt-4 pb-8 bg-white rounded-md shadow-sm"
     >
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md px-3 py-1 mb-4"
+      >
+        <svg
+          className="w-4 h-4 mr-1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        Back
+      </button>
       <h2 className="text-2xl font-bold mb-1">
         Login to{" "}
         <span>

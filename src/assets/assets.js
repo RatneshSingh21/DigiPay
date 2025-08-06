@@ -20,6 +20,10 @@ import BankTransfer from "./BankTransfer.png";
 import Cash from "./Cash.png";
 import Cheque from "./Cheque.png";
 import NEFT from "./NEFT.png";
+import Otpgif from "./Otpgif.gif"
+import BP from "./BP.jpeg"
+import Atul from "./Atul.jpeg"
+import PayslipTemplate1 from "./PayslipTemplate1.png"
 
 const assets = {
   bg: bg,
@@ -44,6 +48,10 @@ const assets = {
   Cash: Cash,
   NEFT: NEFT,
   Cheque: Cheque,
+  Otpgif: Otpgif,
+  BP: BP,
+  Atul: Atul,
+  PayslipTemplate1: PayslipTemplate1,
 };
 
 export default assets;

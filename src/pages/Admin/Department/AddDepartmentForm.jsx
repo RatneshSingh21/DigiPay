@@ -83,6 +83,8 @@ const AddDepartmentForm = ({ onClose, isEdit, initialData, onSuccess }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              placeholder="Department Name"
+              autoFocus
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
@@ -98,6 +100,7 @@ const AddDepartmentForm = ({ onClose, isEdit, initialData, onSuccess }) => {
               placeholder="Max 250 characters"
               value={formData.description}
               onChange={handleChange}
+              required
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
             />
           </div>

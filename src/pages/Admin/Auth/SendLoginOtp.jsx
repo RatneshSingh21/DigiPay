@@ -30,7 +30,9 @@ const SendLoginOtp = () => {
         state: { emailOrPhone, flow: "login" },
       });
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to send OTP. Try again.");
+      toast.error(
+        err?.response?.data?.message || "Failed to send OTP. Try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -46,14 +48,41 @@ const SendLoginOtp = () => {
       }}
     >
       <div className="relative w-full max-w-md">
-        <div className="relative z-10 bg-white shadow-md rounded-2xl px-8 py-10 text-center">
+        <div className="relative z-10 bg-white shadow-md rounded-2xl px-8 pt-3 pb-10 text-center">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
+          >
+            <svg
+              className="w-4 h-4 mr-1"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back
+          </button>
           <div className="flex justify-center mb-4">
-            <img src={assets.OtpLogin} alt="Illustration" className="h-32" />
+            <img
+              src={assets.OtpLogin}
+              alt="Illustration"
+              className="h-32 mx-auto"
+            />
           </div>
 
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Login with OTP</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            Login with OTP
+          </h2>
           <p className="text-sm text-gray-600 mb-6">
-            Enter your registered email or phone number. We'll send you an OTP to log in securely.
+            Enter your registered email or phone number. We'll send you an OTP
+            to log in securely.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">

@@ -10,6 +10,10 @@ import AuthLayout from "./Layout/AuthLayout";
 import AdminDashboardLayout from "./Layout/AdminDashboardLayout";
 import EmployeeDashboardLayout from "./Layout/EmployeeDashboardLayout";
 
+// Dashboards 
+import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
+import EmployeeDashboard from "./pages/EmployeePages/EmployeeDashboard/EmployeeDashboard";
+
 // Public Pages
 import LandingPageMain from "./pages/LandingPageDesign/LandingPageMain";
 import VerifyOtp from "./pages/Admin/Auth/VerifyOtp";
@@ -40,14 +44,24 @@ import Permissions from "./pages/Admin/Settings/Permissions";
 import Shifts from "./pages/Admin/Settings/Shifts";
 import Designation from "./pages/Admin/Settings/Designation";
 import Salary from "./pages/Admin/Settings/Salary";
+import Attendance from "./pages/Admin/Settings/Attendance";
+import WeekendPolicy from "./pages/Admin/Settings/WeekendPolicy";
 
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
 import PayrollReport from "./pages/Admin/Reports/PayrollReport";
-import LeaveReport from "./pages/Admin/Reports/LeaveReport";
-import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
-import EmployeeDashboard from "./pages/EmployeePages/EmployeeDashboard/EmployeeDashboard";
-import Attendance from "./pages/Admin/Settings/Attendance";
+import SalaryReport from "./pages/Admin/Reports/SalaryReport";
+import PayslipTemplates from "./pages/Admin/Reports/PayslipTemplates";
+
+
+// Employee Pages
+import EmployeeProfile from "./pages/EmployeePages/EmployeeComponents/EmployeeProfile";
+import EmpAttendance from "./pages/EmployeePages/EmployeeComponents/EmpAttendance";
+import EmpLeaveRequest from "./pages/EmployeePages/EmployeeComponents/EmpLeaveRequest";
+import EmpSettings from "./pages/EmployeePages/EmployeeComponents/EmpSettings";
+import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
+import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
+import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
 
 
 
@@ -85,7 +99,6 @@ const App = () => {
   return (
     <div>
       <ToastContainer position="top-right" autoClose={3000} />
-
       <Routes>
         {token ? (
           <>
@@ -143,15 +156,20 @@ const App = () => {
                   <Route path="shifts" element={<Shifts />} />
                   <Route path="designation" element={<Designation />} />
                   <Route path="salary" element={<Salary />} />
-                  <Route path="attendance"element={<Attendance/>}/>
+                  <Route path="attendance" element={<Attendance />} />
+                  <Route path="weekend-policy" element={<WeekendPolicy />} />
                 </Route>
 
                 {/* Reports SubRoutes */}
                 <Route path="reports/*" element={<AdminContentBox />}>
                   <Route index element={<Navigate to="attendance-report" />} />
-                  <Route path="attendance-report" element={<AttendanceReport />} />
+                  <Route
+                    path="attendance-report"
+                    element={<AttendanceReport />}
+                  />
+                  <Route path="payslip-templates" element={<PayslipTemplates />} />
                   <Route path="payroll-report" element={<PayrollReport />} />
-                  <Route path="leave-report" element={<LeaveReport />} />
+                  <Route path="salary-report" element={<SalaryReport />} />
                 </Route>
 
                 {/* Nested 404 Catcher for /admin-dashboard/* */}
@@ -168,13 +186,14 @@ const App = () => {
                 element={<EmployeeDashboardLayout />}
               >
                 <Route index element={<Navigate to="home" />} />
-                <Route path="home" element={<EmployeeDashboard />} />
-                {/* <Route path="profile" element={<EmployeeProfile />} /> */}
-                {/* <Route path="attendance" element={<Attendance />} />
-                <Route path="payslips" element={<PayslipHistory />} />
-                <Route path="leave" element={<LeaveRequest />} />
-                <Route path="notifications" element={<Notifications />} />
-                <Route path="settings" element={<Settings />} /> */}
+                <Route path="home" element={<EmployeeDashboard />} />{" "}
+                <Route path="profile" element={<EmployeeProfile />} />
+                <Route path="attendance" element={<EmpAttendance />} />
+                <Route path="leave" element={<EmpLeaveRequest />} />
+                <Route path="salary-slip" element={<EmpSalarySlip />} />
+                <Route path="settings" element={<EmpSettings />} />
+                <Route path="advance-payment" element={<EmpAdvancePayment />} />
+                <Route path="out-duty" element={<EmpOutDuty />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Route>
@@ -209,17 +228,39 @@ const App = () => {
 
 export default App;
 
-
-// import React from 'react'
-// import EmployeeDashboardLayout from './Layout/EmployeeDashboardLayout'
-// import SalaryDetails from './pages/Admin/Employees/EmployeeSteps/SalaryDetails'
+// import React from "react";
+// import EmployeeDashboardLayout from "./Layout/EmployeeDashboardLayout";
+// import { Navigate, Route, Routes } from "react-router-dom";
+// import EmployeeDashboard from "./pages/EmployeePages/EmployeeDashboard/EmployeeDashboard";
+// import EmployeeProfile from "./pages/EmployeePages/EmployeeComponents/EmployeeProfile";
+// import EmpAttendance from "./pages/EmployeePages/EmployeeComponents/EmpAttendance";
+// import EmpLeaveRequest from "./pages/EmployeePages/EmployeeComponents/EmpLeaveRequest";
+// import EmpSettings from "./pages/EmployeePages/EmployeeComponents/EmpSettings";
+// import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
+// import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
+// import NotFound from "./pages/NotFound";
+// import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
 
 // const App = () => {
 //   return (
 //     <div>
-//       <SalaryDetails/>
+//       {/* <EmployeeDashboardLayout/> */}
+//       <Routes>
+//         <Route path="/employee-dashboard" element={<EmployeeDashboardLayout />}>
+//           <Route index element={<Navigate to="home" />} />
+//           <Route path="home" element={<EmployeeDashboard />} />
+//           <Route path="profile" element={<EmployeeProfile />} />
+//           <Route path="attendance" element={<EmpAttendance />} />
+//           <Route path="leave" element={<EmpLeaveRequest />} />
+//           <Route path="salary-slip" element={<EmpSalarySlip />} />
+//           <Route path="settings" element={<EmpSettings />} />
+//           <Route path="advance-payment" element={<EmpAdvancePayment />} />
+//           <Route path="out-duty" element={<EmpOutDuty />} />
+//           <Route path="*" element={<NotFound />} />
+//         </Route>
+//       </Routes>
 //     </div>
-//   )
-// }
+//   );
+// };
 
-// export default App
+// export default App;

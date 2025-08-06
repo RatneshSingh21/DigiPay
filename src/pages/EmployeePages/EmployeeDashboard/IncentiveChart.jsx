@@ -23,9 +23,6 @@ const data = [
 const IncentiveChart = () => {
   return (
     <div className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow p-4 sm:p-6">
-      <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mb-4 sm:mb-6">
-        Incentives Chart (Monthly Overview)
-      </h3>
       <div className="h-56 sm:h-64 md:h-72 ">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} barCategoryGap="20%">

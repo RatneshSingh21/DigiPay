@@ -1,52 +1,64 @@
 import { Link, useLocation } from "react-router-dom";
 
 // Icons
-import { FaUserPlus, FaList, FaUsers, FaBuilding, FaUserCheck } from "react-icons/fa";
+import {
+  FaUserPlus,
+  FaList,
+  FaUsers,
+  FaBuilding,
+  FaUserCheck,
+  FaCalendarCheck,
+  FaFileInvoiceDollar,
+  FaUmbrellaBeach,
+} from "react-icons/fa";
 import { MdOutlineCorporateFare } from "react-icons/md";
 import { GoLocation } from "react-icons/go";
 import { RiShieldKeyholeLine } from "react-icons/ri";
 import { AiOutlineSchedule } from "react-icons/ai";
 import { BiTimeFive } from "react-icons/bi";
-import { HiOutlineBriefcase } from "react-icons/hi";
-import { TbCurrencyRupee } from "react-icons/tb";
-import { FaCalendarCheck, FaMoneyCheckAlt, FaCalendarTimes } from "react-icons/fa";
+import { HiOutlineBriefcase, HiOutlineDocumentReport } from "react-icons/hi";
+import { TbCurrencyRupee, TbReportMoney } from "react-icons/tb";
 
 // Label to path mapping
 const labelToPath = {
   "Add Employee": "add",
   "Employee List": "list",
-  "Teams": "teams",
+  Teams: "teams",
   "Organisation Profile": "organisation-profile",
-  "Departments": "departments",
+  Departments: "departments",
   "Work Locations": "work-locations",
-  "Permissions": "permissions",
-  "PaySchedule": "payschedule",
-  "Shifts": "shifts",
-  "Designation": "designation",
-  "Salary": "salary",
+  Permissions: "permissions",
+  PaySchedule: "payschedule",
+  Shifts: "shifts",
+  Designation: "designation",
+  Salary: "salary",
   "Attendance Report": "attendance-report",
   "Payroll Report": "payroll-report",
   "Leave Report": "leave-report",
-  "Attendance": "attendance",
+  Attendance: "attendance",
+  "Payslip Templates": "payslip-templates",
+  "Weekend Policy": "weekend-policy",
 };
 
 // Label to icon mapping
 const labelToIcon = {
   "Add Employee": <FaUserPlus className="mr-2" />,
   "Employee List": <FaList className="mr-2" />,
-  "Teams": <FaUsers className="mr-2" />,
+  Teams: <FaUsers className="mr-2" />,
   "Organisation Profile": <FaBuilding className="mr-2" />,
-  "Departments": <MdOutlineCorporateFare className="mr-2" />,
+  Departments: <MdOutlineCorporateFare className="mr-2" />,
   "Work Locations": <GoLocation className="mr-2" />,
-  "Permissions": <RiShieldKeyholeLine className="mr-2" />,
-  "PaySchedule": <AiOutlineSchedule className="mr-2" />,
-  "Shifts": <BiTimeFive className="mr-2" />,
-  "Designation": <HiOutlineBriefcase className="mr-2" />,
-  "Salary": <TbCurrencyRupee className="mr-2" />,
+  Permissions: <RiShieldKeyholeLine className="mr-2" />,
+  PaySchedule: <AiOutlineSchedule className="mr-2" />,
+  Shifts: <BiTimeFive className="mr-2" />,
+  Designation: <HiOutlineBriefcase className="mr-2" />,
+  Salary: <TbCurrencyRupee className="mr-2" />,
   "Attendance Report": <FaCalendarCheck className="mr-2" />,
-  "Payroll Report": <FaMoneyCheckAlt className="mr-2" />,
-  "Leave Report": <FaCalendarTimes className="mr-2" />,
-  "Attendance": <FaUserCheck className="mr-2" />,
+  "Payroll Report": <FaFileInvoiceDollar className="mr-2" />,
+  "Salary Report": <TbReportMoney className="mr-2" />,
+  Attendance: <FaUserCheck className="mr-2" />,
+  "Payslip Templates": <HiOutlineDocumentReport className="mr-2" />,
+  "Weekend Policy": <FaUmbrellaBeach className="mr-2" />,
 };
 
 const AdminSubmenuBox = ({ items, selectedMenu }) => {
@@ -55,10 +67,14 @@ const AdminSubmenuBox = ({ items, selectedMenu }) => {
 
   return (
     <div className="bg-white border-r p-4 h-full w-52 fixed shadow-md">
-      <h3 className="text-xl font-semibold mb-3 text-gray-700">{selectedMenu}</h3>
+      <h3 className="text-xl font-semibold mb-3 text-gray-700">
+        {selectedMenu}
+      </h3>
       <ul className="space-y-2 text-sm">
         {items.map((item, idx) => {
-          const path = `${base}/${labelToPath[item] || item.toLowerCase().replace(/\s+/g, "-")}`;
+          const path = `${base}/${
+            labelToPath[item] || item.toLowerCase().replace(/\s+/g, "-")
+          }`;
           const isActive = location.pathname === path;
           const icon = labelToIcon[item] || null;
 

@@ -84,6 +84,8 @@ const AddDesignationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
+                autoFocus
+                placeholder="Designation Name"
                 className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 required
               />
@@ -97,6 +99,7 @@ const AddDesignationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                 name="level"
                 value={formData.level}
                 onChange={handleChange}
+                placeholder="Designation Level"
                 className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 required
               />

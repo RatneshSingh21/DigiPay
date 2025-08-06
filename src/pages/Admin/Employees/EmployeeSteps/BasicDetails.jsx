@@ -133,13 +133,16 @@ const BasicDetails = ({
               required
               name="firstName"
               placeholder="First Name"
+              type="text"
               value={form.firstName || ""}
               onChange={handleChange}
+              autoFocus
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
             <input
               name="middleName"
               placeholder="Middle Name"
+              type="text"
               value={form.middleName || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -147,6 +150,7 @@ const BasicDetails = ({
             <input
               name="lastName"
               placeholder="Last Name"
+              type="text"
               value={form.lastName || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -164,6 +168,7 @@ const BasicDetails = ({
               name="employeeId"
               placeholder="employeeId"
               value={form.employeeId || ""}
+              type="text"
               onChange={handleChange}
               disabled={isEditing}
               className={`w-full px-4 py-2 border rounded-md ${
@@ -208,6 +213,8 @@ const BasicDetails = ({
               name="mobileNumber"
               value={form.mobileNumber || ""}
               onChange={handleChange}
+              type="number"
+              maxLength={10}
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>

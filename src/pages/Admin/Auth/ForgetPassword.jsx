@@ -55,8 +55,28 @@ const ForgetPassword = () => {
         backgroundSize: "cover",
       }}
     >
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-lg p-5 text-center z-10">
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-lg px-5 pt-3 pb-5 text-center z-10">
         {/* Illustration Image */}
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-2 px-3 py-1"
+        >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back
+        </button>
         <img
           src={assets.ForgetImage}
           alt="Forgot Password Illustration"
@@ -79,6 +99,7 @@ const ForgetPassword = () => {
               className="w-full py-2 pl-4 pr-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400"
               value={emailOrPhone}
               onChange={(e) => setEmailOrPhone(e.target.value)}
+              autoFocus
               required
             />
             <FaEnvelope className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500" />

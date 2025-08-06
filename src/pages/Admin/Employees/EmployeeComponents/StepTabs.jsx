@@ -191,7 +191,6 @@ const StepTabs = () => {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Sticky Top Step Navigation */}
       <div className="sticky top-14 z-20 bg-white shadow px-5 py-4">
         <div className="flex items-center justify-center">
           <button

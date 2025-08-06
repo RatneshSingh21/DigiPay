@@ -24,44 +24,56 @@ const AuthLayout = () => {
     >
       <div className="relative w-full max-w-5xl h-auto md:h-[500px] overflow-hidden bg-white rounded-3xl shadow-2xl">
         {/* Desktop Sliding Container */}
-        <div
-          className={`hidden md:flex w-[200%] h-full transition-transform duration-700 ease-in-out ${
-            isSignIn ? "translate-x-0" : "-translate-x-1/2"
-          }`}
-        >
-          {/* Sign In Panel Overview */}
-          <div className="flex w-1/2 h-full">
-            <div className="w-1/2 flex items-center justify-center bg-white p-4">
-              {role === "SuperAdmin" ? (
-                <SignInForm switchToSignUp={() => setIsSignIn(false)} />
-              ) : (
+        <div className="hidden md:flex w-full h-full">
+          {role === "Employee" ? (
+            // Only SignIn for Employee (no signup)
+            <div className="flex w-full">
+              <div className="w-1/2 flex items-center justify-center bg-white p-4">
                 <SignInEmployeeForm />
+              </div>
+              <div className="w-1/2 bg-[#fff6ef] flex flex-col justify-center items-center p-8">
+                <h1 className="text-3xl font-bold mb-4">Welcome</h1>
+                <img
+                  src={assets.LoginImage}
+                  alt="Login"
+                  className="w-full max-w-xs transition-all duration-700"
+                />
+              </div>
+            </div>
+          ) : (
+            // Toggleable SignIn/SignUp for SuperAdmin
+            <>
+              {isSignIn ? (
+                <div className="flex w-full">
+                  <div className="w-1/2 flex items-center justify-center bg-white p-4">
+                    <SignInForm switchToSignUp={() => setIsSignIn(false)} />
+                  </div>
+                  <div className="w-1/2 bg-[#fff6ef] flex flex-col justify-center items-center p-8">
+                    <h1 className="text-3xl font-bold mb-4">Welcome</h1>
+                    <img
+                      src={assets.LoginImage}
+                      alt="Login"
+                      className="w-full max-w-xs transition-all duration-700"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex w-full">
+                  <div className="w-1/2 bg-[#fff6ef] flex flex-col justify-center items-center p-8">
+                    <h1 className="text-3xl font-bold mb-4">Join Us</h1>
+                    <img
+                      src={assets.LoginImage}
+                      alt="Sign Up"
+                      className="w-full max-w-xs transition-all duration-700"
+                    />
+                  </div>
+                  <div className="w-1/2 flex items-center justify-center bg-white p-4">
+                    <SignUpForm switchToSignIn={() => setIsSignIn(true)} />
+                  </div>
+                </div>
               )}
-            </div>
-            <div className="w-1/2 bg-[#fff6ef] flex flex-col justify-center items-center p-8">
-              <h1 className="text-3xl font-bold mb-4">Welcome</h1>
-              <img
-                src={assets.LoginImage}
-                alt="Login"
-                className="w-full max-w-xs transition-all duration-700"
-              />
-            </div>
-          </div>
-
-          {/* Sign Up Panel Overview */}
-          <div className="flex w-1/2 h-full">
-            <div className="w-1/2 bg-[#fff6ef] flex flex-col justify-center items-center p-8">
-              <h1 className="text-3xl font-bold mb-4">Join Us</h1>
-              <img
-                src={assets.LoginImage}
-                alt="Sign Up"
-                className="w-full max-w-xs transition-all duration-700"
-              />
-            </div>
-            <div className="w-1/2 flex items-center justify-center bg-white p-4">
-              <SignUpForm switchToSignIn={() => setIsSignIn(true)} />
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
         {/* Mobile/Tablet Layout */}

@@ -2,9 +2,9 @@ import { Outlet, useLocation } from "react-router-dom";
 import AdminSubmenuBox from "./AdminSubmenuBox";
 
 const submenuMap = {
-  Settings: ["Organisation Profile", "Departments" , "Designation" , "Work Locations", "Permissions", "PaySchedule", "Shifts", "Salary" , "Attendance"],
+  Settings: ["Organisation Profile", "Departments" , "Designation" , "Work Locations", "Permissions", "PaySchedule", "Shifts", "Salary" , "Attendance","Weekend Policy"],
   Employees: [ "Add Employee","Employee List", "Teams"],
-  Reports: ["Attendance Report", "Payroll Report", "Leave Report"],
+  Reports: ["Attendance Report", "Payroll Report", "Salary Report", "Payslip Templates"],
 };
 
 const getMenuFromPath = (pathname) => {

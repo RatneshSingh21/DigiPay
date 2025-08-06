@@ -88,9 +88,30 @@ const SignUpForm = ({ switchToSignIn }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm px-6 py-5 bg-white rounded-2xl shadow-lg"
+      className="w-full max-w-sm px-6 pb-5 bg-white rounded-2xl shadow-lg"
     >
-      <h2 className="text-2xl font-extrabold text-gray-800 mb-2 leading-tight">
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
+      >
+        <svg
+          className="w-4 h-4 mr-1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        Back
+      </button>
+
+      <h2 className="text-2xl font-extrabold text-gray-800">
         Create <span className="text-orange-500">Account</span>
       </h2>
 
@@ -119,6 +140,7 @@ const SignUpForm = ({ switchToSignIn }) => {
           value={formData.name}
           onChange={handleChange}
           placeholder="John Doe"
+          autoFocus
           required
           className="w-full px-4 py-2.5 text-sm border border-gray-300 bg-gray-50 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all"
         />
@@ -139,7 +161,6 @@ const SignUpForm = ({ switchToSignIn }) => {
           onChange={handleChange}
           placeholder="you@example.com or +91 9234567890"
           required
-          autoFocus
           className="w-full px-4 py-2.5 text-sm border border-gray-300 bg-gray-50 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all"
         />
       </div>

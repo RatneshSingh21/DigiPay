@@ -153,9 +153,9 @@ const VerifyOtp = () => {
     >
       <div className="relative z-10 w-[350px] bg-white p-6 rounded-3xl shadow-lg mb-24 text-center">
         <img
-          src={assets.otpIllustration}
+          src={assets.Otpgif}
           alt="OTP Verification"
-          className="w-20 mx-auto mb-4"
+          className="w-32 mx-auto mb-4"
         />
         <h2 className="text-xl font-semibold text-gray-800">Verify OTP</h2>
         <p className="text-sm text-gray-500 mb-6">
