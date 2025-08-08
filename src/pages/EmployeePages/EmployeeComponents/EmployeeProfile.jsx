@@ -14,9 +14,9 @@ const EmployeeProfile = () => {
     const dummyData = {
       id: 7,
       employeeCode: "EMP101",
-      fullName: "Raju Punjabi",
+      fullName: "Nitish Yadav",
       dateOfJoining: "2023-07-15T00:00:00",
-      workEmail: "raju.punjabi@gmail.com",
+      workEmail: "nitish.yadav@gmail.com",
       mobileNumber: "9876543210",
       isDirector: true,
       gender: "Male",

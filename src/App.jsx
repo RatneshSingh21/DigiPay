@@ -50,7 +50,7 @@ import WeekendPolicy from "./pages/Admin/Settings/WeekendPolicy";
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
 import PayrollReport from "./pages/Admin/Reports/PayrollReport";
-import SalaryReport from "./pages/Admin/Reports/SalaryReport";
+import SalaryRegister from "./pages/Admin/Reports/SalaryRegister";
 import PayslipTemplates from "./pages/Admin/Reports/PayslipTemplates";
 
 
@@ -169,7 +169,7 @@ const App = () => {
                   />
                   <Route path="payslip-templates" element={<PayslipTemplates />} />
                   <Route path="payroll-report" element={<PayrollReport />} />
-                  <Route path="salary-report" element={<SalaryReport />} />
+                  <Route path="salary-register" element={<SalaryRegister />} />
                 </Route>
 
                 {/* Nested 404 Catcher for /admin-dashboard/* */}

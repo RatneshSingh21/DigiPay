@@ -61,7 +61,7 @@ const EmpOutDuty = () => {
     e.preventDefault();
 
     const newRequest = {
-      id: requests.length + 1,
+      id: Date.now(),
       date: formData.date,
       reason: formData.reason,
       location: formData.location?.label,
@@ -75,10 +75,9 @@ const EmpOutDuty = () => {
 
   return (
     <div>
-      {/* Button to open modal */}
+      {/* Header */}
       <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
-        <h2 className="font-semibold text-xl text-gray-800">Out Duty</h2>
-
+        <h2 className="font-semibold text-2xl text-gray-800">Out Duty</h2>
         <button
           onClick={() => setShowModal(true)}
           className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary flex items-center gap-2"
@@ -86,7 +85,6 @@ const EmpOutDuty = () => {
           <FaPlus /> Apply Out Duty
         </button>
       </div>
-      <div className="flex justify-end"></div>
 
       {/* Table */}
       <div className="overflow-x-auto bg-white rounded-xl shadow mx-4">
@@ -106,13 +104,13 @@ const EmpOutDuty = () => {
                 key={req.id}
                 className="border-t hover:bg-gray-50 transition-all duration-150"
               >
-                <td className="px-4 py-2">{index + 1}</td>
-                <td className="px-4 py-2">
+                <td className="px-4 py-3">{index + 1}</td>
+                <td className="px-4 py-3">
                   {format(new Date(req.date), "dd MMM yyyy")}
                 </td>
-                <td className="px-4 py-2">{req.location}</td>
-                <td className="px-4 py-2">{req.reason}</td>
-                <td className="px-4 py-2">
+                <td className="px-4 py-3">{req.location}</td>
+                <td className="px-4 py-3">{req.reason}</td>
+                <td className="px-4 py-3">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       statusColor[req.status]
@@ -126,7 +124,7 @@ const EmpOutDuty = () => {
             {requests.length === 0 && (
               <tr>
                 <td colSpan="5" className="text-center py-4 text-gray-500">
-                  No requests found.
+                  No out duty requests found.
                 </td>
               </tr>
             )}
@@ -136,23 +134,27 @@ const EmpOutDuty = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-md z-50 flex items-center justify-center px-4">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 relative">
+        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 relative animate-fade-in">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl"
+              className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-2xl"
             >
               &times;
             </button>
 
-            <h2 className="text-lg font-semibold mb-4">Out Duty Request</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <h2 className="text-xl font-semibold mb-5 text-gray-800">
+              Submit Out Duty Request
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium mb-1">Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date
+                </label>
                 <input
                   type="date"
                   name="date"
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                   value={formData.date}
                   onChange={handleChange}
                   required
@@ -160,7 +162,7 @@ const EmpOutDuty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Location
                 </label>
                 <Select
@@ -168,15 +170,16 @@ const EmpOutDuty = () => {
                   value={formData.location}
                   onChange={handleSelectChange}
                   placeholder="Select location"
-                  required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Reason</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Reason
+                </label>
                 <textarea
                   name="reason"
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                   rows={3}
                   placeholder="Reason for Out Duty"
                   value={formData.reason}
@@ -188,7 +191,7 @@ const EmpOutDuty = () => {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                  className="bg-primary text-white px-6 py-2 rounded hover:bg-secondary transition"
                 >
                   Submit Request
                 </button>

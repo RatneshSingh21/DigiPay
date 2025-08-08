@@ -3,7 +3,12 @@ import { FaTimes } from "react-icons/fa";
 import PayslipPreview from "./PayslipPreview";
 import assets from "../../../assets/assets";
 
-const TemplateEditorModal = ({ template, onClose }) => {
+const TemplateEditorModal = ({
+  template,
+  onClose,
+  PreviewComponent,
+  onSave,
+}) => {
   const [formState, setFormState] = useState({
     showPAN: false,
     showYTD: true,
@@ -37,7 +42,11 @@ const TemplateEditorModal = ({ template, onClose }) => {
   };
 
   const handleSave = () => {
-    // You can connect to DB/context here
+    onSave({
+      ...formState,
+      showOrgName: !!formState.orgName?.trim(),
+      showOrgAddress: !!formState.orgAddress?.trim(),
+    });
     onClose();
   };
 
@@ -154,7 +163,7 @@ const TemplateEditorModal = ({ template, onClose }) => {
               type="file"
               accept="image/*"
               onChange={(e) => handleImageUpload(e, "signature")}
-               className="hover:text-blue-600"
+              className="hover:text-blue-600"
             />
             {formState.signature && (
               <img
@@ -189,8 +198,8 @@ const TemplateEditorModal = ({ template, onClose }) => {
 
         {/* Right Panel: Preview */}
         <div className="w-2/3 bg-gray-50 p-6 overflow-y-auto border-l">
-          <h2 className="text-lg font-bold mb-4">Payslip Preview</h2>
-          <PayslipPreview config={formState} />
+          <h2 className="text-lg font-bold mb-4">{template?.name} Preview</h2>
+          {PreviewComponent && <PreviewComponent config={formState} />}
         </div>
       </div>
     </div>

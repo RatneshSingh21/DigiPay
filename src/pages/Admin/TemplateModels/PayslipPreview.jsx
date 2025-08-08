@@ -52,7 +52,7 @@ const PayslipPreview = ({ config }) => {
   const netPay = totalEarnings - totalDeductions;
 
   return (
-    <div className="bg-white shadow p-6 border rounded text-sm">
+    <div className="bg-white shadow-lg p-8 border rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
       {/* Header with Logo + Org Info */}
       <div className="flex justify-between items-start mb-4">
         {logo && (

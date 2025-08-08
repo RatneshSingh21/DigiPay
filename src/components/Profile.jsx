@@ -3,7 +3,7 @@ import useAuthStore from "../store/authStore";
 const Profile = () => {
  const user = useAuthStore((state) => state.user);
 
-  const name = user?.name || "User";
+  const name = user?.name || user.fullName || "User";
   const imageUrl = user?.imageUrl || "";
   const emailOrPhone = user?.emailOrPhone || "";
 

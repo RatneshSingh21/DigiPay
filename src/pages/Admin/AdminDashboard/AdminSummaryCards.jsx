@@ -45,7 +45,7 @@ const AdminSummaryCards = () => {
             <div className="text-gray-400 text-xl">{card.icon}</div>
           </div>
           <div className="text-sm text-gray-500">{card.label}</div>
-          <div className="text-xs text-green-500">{card.diff}</div>
+          <div className="text-xs text-primary">{card.diff}</div>
         </div>
       ))}
     </div>

@@ -1,71 +1,7 @@
-// import React, { useState } from "react";
-// import SalarySlipContent from "./SalarySlipContent";
-
-// const EmpSalarySlip = () => {
-//   const [selectedMonth, setSelectedMonth] = useState("August");
-//   const [selectedYear, setSelectedYear] = useState("2025");
-
-//   const months = [
-//     "January", "February", "March", "April", "May", "June",
-//     "July", "August", "September", "October", "November", "December"
-//   ];
-
-//   const years = ["2023", "2024", "2025", "2026"];
-
-//   return (
-//     <div className="p-6">
-//       {/* Control Panel */}
-//       <div className="mb-4 flex flex-col md:flex-row items-start md:items-center gap-4 print:hidden">
-//         <div className="flex gap-2">
-//           <select
-//             value={selectedMonth}
-//             onChange={(e) => setSelectedMonth(e.target.value)}
-//             className="border px-3 py-2 rounded-md"
-//           >
-//             {months.map((month) => (
-//               <option key={month} value={month}>
-//                 {month}
-//               </option>
-//             ))}
-//           </select>
-
-//           <select
-//             value={selectedYear}
-//             onChange={(e) => setSelectedYear(e.target.value)}
-//             className="border px-3 py-2 rounded-md"
-//           >
-//             {years.map((year) => (
-//               <option key={year} value={year}>
-//                 {year}
-//               </option>
-//             ))}
-//           </select>
-//         </div>
-//       </div>
-
-//       {/* Salary Slip Content */}
-//       <SalarySlipContent month={selectedMonth} year={selectedYear} />
-//     </div>
-//   );
-// };
-
-// export default EmpSalarySlip;
-
-import React, { useEffect, useState } from "react";
+import React from "react";
 import AmountInWords from "../../../components/AmountInWords";
-import assets from "../../../assets/assets";
 
-const EmpSalarySlip = () => {
-  const [config, setConfig] = useState({});
-
-  // Component mount hote hi localStorage se load karega
-  useEffect(() => {
-    const savedConfig = localStorage.getItem("templateConfig");
-    if (savedConfig) {
-      setConfig(JSON.parse(savedConfig));
-    }
-  }, []);
-
+const PayslipPreview3 = ({ config }) => {
   const {
     showPAN,
     showYTD,
@@ -117,18 +53,18 @@ const EmpSalarySlip = () => {
   const netPay = totalEarnings - totalDeductions;
 
   return (
-    <div className="bg-white p-8 my-5 shadow-md max-w-4xl mx-auto text-sm text-gray-800 border rounded-md">
+    <div className="bg-white p-8 shadow-md max-w-4xl mx-auto text-sm text-gray-800 border rounded-md">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-         
+          {logo && (
             <img
-              src={assets.Digicode}
+              src={logo}
               alt="Company Logo"
-              style={{ width: `140px` }}
+              style={{ width: `${logoSize}px` }}
               className="mb-2"
             />
-          
+          )}
           {showOrgName && (
             <h1 className="text-lg font-bold text-gray-900">{orgName}</h1>
           )}
@@ -285,7 +221,7 @@ const EmpSalarySlip = () => {
         <p className="text-xs text-gray-500 mb-1">TOTAL NET PAYABLE</p>
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-500">
-            Gross Earnings - Total Deductions
+            Gross Earnings − Total Deductions
           </span>
           <span className="text-xl font-bold text-green-700 bg-green-100 px-4 py-1 rounded">
             ₹{netPay.toLocaleString("en-IN")}
@@ -300,18 +236,17 @@ const EmpSalarySlip = () => {
       </p>
 
       {/* Signature */}
-        <div className="flex justify-end">
-          <div className={`mt-6 text-right}`}>
+      {signature && (
+        <div className={`mt-6 text-${signatureAlign}`}>
           <img
-            src={assets.sign}
+            src={signature}
             alt="Signature"
             className="inline-block"
             style={{ width: "90px" }}
           />
           <p className="text-xs mt-1 text-gray-500">Authorized Signatory</p>
         </div>
-
-        </div>
+      )}
 
       <p className="text-center text-gray-400 text-xs mt-6">
         — This is a system-generated document —
@@ -320,4 +255,4 @@ const EmpSalarySlip = () => {
   );
 };
 
-export default EmpSalarySlip;
+export default PayslipPreview3;

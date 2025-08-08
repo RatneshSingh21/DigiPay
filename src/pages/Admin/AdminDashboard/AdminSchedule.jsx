@@ -34,7 +34,7 @@ const AdminSchedule = () => {
 
       <div className="text-sm text-gray-500 mb-3 flex items-center gap-2">
         <FaCalendarAlt className="text-gray-400" />
-        Wed, Jul 16, 2025
+        Wed, Aug 16, 2025
       </div>
 
       <div className="space-y-5">

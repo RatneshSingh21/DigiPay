@@ -24,6 +24,14 @@ import Otpgif from "./Otpgif.gif"
 import BP from "./BP.jpeg"
 import Atul from "./Atul.jpeg"
 import PayslipTemplate1 from "./PayslipTemplate1.png"
+import PayslipTemplate2 from "./PayslipTemplate2.png"
+import PayslipTemplate3 from "./PayslipTemplate3.png"
+import PayslipTemplate4 from "./PayslipTemplate4.png"
+import AllEmployeesSalaryReport from "./AllEmployeesSalaryReport.png";
+import SingleEmployeeSalaryReport from "./SingleEmployeeSalaryReport.png";  
+import SampleAttendance from "./SampleAttendance.png";
+import Unauthorize from "./Unauthorize.png"
+import sign from "./sign.svg"
 
 const assets = {
   bg: bg,
@@ -52,6 +60,14 @@ const assets = {
   BP: BP,
   Atul: Atul,
   PayslipTemplate1: PayslipTemplate1,
+  PayslipTemplate2: PayslipTemplate2,
+  PayslipTemplate3: PayslipTemplate3,
+  PayslipTemplate4: PayslipTemplate4,
+  AllEmployeesSalaryReport: AllEmployeesSalaryReport,
+  SingleEmployeeSalaryReport: SingleEmployeeSalaryReport,
+  SampleAttendance: SampleAttendance,
+  Unauthorize: Unauthorize,
+  sign: sign,
 };
 
 export default assets;
