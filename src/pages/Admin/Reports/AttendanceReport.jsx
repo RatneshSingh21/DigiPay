@@ -374,13 +374,13 @@ const AttendanceReport = () => {
             </div>
             <button
               onClick={() => handleTemplateDownload(template)}
-              className="mt-4 flex items-center gap-2 text-primary font-medium border border-primary hover:bg-primary hover:text-white transition px-3 py-2 rounded-md"
+              className="mt-4 flex items-center gap-2 text-primary cursor-pointer font-medium border border-primary hover:bg-primary hover:text-white transition px-3 py-2 rounded-md"
             >
               <FiDownload />
               Download Template
             </button>
             <button
-              className="mt-4 flex items-center gap-2 text-primary font-medium border border-primary hover:bg-primary hover:text-white transition px-3 py-2 rounded-md"
+              className="mt-4 flex items-center gap-2 text-primary cursor-pointer font-medium border border-primary hover:bg-primary hover:text-white transition px-3 py-2 rounded-md"
               onClick={() => handleEdit(template.id)}
             >
               <FiEdit2 className="inline mr-0.5" />

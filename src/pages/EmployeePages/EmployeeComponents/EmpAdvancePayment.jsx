@@ -2,11 +2,41 @@ import React, { useState } from "react";
 import { FaMoneyCheckAlt, FaInfoCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import StatusPill from "../../../components/StatusPill";
+// Helper: Determine status from month/year with 7th rule
+const getInstallmentStatus = (monthYear) => {
+  const [monthStr, yearStr] = monthYear.split(" ");
+  const monthIndex = new Date(`${monthStr} 1, ${yearStr}`).getMonth();
+  const year = parseInt(yearStr);
+
+  const today = new Date();
+  const currentMonthIndex = today.getMonth();
+  const currentYear = today.getFullYear();
+  const currentDate = today.getDate();
+
+  // If the month/year is in the past → always Deducted
+  if (year < currentYear || (year === currentYear && monthIndex < currentMonthIndex)) {
+    return "Deducted";
+  }
+
+  // If the month/year is the current month/year
+  if (year === currentYear && monthIndex === currentMonthIndex) {
+    if (currentDate >= 7) {
+      return "Deducted"; // 7th or later of current month
+    } else {
+      return "Pending"; // Before 7th
+    }
+  }
+
+  // Future months → Pending
+  return "Pending";
+};
 
 const EmpAdvancePayment = () => {
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [repaymentDate, setRepaymentDate] = useState("");
+  const [installments, setInstallments] = useState("");
+
   const [pendingRequests, setPendingRequests] = useState([
     {
       id: 1,
@@ -14,6 +44,12 @@ const EmpAdvancePayment = () => {
       reason: "Medical emergency",
       status: "Pending",
       date: "2025-07-28",
+      installments: 3,
+      installmentDetails: [
+        { month: "Aug 2025", amount: 4000 },
+        { month: "Sep 2025", amount: 4000 },
+        { month: "Oct 2025", amount: 4000 },
+      ],
     },
     {
       id: 2,
@@ -21,13 +57,18 @@ const EmpAdvancePayment = () => {
       reason: "Child's school fee",
       status: "Approved",
       date: "2025-07-15",
+      installments: 2,
+      installmentDetails: [
+        { month: "Aug 2025", amount: 4000 },
+        { month: "Sep 2025", amount: 4000 },
+      ],
     },
   ]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!amount || !reason || !repaymentDate) {
+    if (!amount || !reason || !repaymentDate || !installments) {
       toast.error("Please fill all fields");
       return;
     }
@@ -38,6 +79,8 @@ const EmpAdvancePayment = () => {
       reason,
       status: "Pending",
       date: new Date().toISOString().split("T")[0],
+      installments: parseInt(installments),
+      installmentDetails: [], // Admin will fill later
     };
 
     setPendingRequests([newRequest, ...pendingRequests]);
@@ -46,6 +89,7 @@ const EmpAdvancePayment = () => {
     setAmount("");
     setReason("");
     setRepaymentDate("");
+    setInstallments("");
   };
 
   return (
@@ -54,7 +98,9 @@ const EmpAdvancePayment = () => {
       <div>
         <div className="flex items-center mb-4">
           <FaMoneyCheckAlt className="text-2xl text-blue-600 mr-2" />
-          <h2 className="text-2xl font-bold text-gray-800">Advance Payment Request</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Advance Payment Request
+          </h2>
         </div>
         <p className="text-gray-600">
           Facing an urgent financial need? Request advance salary below.
@@ -78,7 +124,9 @@ const EmpAdvancePayment = () => {
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Requested Amount (₹)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Requested Amount (₹)
+          </label>
           <input
             type="number"
             value={amount}
@@ -90,7 +138,9 @@ const EmpAdvancePayment = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Advance</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Reason for Advance
+          </label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
@@ -102,11 +152,28 @@ const EmpAdvancePayment = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Repayment Date</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Preferred Repayment Date
+          </label>
           <input
             type="date"
             value={repaymentDate}
             onChange={(e) => setRepaymentDate(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Number of Installments
+          </label>
+          <input
+            type="number"
+            value={installments}
+            onChange={(e) => setInstallments(e.target.value)}
+            placeholder="e.g. 3"
+            min={1}
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             required
           />
@@ -125,19 +192,62 @@ const EmpAdvancePayment = () => {
       {/* Pending Requests Section */}
       {pendingRequests.length > 0 && (
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Your Advance Requests</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            Your Advance Requests
+          </h3>
           <div className="space-y-4">
             {pendingRequests.map((req) => (
               <div
                 key={req.id}
-                className="p-4 border rounded-lg shadow-sm bg-gray-50 flex justify-between items-center"
+                className="p-4 border rounded-lg shadow-sm bg-gray-50"
               >
-                <div>
-                  <div className="text-gray-800 font-medium">₹{req.amount}</div>
-                  <div className="text-sm text-gray-600">{req.reason}</div>
-                  <div className="text-xs text-gray-400">Requested on: {req.date}</div>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="text-gray-800 font-medium">
+                      ₹{req.amount}
+                    </div>
+                    <div className="text-sm text-gray-600">{req.reason}</div>
+                    <div className="text-xs text-gray-400">
+                      Requested on: {req.date}
+                    </div>
+                    {req.installments && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Installments: {req.installments} month(s)
+                      </div>
+                    )}
+                  </div>
+                  <StatusPill status={req.status} />
                 </div>
-                <StatusPill status={req.status} />
+
+                {/* Installment Breakdown */}
+                {req.installmentDetails?.length > 0 && (
+                  <div className="mt-2 border-t pt-2">
+                    <div className="text-xs font-semibold text-gray-700 mb-1">
+                      Installment Plan:
+                    </div>
+                    <ul className="text-xs text-gray-600 space-y-1">
+                      {req.installmentDetails.map((inst, i) => {
+                        const status = getInstallmentStatus(inst.month);
+                        return (
+                          <li key={i} className="flex justify-between items-center">
+                            <span>
+                              {inst.month}: ₹{inst.amount}
+                            </span>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                                status === "Deducted"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-yellow-100 text-yellow-700"
+                              }`}
+                            >
+                              {status}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
               </div>
             ))}
           </div>

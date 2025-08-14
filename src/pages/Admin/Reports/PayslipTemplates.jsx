@@ -397,7 +397,7 @@ const PayslipTemplates = () => {
                     setPreviewVisible(true);
                   }}
                 >
-                  <FaEye />
+                  <FaEye className="cursor-pointer" />
                 </button>
 
                 <button
@@ -405,7 +405,7 @@ const PayslipTemplates = () => {
                   title="Edit"
                   onClick={() => openEditor(template)}
                 >
-                  <FaEdit />
+                  <FaEdit className="cursor-pointer" />
                 </button>
               </div>
             </div>

@@ -26,14 +26,15 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 // Optional pages
 import Unauthorized from "./pages/Unauthorized";
-import NotFound from "./pages/NotFound"; // 404 Page Not Found
+import NotFound from "./pages/NotFound"; 
 
 import AdminContentBox from "./pages/Admin/AdminHome/AdminContentBox";
 
 // Admin Dashboard Pages
 import EmployeeList from "./pages/Admin/Employees/EmployeeList";
 import AddEmployee from "./pages/Admin/Employees/AddEmployee";
-import Teams from "./pages/Admin/Employees/Teams";
+import GeneralImports from "./pages/Admin/Employees/GeneralImports";
+import GeneralSettings from "./pages/Admin/Employees/GeneralSettings";
 
 //Admin Settings Pages
 import OrganisationProfile from "./pages/Admin/Settings/OrganisationProfile";
@@ -62,6 +63,7 @@ import EmpSettings from "./pages/EmployeePages/EmployeeComponents/EmpSettings";
 import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
 import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
+
 
 
 
@@ -130,7 +132,8 @@ const App = () => {
                   <Route index element={<Navigate to="add" />} />
                   <Route path="list" element={<EmployeeList />} />
                   <Route path="add" element={<AddEmployee />} />
-                  <Route path="teams" element={<Teams />} />
+                  <Route path="general-imports" element={<GeneralImports />} />
+                  <Route path="general-settings" element={<GeneralSettings />} />
                 </Route>
 
                 {/* Dashboard Main Page */}

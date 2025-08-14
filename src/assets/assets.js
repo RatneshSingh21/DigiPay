@@ -32,6 +32,9 @@ import SingleEmployeeSalaryReport from "./SingleEmployeeSalaryReport.png";
 import SampleAttendance from "./SampleAttendance.png";
 import Unauthorize from "./Unauthorize.png"
 import sign from "./sign.svg"
+import ForgetGif from "./ForgetGif.gif"
+import StopGif from "./StopGif.gif"
+import LostGif from "./LostGif.gif"
 
 const assets = {
   bg: bg,
@@ -45,6 +48,7 @@ const assets = {
   otpIllustration: otpIllustration,
   BackgroundPopup: BackgroundPopup,
   ForgetImage: ForgetImage,
+  ForgetGif: ForgetGif,
   OtpLogin: OtpLogin,
   DesignationIllustration: DesignationIllustration,
   EmployeeIllustration: EmployeeIllustration,
@@ -68,6 +72,8 @@ const assets = {
   SampleAttendance: SampleAttendance,
   Unauthorize: Unauthorize,
   sign: sign,
+  StopGif: StopGif,
+  LostGif: LostGif
 };
 
 export default assets;

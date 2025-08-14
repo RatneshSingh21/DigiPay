@@ -24,59 +24,61 @@ export default function SignInEmployeeForm() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const { workEmail, password } = formData;
+    const { workEmail, password } = formData;
 
-  if (!workEmail || !password) {
-    toast.error("All fields are required.");
-    return;
-  }
-
-  setLoading(true);
-  try {
-    // 🔐 Actual API login attempt
-    const response = await axiosInstance.post("/employee-auth", {
-      workEmail,
-      password,
-    });
-
-    const { user, token, refreshToken } = response.data;
-    useAuthStore.getState().login(user, token, refreshToken);
-    toast.success("Login successful!");
-    window.location.href = "/";
-  } catch (err) {
-    // 🧪 Dummy login fallback
-    const isNetworkError = !err.response;
-
-    if (isNetworkError || err.response?.status === 404) {
-      // 🔓 Dummy credentials
-      const dummyEmail = "nitish@digipay.com";
-      const dummyPassword = "Nitish@123";
-
-      if (workEmail === dummyEmail && password === dummyPassword) {
-        const dummyUser = {
-          id: "EMP101",
-          fullName: "Nitish Yadav",
-          workEmail: dummyEmail,
-          role: "Employee",
-        };
-        const dummyToken = "dummy-token";
-        const dummyRefreshToken = "dummy-refresh-token";
-
-        useAuthStore.getState().login(dummyUser, dummyToken, dummyRefreshToken);
-        toast.success("Employee Login Successful!");
-        navigate("/");
-      } else {
-        toast.error("Invalid credentials.");
-      }
-    } else {
-      toast.error(err.response?.data?.message || "Login failed.");
+    if (!workEmail || !password) {
+      toast.error("All fields are required.");
+      return;
     }
-  } finally {
-    setLoading(false);
-  }
-};
+
+    setLoading(true);
+    try {
+      // Actual API login attempt
+      const response = await axiosInstance.post("/employee-auth", {
+        workEmail,
+        password,
+      });
+
+      const { user, token, refreshToken } = response.data;
+      useAuthStore.getState().login(user, token, refreshToken);
+      toast.success("Login successful!");
+      window.location.href = "/";
+    } catch (err) {
+      // Dummy login fallback
+      const isNetworkError = !err.response;
+
+      if (isNetworkError || err.response?.status === 404) {
+        // Dummy credentials
+        const dummyEmail = "nitish@digipay.com";
+        const dummyPassword = "Nitish@123";
+
+        if (workEmail === dummyEmail && password === dummyPassword) {
+          const dummyUser = {
+            id: "EMP101",
+            fullName: "Nitish Yadav",
+            workEmail: dummyEmail,
+            role: "Employee",
+          };
+          const dummyToken = "dummy-token";
+          const dummyRefreshToken = "dummy-refresh-token";
+
+          useAuthStore
+            .getState()
+            .login(dummyUser, dummyToken, dummyRefreshToken);
+          toast.success("Employee Login Successful!");
+          navigate("/");
+        } else {
+          toast.error("Invalid credentials.");
+        }
+      } else {
+        toast.error(err.response?.data?.message || "Login failed.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <form

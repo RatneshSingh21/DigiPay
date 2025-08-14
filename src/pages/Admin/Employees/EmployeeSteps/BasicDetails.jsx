@@ -5,24 +5,44 @@ import CustomSelect from "../EmployeeComponents/CustomSelect";
 import AddDepartmentForm from "../../Department/AddDepartmentForm";
 import AddDesignationForm from "../../Designation/AddDesignationForm";
 import WorkLocationForm from "../../WorkLocation/WorkLocationForm";
+import { useAddEmployeeStore } from "../../../../store/useAddEmployeeStore";
+import Spinner from "../../../../components/Spinner";
+import { useNavigate } from "react-router-dom";
 
+const BasicDetails = () => {
+  const {
+    basicDetails,
+    employeeId,
+    setEmployeeId,
+    setStepData,
+    setCurrentStep,
+    totalSteps,
+  } = useAddEmployeeStore();
 
-const BasicDetails = ({
-  data = {},
-  updateData = () => {},
-  goNext = () => {},
-  isEditing = false,
-}) => {
-  const [form, setForm] = useState(data.basicDetails || {});
-  const [isDirector, setIsDirector] = useState(false);
-  const [portalAccess, setPortalAccess] = useState(false);
+  const [form, setForm] = useState(basicDetails || {});
+  const [isDirector, setIsDirector] = useState(
+    basicDetails?.isDirector || false
+  );
+  const [portalAccess, setPortalAccess] = useState(
+    basicDetails?.portalAccess || false
+  );
   const [locations, setLocations] = useState([]);
   const [designation, setDesignation] = useState([]);
   const [department, setDepartment] = useState([]);
   const [payschedule, setPayschedule] = useState([]);
   const [openModalField, setOpenModalField] = useState(null);
+  const [loading, setLoading] = useState(false); // 🔹 loading state
 
-  // Fetch options
+  const navigate = useNavigate();
+  const resetStore = useAddEmployeeStore((state) => state.resetStore);
+
+  const handleCancel = () => {
+    // Clear all stored step data
+    resetStore();
+    // Redirect to employee list
+    navigate("/admin-dashboard/employees/list");
+  };
+
   const fetchDropdowns = async () => {
     try {
       const [locRes, desigRes, deptRes, payRes] = await Promise.all([
@@ -49,42 +69,28 @@ const BasicDetails = ({
     }
   };
 
-  // Fetch on mount
   useEffect(() => {
     fetchDropdowns();
   }, []);
 
-  // Initialize form from data
   useEffect(() => {
-    if (data?.basicDetails && Object.keys(data.basicDetails).length > 0) {
-      const initial = data.basicDetails;
-
-      setForm({
-        ...initial,
-        gender: initial.gender || null,
-        department: initial.department || null,
-        designation: initial.designation || null,
-        workLocation: initial.workLocation || null,
-        payschedule: initial.payschedule || null,
-      });
-
-      setIsDirector(initial?.isDirector || false);
-      setPortalAccess(initial?.portalAccess || false);
+    if (basicDetails && Object.keys(basicDetails).length > 0) {
+      setForm(basicDetails);
     }
-  }, [data]);
+  }, [basicDetails]);
 
   const handleChange = (e) => {
     if (e?.target) {
       const { name, value } = e.target;
       setForm((prev) => ({ ...prev, [name]: value }));
     } else {
-      // For CustomSelect
       setForm((prev) => ({ ...prev, [e.name]: e }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const payload = {
       employeeCode: form.employeeId,
@@ -94,7 +100,7 @@ const BasicDetails = ({
       dateOfJoining: form.dateOfJoining,
       workEmail: form.workEmail,
       mobileNumber: form.mobileNumber,
-      isDirector: isDirector,
+      isDirector,
       gender: form.gender?.value || "",
       departmentId: form.department?.value || 0,
       designationId: form.designation?.value || 0,
@@ -102,28 +108,30 @@ const BasicDetails = ({
       payScheduleId: form.payschedule?.value || 0,
       portalAccessEnabled: portalAccess,
     };
-    // console.log(payload);
 
-    updateData("basicDetails", {
-      ...form,
-      employeeCode: form.employeeId,
-      fullName: `${form.firstName || ""} ${form.middleName || ""} ${
-        form.lastName || ""
-      }`.trim(),
-      isDirector,
-      portalAccess,
-      gender: form.gender,
-      department: form.department,
-      designation: form.designation,
-      workLocation: form.workLocation,
-      payschedule: form.payschedule,
-    });
-    goNext(); // this will trigger handleStepSubmit in StepTabs
+    try {
+      let res;
+      if (!employeeId) {
+        res = await axiosInstance.post("/Employee", payload);
+        setEmployeeId(res.data.id);
+      } else {
+        await axiosInstance.put(`/Employee/${employeeId}`, payload);
+      }
+
+      setStepData("basicDetails", { ...form, isDirector, portalAccess });
+      setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to save basic details"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      <form className="text-sm p-10" onSubmit={handleSubmit}>
+      <form className="text-sm px-10 pb-10 pt-0 " onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block font-medium mb-1">
             Employee Name <span className="text-red-500">*</span>
@@ -170,9 +178,11 @@ const BasicDetails = ({
               value={form.employeeId || ""}
               type="text"
               onChange={handleChange}
-              disabled={isEditing}
+              disabled={employeeId}
               className={`w-full px-4 py-2 border rounded-md ${
-                isEditing ? "bg-gray-100 cursor-not-allowed" : "border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                employeeId
+                  ? "bg-gray-100 cursor-not-allowed"
+                  : "border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
               }`}
             />
           </div>
@@ -229,8 +239,7 @@ const BasicDetails = ({
               className="accent-[rgb(var(--color-primary))] mr-2"
             />
             <span>
-              Employee is a <strong>Director/person</strong> with substantial
-              interest in the company
+              Employee is a Company <strong>Director</strong> or not?
             </span>
           </label>
         </div>
@@ -299,10 +308,9 @@ const BasicDetails = ({
               className="accent-[rgb(var(--color-primary))] mr-2 mt-1"
             />
             <span className="text-sm">
-              <strong>Enable Portal Access</strong>
+              <strong>Portal Access Rights</strong>
               <br />
-              The employee will be able to view payslips, submit declarations
-              and create reimbursement claims through the portal.
+              Allows employee to access payslips, declarations, and claims.
             </span>
           </label>
         </div>
@@ -310,13 +318,16 @@ const BasicDetails = ({
         <div className="flex gap-4 mt-6">
           <button
             type="submit"
-            className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full shadow"
+            disabled={loading}
+            className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full shadow flex items-center justify-center gap-2"
           >
-            {isEditing ? "Update & Continue" : "Save & Continue"}
+            {loading && <Spinner />}
+            {employeeId ? "Update & Continue" : "Save & Continue"}
           </button>
           <button
             type="button"
-            className="bg-white border border-gray-300 px-6 py-2 rounded-full shadow"
+            onClick={handleCancel}
+            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-full shadow hover:bg-gray-300 flex items-center justify-center gap-2"
           >
             Cancel
           </button>

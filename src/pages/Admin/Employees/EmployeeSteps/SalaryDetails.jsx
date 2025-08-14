@@ -1,327 +1,384 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import useAuthStore from "../../../../store/authStore";
 import { toast } from "react-toastify";
+import { useAddEmployeeStore } from "../../../../store/useAddEmployeeStore";
+import Spinner from "../../../../components/Spinner";
 
-const SalaryDetails = ({ data = {}, updateData = () => {}, goNext = () => {} }) => {
-  const orgId = 6;
-  const [components, setComponents] = useState([]);
-  const [form, setForm] = useState({});
-  const [ctc, setCtc] = useState(data.salaryDetails?.ctc || 0);
+const SalaryDetails = () => {
+  const { user } = useAuthStore();
+  const {
+    employeeId,
+    totalSteps,
+    setStepData,
+    setCurrentStep,
+    basicDetails,
+    salaryDetails,
+  } = useAddEmployeeStore();
+  const [earnings, setEarnings] = useState([]);
+  const [deductions, setDeductions] = useState([]);
+  const [basicSalary, setBasicSalary] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  const additionsList = [
-    "basicSalary",
-    "hra",
-    "conveyanceAllowance",
-    "fixedAllowance",
-    "bonus",
-    "arrears",
-    "leaveEncashment",
-    "specialAllowance",
-  ];
+  if (!basicDetails) return null; // Prevent rendering before data is loaded
 
-  const deductionsList = [
-    "pfEmployee",
-    "esicEmployee",
-    "professionalTax",
-    "tds",
-    "loanRepayment",
-    "otherDeduction",
-  ];
+  const fullName = `${basicDetails.firstName || ""} ${
+    basicDetails.lastName || ""
+  }`.trim();
+  const employeeCode = basicDetails.employeeId || "N/A";
+  const email = basicDetails.workEmail || "N/A";
+  const departmentName = basicDetails.department?.label || "N/A";
 
   useEffect(() => {
+    if (!user?.userId) return;
+
     axiosInstance
-      .get("/OrgComponentConfig/by-org", { params: { orgId } })
-      .then((res) => setComponents(res.data?.data || []))
+      .get("/OrgComponentConfig/by-org", {
+        params: { orgId: user.userId },
+      })
+      .then((res) => {
+        const data = res.data?.data || [];
+
+        const basic = data.find((c) => c.componentName === "basicSalary");
+        const basicAmt = basic?.fixedAmount || 0;
+        setBasicSalary(basicAmt);
+
+        const earningList = data
+          .filter((c) =>
+            [
+              "basicSalary",
+              "hra",
+              "conveyanceAllowance",
+              "fixedAllowance",
+              "bonus",
+              "arrears",
+              "overtimeHours",
+              "overtimeRate",
+              "leaveEncashment",
+              "specialAllowance",
+            ].includes(c.componentName)
+          )
+          .map((c) => setupComponent(c, basicAmt));
+
+        const deductionList = data
+          .filter(
+            (c) =>
+              ![
+                "basicSalary",
+                "hra",
+                "conveyanceAllowance",
+                "fixedAllowance",
+                "bonus",
+                "arrears",
+                "overtimeHours",
+                "overtimeRate",
+                "leaveEncashment",
+                "specialAllowance",
+              ].includes(c.componentName)
+          )
+          .map((c) => setupComponent(c, basicAmt));
+
+        setEarnings(earningList);
+        setDeductions(deductionList);
+      })
       .catch(() => toast.error("Failed to load salary components"));
-  }, []);
+  }, [user?.userId]);
 
-//  useEffect(() => {
-//   if (!ctc || components.length === 0) return;
+  const setupComponent = (comp, basic) => {
+    const monthly =
+      comp.calculationType === 1
+        ? (basic * (comp.percentageValue || 0)) / 100
+        : comp.fixedAmount || 0;
 
-//   const updated = {};
-//   let basic = 0;
+    return {
+      ...comp,
+      calcTypeLabel: comp.calculationType === 1 ? "Percentage" : "Fixed",
+      monthly: parseFloat(monthly.toFixed(2)),
+      annual: parseFloat((monthly * 12).toFixed(2)),
+    };
+  };
 
-//   // First pass: calculate basic salary
-//   components.forEach((comp) => {
-//     if (comp.componentName === "basicSalary") {
-//       if (comp.calculationType === 1) {
-//         basic = (ctc * comp.percentageValue) / 100;
-//       } else if (comp.calculationType === 2) {
-//         basic = comp.fixedAmount;
-//       }
-//       updated[comp.componentName] = parseFloat(basic.toFixed(4));
-//     }
-//   });
+  const handleBasicSalaryChange = (value) => {
+    const newBasic = parseFloat(value) || 0;
+    setBasicSalary(newBasic);
 
-//   // Second pass: calculate all other components
-//   components.forEach((comp) => {
-//     if (comp.componentName === "basicSalary") return;
+    setEarnings((prev) =>
+      prev.map((item) => {
+        if (item.componentName === "basicSalary") {
+          return {
+            ...item,
+            fixedAmount: newBasic,
+            monthly: newBasic,
+            annual: newBasic * 12,
+          };
+        }
+        if (item.calculationType === 1) {
+          const monthly = (newBasic * (item.percentageValue || 0)) / 100;
+          return {
+            ...item,
+            monthly: parseFloat(monthly.toFixed(2)),
+            annual: parseFloat((monthly * 12).toFixed(2)),
+          };
+        }
+        return item;
+      })
+    );
 
-//     let value = 0;
-//     if (comp.calculationType === 1) {
-//       // % based
-//       if (comp.componentName === "hra") {
-//         value = (basic * comp.percentageValue) / 100; // HRA based on basic
-//       } else {
-//         value = (ctc * comp.percentageValue) / 100; // % of CTC
-//       }
-//     } else if (comp.calculationType === 2) {
-//       // Fixed amount
-//       value = comp.fixedAmount;
-//     }
+    setDeductions((prev) =>
+      prev.map((item) => {
+        if (item.calculationType === 1) {
+          const monthly = (newBasic * (item.percentageValue || 0)) / 100;
+          return {
+            ...item,
+            monthly: parseFloat(monthly.toFixed(2)),
+            annual: parseFloat((monthly * 12).toFixed(2)),
+          };
+        }
+        return item;
+      })
+    );
+  };
 
-//     updated[comp.componentName] = parseFloat(value.toFixed(4));
-//   });
+  const handlePercentageChange = (id, value, type) => {
+    const updateFn = type === "Earning" ? setEarnings : setDeductions;
+    updateFn((prev) =>
+      prev.map((item) =>
+        item.componentConfigId === id
+          ? {
+              ...item,
+              percentageValue: parseFloat(value) || 0,
+              monthly: (basicSalary * (parseFloat(value) || 0)) / 100,
+              annual: ((basicSalary * (parseFloat(value) || 0)) / 100) * 12,
+            }
+          : item
+      )
+    );
+  };
 
-//   setForm(updated);
-// }, [ctc, components]);
+  const handleMonthlyChange = (id, value, type) => {
+    const updateFn = type === "Earning" ? setEarnings : setDeductions;
+    updateFn((prev) =>
+      prev.map((item) => {
+        if (item.componentConfigId === id) {
+          const monthly = parseFloat(value) || 0;
+          const annual = monthly * 12;
+          let percentageValue = item.percentageValue;
 
-useEffect(() => {
-  if (!ctc || components.length === 0) return;
+          if (item.calculationType === 1 && basicSalary) {
+            percentageValue = ((monthly / basicSalary) * 100).toFixed(2);
+          }
 
-  let calculated = {};
-  let basic = 0;
-  let totalAdditions = 0;
-  let totalDeductions = 0;
+          return {
+            ...item,
+            monthly,
+            annual,
+            percentageValue,
+          };
+        }
+        return item;
+      })
+    );
+  };
 
-  const earnings = [];
-  const deductions = [];
+  const totalEarnings = earnings.reduce((sum, e) => sum + e.monthly, 0);
+  const totalDeductions = deductions.reduce((sum, d) => sum + d.monthly, 0);
+  const netPay = totalEarnings - totalDeductions;
 
-  // Step 1: Calculate fixed and % of CTC (except HRA)
-  components.forEach((comp) => {
-    let value = 0;
+  const handleSave = async () => {
+    try {
+      setLoading(true);
 
-    if (comp.calculationType === 2) {
-      value = comp.fixedAmount;
-    } else if (comp.calculationType === 1 && comp.componentName !== "hra") {
-      if (comp.componentName === "basicSalary") {
-        value = (ctc * comp.percentageValue) / 100;
-        basic = value;
-      } else {
-        value = (ctc * comp.percentageValue) / 100;
+      const allComponents = [...earnings, ...deductions];
+      const salaryPayload = {
+        employeeId,
+        orgId: user.userId,
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear(),
+        employeeCategory: 0,
+        absentDays: 0,
+        totalWorkingDays: 0,
+        status: 1,
+        paymentDate: new Date().toISOString(),
+        basicSalary,
+        hra: findMonthly("hra"),
+        conveyanceAllowance: findMonthly("conveyanceAllowance"),
+        fixedAllowance: findMonthly("fixedAllowance"),
+        bonus: findMonthly("bonus"),
+        arrears: findMonthly("arrears"),
+        overtimeHours: findMonthly("overtimeHours"),
+        overtimeRate: findMonthly("overtimeRate"),
+        leaveEncashment: findMonthly("leaveEncashment"),
+        specialAllowance: findMonthly("specialAllowance"),
+        pfEmployee: findMonthly("pfEmployee"),
+        esicEmployee: findMonthly("esicEmployee"),
+        professionalTax: findMonthly("professionalTax"),
+        tds: findMonthly("tds"),
+        loanRepayment: findMonthly("loanRepayment"),
+        otherDeductions: findMonthly("otherDeductions"),
+      };
+
+      function findMonthly(name) {
+        const comp = allComponents.find((c) => c.componentName === name);
+        return comp ? comp.monthly : 0;
       }
+
+      console.log(salaryPayload);
+
+      if (salaryDetails?.id) {
+        await axiosInstance.put("/Salary/update", salaryPayload);
+        toast.success("Salary updated successfully");
+      } else {
+        await axiosInstance.post("/Salary/create", salaryPayload);
+        toast.success("Salary created successfully");
+      }
+
+      // Store data in step state
+      setStepData("salaryDetails", salaryPayload);
+
+      // Move to next step reactively
+      setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        err.response?.data?.message || "Failed to save salary details"
+      );
+    } finally {
+      setLoading(false);
     }
-
-    value = parseFloat(value.toFixed(4));
-    calculated[comp.componentName] = value;
-
-    if (additionsList.includes(comp.componentName)) {
-      earnings.push({ name: comp.componentName, value });
-      totalAdditions += value;
-    } else if (deductionsList.includes(comp.componentName)) {
-      deductions.push({ name: comp.componentName, value });
-      totalDeductions += value;
-    }
-  });
-
-  // Step 2: Calculate HRA based on Basic
-  const hraComp = components.find((c) => c.componentName === "hra");
-  if (hraComp && hraComp.calculationType === 1 && basic > 0) {
-    const hra = (basic * hraComp.percentageValue) / 100;
-    calculated["hra"] = parseFloat(hra.toFixed(4));
-    totalAdditions += hra;
-    earnings.push({ name: "hra", value: hra });
-  }
-
-  // Step 3: Calculate current total and find difference from CTC
-  const currentTotal = totalAdditions + totalDeductions;
-  const diff = ctc - currentTotal;
-
-  // Step 4: Adjust 'specialAllowance' to fix the difference
-  if (Math.abs(diff) > 0.01) {
-    if (components.find((c) => c.componentName === "specialAllowance")) {
-      const prev = calculated["specialAllowance"] || 0;
-      calculated["specialAllowance"] = parseFloat((prev + diff).toFixed(4));
-      totalAdditions += diff;
-    } else {
-      toast.error("CTC mismatch and no adjustable component like specialAllowance found.");
-    }
-  }
-
-  setForm(calculated);
-}, [ctc, components]);
-
-  const handleCTCChange = (e) => {
-    const value = parseFloat(e.target.value);
-    setCtc(isNaN(value) ? 0 : value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    updateData("salaryDetails", {
-      ctc,
-      components: form,
-    });
-    goNext();
-  };
-
-  const getMonthly = (annual) => parseFloat((annual / 12).toFixed(2));
-
-  const getComponentRows = (filterList) => {
-    return components
-      .filter((comp) => filterList.includes(comp.componentName))
-      .map((comp) => {
-        const annual = form[comp.componentName] || 0;
-        const monthly = getMonthly(annual);
-        const showPercentage =
-          comp.calculationType === 1 && comp.percentageValue > 0;
-        const calcLabel =
-          comp.calculationType === 2
-            ? "Fixed amount"
-            : comp.componentName === "hra"
-            ? "% of Basic"
-            : "% of CTC";
-
-        return {
-          name: comp.componentName,
-          label: comp.componentName.replace(/([A-Z])/g, " $1"),
-          annual,
-          monthly,
-          calcLabel,
-          showPercentage,
-          percentage: comp.percentageValue,
-        };
-      });
-  };
-
-  const additions = getComponentRows(additionsList);
-  const deductions = getComponentRows(deductionsList);
-
-  const totalAnnualAdditions = additions.reduce((sum, row) => sum + row.annual, 0);
-  const totalMonthlyAdditions = getMonthly(totalAnnualAdditions);
-
-  const totalAnnualDeductions = deductions.reduce((sum, row) => sum + row.annual, 0);
-  const totalMonthlyDeductions = getMonthly(totalAnnualDeductions);
-
-  const netMonthlySalary = totalMonthlyAdditions - totalMonthlyDeductions;
-  const netAnnualSalary = totalAnnualAdditions - totalAnnualDeductions;
+  const renderTable = (title, data, color, type) => (
+    <div className="overflow-x-auto border rounded-lg shadow mb-6">
+      <table className="min-w-full border-collapse">
+        <thead>
+          <tr className={color}>
+            <th className="px-4 py-2 text-left">{title}</th>
+            <th className="px-4 py-2 text-left">Calc. Type</th>
+            <th className="px-4 py-2 text-right">%</th>
+            <th className="px-4 py-2 text-right">Monthly (₹)</th>
+            <th className="px-4 py-2 text-right">Annual (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item) => (
+            <tr key={item.componentConfigId} className="border-t">
+              <td className="px-4 py-2">{item.componentName}</td>
+              <td className="px-4 py-2">{item.calcTypeLabel}</td>
+              <td className="px-4 py-2 text-right">
+                {item.calculationType === 1 ? (
+                  <input
+                    type="number"
+                    className="border rounded px-2 py-1 w-20 text-right"
+                    value={item.percentageValue || ""}
+                    onChange={(e) =>
+                      handlePercentageChange(
+                        item.componentConfigId,
+                        e.target.value,
+                        type
+                      )
+                    }
+                  />
+                ) : (
+                  "-"
+                )}
+              </td>
+              <td className="px-4 py-2 text-right">
+                {item.componentName === "basicSalary" ? (
+                  <input
+                    type="number"
+                    className="border rounded px-2 py-1 w-28 text-right"
+                    value={basicSalary}
+                    onChange={(e) => handleBasicSalaryChange(e.target.value)}
+                  />
+                ) : (
+                  <input
+                    type="number"
+                    className="border rounded px-2 py-1 w-28 text-right"
+                    value={item.monthly}
+                    onChange={(e) =>
+                      handleMonthlyChange(
+                        item.componentConfigId,
+                        e.target.value,
+                        type
+                      )
+                    }
+                  />
+                )}
+              </td>
+              <td className="px-4 py-2 text-right">{item.annual}</td>
+            </tr>
+          ))}
+          <tr className="bg-gray-100 font-bold">
+            <td className="px-4 py-2">Total {title}</td>
+            <td></td>
+            <td></td>
+            <td className="px-4 py-2 text-right">
+              {type === "Earning"
+                ? totalEarnings.toFixed(2)
+                : totalDeductions.toFixed(2)}
+            </td>
+            <td className="px-4 py-2 text-right">
+              {type === "Earning"
+                ? (totalEarnings * 12).toFixed(2)
+                : (totalDeductions * 12).toFixed(2)}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 border rounded bg-white shadow space-y-6">
-      {/* CTC Input */}
-      <div className="flex items-center gap-2">
-        <label className="font-semibold w-40">Annual CTC *</label>
-        <input
-          required
-          name="ctc"
-          type="number"
-          step="0.0001"
-          value={ctc}
-          onChange={handleCTCChange}
-          className="border px-4 py-2 rounded w-64"
-        />
-        <span className="text-gray-600">per year</span>
-      </div>
-
-      {/* Additions Table */}
-      <div>
-        <h2 className="font-semibold mb-2 mt-6 text-green-700">Earnings</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-300 rounded">
-            <thead className="bg-green-100 text-gray-700 text-left">
-              <tr>
-                <th className="px-4 py-2">Component</th>
-                <th className="px-4 py-2">Calculation Type</th>
-                <th className="px-4 py-2">Monthly</th>
-                <th className="px-4 py-2">Annual</th>
-              </tr>
-            </thead>
-            <tbody>
-              {additions.map((row) => (
-                <tr key={row.name} className="border-t">
-                  <td className="px-4 py-2 capitalize font-medium">{row.label}</td>
-                  <td className="px-4 py-2">
-                    {row.showPercentage ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          disabled
-                          type="number"
-                          className="w-16 px-2 py-1 border rounded bg-gray-100 text-right"
-                          value={row.percentage}
-                        />
-                        <span>{row.calcLabel}</span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-700">{row.calcLabel}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2">₹ {row.monthly}</td>
-                  <td className="px-4 py-2">₹ {row.annual.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="space-y-8">
+      <div className="p-4 bg-white rounded-xl shadow mb-4">
+        <h2 className="text-lg font-semibold text-green-600 mb-2">
+          Employee Summary :
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1">
+          <p>
+            <span className="font-medium">Employee Code:</span> {employeeCode}
+          </p>
+          <p>
+            <span className="font-medium">Full Name:</span> {fullName}
+          </p>
+          <p>
+            <span className="font-medium">Email:</span> {email}
+          </p>
+          <p>
+            <span className="font-medium">Department:</span> {departmentName}
+          </p>
         </div>
       </div>
+      {renderTable(
+        "Earnings",
+        earnings,
+        "bg-green-100 text-gray-700",
+        "Earning"
+      )}
+      {renderTable(
+        "Deductions",
+        deductions,
+        "bg-red-100 text-gray-700",
+        "Deduction"
+      )}
 
-      {/* Deductions Table */}
-      <div>
-        <h2 className="font-semibold mb-2 mt-6 text-red-700">Deductions</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-300 rounded">
-            <thead className="bg-red-100 text-gray-700 text-left">
-              <tr>
-                <th className="px-4 py-2">Component</th>
-                <th className="px-4 py-2">Calculation Type</th>
-                <th className="px-4 py-2">Monthly</th>
-                <th className="px-4 py-2">Annual</th>
-              </tr>
-            </thead>
-            <tbody>
-              {deductions.map((row) => (
-                <tr key={row.name} className="border-t">
-                  <td className="px-4 py-2 capitalize font-medium">{row.label}</td>
-                  <td className="px-4 py-2">
-                    {row.showPercentage ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          disabled
-                          type="number"
-                          className="w-16 px-2 py-1 border rounded bg-gray-100 text-right"
-                          value={row.percentage}
-                        />
-                        <span>{row.calcLabel}</span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-700">{row.calcLabel}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2">₹ {row.monthly}</td>
-                  <td className="px-4 py-2">₹ {row.annual.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="p-4 border rounded-lg shadow bg-gray-50 text-right">
+        <h2 className="text-lg font-bold">
+          Net Pay (Monthly): ₹{netPay.toFixed(2)}
+        </h2>
+        <p className="text-gray-600">Annual: ₹{(netPay * 12).toFixed(2)}</p>
       </div>
 
-      {/* Summary */}
-      <div className="bg-blue-50 p-4 rounded text-lg font-medium space-y-2">
-        <div className="flex justify-between">
-          <span className="text-gray-700">Total Monthly Earnings:</span>
-          ₹ {totalMonthlyAdditions}
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-700">Total Monthly Deductions:</span>
-          ₹ {totalMonthlyDeductions}
-        </div>
-        <div className="flex justify-between text-green-700">
-          <span>Net Monthly Salary:</span>
-          ₹ {netMonthlySalary.toFixed(2)}
-        </div>
-        <div className="flex justify-between text-gray-700 pt-2 border-t">
-          <span>CTC (Annual):</span>
-          ₹ {ctc}
-        </div>
-      </div>
-
-      {/* Button */}
-      <div className="flex justify-between mt-6">
-        <button type="submit" className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded">
-          Save and Continue
+      <div className="text-right">
+        <button
+          onClick={handleSave}
+          disabled={loading}
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-full hover:bg-secondary"
+        >
+         {loading && <Spinner />} Save and Continue
         </button>
       </div>
-    </form>
+    </div>
   );
 };
 

@@ -18,12 +18,14 @@ import { AiOutlineSchedule } from "react-icons/ai";
 import { BiTimeFive } from "react-icons/bi";
 import { HiOutlineBriefcase, HiOutlineDocumentReport } from "react-icons/hi";
 import { TbCurrencyRupee, TbReportMoney } from "react-icons/tb";
+import { FaGears } from "react-icons/fa6";
 
 // Label to path mapping
 const labelToPath = {
   "Add Employee": "add",
   "Employee List": "list",
-  Teams: "teams",
+  "General Imports": "general-imports",
+  "General Settings": "general-settings",
   "Organisation Profile": "organisation-profile",
   Departments: "departments",
   "Work Locations": "work-locations",
@@ -44,7 +46,8 @@ const labelToPath = {
 const labelToIcon = {
   "Add Employee": <FaUserPlus className="mr-2" />,
   "Employee List": <FaList className="mr-2" />,
-  Teams: <FaUsers className="mr-2" />,
+  "General Imports": <FaUsers className="mr-2" />,
+  "General Settings": <FaGears className="mr-2" />,
   "Organisation Profile": <FaBuilding className="mr-2" />,
   Departments: <MdOutlineCorporateFare className="mr-2" />,
   "Work Locations": <GoLocation className="mr-2" />,

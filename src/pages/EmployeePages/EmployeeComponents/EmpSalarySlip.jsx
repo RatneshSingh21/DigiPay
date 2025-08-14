@@ -59,12 +59,13 @@ const EmpSalarySlip = () => {
   const [config, setConfig] = useState({});
 
   // Component mount hote hi localStorage se load karega
-  useEffect(() => {
-    const savedConfig = localStorage.getItem("templateConfig");
-    if (savedConfig) {
-      setConfig(JSON.parse(savedConfig));
-    }
-  }, []);
+ useEffect(() => {
+  const savedConfig = localStorage.getItem("templateConfigs");
+  if (savedConfig) {
+    const parsedConfig = JSON.parse(savedConfig);
+    setConfig(parsedConfig.simple || {}); // only using the "simple" template
+  }
+}, []);
 
   const {
     showPAN,
@@ -121,14 +122,13 @@ const EmpSalarySlip = () => {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-         
-            <img
-              src={assets.Digicode}
-              alt="Company Logo"
-              style={{ width: `140px` }}
-              className="mb-2"
-            />
-          
+          <img
+            src={assets.Digicode}
+            alt="Company Logo"
+            style={{ width: `140px` }}
+            className="mb-2"
+          />
+
           {showOrgName && (
             <h1 className="text-lg font-bold text-gray-900">{orgName}</h1>
           )}
@@ -150,7 +150,7 @@ const EmpSalarySlip = () => {
       <div className="grid grid-cols-2 gap-6 mb-6">
         <div>
           <p>
-            <span className="font-semibold">Employee Name</span> : Preet Setty
+            <span className="font-semibold">Employee Name</span> : Nitish Yadav
           </p>
           {showDesignation && (
             <p>
@@ -160,7 +160,7 @@ const EmpSalarySlip = () => {
           )}
           {showDepartment && (
             <p>
-              <strong>Department</strong> : {department || "Engineering"}
+              <strong>Department</strong> : {department || "Development"}
             </p>
           )}
           {showWorkLocation && (
@@ -169,16 +169,16 @@ const EmpSalarySlip = () => {
             </p>
           )}
           <p>
-            <span className="font-semibold">Employee ID</span> : emp012
+            <span className="font-semibold">Employee ID</span> : EMP001
           </p>
           <p>
-            <span className="font-semibold">Date of Joining</span> : 21-09-2014
+            <span className="font-semibold">Date of Joining</span> : 21-09-2024
           </p>
           <p>
             <span className="font-semibold">Pay Period</span> : July 2025
           </p>
           <p>
-            <span className="font-semibold">Pay Date</span> : 31/07/2025
+            <span className="font-semibold">Pay Date</span> : 31/08/2025
           </p>
         </div>
         <div className="bg-green-50 border rounded p-4">
@@ -300,18 +300,16 @@ const EmpSalarySlip = () => {
       </p>
 
       {/* Signature */}
-        <div className="flex justify-end">
-          <div className={`mt-6 text-right}`}>
-          <img
-            src={assets.sign}
-            alt="Signature"
-            className="inline-block"
-            style={{ width: "90px" }}
-          />
-          <p className="text-xs mt-1 text-gray-500">Authorized Signatory</p>
-        </div>
 
-        </div>
+      <div className={`mt-6 text-right`}>
+        <img
+          src={assets.sign}
+          alt="Signature"
+          className="inline-block"
+          style={{ width: "90px" }}
+        />
+        <p className="text-xs mt-1 text-gray-500">Authorized Signatory</p>
+      </div>
 
       <p className="text-center text-gray-400 text-xs mt-6">
         — This is a system-generated document —

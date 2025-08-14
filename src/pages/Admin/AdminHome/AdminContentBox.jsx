@@ -3,7 +3,7 @@ import AdminSubmenuBox from "./AdminSubmenuBox";
 
 const submenuMap = {
   Settings: ["Organisation Profile", "Departments" , "Designation" , "Work Locations", "Permissions", "PaySchedule", "Shifts", "Salary" , "Attendance","Weekend Policy"],
-  Employees: [ "Add Employee","Employee List", "Teams"],
+  Employees: [ "Add Employee","Employee List", "General Imports", "General Settings"],
   Reports: ["Attendance Report", "Payroll Report", "Salary Register", "Payslip Templates"],
 };
 

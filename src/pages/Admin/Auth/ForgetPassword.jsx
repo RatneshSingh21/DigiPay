@@ -78,7 +78,7 @@ const ForgetPassword = () => {
           Back
         </button>
         <img
-          src={assets.ForgetImage}
+          src={assets.ForgetGif}
           alt="Forgot Password Illustration"
           className="mx-auto mb-4 w-32 h-32"
         />
