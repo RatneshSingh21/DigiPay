@@ -4,12 +4,12 @@ import { Link, useLocation } from "react-router-dom";
 import {
   FaUserPlus,
   FaList,
-  FaUsers,
   FaBuilding,
   FaUserCheck,
   FaCalendarCheck,
   FaFileInvoiceDollar,
   FaUmbrellaBeach,
+  FaGlobeAmericas,
 } from "react-icons/fa";
 import { MdOutlineCorporateFare } from "react-icons/md";
 import { GoLocation } from "react-icons/go";
@@ -46,7 +46,7 @@ const labelToPath = {
 const labelToIcon = {
   "Add Employee": <FaUserPlus className="mr-2" />,
   "Employee List": <FaList className="mr-2" />,
-  "General Imports": <FaUsers className="mr-2" />,
+  "General Imports": <FaGlobeAmericas className="mr-2" />,
   "General Settings": <FaGears className="mr-2" />,
   "Organisation Profile": <FaBuilding className="mr-2" />,
   Departments: <MdOutlineCorporateFare className="mr-2" />,

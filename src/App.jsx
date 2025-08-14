@@ -34,7 +34,7 @@ import AdminContentBox from "./pages/Admin/AdminHome/AdminContentBox";
 import EmployeeList from "./pages/Admin/Employees/EmployeeList";
 import AddEmployee from "./pages/Admin/Employees/AddEmployee";
 import GeneralImports from "./pages/Admin/Employees/GeneralImports";
-import GeneralSettings from "./pages/Admin/Employees/GeneralSettings";
+import GeneralSettings from "./pages/Admin/Employees/GeneralSettings/GeneralSettings";
 
 //Admin Settings Pages
 import OrganisationProfile from "./pages/Admin/Settings/OrganisationProfile";

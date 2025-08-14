@@ -262,7 +262,7 @@ const SalaryDetails = () => {
         <tbody>
           {data.map((item) => (
             <tr key={item.componentConfigId} className="border-t">
-              <td className="px-4 py-2">{item.componentName}</td>
+              <td className="px-4 py-2 capitalize">{item.componentName}</td>
               <td className="px-4 py-2">{item.calcTypeLabel}</td>
               <td className="px-4 py-2 text-right">
                 {item.calculationType === 1 ? (

@@ -6,7 +6,11 @@ import { useAddEmployeeStore } from "../../../../store/useAddEmployeeStore";
 import Spinner from "../../../../components/Spinner";
 
 const paymentModes = [
-  { label: "Bank Transfer", value: "Bank Transfer", image: assets.BankTransfer },
+  {
+    label: "Bank Transfer",
+    value: "Bank Transfer",
+    image: assets.BankTransfer,
+  },
   { label: "Cash", value: "Cash", image: assets.Cash },
   { label: "Cheque", value: "Cheque", image: assets.Cheque },
   { label: "NEFT", value: "NEFT", image: assets.NEFT },
@@ -28,7 +32,9 @@ const PaymentInfo = () => {
 
   if (!basicDetails) return null;
 
-  const fullName = `${basicDetails.firstName || ""} ${basicDetails.lastName || ""}`.trim();
+  const fullName = `${basicDetails.firstName || ""} ${
+    basicDetails.lastName || ""
+  }`.trim();
   const employeeCode = basicDetails.employeeId || "N/A";
   const email = basicDetails.workEmail || "N/A";
   const departmentName = basicDetails.department?.label || "N/A";
@@ -221,12 +227,16 @@ const PaymentInfo = () => {
                   alt={mode.label}
                   className="w-12 h-12 object-contain mb-2"
                 />
-                <span className="text-sm font-medium text-center">{mode.label}</span>
+                <span className="text-sm font-medium text-center">
+                  {mode.label}
+                </span>
               </div>
             ))}
           </div>
           {!form.paymentMode && (
-            <p className="text-red-500 text-sm mt-1">Please select a payment mode</p>
+            <p className="text-red-500 text-sm mt-1">
+              Please select a payment mode
+            </p>
           )}
         </div>
 
@@ -235,11 +245,12 @@ const PaymentInfo = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`bg-primary text-white px-6 py-2 rounded-full ${
+            className={`bg-primary text-white px-6 py-2 rounded-full flex items-center gap-2 ${
               loading ? "opacity-50 cursor-not-allowed" : "hover:bg-secondary"
             }`}
           >
-          {loading && <Spinner />} Save and Continue
+            {loading && <Spinner />}
+            Save and Continue
           </button>
         </div>
       </form>
