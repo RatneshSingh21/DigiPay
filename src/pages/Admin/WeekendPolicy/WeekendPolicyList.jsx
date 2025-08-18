@@ -29,7 +29,7 @@ const WeekendPolicyList = ({
   };
 
   return (
-    <div className="bg-white p-6">
+    <div className="bg-white">
       {weekendPolicy.length === 0 ? (
         <p className="text-gray-500 text-sm">No Policy found.</p>
       ) : (

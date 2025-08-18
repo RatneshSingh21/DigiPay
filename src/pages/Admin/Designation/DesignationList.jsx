@@ -29,7 +29,7 @@ const DesignationList = ({
   };
 
   return (
-    <div className="bg-white p-6">
+    <div className="bg-white">
       {designations.length === 0 ? (
         <p className="text-gray-500 text-sm">No designation found.</p>
       ) : (

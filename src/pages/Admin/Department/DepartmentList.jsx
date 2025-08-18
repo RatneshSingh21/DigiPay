@@ -29,7 +29,7 @@ const DepartmentList = ({
   };
 
   return (
-    <div className="bg-white p-6 pt-0">
+    <div className="bg-white">
       {departments.length === 0 ? (
         <p className="text-gray-500 text-sm">No departments found.</p>
       ) : (
@@ -38,8 +38,8 @@ const DepartmentList = ({
             <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
               <tr>
                 <th className="px-6 py-3 text-left">Id</th>
-                <th className="px-6 py-3 text-left">Department Name</th>
-                <th className="px-6 py-3 text-left">Description</th>
+                <th className="py-3 text-left">Department Name</th>
+                <th className="py-3 text-center">Description</th>
                 <th className="px-6 py-3 text-center">Actions</th>
               </tr>
             </thead>

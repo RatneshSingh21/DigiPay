@@ -30,7 +30,7 @@ const ShiftList = ({
   
 
   return (
-    <div className="bg-white p-6">
+    <div className="bg-white">
       {shifts.length === 0 ? (
         <p className="text-gray-500 text-sm">No shift found.</p>
       ) : (
