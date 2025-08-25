@@ -1,7 +1,7 @@
 const DashboardCard = ({ title, children }) => (
-  <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow">
+  <div className="bg-white p-4 rounded-2xl shadow">
     {title && (
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+      <h3 className="text-lg font-semibold text-gray-800 mb-2">
         {title}
       </h3>
     )}

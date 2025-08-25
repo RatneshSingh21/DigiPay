@@ -10,14 +10,18 @@ import useAuthStore from "../../../store/authStore";
 import ProfileSettingsDrawer from "../../../components/ProfileSettingsDrawer";
 import AdminSettingsDrawer from "./AdminSettingsDrawer";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
 
 const AdminNavbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [profileDrawerOpen, setProfileDrawerOpen] = useState(false); // profile
   const [adminDrawerOpen, setAdminDrawerOpen] = useState(false); // for admin settings
+  const [companyName, setCompanyName] = useState("Loading...");
+
   const profileRef = useRef();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
+  const companyId = useAuthStore((state) => state.companyId);
 
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -28,6 +32,21 @@ const AdminNavbar = () => {
     // Redirect to public landing page
     navigate("/");
   };
+
+  // 🔹 Fetch company details on mount if companyId exists
+  useEffect(() => {
+    const fetchCompany = async () => {
+      if (!companyId) return;
+      try {
+        const response = await axiosInstance.get(`/Company/${companyId}`);
+        setCompanyName(response.data.companyName || "My Company");
+      } catch (error) {
+        console.error("Failed to fetch company:", error);
+        setCompanyName("My Company");
+      }
+    };
+    fetchCompany();
+  }, [companyId]);
 
   // Close profile menu when clicked outside
   useEffect(() => {
@@ -46,7 +65,7 @@ const AdminNavbar = () => {
       <nav className="sticky top-0 w-full h-14 bg-white shadow-sm z-20 flex items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2">
           <div className="flex flex-col leading-tight">
-            <span className="font-bold text-sm">Digi Payroll</span>
+            <span className="font-bold text-sm text-primary">{companyName}</span>
             <span className="text-xs text-gray-500 -mt-1">
               Payroll Software
             </span>

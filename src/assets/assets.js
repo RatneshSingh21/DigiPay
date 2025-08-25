@@ -8,14 +8,17 @@ import logo from "./logo.png";
 import Google from "./Google.svg";
 import otpIllustration from "./otpIllustration.png";
 import BackgroundPopup from "./BackgroundPopup.png";
-import ForgetImage from "./ForgetImage.webp";
-import OtpLogin from "./OtpLogin.webp";
-import DesignationIllustration from "./DesignationIllustration.webp";
-import EmployeeIllustration from "./EmployeeIllustration.webp";
+import ForgetImage from "./ForgetImage.png";
+import OtpLogin from "./OtpLogin.png";
+import DesignationIllustration from "./DesignationIllustration.png";
+import EmployeeIllustration from "./EmployeeIllustration.png";
 import WorkLocationIllustration from "./WorkLocationIllustration.png";
 import DepartmentIllustration from "./DepartmentIllustration.png";
-import PaySchuduleIllustration from "./PaySchuduleIllustration.webp";
+import PaySchuduleIllustration from "./PaySchuduleIllustration.png";
 import ShiftIllustration from "./ShiftIllustration.png";
+import WeekendPolicyIllustration from "./WeekendPolicyIllustration.png"
+import LeaveIllustration from "./LeaveIllustration.jpg"
+import ComplianceIllustration from "./ComplianceIllustration.png"
 import BankTransfer from "./BankTransfer.png";
 import Cash from "./Cash.png";
 import Cheque from "./Cheque.png";
@@ -56,6 +59,9 @@ const assets = {
   DepartmentIllustration: DepartmentIllustration,
   PaySchuduleIllustration: PaySchuduleIllustration,
   ShiftIllustration: ShiftIllustration,
+  WeekendPolicyIllustration: WeekendPolicyIllustration,
+  LeaveIllustration: LeaveIllustration,
+  ComplianceIllustration: ComplianceIllustration,
   BankTransfer: BankTransfer,
   Cash: Cash,
   NEFT: NEFT,

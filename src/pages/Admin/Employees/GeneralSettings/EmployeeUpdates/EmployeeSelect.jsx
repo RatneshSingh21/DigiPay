@@ -41,6 +41,7 @@ const EmployeeSelect = ({ value, onSelect }) => {
         isClearable
         autoFocus
         placeholder={loading ? "Loading…" : "Choose an employee"}
+        className="z-10"
         styles={{
           control: (base) => ({
             ...base,

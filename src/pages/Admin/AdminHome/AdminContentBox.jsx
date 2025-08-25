@@ -2,9 +2,32 @@ import { Outlet, useLocation } from "react-router-dom";
 import AdminSubmenuBox from "./AdminSubmenuBox";
 
 const submenuMap = {
-  Settings: ["Organisation Profile", "Departments" , "Designation" , "Work Locations", "Permissions", "PaySchedule", "Shifts", "Salary" , "Attendance","Weekend Policy"],
-  Employees: [ "Add Employee","Employee List", "General Imports", "General Settings"],
-  Reports: ["Attendance Report", "Payroll Report", "Salary Register", "Payslip Templates"],
+  Settings: [
+    "Organisation Profile",
+    "Departments",
+    "Designation",
+    "Work Locations",
+    "Permissions",
+    "PaySchedule",
+    "Shifts",
+    "Salary",
+    "Attendance",
+  ],
+  Employees: [
+    "Add Employee",
+    "Employee List",
+    "General Imports",
+    "General Settings",
+  ],
+  Reports: [
+    "Attendance Report",
+    "Salary Register",
+    "Payslip Templates",
+    "Payroll Report",
+  ],
+  Leave: ["Leave Types", "Leave Mapping", "Leave Requests", "Leave Balance", "Holiday List"],
+  Policy: ["Policy Details", "Policy Settings", "Weekend Policy"],
+  Compliance: ["Compliance Details", "Compliance Rules"],
 };
 
 const getMenuFromPath = (pathname) => {
@@ -12,6 +35,9 @@ const getMenuFromPath = (pathname) => {
   if (pathname.includes("/settings")) return "Settings";
   if (pathname.includes("/reports")) return "Reports";
   if (pathname.includes("/payschedule")) return "Payschedule";
+  if (pathname.includes("/leave")) return "Leave";
+  if (pathname.includes("/policy")) return "Policy";
+  if (pathname.includes("/compliance")) return "Compliance";
   return "Dashboard";
 };
 
@@ -31,7 +57,9 @@ const AdminContentBox = () => {
         {submenuItems.length === 0 ? (
           <>
             <h2 className="text-xl font-semibold mb-4">{selectedMenu}</h2>
-            <p>This is the main content area for <strong>{selectedMenu}</strong>.</p>
+            <p>
+              This is the main content area for <strong>{selectedMenu}</strong>.
+            </p>
           </>
         ) : (
           <Outlet />

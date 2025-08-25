@@ -1,7 +1,6 @@
 import {
   MdHome,
   MdOutlineRequestQuote,
-  MdOutlinePayments,
   MdOutlineBadge,
   MdOutlineCalendarMonth,
   MdSettings,
@@ -30,7 +29,6 @@ const menuItems = [
     to: "/employee-dashboard/salary-slip",
   },
   {
-    // label: "Leave Balance / Apply",
     label: "Leave Balance",
     icon: <HiOutlineClipboardList />,
     to: "/employee-dashboard/leave",
@@ -41,9 +39,9 @@ const menuItems = [
     to: "/employee-dashboard/advance-payment",
   },
   {
-    label: "Out Duty",
+    label: "On Duty (OD)",
     icon: <MdOutlineCalendarMonth />,
-    to: "/employee-dashboard/out-duty",
+    to: "/employee-dashboard/on-duty",
   },
   {
     label: "My Profile",

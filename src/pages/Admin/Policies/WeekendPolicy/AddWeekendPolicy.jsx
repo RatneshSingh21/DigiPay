@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { Switch } from "@headlessui/react";
 import { toast } from "react-toastify";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+
 
 const DayToggle = ({ label, value, onChange }) => (
   <div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-lg shadow-sm">
@@ -193,7 +194,7 @@ const AddWeekendPolicy = ({ onClose, onSuccess, initialData, isEdit }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white max-h-[100vh] overflow-y-auto p-6 rounded-lg shadow-lg max-w-3xl w-full relative"
+        className="bg-white max-h-[95vh] overflow-y-auto p-6 rounded-lg shadow-lg max-w-3xl w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button

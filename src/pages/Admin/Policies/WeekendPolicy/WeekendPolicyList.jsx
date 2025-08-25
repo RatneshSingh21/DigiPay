@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { FiEdit2, FiTrash2, FiMapPin } from "react-icons/fi";
 import { toast } from "react-toastify";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
-import ConfirmModal from "../../../components/ConfirmModal";
 import WeekendPolicyMap from "./WeekendPolicyMap";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import ConfirmModal from "../../../../components/ConfirmModal";
 
 const WeekendPolicyList = ({
   weekendPolicy = [],
@@ -39,8 +39,8 @@ const WeekendPolicyList = ({
               <tr>
                 {/* <th className="px-6 py-3 text-left">ID</th> */}
                 <th className="px-6 py-3 text-left">Policy Name</th>
-                <th className="px-6 py-3 text-left">Half Day Start Time</th>
-                <th className="px-6 py-3 text-left">Half Day End Time</th>
+                <th className="px-6 py-3 text-center">Half Day Start Time</th>
+                <th className="px-6 py-3 text-center">Half Day End Time</th>
                 {/* <th className="px-6 py-3 text-left">Margin Enabled</th> */}
                 {/* <th className="px-6 py-3 text-left">Before Margin</th>
                 <th className="px-6 py-3 text-left">After Margin</th> */}
@@ -61,8 +61,8 @@ const WeekendPolicyList = ({
                 >
                   {/* <td className="px-6 py-4">{policy.id}</td> */}
                   <td className="px-6 py-4 font-medium">{policy.policyName}</td>
-                  <td className="px-6 py-4">{policy.halfDayStartTime}</td>
-                  <td className="px-6 py-4">{policy.halfDayEndTime}</td>
+                  <td className="px-6 py-4 text-center">{policy.halfDayStartTime}</td>
+                  <td className="px-6 py-4 text-center">{policy.halfDayEndTime}</td>
                   {/* <td className="px-6 py-4">{policy.isShiftMarginEnabled ? "Yes" : "No"}</td> */}
                   {/* <td className="px-6 py-4">{policy.marginBeforeShift}</td>
                   <td className="px-6 py-4">{policy.marginAfterShift}</td> */}

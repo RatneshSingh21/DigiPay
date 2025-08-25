@@ -70,12 +70,16 @@ const EmployeeList = () => {
       try {
         const response = await axiosInstance.get("/Employee");
         setEmployees(response.data?.data || response.data || []);
-        // console.log(response.data);
       } catch (error) {
         console.error("Error fetching employee data:", error);
-        toast.error(
-          error?.response?.data?.message || "Error fetching employee data"
-        );
+
+        if (error.response?.status === 403) {
+          toast.error("You don’t have permission to view employees.");
+        } else {
+          toast.error(
+            error?.response?.data?.message || "Error fetching employee data"
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -83,7 +87,6 @@ const EmployeeList = () => {
 
     fetchEmployees();
   }, []);
-
   const filteredEmployees = employees.filter((emp) => {
     const { location, department, designation } = filters;
     return (
@@ -238,9 +241,8 @@ const EmployeeList = () => {
           </div>
 
           {/* Employee Table */}
-
           {filteredEmployees.length > 0 ? (
-            <div className="border max-w-5xl border-gray-200 rounded-lg overflow-x-scroll max-h-[65vh]">
+            <div className="border md:max-w-4xl lg:max-w-5xl border-gray-200 rounded-lg overflow-x-scroll max-h-[65vh]">
               <table className="text-sm w-full">
                 <thead className="bg-gray-100 text-gray-700 sticky top-0 z-20">
                   <tr className="text-center">

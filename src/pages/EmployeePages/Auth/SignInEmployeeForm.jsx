@@ -2,15 +2,15 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 
 export default function SignInEmployeeForm() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    workEmail: "",
+    email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -26,55 +26,43 @@ export default function SignInEmployeeForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { workEmail, password } = formData;
+    const { email, password } = formData;
 
-    if (!workEmail || !password) {
+    if (!email || !password) {
       toast.error("All fields are required.");
       return;
     }
 
     setLoading(true);
     try {
-      // Actual API login attempt
-      const response = await axiosInstance.post("/employee-auth", {
-        workEmail,
-        password,
-      });
+      const response = await axiosInstance.post(
+        "/user-auth/employee-authenaticqtio",
+        { email, password }
+      );
 
-      const { user, token, refreshToken } = response.data;
-      useAuthStore.getState().login(user, token, refreshToken);
-      toast.success("Login successful!");
-      window.location.href = "/";
+      const {
+        employeeId,
+        fullName,
+        email: backendEmail,
+        token,
+        message,
+      } = response.data;
+
+      // Create user object for Zustand store
+      const user = {
+        userId: employeeId,
+        fullName,
+        email: backendEmail,
+        role: "Employee",
+      };
+
+      useAuthStore.getState().login(user, token, null);
+
+      toast.success(message || "Login successful!");
+      navigate("/");
     } catch (err) {
-      // Dummy login fallback
-      const isNetworkError = !err.response;
-
-      if (isNetworkError || err.response?.status === 404) {
-        // Dummy credentials
-        const dummyEmail = "nitish@digipay.com";
-        const dummyPassword = "Nitish@123";
-
-        if (workEmail === dummyEmail && password === dummyPassword) {
-          const dummyUser = {
-            id: "EMP101",
-            fullName: "Nitish Yadav",
-            workEmail: dummyEmail,
-            role: "Employee",
-          };
-          const dummyToken = "dummy-token";
-          const dummyRefreshToken = "dummy-refresh-token";
-
-          useAuthStore
-            .getState()
-            .login(dummyUser, dummyToken, dummyRefreshToken);
-          toast.success("Employee Login Successful!");
-          navigate("/");
-        } else {
-          toast.error("Invalid credentials.");
-        }
-      } else {
-        toast.error(err.response?.data?.message || "Login failed.");
-      }
+      console.error("Backend error:", err.response.data);
+      toast.error(err.response.data?.message || "Login failed.");
     } finally {
       setLoading(false);
     }
@@ -118,8 +106,8 @@ export default function SignInEmployeeForm() {
         </label>
         <input
           type="text"
-          name="workEmail"
-          value={formData.workEmail}
+          name="email"
+          value={formData.email}
           onChange={handleChange}
           placeholder="you@example.com"
           autoFocus

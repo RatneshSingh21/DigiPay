@@ -1,8 +1,5 @@
 import React from "react";
-import AttendanceCalendar from "./AttendanceCalendar.jsx";
-import IncentiveChart from "./IncentiveChart.jsx";
 import SummaryCards from "./SummaryCards.jsx";
-import RecentShiftLogs from "./RecentShiftLogs.jsx";
 import DashboardCard from "./DashboardCard.jsx";
 import TimesheetCalendar from "./TimesheetCalendar.jsx";
 import UpcomingHolidays from "./UpcomingHolidays.jsx";
@@ -20,7 +17,7 @@ const EmployeeDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-[#111827] p-4">
+    <div className="min-h-screen bg-gray-100 p-4">
       {/* Summary */}
       {/* <div className="mb-6">
         <SummaryCards />

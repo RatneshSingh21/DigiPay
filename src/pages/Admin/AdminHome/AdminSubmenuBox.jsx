@@ -10,8 +10,11 @@ import {
   FaFileInvoiceDollar,
   FaUmbrellaBeach,
   FaGlobeAmericas,
+  FaFileAlt,
+  FaCogs,
+  FaBalanceScale,
 } from "react-icons/fa";
-import { MdOutlineCorporateFare } from "react-icons/md";
+import { MdCelebration, MdOutlineCorporateFare, MdOutlineMap, MdOutlineRequestPage } from "react-icons/md";
 import { GoLocation } from "react-icons/go";
 import { RiShieldKeyholeLine } from "react-icons/ri";
 import { AiOutlineSchedule } from "react-icons/ai";
@@ -39,7 +42,16 @@ const labelToPath = {
   "Salary Register": "salary-register",
   Attendance: "attendance",
   "Payslip Templates": "payslip-templates",
+  "Leave Types": "leave-types",
+  "Leave Mapping": "leave-mapping",
+  "Leave Requests": "leave-requests",
+  "Leave Balance": "leave-balance",
+  "Holiday List": "holiday-list",
+  "Policy Details": "policy-details",
+  "Policy Settings": "policy-settings",
   "Weekend Policy": "weekend-policy",
+  "Compliance Details": "compliance-details",
+  "Compliance Rules": "compliance-rules",
 };
 
 // Label to icon mapping
@@ -61,7 +73,16 @@ const labelToIcon = {
   "Salary Register": <TbReportMoney className="mr-2" />,
   Attendance: <FaUserCheck className="mr-2" />,
   "Payslip Templates": <HiOutlineDocumentReport className="mr-2" />,
+  "Leave Types": <FaUmbrellaBeach className="mr-2" />,
+  "Leave Mapping": <MdOutlineMap className="mr-2" />,
+  "Leave Requests": <MdOutlineRequestPage className="mr-2" />,
+  "Leave Balance": <FaBalanceScale className="mr-2" />,
+  "Holiday List": <MdCelebration className="mr-2" />,
+  "Policy Details": <FaFileAlt className="mr-2" />,
+  "Policy Settings": <FaCogs className="mr-2" />,
   "Weekend Policy": <FaUmbrellaBeach className="mr-2" />,
+  "Compliance Details": <FaFileAlt className="mr-2" />,
+  "Compliance Rules": <FaBalanceScale className="mr-2" />,
 };
 
 const AdminSubmenuBox = ({ items, selectedMenu }) => {

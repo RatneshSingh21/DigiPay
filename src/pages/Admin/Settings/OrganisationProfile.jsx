@@ -184,62 +184,61 @@ const OrganisationProfile = () => {
   return (
     <>
       <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10">
-        <h2 className="font-semibold text-xl">OrganisationProfile</h2>
+        <h2 className="font-semibold text-xl">Organisation Profile</h2>
       </div>
        <div className="p-6 bg-white rounded-lg space-y-10">
       {/* Organisation Logo */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Organisation Logo
-        </label>
-        <div className="flex items-start gap-6">
-          <div className="w-40 h-40 border border-dashed border-gray-300 flex items-center justify-center rounded-md">
-            <div className="w-40 h-40 border border-dashed border-gray-300 flex items-center justify-center rounded-md relative overflow-hidden bg-gray-50">
-              {logoPreview ? (
-                <img
-                  src={logoPreview}
-                  alt="Logo Preview"
-                  className="object-contain w-full h-full"
-                />
-              ) : (
-                <button
-                  className="text-gray-400 text-sm hover:text-gray-600 flex items-center gap-2"
-                  onClick={() => document.getElementById("logo-upload").click()}
-                >
-                  <FiUpload/> UPLOAD LOGO
-                </button>
-              )}
-              <input
-                type="file"
-                accept="image/png, image/jpeg, image/jpg"
-                id="logo-upload"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setLogoPreview(reader.result);
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-              />
-            </div>
-          </div>
-          <div className="text-sm text-gray-600">
-            <p className="mb-1">
-              This logo will be displayed on documents such as Payslip and TDS
-              Worksheet.
-            </p>
-            <p className="text-gray-500">
-              Preferred Image Size: 240 × 240 pixels @ 72 DPI, Maximum size of
-              1MB.
-            </p>
-            <p className="text-gray-500">File Formats: PNG, JPG, and JPEG</p>
-          </div>
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Organisation Logo
+  </label>
+  <div className="flex items-start gap-6">
+    <div
+      className="w-40 h-40 border border-dashed border-gray-300 rounded-md relative overflow-hidden bg-gray-50 cursor-pointer"
+      onClick={() => document.getElementById("logo-upload").click()}
+    >
+      {logoPreview ? (
+        <img
+          src={logoPreview}
+          alt="Logo Preview"
+          className="w-full h-full"
+        />
+      ) : (
+        <div className="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-gray-600">
+          <FiUpload size={20} />
+          <span className="text-xs mt-1">Upload Logo</span>
         </div>
-      </div>
+      )}
+      <input
+        type="file"
+        accept="image/png, image/jpeg, image/jpg"
+        id="logo-upload"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setLogoPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+          }
+        }}
+      />
+    </div>
+
+    <div className="text-sm text-gray-600">
+      <p className="mb-1">
+        This logo will be displayed on documents such as Payslip and TDS
+        Worksheet.
+      </p>
+      <p className="text-gray-500">
+        Preferred Image Size: 240 × 240 pixels @ 72 DPI, Maximum size of 1MB.
+      </p>
+      <p className="text-gray-500">File Formats: PNG, JPG, and JPEG</p>
+    </div>
+  </div>
+</div>
 
       {/* Organisation Name */}
       <div>

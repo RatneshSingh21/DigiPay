@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import ImportShift from "../Shift/ImportShift";
-import assets from "../../../assets/assets";
 import { FiDownload } from "react-icons/fi";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
-import WeekendPolicyList from "../WeekendPolicy/WeekendPolicyList";
-import AddWeekendPolicy from "../WeekendPolicy/AddWeekendPolicy";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import WeekendPolicyList from "./WeekendPolicyList";
+import AddWeekendPolicy from "./AddWeekendPolicy";
+import ImportShift from "../../Shift/ImportShift";
+import assets from "../../../../assets/assets";
+
 
 const WeekendPolicy = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -69,7 +70,7 @@ const WeekendPolicy = () => {
       {weekendPolicy.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-7 text-center">
           <img
-            src="https://tse4.mm.bing.net/th/id/OIP.YiVWMSe5NwZ4DHuOoeFDkAHaF8?r=0&cb=thfvnext&pid=ImgDet&w=178&h=142&c=7&dpr=1.5&o=7&rm=3"
+            src={assets.WeekendPolicyIllustration}
             alt="Shift"
             className="w-64 h-auto mb-6"
           />

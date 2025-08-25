@@ -4,49 +4,75 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import { FiDownload, FiUpload } from "react-icons/fi";
 import Spinner from "../../../components/Spinner";
+import useAuthStore from "../../../store/authStore";
 
-// Module list
 const modules = [
   "Employee",
   "Salary",
   "Attendance",
   "Pay Schedule",
-  "Permission",
   "Work Location",
   "Payroll Run",
 ];
 
-// Replace with dynamic fetch from API in real scenario
-const userOptions = [
-  { value: "1", label: "Admin 1" },
-  { value: "2", label: "Admin 2" },
-];
-
 const Permissions = () => {
-  const [adminUserId, setAdminUserId] = useState("");
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [permissions, setPermissions] = useState({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+    const { user } = useAuthStore();
 
-  const isDisabled = !adminUserId || saving;
+  const isDisabled = !selectedEmployee || saving;
 
-  const handleCheckboxChange = (module, permKey) => {
-    if (isDisabled) return;
-    setPermissions((prev) => ({
-      ...prev,
-      [module]: {
-        ...prev[module],
-        [permKey]: !prev[module]?.[permKey],
-        adminUserId: parseInt(adminUserId),
-        moduleName: module,
-      },
-    }));
-  };
-
-  const fetchPermissions = async (id) => {
+  // Fetch employees + include Admin itself
+  const fetchEmployees = async (userId) => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get(`/Permission/admin/${id}`);
+      const res = await axiosInstance.get(`/user-auth/User-Employee/${userId}`);
+      const { userId: uId, userName, employees } = res.data;
+
+      // First add Admin as an option
+      const adminOption = {
+        value: uId,
+        label: `${userName} (Admin)`,
+        type: "admin",
+      };
+
+      // Then map employees
+      const empOptions = employees.map((emp) => ({
+        value: emp.employeeId,
+        label: `${emp.employeeName} (${emp.employeeCode})`,
+        type: "employee",
+      }));
+
+      // Combine admin + employees in grouped format
+      const groupedOptions = [
+        {
+          label: "Admin",
+          options: [adminOption],
+        },
+        {
+          label: "Employees",
+          options: empOptions,
+        },
+      ];
+
+      setEmployees(groupedOptions);
+    } catch (err) {
+      toast.error("Failed to load employees");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchEmployees(user.userId);
+  }, []);
+
+  const fetchPermissions = async (employeeId) => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get(`/Permission/admin/${employeeId}`);
       const perms = {};
       res.data?.forEach((perm) => {
         perms[perm.moduleName] = perm;
@@ -59,9 +85,29 @@ const Permissions = () => {
     }
   };
 
-  const handleSave = async () => {
-    if (!adminUserId) return;
+  useEffect(() => {
+    if (selectedEmployee?.value) {
+      fetchPermissions(selectedEmployee.value);
+    } else {
+      setPermissions({});
+    }
+  }, [selectedEmployee]);
 
+  const handleCheckboxChange = (module, permKey) => {
+    if (isDisabled) return;
+    setPermissions((prev) => ({
+      ...prev,
+      [module]: {
+        ...prev[module],
+        [permKey]: !prev[module]?.[permKey],
+        adminUserId: selectedEmployee?.value,
+        moduleName: module,
+      },
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!selectedEmployee) return;
     try {
       setSaving(true);
       const payload = Object.values(permissions);
@@ -69,24 +115,14 @@ const Permissions = () => {
         await axiosInstance.post("/Permission/set", item);
       }
       toast.success("Permissions updated!");
-
-      // Reset form after save
-      setAdminUserId("");
-      setPermissions({});
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to update permissions");
+      toast.error(
+        error?.response?.data?.message || "Failed to update permissions"
+      );
     } finally {
       setSaving(false);
     }
   };
-
-  useEffect(() => {
-    if (adminUserId) {
-      fetchPermissions(adminUserId);
-    } else {
-      setPermissions({});
-    }
-  }, [adminUserId]);
 
   return (
     <>
@@ -105,27 +141,24 @@ const Permissions = () => {
         </div>
       </div>
 
-      {/* Admin Select & Input */}
-      <div className="flex items-center gap-4 py-2 px-5 flex-wrap">
-        <div className="w-64">
+      {/* Employee Select + Disabled ID input */}
+      <div className="flex items-center gap-4 px-5 flex-wrap">
+        <div className="w-80">
           <Select
-            options={userOptions}
-            placeholder="Select Admin"
-            value={userOptions.find((u) => u.value === adminUserId) || null}
-            onChange={(selected) => setAdminUserId(selected?.value || "")}
+            options={employees}
+            placeholder="Select Employee"
+            value={selectedEmployee}
+            onChange={(selected) => setSelectedEmployee(selected)}
             isClearable
-            isDisabled={saving}
+            isDisabled={saving || loading}
           />
         </div>
-        <span className="text-gray-400 font-medium">or</span>
         <input
           type="number"
-          placeholder="Enter Admin ID"
-          className="w-60 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          value={adminUserId}
-          onChange={(e) => setAdminUserId(e.target.value)}
-          disabled={saving}
-          autoFocus
+          className="w-60 px-4 py-2 border border-blue-300 rounded-md bg-gray-100"
+          value={selectedEmployee?.value || ""}
+          readOnly
+          disabled
         />
       </div>
 
@@ -136,43 +169,83 @@ const Permissions = () => {
             Loading permissions...
           </p>
         ) : (
-          <table className="w-full text-sm text-left border border-gray-200">
-            <thead className="bg-gray-100 text-gray-700">
-              <tr>
-                <th className="p-3 border text-left">Modules</th>
-                {["View", "Create", "Edit", "Delete"].map((action) => (
-                  <th key={action} className="p-3 border text-center">
-                    {action.toUpperCase()}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {modules.map((module) => (
-                <tr key={module} className="hover:bg-gray-50 transition">
-                  <td className="p-3 border font-medium">{module}</td>
-                  {["canView", "canCreate", "canEdit", "canDelete"].map(
-                    (permKey) => (
-                      <td key={permKey} className="border text-center">
-                        <input
-                          type="checkbox"
-                          className="w-5 h-5 cursor-pointer"
-                          checked={permissions[module]?.[permKey] || false}
-                          onChange={() => handleCheckboxChange(module, permKey)}
-                          disabled={isDisabled}
-                        />
-                      </td>
-                    )
+          <>
+            {/* Select All */}
+            <div className="flex justify-end mb-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 cursor-pointer"
+                  checked={modules.every(
+                    (module) =>
+                      permissions[module]?.canView &&
+                      permissions[module]?.canCreate &&
+                      permissions[module]?.canEdit &&
+                      permissions[module]?.canDelete
                   )}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    const newPerms = {};
+                    modules.forEach((module) => {
+                      newPerms[module] = {
+                        ...permissions[module],
+                        adminUserId: selectedEmployee?.value,
+                        moduleName: module,
+                        canView: checked,
+                        canCreate: checked,
+                        canEdit: checked,
+                        canDelete: checked,
+                      };
+                    });
+                    setPermissions(newPerms);
+                  }}
+                  disabled={isDisabled}
+                />
+                Select All
+              </label>
+            </div>
+
+            {/* Table */}
+            <table className="w-full text-sm text-left border border-gray-200">
+              <thead className="bg-gray-100 text-gray-700">
+                <tr>
+                  <th className="p-3 border text-left">Modules</th>
+                  {["View", "Create", "Edit", "Delete"].map((action) => (
+                    <th key={action} className="p-3 border text-center">
+                      {action.toUpperCase()}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {modules.map((module) => (
+                  <tr key={module} className="hover:bg-gray-50 transition">
+                    <td className="p-3 border font-medium">{module}</td>
+                    {["canView", "canCreate", "canEdit", "canDelete"].map(
+                      (permKey) => (
+                        <td key={permKey} className="border text-center">
+                          <input
+                            type="checkbox"
+                            className="w-5 h-5 cursor-pointer"
+                            checked={permissions[module]?.[permKey] || false}
+                            onChange={() =>
+                              handleCheckboxChange(module, permKey)
+                            }
+                            disabled={isDisabled}
+                          />
+                        </td>
+                      )
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-4 my-4 px-5">
+      <div className="flex justify-end gap-4 px-5 pb-5">
         <button
           onClick={handleSave}
           disabled={isDisabled}

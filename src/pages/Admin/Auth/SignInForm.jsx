@@ -43,9 +43,15 @@ export default function SignInForm({ switchToSignUp }) {
 
       const { user, token, refreshToken } = response.data;
       useAuthStore.getState().login(user, token, refreshToken);
+
       toast.success("Login successful!");
-      // Redirect user or update UI
-      navigate("/");
+
+      // Direct role-based navigation
+      if (user.role === "SuperAdmin" || user.role === "Admin") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/unauthorized");
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed.");
     } finally {
@@ -59,25 +65,25 @@ export default function SignInForm({ switchToSignUp }) {
       className="w-full max-w-sm px-6 pb-8 bg-white rounded-md shadow-sm"
     >
       <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
+        type="button"
+        onClick={() => navigate(-1)}
+        className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
+      >
+        <svg
+          className="w-4 h-4 mr-1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
         >
-          <svg
-            className="w-4 h-4 mr-1"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          Back
-        </button>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        Back
+      </button>
       <h2 className="text-2xl font-bold mb-1">
         Login to{" "}
         <span>

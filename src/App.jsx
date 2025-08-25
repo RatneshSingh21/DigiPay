@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import useAuthStore from "./store/authStore";
 import useThemeStore from "./store/themeStore";
@@ -9,8 +9,9 @@ import "react-toastify/dist/ReactToastify.css";
 import AuthLayout from "./Layout/AuthLayout";
 import AdminDashboardLayout from "./Layout/AdminDashboardLayout";
 import EmployeeDashboardLayout from "./Layout/EmployeeDashboardLayout";
+import AddCompanyModal from "./components/AddCompanyModel";
 
-// Dashboards 
+// Dashboards
 import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeePages/EmployeeDashboard/EmployeeDashboard";
 
@@ -20,13 +21,14 @@ import VerifyOtp from "./pages/Admin/Auth/VerifyOtp";
 import SendLoginOtp from "./pages/Admin/Auth/SendLoginOtp";
 import ForgetPassword from "./pages/Admin/Auth/ForgetPassword";
 import ResetPassword from "./pages/Admin/Auth/ResetPassword";
+import EmpCreatePassword from "./pages/EmployeePages/Auth/EmpCreatePassword";
 
 // Guard
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Optional pages
 import Unauthorized from "./pages/Unauthorized";
-import NotFound from "./pages/NotFound"; 
+import NotFound from "./pages/NotFound";
 
 import AdminContentBox from "./pages/Admin/AdminHome/AdminContentBox";
 
@@ -46,7 +48,6 @@ import Shifts from "./pages/Admin/Settings/Shifts";
 import Designation from "./pages/Admin/Settings/Designation";
 import Salary from "./pages/Admin/Settings/Salary";
 import Attendance from "./pages/Admin/Settings/Attendance";
-import WeekendPolicy from "./pages/Admin/Settings/WeekendPolicy";
 
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
@@ -54,6 +55,21 @@ import PayrollReport from "./pages/Admin/Reports/PayrollReport";
 import SalaryRegister from "./pages/Admin/Reports/SalaryRegister";
 import PayslipTemplates from "./pages/Admin/Reports/PayslipTemplates";
 
+// Leave Pages
+import Leave from "./pages/Admin/Leave/Leave";
+import LeaveRequests from "./pages/Admin/Leave/LeaveRequests";
+import LeaveBalance from "./pages/Admin/Leave/LeaveBalance";
+import LeaveMapping from "./pages/Admin/Leave/LeaveMapping";
+import HolidayList from "./pages/Admin/Leave/HolidayList";
+
+// Policy Pages
+import PolicyDetails from "./pages/Admin/Policies/PolicyDetails";
+import PolicySettings from "./pages/Admin/Policies/PolicySettings";
+import WeekendPolicy from "./pages/Admin/Policies/WeekendPolicy/WeekendPolicy";
+
+// Compliance Pages
+import ComplianceDetails from "./pages/Admin/Compliance/ComplianceDetails";
+import ComplianceRules from "./pages/Admin/Compliance/ComplianceRules";
 
 // Employee Pages
 import EmployeeProfile from "./pages/EmployeePages/EmployeeComponents/EmployeeProfile";
@@ -65,15 +81,16 @@ import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
 
 
-
-
 const App = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
+  const companyId = useAuthStore((state) => state.companyId);
+  const isAuthReady = useAuthStore((state) => state.isAuthReady);
+
   const mode = useThemeStore((state) => state.mode);
   const palette = useThemeStore((state) => state.palette);
 
-  const isLoading = token && !user;
+  const [showCompanyModal, setShowCompanyModal] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -83,7 +100,7 @@ const App = () => {
       root.classList.remove("dark");
     }
 
-    // Remove all theme color classes before adding new one
+    // Reset theme classes
     root.classList.remove(
       "theme-orange",
       "theme-blue",
@@ -98,9 +115,32 @@ const App = () => {
     root.classList.add(`theme-${palette}`);
   }, [mode, palette]);
 
+  // Show modal only if Admin/SuperAdmin has no company yet
+  useEffect(() => {
+    console.log(companyId);
+    if (
+      isAuthReady &&
+      (user?.role === "Admin" || user?.role === "SuperAdmin") &&
+      (!companyId || companyId === 1)
+    ) {
+      setShowCompanyModal(true);
+    } else {
+      setShowCompanyModal(false);
+    }
+  }, [isAuthReady, user, companyId]);
+
   return (
     <div>
       <ToastContainer position="top-right" autoClose={3000} />
+
+      {/* Company creation modal (blocking if no companyId) */}
+      {showCompanyModal && (
+        <AddCompanyModal
+          isOpen={showCompanyModal}
+          onClose={() => setShowCompanyModal(false)}
+        />
+      )}
+
       <Routes>
         {token ? (
           <>
@@ -133,7 +173,10 @@ const App = () => {
                   <Route path="list" element={<EmployeeList />} />
                   <Route path="add" element={<AddEmployee />} />
                   <Route path="general-imports" element={<GeneralImports />} />
-                  <Route path="general-settings" element={<GeneralSettings />} />
+                  <Route
+                    path="general-settings"
+                    element={<GeneralSettings />}
+                  />
                 </Route>
 
                 {/* Dashboard Main Page */}
@@ -160,7 +203,6 @@ const App = () => {
                   <Route path="designation" element={<Designation />} />
                   <Route path="salary" element={<Salary />} />
                   <Route path="attendance" element={<Attendance />} />
-                  <Route path="weekend-policy" element={<WeekendPolicy />} />
                 </Route>
 
                 {/* Reports SubRoutes */}
@@ -170,9 +212,37 @@ const App = () => {
                     path="attendance-report"
                     element={<AttendanceReport />}
                   />
-                  <Route path="payslip-templates" element={<PayslipTemplates />} />
+                  <Route
+                    path="payslip-templates"
+                    element={<PayslipTemplates />}
+                  />
                   <Route path="payroll-report" element={<PayrollReport />} />
                   <Route path="salary-register" element={<SalaryRegister />} />
+                </Route>
+
+                {/* Leave SubRoutes */}
+                <Route path="leave/*" element={<AdminContentBox />}>
+                  <Route index element={<Navigate to="leave-types" />} />
+                  <Route path="leave-types" element={<Leave />} />
+                  <Route path="leave-mapping" element={<LeaveMapping />} />
+                  <Route path="leave-requests" element={<LeaveRequests />} />
+                  <Route path="leave-balance" element={<LeaveBalance />} />
+                  <Route path="holiday-list" element={<HolidayList />} />
+                </Route>
+
+                {/* Policy SubRoutes */}
+                <Route path="policy/*" element={<AdminContentBox />}>
+                  <Route index element={<Navigate to="policy-details" />} />
+                  <Route path="weekend-policy" element={<WeekendPolicy />} />
+                  <Route path="policy-details" element={<PolicyDetails />} />
+                  <Route path="policy-settings" element={<PolicySettings />} />
+                </Route>
+
+              {/* Compliance SubRoutes */}
+                <Route path="compliance/*" element={<AdminContentBox />}>
+                  <Route index element={<Navigate to="compliance-details" />} />
+                  <Route path="compliance-details" element={<ComplianceDetails />} />
+                  <Route path="compliance-rules" element={<ComplianceRules />} />
                 </Route>
 
                 {/* Nested 404 Catcher for /admin-dashboard/* */}
@@ -196,7 +266,7 @@ const App = () => {
                 <Route path="salary-slip" element={<EmpSalarySlip />} />
                 <Route path="settings" element={<EmpSettings />} />
                 <Route path="advance-payment" element={<EmpAdvancePayment />} />
-                <Route path="out-duty" element={<EmpOutDuty />} />
+                <Route path="on-duty" element={<EmpOutDuty />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Route>
@@ -216,6 +286,7 @@ const App = () => {
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-otp" element={<VerifyOtp />} />
+            <Route path="/setup-password" element={<EmpCreatePassword />} />
 
             {/* Unauthorized Page for public access violations */}
             <Route path="/unauthorized" element={<Unauthorized />} />

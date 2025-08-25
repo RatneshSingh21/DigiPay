@@ -31,7 +31,7 @@ const CurrentComponent = steps[safeStepIndex]?.component || (() => null);
   return (
     <div>
       {/* Stepper UI */}
-      <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-4 sm:gap-6 sticky top-14 px-4 sm:px-16 py-3 mx-auto bg-white dark:bg-gray-900 shadow-lg z-10">
+      <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-4 sm:gap-6 sticky top-14 px-4 sm:px-16 py-3 mx-auto bg-white shadow-lg z-10">
         {steps.map((step, index) => {
           const Icon = step.icon;
           const isActive = index === currentStep;
@@ -49,7 +49,7 @@ const CurrentComponent = steps[safeStepIndex]?.component || (() => null);
                       ? "bg-blue-500 text-white border-blue-500"
                       : isCompleted
                       ? "bg-green-500 text-white border-green-500"
-                      : "bg-gray-100 text-gray-400 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                      : "bg-gray-100 text-gray-400 border-gray-300"
                   }`}
                 >
                   <Icon />
@@ -57,8 +57,8 @@ const CurrentComponent = steps[safeStepIndex]?.component || (() => null);
                 <span
                   className={`mt-2 text-xs sm:text-sm font-medium ${
                     isActive
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-gray-500 dark:text-gray-400"
+                      ? "text-blue-600"
+                      : "text-gray-500"
                   }`}
                 >
                   {step.label}
@@ -67,7 +67,7 @@ const CurrentComponent = steps[safeStepIndex]?.component || (() => null);
 
               {/* Horizontal line between steps */}
               {index < steps.length - 1 && (
-                <div className="hidden sm:block flex-1 h-0.5 bg-gray-300 dark:bg-gray-600"></div>
+                <div className="hidden sm:block flex-1 h-0.5 bg-gray-300"></div>
               )}
             </React.Fragment>
           );
@@ -75,7 +75,7 @@ const CurrentComponent = steps[safeStepIndex]?.component || (() => null);
       </div>
 
       {/* Step Content */}
-      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow">
+      <div className="bg-white p-6 rounded-xl shadow">
         <CurrentComponent />
       </div>
     </div>

@@ -164,7 +164,7 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white max-h-[100vh] 
+        className="bg-white max-h-[90vh] 
  overflow-y-auto  p-6 rounded-lg shadow-lg max-w-xl w-full relative"
         onClick={(e) => e.stopPropagation()}
       >

@@ -12,7 +12,7 @@ const PaySchedule = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState(null);
-   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     fetchSchedules();
@@ -39,8 +39,7 @@ const PaySchedule = () => {
     } catch (error) {
       console.error("Delete failed:", error);
       toast.error("Failed to delete Pay Schedule");
-    }
-    finally {
+    } finally {
       setConfirmDeleteId(null);
     }
   };
@@ -90,7 +89,8 @@ const PaySchedule = () => {
             Simplify payroll management with flexible pay schedules
           </h1>
           <p className="text-center text-gray-600 mb-6">
-           Create customized pay schedules that align with your business needs and assign them to specific employee groups with ease.
+            Create customized pay schedules that align with your business needs
+            and assign them to specific employee groups with ease.
           </p>
           <div className="flex gap-4">
             <button
@@ -106,7 +106,7 @@ const PaySchedule = () => {
           </div>
         </div>
       ) : (
-        <div className="overflow-x-auto mt-4">
+        <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-200 text-sm rounded-md overflow-hidden shadow">
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
               <tr className="text-center">
@@ -124,7 +124,9 @@ const PaySchedule = () => {
                 <tr
                   key={item.id}
                   className={
-                    index % 2 === 0 ? "bg-white text-center" : "bg-gray-50 border-t text-center"
+                    index % 2 === 0
+                      ? "bg-white text-center"
+                      : "bg-gray-50 border-t text-center"
                   }
                 >
                   <td className="px-4 py-3 font-medium text-left">{item.id}</td>

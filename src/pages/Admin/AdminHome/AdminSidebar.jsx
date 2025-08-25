@@ -1,6 +1,7 @@
 import { AiFillDashboard, AiFillSetting, AiFillSchedule } from "react-icons/ai";
 import { RiFolderOpenFill } from "react-icons/ri";
-import { FaUsers } from "react-icons/fa6";
+import { FaClipboardCheck, FaUsers } from "react-icons/fa";
+import { MdEventAvailable, MdPolicy } from "react-icons/md";
 import AdminSidebarItem from "./AdminSidebarItem";
 import assets from "../../../assets/assets";
 import { Link } from "react-router-dom";
@@ -28,6 +29,24 @@ const menuItems = [
     label: "Reports",
     icon: <RiFolderOpenFill />,
     to: "/admin-dashboard/reports",
+    collapseOnClick: true,
+  },
+  {
+    label: "Leave",
+    icon: <MdEventAvailable />,
+    to: "/admin-dashboard/leave",
+    collapseOnClick: true,
+  },
+  {
+    label: "Policy",
+    icon: <MdPolicy />,
+    to: "/admin-dashboard/policy",
+    collapseOnClick: true,
+  },
+    {
+    label: "Compliance",
+    icon: <FaClipboardCheck />,
+    to: "/admin-dashboard/compliance",
     collapseOnClick: true,
   },
   {

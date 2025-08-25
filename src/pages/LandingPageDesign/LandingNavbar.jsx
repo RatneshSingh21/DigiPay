@@ -14,7 +14,7 @@ const LandingNavbar = () => {
               to="/"
               className="text-gray-900 text-xl sm:text-2xl font-bold hover:text-gray-700"
             >
-              Digi<span className="text-orange-800 font-bold">Pay</span>
+              Digi<span className="text-orange-600 font-bold">Pay</span>
             </Link>
           </div>
 

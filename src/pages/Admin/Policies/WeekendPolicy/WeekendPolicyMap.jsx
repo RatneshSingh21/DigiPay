@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import Select from "react-select";
-import Spinner from "../../../components/Spinner";
+import Spinner from "../../../../components/Spinner";
 
 const WeekendPolicyMap = ({ policy, onClose }) => {
   const [departments, setDepartments] = useState([]);

@@ -11,8 +11,8 @@ const holidays = [
 
 const UpcomingHolidays = () => {
   return (
-    <div className="w-full bg-white dark:bg-gray-800 py-3">
-      <div className="max-h-64 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-700">
+    <div className="w-full bg-white py-3">
+      <div className="max-h-64 overflow-y-auto divide-y divide-gray-200">
         {holidays.map((holiday, index) => {
           const dateObj = parseISO(holiday.date);
           return (
@@ -21,15 +21,15 @@ const UpcomingHolidays = () => {
               className="flex items-center justify-between py-3 px-3 text-sm"
             >
               <div className="flex flex-col">
-                <span className="text-gray-900 dark:text-gray-100 font-medium">
+                <span className="text-gray-900 font-medium">
                   {holiday.occasion}
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-gray-500">
                   {format(dateObj, "EEEE")}
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                <span className="text-sm font-semibold text-indigo-600">
                   {format(dateObj, "dd MMM yyyy")}
                 </span>
               </div>
