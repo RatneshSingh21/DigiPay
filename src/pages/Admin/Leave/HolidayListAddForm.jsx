@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import Select from "react-select"; 
+import Select from "react-select";
 import useAuthStore from "../../../store/authStore";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
@@ -197,7 +197,9 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                         value: String(loc.id),
                         label: `${loc.name} (${loc.city})`,
                       }))
-                      .find((opt) => opt.value === String(formData.workLocationId))
+                      .find(
+                        (opt) => opt.value === String(formData.workLocationId)
+                      )
                   : null
               }
               onChange={(selected) =>

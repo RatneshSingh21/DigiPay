@@ -226,7 +226,7 @@ const Permissions = () => {
                         <td key={permKey} className="border text-center">
                           <input
                             type="checkbox"
-                            className="w-5 h-5 cursor-pointer"
+                            className="w-5 h-5 cursor-pointer accent-primary"
                             checked={permissions[module]?.[permKey] || false}
                             onChange={() =>
                               handleCheckboxChange(module, permKey)

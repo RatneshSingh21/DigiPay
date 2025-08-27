@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import HolidayListAddForm from "./HolidayListAddForm";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import ConfirmModal from "../../../components/ConfirmModal";
+import assets from "../../../assets/assets";
 
 const HolidayList = () => {
   const [holidays, setHolidays] = useState([]);
@@ -77,22 +78,26 @@ const HolidayList = () => {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse rounded-lg overflow-hidden">
-          <thead className="bg-gray-100 text-gray-700 text-sm">
-            <tr>
-              <th className="py-3 px-4 text-center">S NO.</th>
-              <th className="py-3 px-4 text-center">Holiday Name</th>
-              <th className="py-3 px-4 text-center">Date</th>
-              <th className="py-3 px-4 text-center">Day</th>
-              <th className="py-3 px-4 text-center">Created By</th>
-              <th className="py-3 px-4 text-center">Updated By</th>
-              <th className="py-3 px-4 text-center">Actions</th>
-            </tr>
-          </thead>
+          {/* Show table header only when there are holidays */}
+          {holidays.length > 0 && (
+            <thead className="bg-gray-100 text-gray-700 text-sm">
+              <tr>
+                <th className="py-3 px-4 text-center">S NO.</th>
+                <th className="py-3 px-4 text-center">Holiday Name</th>
+                <th className="py-3 px-4 text-center">Date</th>
+                <th className="py-3 px-4 text-center">Day</th>
+                <th className="py-3 px-4 text-center">Created By</th>
+                <th className="py-3 px-4 text-center">Updated By</th>
+                <th className="py-3 px-4 text-center">Actions</th>
+              </tr>
+            </thead>
+          )}
+
           <tbody>
             {loading ? (
               <tr>
                 <td
-                  colSpan="4"
+                  colSpan="7"
                   className="py-6 text-center text-gray-500 italic"
                 >
                   Loading holidays...
@@ -147,11 +152,30 @@ const HolidayList = () => {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="4"
-                  className="py-6 text-center text-gray-500 italic"
-                >
-                  No holidays found
+                <td colSpan="7" className="py-10 text-center">
+                  <div className="flex flex-col items-center justify-center">
+                    <img
+                      src={assets.holiday}
+                      alt="No holidays"
+                      className="w-40 h-40 mb-4 opacity-80"
+                    />
+                    <p className="text-gray-600 font-medium">
+                      No holidays found
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                      Add holidays to manage your company calendar efficiently.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setIsEdit("Add");
+                        setSelectedHoliday(null);
+                        openModal();
+                      }}
+                      className="mt-4 bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium cursor-pointer"
+                    >
+                      + Add Holiday
+                    </button>
+                  </div>
                 </td>
               </tr>
             )}

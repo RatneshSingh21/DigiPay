@@ -38,6 +38,7 @@ import sign from "./sign.svg"
 import ForgetGif from "./ForgetGif.gif"
 import StopGif from "./StopGif.gif"
 import LostGif from "./LostGif.gif"
+import holiday from "./holiday.png"
 
 const assets = {
   bg: bg,
@@ -79,7 +80,8 @@ const assets = {
   Unauthorize: Unauthorize,
   sign: sign,
   StopGif: StopGif,
-  LostGif: LostGif
+  LostGif: LostGif,
+  holiday: holiday,
 };
 
 export default assets;

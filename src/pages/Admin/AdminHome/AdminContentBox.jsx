@@ -11,6 +11,7 @@ const submenuMap = {
     "PaySchedule",
     "Shifts",
     "Salary",
+    "Status Master",
     "Attendance",
   ],
   Employees: [
@@ -49,7 +50,7 @@ const AdminContentBox = () => {
   return (
     <main className="flex h-full">
       {submenuItems.length > 0 && (
-        <div className="w-48 h-[86vh]">
+        <div className="w-48 h-[86vh] z-20">
           <AdminSubmenuBox items={submenuItems} selectedMenu={selectedMenu} />
         </div>
       )}

@@ -46,6 +46,7 @@ import PaySchedule from "./pages/Admin/Settings/PaySchedule";
 import Permissions from "./pages/Admin/Settings/Permissions";
 import Shifts from "./pages/Admin/Settings/Shifts";
 import Designation from "./pages/Admin/Settings/Designation";
+import StatusMaster from "./pages/Admin/Settings/StatusMaster";
 import Salary from "./pages/Admin/Settings/Salary";
 import Attendance from "./pages/Admin/Settings/Attendance";
 
@@ -79,6 +80,7 @@ import EmpSettings from "./pages/EmployeePages/EmployeeComponents/EmpSettings";
 import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
 import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
+
 
 
 const App = () => {
@@ -202,6 +204,7 @@ const App = () => {
                   <Route path="shifts" element={<Shifts />} />
                   <Route path="designation" element={<Designation />} />
                   <Route path="salary" element={<Salary />} />
+                  <Route path="status-master" element={<StatusMaster />} />
                   <Route path="attendance" element={<Attendance />} />
                 </Route>
 

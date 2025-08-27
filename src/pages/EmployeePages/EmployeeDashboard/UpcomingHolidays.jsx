@@ -1,41 +1,73 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { format, parseISO } from "date-fns";
-
-const holidays = [
-  { date: "2025-08-15", occasion: "Independence Day" },
-  { date: "2025-09-02", occasion: "Ganesh Chaturthi" },
-  { date: "2025-10-02", occasion: "Gandhi Jayanti" },
-  { date: "2025-10-31", occasion: "Diwali" },
-  { date: "2025-12-25", occasion: "Christmas" },
-];
+import axiosInstance from "../../../axiosInstance/axiosInstance";
+import assets from "../../../assets/assets";
 
 const UpcomingHolidays = () => {
+  const [holidays, setHolidays] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHolidays = async () => {
+      try {
+        const response = await axiosInstance.get("/HolidayListMaster/get-all");
+        setHolidays(response.data || []);
+      } catch (error) {
+        console.error("Error fetching holidays:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHolidays();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full bg-white py-3">
+        <div className="text-center text-gray-500 py-4">Loading holidays...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full bg-white py-3">
       <div className="max-h-64 overflow-y-auto divide-y divide-gray-200">
-        {holidays.map((holiday, index) => {
-          const dateObj = parseISO(holiday.date);
-          return (
-            <div
-              key={index}
-              className="flex items-center justify-between py-3 px-3 text-sm"
-            >
-              <div className="flex flex-col">
-                <span className="text-gray-900 font-medium">
-                  {holiday.occasion}
-                </span>
-                <span className="text-xs text-gray-500">
-                  {format(dateObj, "EEEE")}
-                </span>
+        {holidays.length > 0 ? (
+          holidays.map((holiday) => {
+            const dateObj = parseISO(holiday.holidayDate);
+            return (
+              <div
+                key={holiday.holidayId}
+                className="flex items-center justify-between py-3 px-3 text-sm"
+              >
+                <div className="flex flex-col">
+                  <span className="text-gray-900 font-medium">
+                    {holiday.holidayName}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {format(dateObj, "EEEE")}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-semibold text-indigo-600">
+                    {format(dateObj, "dd MMM yyyy")}
+                  </span>
+                </div>
               </div>
-              <div className="text-right">
-                <span className="text-sm font-semibold text-indigo-600">
-                  {format(dateObj, "dd MMM yyyy")}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        ) : (
+          <div className="flex flex-col items-center justify-center py-6">
+            {/* Replace with your own illustration image */}
+            <img
+              src={assets.holiday}
+              alt="No holidays"
+              className="w-40 h-40 object-contain opacity-80"
+            />
+            <p className="text-gray-500 text-sm mt-2">No holidays available</p>
+          </div>
+        )}
       </div>
     </div>
   );

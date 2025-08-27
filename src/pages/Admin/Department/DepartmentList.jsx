@@ -35,21 +35,21 @@ const DepartmentList = ({
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto border border-gray-200 rounded-md overflow-hidden">
-            <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+            <thead className="bg-gray-100 text-gray-700 text-sm uppercase text-center">
               <tr>
                 <th className="px-6 py-3 text-left">Id</th>
-                <th className="py-3 text-left">Department Name</th>
-                <th className="py-3 text-center">Description</th>
-                <th className="px-6 py-3 text-center">Actions</th>
+                <th className="py-3">Department Name</th>
+                <th className="py-3">Description</th>
+                <th className="px-6 py-3">Actions</th>
               </tr>
             </thead>
             <tbody className="text-gray-700 text-sm">
               {departments.map((dept, index) => (
                 <tr
                   key={dept.id}
-                  className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                  className={index % 2 === 0 ? "bg-white text-center" : "bg-gray-50 text-center"}
                 >
-                  <td className="px-6 py-4">{dept.id}</td>
+                  <td className="px-6 py-4 text-left">{dept.id}</td>
                   <td className="px-6 py-4 font-medium">{dept.name}</td>
                   <td className="px-6 py-4 text-gray-600">
                     {dept.description || "No description"}

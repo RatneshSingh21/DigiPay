@@ -54,6 +54,7 @@ const CustomSelect = ({
         }
         placeholder={`Select ${label || "option"}`}
         isSearchable
+        required
         isClearable
         components={{ MenuList: CustomMenuList }}
         className="react-select-container"

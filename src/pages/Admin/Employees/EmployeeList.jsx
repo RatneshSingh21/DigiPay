@@ -119,13 +119,13 @@ const EmployeeList = () => {
             >
               Add Employee
             </button>
-            <button
+            {/* <button
               className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
               onClick={openImport}
             >
               <FiDownload />
               Import
-            </button>
+            </button> */}
           </div>
         )}
       </div>
@@ -244,7 +244,7 @@ const EmployeeList = () => {
           {filteredEmployees.length > 0 ? (
             <div className="border md:max-w-4xl lg:max-w-5xl border-gray-200 rounded-lg overflow-x-scroll max-h-[65vh]">
               <table className="text-sm w-full">
-                <thead className="bg-gray-100 text-gray-700 sticky top-0 z-20">
+                <thead className="bg-gray-100 text-gray-700 sticky top-0">
                   <tr className="text-center">
                     <th scope="col" className="px-4 py-2 bg-gray-100">
                       EmpCode

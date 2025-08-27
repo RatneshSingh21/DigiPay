@@ -14,7 +14,7 @@ import {
   FaCogs,
   FaBalanceScale,
 } from "react-icons/fa";
-import { MdCelebration, MdOutlineCorporateFare, MdOutlineMap, MdOutlineRequestPage } from "react-icons/md";
+import { MdCelebration, MdOutlineCorporateFare, MdOutlineMap, MdOutlineRequestPage, MdOutlineTrackChanges } from "react-icons/md";
 import { GoLocation } from "react-icons/go";
 import { RiShieldKeyholeLine } from "react-icons/ri";
 import { AiOutlineSchedule } from "react-icons/ai";
@@ -37,6 +37,7 @@ const labelToPath = {
   Shifts: "shifts",
   Designation: "designation",
   Salary: "salary",
+  "Status Master": "status-master",
   "Attendance Report": "attendance-report",
   "Payroll Report": "payroll-report",
   "Salary Register": "salary-register",
@@ -67,6 +68,7 @@ const labelToIcon = {
   PaySchedule: <AiOutlineSchedule className="mr-2" />,
   Shifts: <BiTimeFive className="mr-2" />,
   Designation: <HiOutlineBriefcase className="mr-2" />,
+  "Status Master": <MdOutlineTrackChanges className="mr-2" />,
   Salary: <TbCurrencyRupee className="mr-2" />,
   "Attendance Report": <FaCalendarCheck className="mr-2" />,
   "Payroll Report": <FaFileInvoiceDollar className="mr-2" />,
