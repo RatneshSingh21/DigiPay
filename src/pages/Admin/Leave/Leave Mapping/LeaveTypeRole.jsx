@@ -7,8 +7,9 @@ import ConfirmModal from "../../../../components/ConfirmModal";
 
 const LeaveTypeRole = () => {
   const [leaveTypeId, setLeaveTypeId] = useState("");
-  const [roleId, setRoleId] = useState("");
+  const [roleId, setRoleId] = useState(null);
   const [leaveOptions, setLeaveOptions] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -16,11 +17,23 @@ const LeaveTypeRole = () => {
   const [editId, setEditId] = useState(null); // <-- edit ke liye
 
   // Role options constant
-  const roleOptions = [
-    { value: 1, label: "Super Admin" },
-    { value: 2, label: "Admin" },
-    { value: 3, label: "Employee" },
-  ];
+  const fetchRoles = async () => {
+    try {
+      const res = await axiosInstance.get("/RoleList/getall");
+      if (Array.isArray(res.data)) {
+        setRoles(res.data);
+        console.log("Fetched roles:", res.data);
+      } else {
+        toast.error("Unexpected API response");
+      }
+    } catch {
+      toast.error("Failed to fetch roles.");
+    }
+  };
+  const roleOptions = roles.map((role) => ({
+    value: role.roleID,
+    label: role.roleName,
+  }));
 
   // Fetch Data (List)
   const fetchData = async () => {
@@ -29,7 +42,7 @@ const LeaveTypeRole = () => {
       const res = await axiosInstance.get("LeaveType/leave-type-role");
       setData(res.data);
     } catch (err) {
-      toast.error("Error fetching data");
+      // toast.error("Error fetching data");
       console.error("Error fetching data:", err);
     } finally {
       setLoading(false);
@@ -64,6 +77,7 @@ const LeaveTypeRole = () => {
   };
 
   useEffect(() => {
+    fetchRoles();
     fetchData();
     fetchLeaves();
   }, []);
@@ -105,7 +119,7 @@ const LeaveTypeRole = () => {
   };
 
   return (
-   <div className="flex flex-col items-center py-2">
+    <div className="flex flex-col items-center py-2">
       {/* Form */}
       <div className="bg-white shadow-lg rounded-2xl px-6 py-4 w-full max-w-lg mb-5">
         <h2 className="text-xl font-semibold text-gray-800 mb-2">
@@ -133,10 +147,8 @@ const LeaveTypeRole = () => {
             <label className="block text-gray-600 mb-1">Role</label>
             <Select
               options={roleOptions}
-              value={
-                roleOptions.find((opt) => opt.value === Number(roleId)) || null
-              }
-              onChange={(selected) => setRoleId(selected.value)}
+              value={roleOptions.find((opt) => opt.value === roleId) || null}
+              onChange={(selected) => setRoleId(selected?.value ?? null)}
               placeholder="Select Role"
             />
           </div>
@@ -151,16 +163,16 @@ const LeaveTypeRole = () => {
       </div>
 
       {/* Data Table */}
-       <div className="bg-white shadow-lg rounded-2xl px-6 py-2 w-full max-w-3xl">
+      <div className="bg-white shadow-lg rounded-2xl px-6 py-2 w-full max-w-3xl">
         <h2 className="text-xl font-semibold text-gray-800 mb-2">
           Leave Type Role List
         </h2>
         {loading ? (
           <p className="text-gray-500">Loading...</p>
         ) : (
-           <div className="rounded-lg border">
+          <div className="rounded-lg border">
             <table className="w-full border-collapse">
-              <thead className="sticky top-0 bg-gray-200 text-gray-700 z-10">
+              <thead className="sticky top-0 bg-gray-200 text-gray-700">
                 <tr>
                   <th className="p-3 border text-center">Leave Name</th>
                   <th className="p-3 border text-center">Role</th>

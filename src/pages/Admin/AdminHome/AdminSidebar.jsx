@@ -1,7 +1,7 @@
-import { AiFillDashboard, AiFillSetting, AiFillSchedule } from "react-icons/ai";
-import { RiFolderOpenFill } from "react-icons/ri";
+import { AiFillDashboard, AiFillSetting } from "react-icons/ai";
+import { RiArticleFill, RiFolderOpenFill } from "react-icons/ri";
 import { FaClipboardCheck, FaUsers } from "react-icons/fa";
-import { MdEventAvailable, MdPolicy } from "react-icons/md";
+import { MdAdminPanelSettings, MdEventAvailable, MdPolicy } from "react-icons/md";
 import AdminSidebarItem from "./AdminSidebarItem";
 import assets from "../../../assets/assets";
 import { Link } from "react-router-dom";
@@ -21,9 +21,15 @@ const menuItems = [
   },
   {
     label: "Payschedule",
-    icon: <AiFillSchedule />,
+    icon: <RiArticleFill />,
     to: "/admin-dashboard/payschedule",
     collapseOnClick: false,
+  },
+  {
+    label: "Role",
+    icon: <MdAdminPanelSettings />,
+    to: "/admin-dashboard/role",
+    collapseOnClick: true,
   },
   {
     label: "Reports",

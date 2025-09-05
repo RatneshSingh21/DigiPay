@@ -9,16 +9,16 @@ import {
 } from "date-fns";
 
 const mockAttendanceData = {
-  "2025-08-01": "Present",
-  "2025-08-02": "Absent",
-  "2025-08-03": "Leave",
-  "2025-08-04": "Half-Day",
-  "2025-08-05": "Present",
-  "2025-08-06": "Absent",
-  "2025-08-07": "Present",
-  "2025-08-08": "Leave",
-  "2025-08-09": "Weekend",
-  "2025-08-10": "Weekend",
+  "2025-09-01": "Present",
+  "2025-09-02": "Absent",
+  "2025-09-03": "Leave",
+  "2025-09-04": "Half-Day",
+  "2025-09-05": "Present",
+  "2025-09-06": "Absent",
+  "2025-09-07": "Present",
+  "2025-09-08": "Leave",
+  "2025-09-09": "Weekend",
+  "2025-09-10": "Weekend",
 };
 
 const attendanceColors = {

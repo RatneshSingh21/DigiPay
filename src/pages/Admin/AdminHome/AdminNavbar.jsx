@@ -1,56 +1,81 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  FaBell,
   FaCog,
   FaSignOutAlt,
   FaChevronDown,
   FaSignOutAlt as FaLogout,
 } from "react-icons/fa";
+import { RiBellFill } from "react-icons/ri";
 import useAuthStore from "../../../store/authStore";
 import ProfileSettingsDrawer from "../../../components/ProfileSettingsDrawer";
 import AdminSettingsDrawer from "./AdminSettingsDrawer";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
+import NotificationPanel from "./NotificationPanel";
 
 const AdminNavbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [profileDrawerOpen, setProfileDrawerOpen] = useState(false); // profile
-  const [adminDrawerOpen, setAdminDrawerOpen] = useState(false); // for admin settings
+  const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
+  const [adminDrawerOpen, setAdminDrawerOpen] = useState(false);
   const [companyName, setCompanyName] = useState("Loading...");
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const profileRef = useRef();
+  const notificationRef = useRef();
+
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
   const companyId = useAuthStore((state) => state.companyId);
-
   const navigate = useNavigate();
+
   const handleLogout = () => {
-    // Remove stored role info from localStorage
     localStorage.removeItem("loginRole");
-    // Clear auth state (e.g., token, user info)
     logout();
-    // Redirect to public landing page
     navigate("/");
   };
 
-  // 🔹 Fetch company details on mount if companyId exists
+  // 🔹 Fetch company
   useEffect(() => {
     const fetchCompany = async () => {
       if (!companyId) return;
       try {
         const response = await axiosInstance.get(`/Company/${companyId}`);
         setCompanyName(response.data.companyName || "My Company");
-      } catch (error) {
-        console.error("Failed to fetch company:", error);
+      } catch {
         setCompanyName("My Company");
       }
     };
     fetchCompany();
   }, [companyId]);
 
-  // Close profile menu when clicked outside
+  // 🔹 Fetch notifications
+  useEffect(() => {
+    const fetchApprovals = async () => {
+      try {
+        const response = await axiosInstance.get(`/ApprovalMaster`);
+        setNotifications(response.data.data || []);
+      } catch (error) {
+        console.error("Failed to fetch notifications:", error);
+      }
+    };
+    fetchApprovals();
+
+    // Auto refresh every 30 sec (optional)
+    const interval = setInterval(fetchApprovals, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+
   useEffect(() => {
     const handleClickOutside = (e) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(e.target) &&
+        !e.target.closest(".notification-btn")
+      ) {
+        setShowNotifications(false);
+      }
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileMenuOpen(false);
       }
@@ -61,29 +86,39 @@ const AdminNavbar = () => {
 
   return (
     <>
-      {/* Navbar */}
       <nav className="sticky top-0 w-full h-14 bg-white shadow-sm z-20 flex items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2">
           <div className="flex flex-col leading-tight">
-            <span className="font-bold text-sm text-primary">{companyName}</span>
+            <span className="font-bold text-sm text-primary">
+              {companyName}
+            </span>
             <span className="text-xs text-gray-500 -mt-1">
               Payroll Software
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Warning for trial */}
-          <div className="text-xs text-red-600 hidden md:block">
-            Your 7-day free trial ends in 2 days.{" "}
-            <button className="text-blue-600 hover:underline">Upgrade</button>
-          </div>
-
+        <div className="flex items-center gap-2">
           {/* Notification Icon */}
-          <button className="text-gray-600 hover:text-black relative">
-            <FaBell />
-            <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full animate-ping" />
-          </button>
+          <div className="relative" ref={notificationRef}>
+            <button
+              className="w-14 h-14 flex items-center justify-center text-gray-600 hover:text-black relative notification-btn rounded-full"
+              onClick={() => setShowNotifications((prev) => !prev)}
+            >
+              <RiBellFill className="text-lg" />
+              {notifications.length > 0 && (
+                <span className="absolute top-2 right-2 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                  {notifications.length}
+                </span>
+              )}
+            </button>
+            {showNotifications && (
+              <NotificationPanel
+                notifications={notifications}
+                onClose={() => setShowNotifications(false)}
+              />
+            )}
+          </div>
 
           {/* Settings Icon */}
           <button
@@ -106,14 +141,12 @@ const AdminNavbar = () => {
               />
               <FaChevronDown className="text-sm text-gray-600" />
             </button>
-
-            {/* Dropdown Menu */}
             {profileMenuOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md py-2 z-30">
                 <button
                   className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
                   onClick={() => {
-                    setProfileDrawerOpen(true); // now opens profile drawer
+                    setProfileDrawerOpen(true);
                     setProfileMenuOpen(false);
                   }}
                 >
@@ -131,7 +164,7 @@ const AdminNavbar = () => {
             )}
           </div>
 
-          {/* Logout Icon */}
+          {/* Logout */}
           <button
             className="text-gray-600 hover:text-red-600"
             title="Logout"
@@ -146,7 +179,6 @@ const AdminNavbar = () => {
         isOpen={profileDrawerOpen}
         onClose={() => setProfileDrawerOpen(false)}
       />
-
       <AdminSettingsDrawer
         isOpen={adminDrawerOpen}
         onClose={() => setAdminDrawerOpen(false)}

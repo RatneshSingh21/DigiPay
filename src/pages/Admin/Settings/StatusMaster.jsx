@@ -57,114 +57,117 @@ const StatusMaster = () => {
     <div className="">
       <div className="px-4 py-3 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl"> Status Master</h2>
-       
       </div>
-      
-        
 
-        {/*  Add Status Form */}
-        <div className="bg-white w-fit shadow-lg rounded-xl p-6 mb-3 flex flex-col items-center mx-auto">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-              Add New Status
-          </h2>
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-1 gap-3 "
+      {/*  Add Status Form */}
+      <div className="bg-white w-fit shadow-lg rounded-xl p-6 mb-3 flex flex-col items-center mx-auto">
+        <h2 className="text-xl font-semibold mb-4 text-gray-700">
+          Add New Status
+        </h2>
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-1 gap-3 "
+        >
+          <input
+            type="text"
+            placeholder="Status Name"
+            value={formData.statusName}
+            onChange={(e) =>
+              setFormData({ ...formData, statusName: e.target.value })
+            }
+            required
+            autoFocus
+            className="w-72 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="text"
+            placeholder="Status Code"
+            value={formData.statusCode}
+            onChange={(e) =>
+              setFormData({ ...formData, statusCode: e.target.value })
+            }
+            required
+            className="w-72 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button
+            type="submit"
+            className="bg-primary text-white w-72 px-4 py-2 rounded-lg shadow hover:bg-secondary transition"
           >
-            <input
-              type="text"
-              placeholder="Status Name"
-              value={formData.statusName}
-              onChange={(e) =>
-                setFormData({ ...formData, statusName: e.target.value })
-              }
-              required
-              autoFocus
-              className="w-60 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <input
-              type="text"
-              placeholder="Status Code"
-              value={formData.statusCode}
-              onChange={(e) =>
-                setFormData({ ...formData, statusCode: e.target.value })
-              }
-              required
-              className="w-60 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <button
-              type="submit"
-              className="bg-primary text-white w-60 px-4 py-2 rounded-lg shadow hover:bg-secondary transition"
-            >
-              Add Status
-            </button>
-          </form>
+            Add Status
+          </button>
+        </form>
 
-          {success && <p className="text-green-600 mt-3">{success}</p>}
-          {error && <p className="text-red-600 mt-3">{error}</p>}
-        </div>
+        {success && <p className="text-green-600 mt-3">{success}</p>}
+        {error && <p className="text-red-600 mt-3">{error}</p>}
+      </div>
 
-        {/*  Status List */}
-        <div className="bg-white shadow-lg rounded-xl p-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-          Existing Statuses
-          </h2>
+      {/*  Status List */}
+      <div className="bg-white shadow-lg rounded-xl p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-700">
+          Existing Status
+        </h2>
 
-          {loading ? (
-            <p className="text-gray-600">Loading...</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border border-gray-200 rounded-lg text-sm">
-                <thead className="bg-gray-100 text-gray-700">
-                  <tr>
-                    <th className="px-4 py-2 text-left">S NO.</th>
-                    <th className="px-4 py-2 text-left">Status Name</th>
-                    <th className="px-4 py-2 text-left">Code</th>
-                    <th className="px-4 py-2 text-left">Created By</th>
-                    <th className="px-4 py-2 text-left">Created On</th>
-                    <th className="px-4 py-2 text-left">Active</th>
+        {loading ? (
+          <p className="text-gray-600">Loading...</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-200 rounded-lg text-sm text-center">
+              <thead className="bg-gray-100 text-gray-700">
+                <tr>
+                  <th className="px-4 py-2 text-left">S NO.</th>
+                  <th className="px-4 py-2">Status Name</th>
+                  <th className="px-4 py-2">Code</th>
+                  <th className="px-4 py-2">Created By</th>
+                  <th className="px-4 py-2">Created On</th>
+                  <th className="px-4 py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {statuses.map((status, idx) => (
+                  <tr
+                    key={status.statusId}
+                    className="border-t hover:bg-gray-50"
+                  >
+                    <td className="px-4 py-2 text-left">{idx + 1}.</td>
+                    <td className="px-4 py-2">{status.statusName}</td>
+                    <td className="px-4 py-2">{status.statusCode}</td>
+                    <td className="px-4 py-2">{status.createdBy || "-"}</td>
+                    <td className="px-4 py-2">
+                      {new Date(status.createdOn).toLocaleString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
+                    </td>
+                    <td className="px-4 py-2">
+                      {status.isActive ? (
+                        <span className="text-green-600 font-medium">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="text-red-600 font-medium">
+                          Inactive
+                        </span>
+                      )}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {statuses.map((status, idx) => (
-                    <tr
-                      key={status.statusId}
-                      className="border-t hover:bg-gray-50"
-                    >
-                      <td className="px-4 py-2">{idx + 1}</td>
-                      <td className="px-4 py-2">{status.statusName}</td>
-                      <td className="px-4 py-2">{status.statusCode}</td>
-                      <td className="px-4 py-2">{status.createdBy || "-"}</td>
-                      <td className="px-4 py-2">
-                        {new Date(status.createdOn).toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2">
-                        {status.isActive ? (
-                          <span className="text-green-600 font-medium">
-                            Active
-                          </span>
-                        ) : (
-                          <span className="text-red-600 font-medium">
-                            Inactive
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                ))}
+              </tbody>
+            </table>
 
-              {statuses.length === 0 && (
-                <p className="text-gray-500 text-center py-4">
-                  No statuses found.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      
+            {statuses.length === 0 && (
+              <p className="text-gray-500 text-center py-4">
+                No statuses found.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+};
 
 export default StatusMaster;

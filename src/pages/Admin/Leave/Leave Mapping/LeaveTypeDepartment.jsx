@@ -170,7 +170,7 @@ const LeaveTypeDepartment = () => {
         ) : (
            <div className="rounded-lg border">
             <table className="w-full border-collapse">
-              <thead className="sticky top-0 bg-gray-200 text-gray-700 z-10">
+              <thead className="sticky top-0 bg-gray-200 text-gray-700">
                 <tr>
                   <th className="p-3 border text-center">Leave Name</th>
                   <th className="p-3 border text-center">Department</th>

@@ -14,7 +14,14 @@ import {
   FaCogs,
   FaBalanceScale,
 } from "react-icons/fa";
-import { MdCelebration, MdOutlineCorporateFare, MdOutlineMap, MdOutlineRequestPage, MdOutlineTrackChanges } from "react-icons/md";
+import {
+  MdAdminPanelSettings,
+  MdCelebration,
+  MdOutlineCorporateFare,
+  MdOutlineMap,
+  MdOutlineRequestPage,
+  MdOutlineTrackChanges,
+} from "react-icons/md";
 import { GoLocation } from "react-icons/go";
 import { RiShieldKeyholeLine } from "react-icons/ri";
 import { AiOutlineSchedule } from "react-icons/ai";
@@ -36,8 +43,10 @@ const labelToPath = {
   PaySchedule: "payschedule",
   Shifts: "shifts",
   Designation: "designation",
-  Salary: "salary",
+  "Salary Configuration": "salary",
   "Status Master": "status-master",
+  "Role Master": "role-master",
+  "Role Approval": "role-approval",
   "Attendance Report": "attendance-report",
   "Payroll Report": "payroll-report",
   "Salary Register": "salary-register",
@@ -68,8 +77,10 @@ const labelToIcon = {
   PaySchedule: <AiOutlineSchedule className="mr-2" />,
   Shifts: <BiTimeFive className="mr-2" />,
   Designation: <HiOutlineBriefcase className="mr-2" />,
+  "Role Master": <MdAdminPanelSettings className="mr-2" />,
+  "Role Approval": <MdAdminPanelSettings className="mr-2" />,
   "Status Master": <MdOutlineTrackChanges className="mr-2" />,
-  Salary: <TbCurrencyRupee className="mr-2" />,
+  "Salary Configuration": <TbCurrencyRupee className="mr-2" />,
   "Attendance Report": <FaCalendarCheck className="mr-2" />,
   "Payroll Report": <FaFileInvoiceDollar className="mr-2" />,
   "Salary Register": <TbReportMoney className="mr-2" />,

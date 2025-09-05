@@ -162,7 +162,7 @@ const ComplianceDetails = () => {
                   </p>
                   <p>
                     <span className="font-semibold">Enabled:</span>{" "}
-                    {item.isEnabled ? "Yes ✅" : "No ❌"}
+                    {item.isEnabled ? "Yes ✔️" : "No ❌"}
                   </p>
                 </div>
               </div>

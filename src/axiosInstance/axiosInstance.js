@@ -3,6 +3,8 @@ import useAuthStore from "../store/authStore";
 import { toast } from "react-toastify";
 
 // Create base Axios instance
+//baseURL: "https://marigoldapi.digicodesoftware.com/api",
+
 const axiosInstance = axios.create({
   baseURL: "https://digipaydevops.digicodesoftware.com/api",
   headers: {

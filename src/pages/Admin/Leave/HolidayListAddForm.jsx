@@ -79,6 +79,7 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
       payload = {
         ...formData,
         createdBy: user?.userId,
+        updatedBy: 0,
         createdOn: new Date().toISOString(),
       };
     }
@@ -101,7 +102,7 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-lg shadow-lg max-w-2xl relative"
+        className="bg-white p-6 rounded-lg shadow-lg max-w-2xl relative  overflow-y-scroll max-h-[75vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -118,7 +119,7 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
         </h2>
 
         <form
-          className="space-y-4 overflow-y-scroll max-h-[70vh]"
+          className="space-y-4"
           onSubmit={handleSubmit}
         >
           {/* Holiday Name */}
@@ -132,6 +133,7 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
               value={formData.holidayName}
               onChange={handleChange}
               placeholder="Holiday Name"
+              autoFocus
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
+import useAuthStore from "../../../store/authStore";
 
 const AddDepartmentForm = ({ onClose, isEdit, initialData, onSuccess }) => {
   const [loading, setLoading] = useState(false);
+   const user = useAuthStore((state) => state.user);
   const [formData, setFormData] = useState({
     name: "",
-    adminUserId: null,
+    adminUserId: user?.userId || null,
     description: "",
   });
 

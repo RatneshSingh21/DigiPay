@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAddEmployeeStore } from "../../../../store/useAddEmployeeStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -12,6 +12,9 @@ const PreviewPage = () => {
     resetStore,
   } = useAddEmployeeStore();
   const navigate = useNavigate();
+  useEffect(() => {
+    console.log("Payment Details:", paymentInfo);
+  }, [paymentInfo]);
 
   const renderValue = (val) => {
     if (val === undefined || val === null || val === "") return "—";
@@ -139,23 +142,44 @@ const PreviewPage = () => {
           <h3 className="text-lg font-semibold text-blue-700 border-b pb-2">
             Payment Info
           </h3>
-          <p>
-            <strong>Bank Name:</strong> {renderValue(paymentInfo.bankName)}
-          </p>
-          <p>
-            <strong>Branch:</strong> {renderValue(paymentInfo.bankBranch)}
-          </p>
-          <p>
-            <strong>Account Number:</strong>{" "}
-            {renderValue(paymentInfo.accountNumber)}
-          </p>
-          <p>
-            <strong>IFSC Code:</strong> {renderValue(paymentInfo.ifscCode)}
-          </p>
-          <p>
-            <strong>Payment Mode:</strong>{" "}
-            {renderValue(paymentInfo.paymentMode)}
-          </p>
+          {paymentInfo?.data ? (
+            <>
+              <p>
+                <strong>Account Holder Name:</strong>{" "}
+                {renderValue(paymentInfo.data.accountHolderName)}
+              </p>
+              <p>
+                <strong>Bank Name:</strong>{" "}
+                {renderValue(paymentInfo.data.bankName)}
+              </p>
+              <p>
+                <strong>Branch Name:</strong>{" "}
+                {renderValue(paymentInfo.data.branchName)}
+              </p>
+              <p>
+                <strong>Branch Address:</strong>{" "}
+                {renderValue(paymentInfo.data.branchAddress)}
+              </p>
+              <p>
+                <strong>Account Number:</strong>{" "}
+                {renderValue(paymentInfo.data.accountNumber)}
+              </p>
+              <p>
+                <strong>Account Type:</strong>{" "}
+                {renderValue(paymentInfo.data.accountType)}
+              </p>
+              <p>
+                <strong>IFSC Code:</strong>{" "}
+                {renderValue(paymentInfo.data.ifscCode)}
+              </p>
+              <p>
+                <strong>Payment Mode:</strong>{" "}
+                {renderValue(paymentInfo.data.paymnetMode)}
+              </p>
+            </>
+          ) : (
+            <p className="text-gray-500 italic">No payment info available</p>
+          )}
         </div>
       </div>
 

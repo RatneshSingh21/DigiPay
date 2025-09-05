@@ -13,8 +13,8 @@ const data = [
   {
     id: 2,
     name: "Salary Details",
-    importApi: "/Employee/import-salary",
-    exportApi: "/Employee/export-salary",
+    importApi: "/Salary/ImportSalary",
+    exportApi: "/Salary/ExportAllSalaries",
   },
   {
     id: 3,
@@ -34,7 +34,7 @@ export default function GeneralImports() {
   const fileInputRef = useRef(null);
 
   const handleImport = (item) => {
-    fileInputRef.current.click();
+    fileInputRef.current.click();2
     fileInputRef.current.dataset.fieldName = item.name;
     fileInputRef.current.dataset.importApi = item.importApi;
   };

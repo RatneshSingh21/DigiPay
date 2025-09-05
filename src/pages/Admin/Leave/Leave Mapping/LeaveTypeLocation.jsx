@@ -84,7 +84,7 @@ const LeaveTypeLocation = () => {
     e.preventDefault();
     try {
       if (editId) {
-        await axiosInstance.put(`LeaveType/leave-type-location/update/${editId}`, {
+        await axiosInstance.put(`LeaveType/leave-type-location/update${editId}`, {
           mappingId: editId,
           leaveTypeId: Number(leaveTypeId),
           locationId: Number(locationId),
@@ -164,7 +164,7 @@ const LeaveTypeLocation = () => {
         ) : (
           <div className="rounded-lg border">
             <table className="w-full border-collapse">
-              <thead className="sticky top-0 bg-gray-200 text-gray-700 z-10">
+              <thead className="sticky top-0 bg-gray-200 text-gray-700 ">
                 <tr>
                   <th className="p-3 border text-center">Leave Name</th>
                   <th className="p-3 border text-center">Location</th>

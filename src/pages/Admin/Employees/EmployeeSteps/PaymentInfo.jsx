@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import assets from "../../../../assets/assets";
-// import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
+import Select from "react-select";
 import { useAddEmployeeStore } from "../../../../store/useAddEmployeeStore";
 import Spinner from "../../../../components/Spinner";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
 const paymentModes = [
   {
@@ -14,6 +15,13 @@ const paymentModes = [
   { label: "Cash", value: "Cash", image: assets.Cash },
   { label: "Cheque", value: "Cheque", image: assets.Cheque },
   { label: "NEFT", value: "NEFT", image: assets.NEFT },
+];
+
+const accountTypeOptions = [
+  { value: "Savings", label: "Savings" },
+  { value: "Current", label: "Current" },
+  { value: "Salary", label: "Salary" },
+  { value: "Fixed Deposit", label: "Fixed Deposit" },
 ];
 
 const PaymentInfo = () => {
@@ -39,13 +47,21 @@ const PaymentInfo = () => {
   const email = basicDetails.workEmail || "N/A";
   const departmentName = basicDetails.department?.label || "N/A";
 
-  // Fetch existing payment info (commented API)
+  // Prefill account holder name initially
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      accountHolderName: prev.accountHolderName || fullName,
+    }));
+  }, [fullName]);
+
+  // Fetch existing payment info (optional GET integration if needed)
   useEffect(() => {
     if (employeeId) {
       setLoading(true);
       /*
       axiosInstance
-        .get(`/PaymentInfo/${employeeId}`)
+        .get(`/BankDetails/${employeeId}`)
         .then((res) => {
           if (res.data) {
             setForm(res.data);
@@ -55,7 +71,6 @@ const PaymentInfo = () => {
         .catch((err) => console.error("Error fetching payment info:", err))
         .finally(() => setLoading(false));
       */
-      // Simulate fetch delay
       setTimeout(() => setLoading(false), 500);
     }
   }, [employeeId]);
@@ -85,35 +100,32 @@ const PaymentInfo = () => {
     setLoading(true);
 
     try {
-      let response;
-      /*
-      if (isEdit) {
-        response = await axiosInstance.put(`/PaymentInfo/${employeeId}`, {
-          employeeId,
-          ...form,
-        });
-        toast.success("Payment info updated successfully!");
-      } else {
-        response = await axiosInstance.post(`/PaymentInfo/save`, {
-          employeeId,
-          ...form,
-        });
-        toast.success("Payment info added successfully!");
-      }
-      */
-      // Simulate API response
-      response = { data: form };
-      setTimeout(() => {
-        toast.success(isEdit ? "Payment info updated!" : "Payment info added!");
-        // Update store
-        setStepData("paymentInfo", response.data);
-        // Move to next step
-        setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
-        setLoading(false);
-      }, 800);
+      const payload = {
+        bankName: form.bankName,
+        accountNumber: form.accountNumber,
+        ifscCode: form.ifscCode,
+        accountType: form.accountType,
+        branchName: form.branchName,
+        branchAddress: form.branchAddress,
+        accountHolderName: form.accountHolderName,
+        paymnetMode: form.paymentMode,
+        employeeId,
+      };
+      console.log(payload);
+
+      const response = await axiosInstance.post("/BankDetails", payload);
+
+      toast.success(
+        isEdit
+          ? "Payment info updated successfully!"
+          : "Payment info added successfully!"
+      );
+      setStepData("paymentInfo", response.data);
+      setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
     } catch (error) {
       console.error("Error saving payment info:", error);
       toast.error("Failed to save payment info.");
+    } finally {
       setLoading(false);
     }
   };
@@ -149,6 +161,32 @@ const PaymentInfo = () => {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Employee Code (readonly) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Employee Code
+            </label>
+            <input
+              value={employeeCode}
+              disabled
+              className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+            />
+          </div>
+
+          {/* Account Holder Name (editable) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Account Holder Name
+            </label>
+            <input
+              required
+              name="accountHolderName"
+              value={form.accountHolderName || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Bank Name
@@ -169,10 +207,24 @@ const PaymentInfo = () => {
             </label>
             <input
               required
-              name="bankBranch"
-              value={form.bankBranch || ""}
+              name="branchName"
+              value={form.branchName || ""}
               onChange={handleChange}
               placeholder="e.g., Connaught Place Branch"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Branch Address
+            </label>
+            <input
+              required
+              name="branchAddress"
+              value={form.branchAddress || ""}
+              onChange={handleChange}
+              placeholder="e.g., 12 MG Road, Delhi"
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
@@ -202,6 +254,30 @@ const PaymentInfo = () => {
               onChange={handleChange}
               placeholder="e.g., HDFC0001234"
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Account Type
+            </label>
+            <Select
+              required
+              name="accountType"
+              value={
+                accountTypeOptions.find(
+                  (opt) => opt.value === form.accountType
+                ) || null
+              }
+              onChange={(selected) =>
+                setForm((prev) => ({
+                  ...prev,
+                  accountType: selected?.value || "",
+                }))
+              }
+              options={accountTypeOptions}
+              placeholder="Select account type"
+              className="w-full"
             />
           </div>
         </div>

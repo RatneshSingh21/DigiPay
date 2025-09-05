@@ -10,9 +10,9 @@ const submenuMap = {
     "Permissions",
     "PaySchedule",
     "Shifts",
-    "Salary",
+    "Salary Configuration",
     "Status Master",
-    "Attendance",
+    "Attendance"
   ],
   Employees: [
     "Add Employee",
@@ -20,6 +20,7 @@ const submenuMap = {
     "General Imports",
     "General Settings",
   ],
+  Role: ["Role Master", "Role Approval"],
   Reports: [
     "Attendance Report",
     "Salary Register",
@@ -35,6 +36,7 @@ const getMenuFromPath = (pathname) => {
   if (pathname.includes("/employees")) return "Employees";
   if (pathname.includes("/settings")) return "Settings";
   if (pathname.includes("/reports")) return "Reports";
+  if (pathname.includes("/role")) return "Role";
   if (pathname.includes("/payschedule")) return "Payschedule";
   if (pathname.includes("/leave")) return "Leave";
   if (pathname.includes("/policy")) return "Policy";

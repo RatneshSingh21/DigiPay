@@ -7,7 +7,6 @@ import AddWeekendPolicy from "./AddWeekendPolicy";
 import ImportShift from "../../Shift/ImportShift";
 import assets from "../../../../assets/assets";
 
-
 const WeekendPolicy = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -56,13 +55,13 @@ const WeekendPolicy = () => {
             >
               Add Policy
             </button>
-            <button
+            {/* <button
               className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
               onClick={openImport}
             >
               <FiDownload />
               Import
-            </button>
+            </button> */}
           </div>
         )}
       </div>

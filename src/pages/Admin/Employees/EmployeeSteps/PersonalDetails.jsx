@@ -16,7 +16,7 @@ const formatDateForInput = (dateStr) => {
 };
 
 const differentlyAbledOptions = [
-  { label: "None", value: "" },
+  { label: "None", value: "None" },
   { label: "Visually Impaired", value: "Visually Impaired" },
   { label: "Hearing Impaired", value: "Hearing Impaired" },
   { label: "Locomotor Disability", value: "Locomotor Disability" },
@@ -252,7 +252,11 @@ const PersonalDetails = () => {
                   (opt) => opt.value === form.differentlyAbledType
                 ) || null
               }
-              onChange={handleSelectChange}
+              onChange={(selectedOption, actionMeta) =>
+                handleSelectChange(selectedOption, {
+                  name: "differentlyAbledType",
+                })
+              }
               options={differentlyAbledOptions}
               isClearable
               className="react-select-container"
@@ -331,17 +335,16 @@ const PersonalDetails = () => {
         </div>
 
         {/* Submit */}
-        <div className="flex justify-between mt-6">
-          <button
-            type="submit"
-            disabled={loading} // disable during loading
-            className={`bg-primary text-white px-6 py-2 rounded-full ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-secondary"
-            }`}
-          >
-          {loading && <Spinner />} Save and Continue
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className={`flex items-center justify-center gap-2 bg-primary text-white px-6 py-2 rounded-full ${
+            loading ? "opacity-50 cursor-not-allowed" : "hover:bg-secondary"
+          }`}
+        >
+          {loading && <Spinner />}
+          <span>Save and Continue</span>
+        </button>
       </form>
     </>
   );

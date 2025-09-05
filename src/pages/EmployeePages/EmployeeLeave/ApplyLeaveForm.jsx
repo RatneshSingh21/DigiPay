@@ -1,25 +1,17 @@
 import React, { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import Select from "react-select";
-import axiosInstance from "../../../axiosInstance/axiosInstance"; // adjust path
-import { toast } from "react-toastify";
-import useAuthStore from "../../../store/authStore"; // assuming you store employeeId here
 
-const ApplyLeaveForm = ({ 
-  leaveOptions, 
-  onClose, 
-  showModal,
-  onSuccess
-}) => {
-  const { user } = useAuthStore(); // contains employeeId
+const ApplyLeaveForm = ({ leaveOptions, employeeOptions, onClose, showModal, onSubmit }) => {
   const [formData, setFormData] = useState({
     type: null,
     from: "",
     to: "",
     reason: "",
+    approvers: [],
   });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,33 +25,14 @@ const ApplyLeaveForm = ({
     setError("");
     setLoading(true);
 
-    try {
-      const payload = {
-        employeeId: user?.employeeId || 0,
-        leaveTypeId: formData.type.value,  // assuming leaveOptions has {value, label}
-        leaveName: formData.type.label,
-        leaveCode: formData.type.code || "", // if available in options
-        fromDate: new Date(formData.from).toISOString(),
-        toDate: new Date(formData.to).toISOString(),
-        reason: formData.reason,
-        status: "Pending",
-        approvedBy: 0,
-        createdOn: new Date().toISOString(),
-        updatedOn: new Date().toISOString(),
-      };
-
-      const res = await axiosInstance.post("/api/EmployeeLeave", payload);
-
-      toast.success("Leave request submitted successfully!");
-      setFormData({ type: null, from: "", to: "", reason: "" });
-      if (onSuccess) onSuccess(res.data);
+    const errorMsg = await onSubmit(formData);
+    if (errorMsg) {
+      setError(errorMsg);
+    } else {
+      setFormData({ type: null, from: "", to: "", reason: "", approvers: [] });
       onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to submit leave request!");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   if (!showModal) return null;
@@ -79,6 +52,7 @@ const ApplyLeaveForm = ({
               {error}
             </div>
           )}
+          {/* Leave Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Leave Type
@@ -92,6 +66,7 @@ const ApplyLeaveForm = ({
               placeholder="Select Leave Type"
             />
           </div>
+          {/* Date range */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -102,8 +77,8 @@ const ApplyLeaveForm = ({
                 name="from"
                 value={formData.from}
                 onChange={handleInputChange}
-                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                 required
+                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
             <div>
@@ -115,11 +90,12 @@ const ApplyLeaveForm = ({
                 name="to"
                 value={formData.to}
                 onChange={handleInputChange}
-                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                 required
+                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
           </div>
+          {/* Reason */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Reason
@@ -128,9 +104,24 @@ const ApplyLeaveForm = ({
               name="reason"
               value={formData.reason}
               onChange={handleInputChange}
-              className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Enter your reason for leave"
               required
+              placeholder="Enter your reason for leave"
+              className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+          {/* Approvers Multi-Select */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Approvers
+            </label>
+            <Select
+              options={employeeOptions}
+              value={formData.approvers}
+              onChange={(selected) =>
+                setFormData({ ...formData, approvers: selected })
+              }
+              isMulti
+              placeholder="Select approvers"
             />
           </div>
           <button

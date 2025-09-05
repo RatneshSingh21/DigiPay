@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
-import { FiDownload, FiUpload } from "react-icons/fi";
+// import { FiDownload, FiUpload } from "react-icons/fi";
 import Spinner from "../../../components/Spinner";
 import useAuthStore from "../../../store/authStore";
 
@@ -129,7 +129,7 @@ const Permissions = () => {
       {/* Header */}
       <div className="px-4 py-3 mb-5 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Permissions</h2>
-        <div className="flex gap-2 items-center">
+        {/* <div className="flex gap-2 items-center">
           <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2">
             <FiDownload />
             Import
@@ -138,7 +138,7 @@ const Permissions = () => {
             <FiUpload />
             Export
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Employee Select + Disabled ID input */}

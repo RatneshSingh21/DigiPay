@@ -104,7 +104,7 @@ const AddLeaveForm = ({ onClose, isEdit, initialData, onSuccess }) => {
           </div>
 
           {/* Body */}
-          <div className="px-6 py-6  ">
+          <div className="px-6 py-6 max-h-[65vh] overflow-y-auto ">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Leave Name & Code */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

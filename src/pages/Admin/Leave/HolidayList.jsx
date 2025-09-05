@@ -86,8 +86,8 @@ const HolidayList = () => {
                 <th className="py-3 px-4 text-center">Holiday Name</th>
                 <th className="py-3 px-4 text-center">Date</th>
                 <th className="py-3 px-4 text-center">Day</th>
-                <th className="py-3 px-4 text-center">Created By</th>
-                <th className="py-3 px-4 text-center">Updated By</th>
+                {/* <th className="py-3 px-4 text-center">Created By</th>
+                <th className="py-3 px-4 text-center">Updated By</th> */}
                 <th className="py-3 px-4 text-center">Actions</th>
               </tr>
             </thead>
@@ -114,19 +114,19 @@ const HolidayList = () => {
                     {holiday.holidayName}
                   </td>
                   <td className="py-3 px-4 text-center">
-                    {new Date(holiday.holidayDate).toLocaleDateString()}
+                    {new Date(holiday.holidayDate).toLocaleDateString("en-GB")}
                   </td>
                   <td className="py-3 px-4 text-gray-600 text-center">
-                    {new Date(holiday.holidayDate).toLocaleDateString("en-US", {
+                    {new Date(holiday.holidayDate).toLocaleDateString("en-GB", {
                       weekday: "long",
                     })}
                   </td>
-                  <td className="py-3 px-4 text-center">
+                  {/* <td className="py-3 px-4 text-center">
                     {holiday.createdBy || "-"}
                   </td>
                   <td className="py-3 px-4 text-center">
                     {holiday.updatedBy || "-"}
-                  </td>
+                  </td> */}
                   <td className="py-3 px-4 flex justify-center gap-2">
                     <button
                       className="flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition cursor-pointer"
