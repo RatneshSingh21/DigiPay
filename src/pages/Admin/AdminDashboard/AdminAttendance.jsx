@@ -25,24 +25,37 @@ const attendanceData = [
   },
 ];
 
+const statusColors = {
+  "On time": "bg-green-100 text-green-700",
+  Late: "bg-yellow-100 text-yellow-800",
+  Absent: "bg-red-100 text-red-700",
+};
+
 const AdminAttendance = () => {
   const [activeTab, setActiveTab] = useState("Day");
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h3 className="text-lg font-semibold">Attendance</h3>
-          <p className="text-sm text-gray-400">92 on time · 12 late · 4 absent</p>
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">Attendance</h3>
+            <p className="text-sm text-gray-500">
+              92 on time · 12 late · 4 absent
+            </p>
+          </div>
         </div>
-        <div className="flex gap-2">
+
+        {/* Tabs */}
+        <div className="flex bg-gray-100 rounded-lg">
           {["Day", "Week", "Month"].map((tab) => (
             <button
               key={tab}
-              className={`px-3 py-1 text-sm rounded-lg ${
+              className={`px-4 py-1.5 text-sm rounded-md transition-all ${
                 activeTab === tab
-                  ? "bg-primary text-white"
-                  : "text-gray-500 border border-gray-300"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
               }`}
               onClick={() => setActiveTab(tab)}
             >
@@ -52,41 +65,43 @@ const AdminAttendance = () => {
         </div>
       </div>
 
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-gray-400 border-b">
-            <th className="py-2">Employee</th>
-            <th>Status</th>
-            <th>Time In</th>
-            <th>Time Out</th>
-          </tr>
-        </thead>
-        <tbody>
-          {attendanceData.map((emp, i) => (
-            <tr key={i} className="border-b">
-              <td className="py-2">
-                <div>
-                  <p className="font-medium">{emp.name}</p>
-                  <p className="text-xs text-gray-500">{emp.email}</p>
-                </div>
-              </td>
-              <td>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    emp.status === "Late"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-green-100 text-green-700"
-                  }`}
-                >
-                  {emp.status}
-                </span>
-              </td>
-              <td>{emp.timeIn}</td>
-              <td>{emp.timeOut}</td>
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="text-left text-gray-500 border-b">
+              <th className="py-3 font-medium">Employee</th>
+              <th className="font-medium">Status</th>
+              <th className="font-medium">Time In</th>
+              <th className="font-medium">Time Out</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {attendanceData.map((emp, i) => (
+              <tr
+                key={i}
+                className="border-b hover:bg-gray-50 transition-colors"
+              >
+                <td className="py-3">
+                  <div>
+                    <p className="font-medium text-gray-800">{emp.name}</p>
+                    <p className="text-xs text-gray-500">{emp.email}</p>
+                  </div>
+                </td>
+                <td>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[emp.status]}`}
+                  >
+                    {emp.status}
+                  </span>
+                </td>
+                <td className="text-gray-700">{emp.timeIn}</td>
+                <td className="text-gray-700">{emp.timeOut}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

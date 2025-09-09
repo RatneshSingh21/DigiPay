@@ -38,7 +38,7 @@ const EmployeeNavbar = () => {
       <nav className="sticky top-0 w-full h-14 bg-white shadow-sm z-20 flex items-center justify-between px-4 md:px-6">
         <div className="flex flex-col leading-tight">
           <span className="font-bold text-sm">Employee Dashboard</span>
-          <span className="text-xs text-gray-500 -mt-1">Welcome, {user?.fullName || "User"}</span>
+          <span className="text-xs text-gray-500 mt-0.5">Welcome, {user?.fullName || "User"}</span>
         </div>
 
         <div className="flex items-center gap-4">

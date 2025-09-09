@@ -7,34 +7,49 @@ import {
   Grid,
   Paper,
   Typography,
+  FormControlLabel,
+  Checkbox,
+  MenuItem,
 } from "@mui/material";
 
 const UPDATE_BASIC_ENDPOINT = (id) => `/Employee/${id}`;
+
+const genderOptions = ["Male", "Female", "Other"];
 
 const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
   const [form, setForm] = useState({
     fullName: data?.fullName || "",
     employeeCode: data?.employeeCode || "",
     workEmail: data?.workEmail || "",
+    mobileNumber: data?.mobileNumber || "",
     departmentId: data?.departmentId || "",
     designationId: data?.designationId || "",
     workLocationId: data?.workLocationId || "",
-    dateOfJoining: data?.dateOfJoining?.slice(0, 10) || "",
+    payScheduleId: data?.payScheduleId || "",
+    gender: data?.gender || "",
+    isDirector: data?.isDirector ?? false,
+    portalAccessEnabled: data?.portalAccessEnabled ?? true,
+    dateOfJoining: data?.dateOfJoining
+      ? data.dateOfJoining.slice(0, 10)
+      : "",
   });
   const [saving, setSaving] = useState(false);
 
   const onChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
+  const onCheckboxChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.checked }));
+
   const onSave = async () => {
     try {
       setSaving(true);
       await axiosInstance.put(UPDATE_BASIC_ENDPOINT(employeeId), form);
-      toast.success("Basic details updated");
+      toast.success("Employee details updated");
       onLocalUpdate?.(form);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update basic details");
+      toast.error("Failed to update employee details");
     } finally {
       setSaving(false);
     }
@@ -42,24 +57,25 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
 
   return (
     <Paper sx={{ p: 2, borderRadius: 2 }} elevation={3}>
+      {/* Header */}
       <Grid container justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" fontWeight="bold">
-          Basic Details
+          Employee Details
         </Typography>
-        <button
+        <Button
+          variant="contained"
           onClick={onSave}
           disabled={saving}
-          className={`px-4 py-1.5 rounded-lg font-medium text-white transition-all duration-200
-        ${saving
-          ? "bg-gray-400 cursor-not-allowed shadow-none"
-          : "bg-primary hover:bg-secondary shadow-md hover:shadow-lg"
-        } 
-        normal-case`}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+          }}
         >
           {saving ? "Saving…" : "Save"}
-        </button>
+        </Button>
       </Grid>
 
+      {/* Form */}
       <Grid container spacing={2}>
         <Grid item xs={12} md={4}>
           <TextField
@@ -94,12 +110,41 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
         </Grid>
         <Grid item xs={12} md={4}>
           <TextField
+            label="Mobile Number"
+            name="mobileNumber"
+            value={form.mobileNumber}
+            onChange={onChange}
+            size="small"
+            fullWidth
+            inputProps={{ maxLength: 10 }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            select
+            label="Gender"
+            name="gender"
+            value={form.gender}
+            onChange={onChange}
+            size="small"
+            fullWidth
+          >
+            {genderOptions.map((g) => (
+              <MenuItem key={g} value={g}>
+                {g}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
             label="Department ID"
             name="departmentId"
             value={form.departmentId}
             onChange={onChange}
             size="small"
             fullWidth
+            type="number"
           />
         </Grid>
         <Grid item xs={12} md={4}>
@@ -110,6 +155,7 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             onChange={onChange}
             size="small"
             fullWidth
+            type="number"
           />
         </Grid>
         <Grid item xs={12} md={4}>
@@ -120,6 +166,18 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             onChange={onChange}
             size="small"
             fullWidth
+            type="number"
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Pay Schedule ID"
+            name="payScheduleId"
+            value={form.payScheduleId}
+            onChange={onChange}
+            size="small"
+            fullWidth
+            type="number"
           />
         </Grid>
         <Grid item xs={12} md={4}>
@@ -134,6 +192,30 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             InputLabelProps={{
               shrink: true,
             }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4} display="flex" alignItems="center">
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={form.isDirector}
+                onChange={onCheckboxChange}
+                name="isDirector"
+              />
+            }
+            label="Is Director"
+          />
+        </Grid>
+        <Grid item xs={12} md={4} display="flex" alignItems="center">
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={form.portalAccessEnabled}
+                onChange={onCheckboxChange}
+                name="portalAccessEnabled"
+              />
+            }
+            label="Portal Access Enabled"
           />
         </Grid>
       </Grid>

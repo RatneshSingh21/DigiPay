@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 export default function ComingSoon() {
   const [timeLeft, setTimeLeft] = useState({});
-  const launchDate = new Date("2025-09-07T00:00:00"); // Change launch date
+  const launchDate = new Date("2025-09-27T00:00:00"); // Change launch date
 
   useEffect(() => {
     const timer = setInterval(() => {

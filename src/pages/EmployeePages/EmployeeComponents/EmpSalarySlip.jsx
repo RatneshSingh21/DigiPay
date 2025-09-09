@@ -34,9 +34,10 @@ const EmpSalarySlip = () => {
           params: {
             employeeId: user.userId,
             year: currentYear,
-            month: currentMonth - 1, // previous month slip
+            month: currentMonth, // previous month slip
           },
         });
+        console.log("Payslip data:", res.data);
         if (res.data && res.data.length > 0) {
           setData(res.data[0]);
         }
