@@ -101,7 +101,7 @@ const RoleApproval = () => {
 
   return (
     <>
-      <div className="px-4 py-3 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Approval Rules Management</h2>
 
         <div className="flex gap-4 items-center">

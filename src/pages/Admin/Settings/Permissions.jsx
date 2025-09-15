@@ -139,7 +139,7 @@ const Permissions = () => {
   return (
     <>
       {/* Header */}
-      <div className="px-4 py-3 mb-5 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-2 mb-5 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Permissions</h2>
         <div className="flex gap-2 items-center">
           <button

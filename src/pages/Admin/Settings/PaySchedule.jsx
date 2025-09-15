@@ -66,7 +66,7 @@ const PaySchedule = () => {
 
   return (
     <>
-      <div className="px-4 py-3 shadow sticky top-14 bg-white flex justify-between items-center">
+      <div className="px-4 py-2 shadow sticky top-14 bg-white flex justify-between items-center">
         <h2 className="font-semibold text-xl">Pay Schedule</h2>
         <button
           onClick={handleAddNew}

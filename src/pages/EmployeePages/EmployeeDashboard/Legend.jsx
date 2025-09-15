@@ -1,15 +1,13 @@
 import React from "react";
 
 const items = [
+  { label: "Present", color: "bg-green-500" },
+  { label: "Absent", color: "bg-red-500" },
   { label: "Leave", color: "bg-orange-400" },
-  { label: "Holiday", color: "bg-green-200" },
+  { label: "Holiday", color: "bg-blue-600" },
   { label: "Week Off", color: "bg-gray-300" },
   { label: "Remote", color: "bg-pink-300" },
-  { label: "Absent/UL", color: "bg-red-500" },
-  { label: "Office", color: "bg-green-500" },
   { label: "HalfDay", color: "bg-purple-400" },
-  { label: "ML", color: "bg-blue-600" },
-  { label: "Half Day-Unpaid", color: "bg-cyan-500" },
 ];
 
 const Legend = () => (

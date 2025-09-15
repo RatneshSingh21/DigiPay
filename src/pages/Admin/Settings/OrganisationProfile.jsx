@@ -183,7 +183,7 @@ const OrganisationProfile = () => {
 
   return (
     <>
-      <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10">
+      <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10">
         <h2 className="font-semibold text-xl">Organisation Profile</h2>
       </div>
        <div className="p-6 bg-white rounded-lg space-y-10">

@@ -41,7 +41,7 @@ const Designation = () => {
 
   return (
     <>
-      <div className="px-4 py-3 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Designations</h2>
         {designations.length > 0 && (
           <div className="flex gap-2 items-center">

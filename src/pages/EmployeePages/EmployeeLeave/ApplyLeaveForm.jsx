@@ -13,7 +13,7 @@ const ApplyLeaveForm = ({ leaveOptions, employeeOptions, onClose, showModal, onS
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Auto-select admin approver when modal opens
+  // Auto-select admin approver when modal opens
   useEffect(() => {
     if (showModal) {
       const adminApprovers = employeeOptions.filter(

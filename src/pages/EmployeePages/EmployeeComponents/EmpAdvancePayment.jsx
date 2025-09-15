@@ -65,7 +65,7 @@ const EmpAdvancePayment = () => {
         </button>
       </div>
 
-      <div className="max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-lg space-y-2">
+      <div className="max-w-3xl mx-auto p-4 bg-white rounded-2xl shadow-lg space-y-2">
         {/* Rules Section */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center text-secondary font-semibold">
@@ -86,7 +86,7 @@ const EmpAdvancePayment = () => {
             <h3 className="text-xl font-semibold text-gray-800 mb-4">
               Your Advance Requests
             </h3>
-            <div className="space-y-2 h-[45vh] overflow-y-auto pr-2">
+            <div className="space-y-1 h-[45vh] overflow-y-auto pr-2">
               {pendingRequests.map((req) => (
                 <div
                   key={req.advancePaymentId}
