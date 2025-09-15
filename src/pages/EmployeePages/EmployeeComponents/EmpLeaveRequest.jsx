@@ -149,8 +149,8 @@ const EmpLeaveRequest = () => {
   return (
     <div>
       {/* Header */}
-      <div className="px-4 py-3 shadow mb-6 sticky top-14 bg-white z-10 flex justify-between items-center">
-        <h2 className="font-semibold text-2xl text-gray-800">Leave Requests</h2>
+      <div className="px-4 py-2 shadow mb-6 sticky top-14 bg-white z-10 flex justify-between items-center">
+        <h2 className="font-semibold text-xl text-gray-800">Leave Requests</h2>
         <button onClick={() => setShowModal(true)} className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition">
           <FaPlus /> Apply Leave
         </button>
