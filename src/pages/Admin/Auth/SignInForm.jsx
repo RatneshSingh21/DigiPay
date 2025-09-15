@@ -146,7 +146,7 @@ export default function SignInForm({ switchToSignUp }) {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full flex items-center justify-center py-2.5 mt-1 text-white rounded-lg font-semibold text-sm transition-all ${
+        className={`w-full flex items-center justify-center cursor-pointer py-2.5 mt-1 text-white rounded-lg font-semibold text-sm transition-all ${
           loading
             ? "bg-orange-300 cursor-not-allowed"
             : "bg-orange-500 hover:bg-orange-600"
@@ -181,13 +181,13 @@ export default function SignInForm({ switchToSignUp }) {
       </div>
 
       {/* Google Login */}
-      <button
+      {/* <button
         type="button"
         className="w-full flex items-center justify-center gap-2 border text-sm py-2 rounded hover:bg-gray-50 transition-all"
       >
         <img src={assets.Google} alt="Google" className="w-6 h-6" />
         Continue with Google
-      </button>
+      </button> */}
     </form>
   );
 }

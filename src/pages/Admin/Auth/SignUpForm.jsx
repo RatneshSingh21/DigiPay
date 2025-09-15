@@ -194,7 +194,7 @@ const SignUpForm = ({ switchToSignIn }) => {
       {/* Submit */}
       <button
         disabled={loading}
-        className={`w-full py-2 text-white font-semibold rounded-md flex justify-center items-center ${
+        className={`w-full py-2 text-white font-semibold rounded-md flex justify-center cursor-pointer items-center ${
           loading
             ? "bg-orange-300 cursor-not-allowed"
             : "bg-orange-500 hover:bg-orange-600"
@@ -211,13 +211,13 @@ const SignUpForm = ({ switchToSignIn }) => {
       </div>
 
       {/* Google */}
-      <button
+      {/* <button
         type="button"
         className="w-full flex items-center justify-center border border-gray-300 text-sm py-2.5 rounded-lg hover:bg-gray-50 transition-all font-medium text-gray-700"
       >
         <img src={assets.Google} alt="Google" className="w-5 h-5 mr-2" />
         Continue with Google
-      </button>
+      </button> */}
     </form>
   );
 };

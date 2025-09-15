@@ -310,6 +310,7 @@ const EditTemplateModal = ({
                 setSelectedEmployeeIndex(selectedOption.value)
               }
               className="w-full"
+              autoFocus
             />
           </div>
         )}
@@ -322,19 +323,19 @@ const EditTemplateModal = ({
               setSelectedFields([...fieldOptions]); // Select all
             }
           }}
-          className="mb-4 px-2 py-0.5 rounded-sm border border-primary hover:bg-primary hover:text-white  text-primary "
+          className="mb-4 px-2 py-0.5 rounded-sm border border-primary cursor-pointer hover:bg-primary hover:text-white  text-primary "
         >
           {selectedFields.length === fieldOptions.length
             ? "Deselect All"
             : "Select All"}
         </button>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 mb-6 h-[40vh] overflow-y-auto p-3">
           {fieldOptions.map((field) => (
-            <label key={field} className="flex items-center gap-2">
+            <label key={field} className="flex items-center cursor-pointer gap-2">
               <input
                 type="checkbox"
-                className="accent-primary"
+                className="accent-primary cursor-pointer"
                 checked={selectedFields.includes(field)}
                 onChange={() => {
                   setSelectedFields((prev) =>
@@ -351,7 +352,7 @@ const EditTemplateModal = ({
 
         <div className="flex gap-4 mb-6 justify-center">
           <button
-            className={`px-5 py-2 rounded-lg border border-gray-300 transition-all duration-200 ${
+            className={`px-5 py-2 rounded-lg border border-gray-300 transition-all cursor-pointer duration-200 ${
               downloadType === "excel"
                 ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow"
                 : "bg-white text-gray-700 hover:bg-gray-100"
@@ -363,7 +364,7 @@ const EditTemplateModal = ({
 
           {viewType !== "salary" && viewType !== "allSalary" ? (
             <button
-              className={`px-5 py-2 rounded-lg border border-gray-300 transition-all duration-200 ${
+              className={`px-5 py-2 rounded-lg border border-gray-300 transition-all cursor-pointer duration-200 ${
                 downloadType === "pdf"
                   ? "bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow"
                   : "bg-white text-gray-700 hover:bg-gray-100"
@@ -375,7 +376,7 @@ const EditTemplateModal = ({
           ) : null}
         </div>
         <button
-          className="w-full py-2 border border-primary hover:bg-primary hover:text-white  text-primary font-semibold rounded-lg  transition-all"
+          className="w-full py-2 border border-primary hover:bg-primary cursor-pointer hover:text-white  text-primary font-semibold rounded-lg  transition-all"
           onClick={handleDownload}
         >
           Download Report

@@ -5,14 +5,12 @@ import useAuthStore from "../store/authStore";
 import axiosInstance from "../axiosInstance/axiosInstance";
 
 const AddCompanyModal = ({ isOpen, onClose }) => {
-  const { companyId, setCompanyId, updateUser } = useAuthStore();
+  const { companyId, setCompanyId, updateUser, updateToken } = useAuthStore();
 
   const [formData, setFormData] = useState({
     companyName: "",
     companyCode: "",
   });
-
-  console.log(companyId);
 
   const [loading, setLoading] = useState(false);
 
@@ -39,10 +37,16 @@ const AddCompanyModal = ({ isOpen, onClose }) => {
       const response = await axiosInstance.post("/Company/create", formData);
 
       if (response.data) {
-        const newCompanyId = response.data.companyId;
+        const newCompanyId = response.data.company.companyId;
+        const newToken = response.data.token;
 
-        // Save companyId into store so modal never shows again
+        // update store with new token (this will also refresh companyId inside it)
+        updateToken(newToken);
+
+        // optionally still keep companyId in store directly if needed
         setCompanyId(newCompanyId);
+
+        // update user info to reflect new companyId
         updateUser({ companyId: newCompanyId });
 
         toast.success("Company created successfully!");

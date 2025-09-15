@@ -2,71 +2,70 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
-// import { FiDownload, FiUpload } from "react-icons/fi";
 import Spinner from "../../../components/Spinner";
 import useAuthStore from "../../../store/authStore";
-
-const modules = [
-  "Employee",
-  "Salary",
-  "Attendance",
-  "Pay Schedule",
-  "Work Location",
-  "Payroll Run",
-];
+import AddModule from "../Permission/AddModule";
 
 const Permissions = () => {
   const [employees, setEmployees] = useState([]);
+  const [modules, setModules] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [permissions, setPermissions] = useState({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-    const { user } = useAuthStore();
+  const [isModalOpen, setIsModalOpen] = useState(false); // modal state
+  const { user } = useAuthStore();
 
   const isDisabled = !selectedEmployee || saving;
 
-  // Fetch employees + include Admin itself
+  // Fetch employees
   const fetchEmployees = async (userId) => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(`/user-auth/User-Employee/${userId}`);
       const { userId: uId, userName, employees } = res.data;
 
-      // First add Admin as an option
       const adminOption = {
         value: uId,
         label: `${userName} (Admin)`,
         type: "admin",
       };
 
-      // Then map employees
       const empOptions = employees.map((emp) => ({
         value: emp.employeeId,
         label: `${emp.employeeName} (${emp.employeeCode})`,
         type: "employee",
       }));
 
-      // Combine admin + employees in grouped format
-      const groupedOptions = [
-        {
-          label: "Admin",
-          options: [adminOption],
-        },
-        {
-          label: "Employees",
-          options: empOptions,
-        },
-      ];
-
-      setEmployees(groupedOptions);
+      setEmployees([
+        { label: "Admin", options: [adminOption] },
+        { label: "Employees", options: empOptions },
+      ]);
     } catch (err) {
       toast.error("Failed to load employees");
     } finally {
       setLoading(false);
     }
   };
+
+  // fetch modules from API
+  const fetchModules = async () => {
+    try {
+      const res = await axiosInstance.get("/ModuleMaster");
+      setModules(
+        res.data?.data?.map((m) => ({
+          moduleId: m.moduleId,
+          moduleName: m.moduleName,
+        })) || []
+      );
+    } catch (err) {
+      toast.error("Failed to load modules");
+    }
+  };
+
   useEffect(() => {
     fetchEmployees(user.userId);
+    fetchModules();
   }, []);
 
   const fetchPermissions = async (employeeId) => {
@@ -97,51 +96,62 @@ const Permissions = () => {
     if (isDisabled) return;
     setPermissions((prev) => ({
       ...prev,
-      [module]: {
-        ...prev[module],
-        [permKey]: !prev[module]?.[permKey],
+      [module.moduleName]: {
+        ...prev[module.moduleName],
+        [permKey]: !prev[module.moduleName]?.[permKey],
         adminUserId: selectedEmployee?.value,
-        moduleName: module,
+        moduleId: module.moduleId, // include moduleId
+        moduleName: module.moduleName,
       },
     }));
   };
 
   const handleSave = async () => {
-    if (!selectedEmployee) return;
-    try {
-      setSaving(true);
-      const payload = Object.values(permissions);
-      for (let item of payload) {
-        await axiosInstance.post("/Permission/set", item);
-      }
-      toast.success("Permissions updated!");
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Failed to update permissions"
-      );
-    } finally {
-      setSaving(false);
+  if (!selectedEmployee) return;
+  try {
+    setSaving(true);
+
+    // build payload from all modules, not just toggled ones
+    const payload = modules.map((m) => ({
+      adminUserId: selectedEmployee.value,
+      moduleId: m.moduleId,
+      moduleName: m.moduleName,
+      canView: permissions[m.moduleName]?.canView || false,
+      canCreate: permissions[m.moduleName]?.canCreate || false,
+      canEdit: permissions[m.moduleName]?.canEdit || false,
+      canDelete: permissions[m.moduleName]?.canDelete || false,
+    }));
+
+    for (let item of payload) {
+      await axiosInstance.post("/Permission/set", item);
     }
-  };
+
+    toast.success("Permissions updated!");
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message || "Failed to update permissions"
+    );
+  } finally {
+    setSaving(false);
+  }
+};
 
   return (
     <>
       {/* Header */}
       <div className="px-4 py-3 mb-5 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Permissions</h2>
-        {/* <div className="flex gap-2 items-center">
-          <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2">
-            <FiDownload />
-            Import
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => setIsModalOpen(true)} //open modal
+            className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
+          >
+            Add Module
           </button>
-          <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2">
-            <FiUpload />
-            Export
-          </button>
-        </div> */}
+        </div>
       </div>
 
-      {/* Employee Select + Disabled ID input */}
+      {/* Employee Select */}
       <div className="flex items-center gap-4 px-5 flex-wrap">
         <div className="w-80">
           <Select
@@ -177,20 +187,21 @@ const Permissions = () => {
                   type="checkbox"
                   className="w-4 h-4 cursor-pointer"
                   checked={modules.every(
-                    (module) =>
-                      permissions[module]?.canView &&
-                      permissions[module]?.canCreate &&
-                      permissions[module]?.canEdit &&
-                      permissions[module]?.canDelete
+                    (m) =>
+                      permissions[m.moduleName]?.canView &&
+                      permissions[m.moduleName]?.canCreate &&
+                      permissions[m.moduleName]?.canEdit &&
+                      permissions[m.moduleName]?.canDelete
                   )}
                   onChange={(e) => {
                     const checked = e.target.checked;
                     const newPerms = {};
-                    modules.forEach((module) => {
-                      newPerms[module] = {
-                        ...permissions[module],
+                    modules.forEach((m) => {
+                      newPerms[m.moduleName] = {
+                        ...permissions[m.moduleName],
                         adminUserId: selectedEmployee?.value,
-                        moduleName: module,
+                        moduleId: m.moduleId,
+                        moduleName: m.moduleName,
                         canView: checked,
                         canCreate: checked,
                         canEdit: checked,
@@ -218,19 +229,19 @@ const Permissions = () => {
                 </tr>
               </thead>
               <tbody>
-                {modules.map((module) => (
-                  <tr key={module} className="hover:bg-gray-50 transition">
-                    <td className="p-3 border font-medium">{module}</td>
+                {modules.map((m) => (
+                  <tr key={m.moduleId} className="hover:bg-gray-50 transition">
+                    <td className="p-3 border font-medium">{m.moduleName}</td>
                     {["canView", "canCreate", "canEdit", "canDelete"].map(
                       (permKey) => (
                         <td key={permKey} className="border text-center">
                           <input
                             type="checkbox"
                             className="w-5 h-5 cursor-pointer accent-primary"
-                            checked={permissions[module]?.[permKey] || false}
-                            onChange={() =>
-                              handleCheckboxChange(module, permKey)
+                            checked={
+                              permissions[m.moduleName]?.[permKey] || false
                             }
+                            onChange={() => handleCheckboxChange(m, permKey)}
                             disabled={isDisabled}
                           />
                         </td>
@@ -270,6 +281,15 @@ const Permissions = () => {
           Cancel
         </button>
       </div>
+
+      {/* Add Module Modal */}
+      <AddModule
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => {
+          fetchModules(); // refresh
+        }}
+      />
     </>
   );
 };

@@ -153,14 +153,14 @@ export default function SignInEmployeeForm() {
       <div className="flex justify-between text-xs text-orange-500 font-semibold mt-3">
         <button
           type="button"
-          className="hover:underline"
+          className="hover:underline cursor-pointer"
           onClick={() => navigate("/login-otp")}
         >
           Login with OTP
         </button>
         <button
           type="button"
-          className="hover:underline"
+          className="hover:underline cursor-pointer"
           onClick={() => navigate("/forget-password")}
         >
           Forgot Password?

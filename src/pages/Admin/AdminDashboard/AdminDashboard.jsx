@@ -2,6 +2,7 @@ import AdminAttendance from "./AdminAttendance";
 import AdminCardList from "./AdminCardList";
 import AdminSchedule from "./AdminSchedule";
 import AdminSummaryCards from "./AdminSummaryCards";
+import PayrollExpenseTrend from "./PayrollExpenseTrend";
 
 const AdminDashboard = () => {
   return (
@@ -10,7 +11,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <AdminAttendance />
-          <AdminCardList />
+          <PayrollExpenseTrend />
         </div>
         <AdminSchedule />
       </div>

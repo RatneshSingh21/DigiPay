@@ -40,7 +40,7 @@ const Unauthorized = () => {
       {/* Back Button */}
       <button
         onClick={handleBack}
-        className="mt-6 inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-transform transform hover:scale-105 shadow-lg"
+        className="mt-6 inline-flex items-center px-6 py-3 cursor-pointer bg-red-600 text-white rounded-lg hover:bg-red-700 transition-transform transform hover:scale-105 shadow-lg"
       >
         Back to Home
       </button>

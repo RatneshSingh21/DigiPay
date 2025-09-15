@@ -6,11 +6,12 @@ import {
   FaHandHoldingUsd,
   FaCalendarAlt,
   FaUserCircle,
-  FaCog,
 } from "react-icons/fa";
+import { RiUserStarFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import assets from "../../../assets/assets";
 import EmployeeSidebarItem from "./EmployeeSidebarItem";
+
 
 const menuItems = [
   {
@@ -49,9 +50,9 @@ const menuItems = [
     to: "/employee-dashboard/profile",
   },
   {
-    label: "Settings",
-    icon: <FaCog />,
-    to: "/employee-dashboard/settings",
+    label: "Mark Attendance",
+    icon: <RiUserStarFill />,
+    to: "/employee-dashboard/mark-attendance",
   },
 ];
 

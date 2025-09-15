@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import EditTemplateModal from "../AttendanceReport/EditTemplateModal";
-import { FiDownload, FiEdit2 } from "react-icons/fi";
+import { FiDownload } from "react-icons/fi";
 import assets from "../../../assets/assets";
 
 const dummyTemplates = [
@@ -375,8 +375,8 @@ const SalaryRegister = () => {
               className="mt-4 flex items-center gap-2 justify-center text-primary cursor-pointer  font-medium border border-primary hover:bg-primary hover:text-white transition px-3 py-2 rounded-md"
               onClick={() => handleEdit(template.id)}
             >
-              <FiEdit2 className="inline mr-0.5" />
-              Edit Template
+              <FiDownload />
+              Download
             </button>
           </div>
         ))}

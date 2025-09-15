@@ -4,9 +4,10 @@ import { toast } from "react-toastify";
 
 // Create base Axios instance
 //baseURL: "https://marigoldapi.digicodesoftware.com/api",
+//baseURL: "https://digipaydevops.digicodesoftware.com/api",
 
 const axiosInstance = axios.create({
-  baseURL: "https://digipaydevops.digicodesoftware.com/api",
+  baseURL: "https://digipaystaggingapi.digicodesoftware.com/api",
   headers: {
     "Content-Type": "application/json",
   },

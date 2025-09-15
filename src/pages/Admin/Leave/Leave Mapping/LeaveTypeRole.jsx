@@ -14,7 +14,7 @@ const LeaveTypeRole = () => {
   const [loading, setLoading] = useState(false);
 
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-  const [editId, setEditId] = useState(null); // <-- edit ke liye
+  const [editId, setEditId] = useState(null); 
 
   // Role options constant
   const fetchRoles = async () => {
@@ -42,7 +42,7 @@ const LeaveTypeRole = () => {
       const res = await axiosInstance.get("LeaveType/leave-type-role");
       setData(res.data);
     } catch (err) {
-      // toast.error("Error fetching data");
+      toast.error(err?.response?.data?.message || "Error fetching data");
       console.error("Error fetching data:", err);
     } finally {
       setLoading(false);
@@ -59,7 +59,7 @@ const LeaveTypeRole = () => {
       }));
       setLeaveOptions(options);
     } catch (err) {
-      toast.error("Error fetching leave names");
+      toast.error(err?.response?.data?.message ||"Error fetching leave names");
       console.error("Error fetching leaves:", err);
     }
   };

@@ -1,4 +1,3 @@
-// src/components/DayCell.jsx
 import React from "react";
 import { format, isToday } from "date-fns";
 
@@ -16,7 +15,7 @@ const statusColors = {
 
 const DayCell = ({ date, data }) => {
   const formatted = format(date, "d");
-  const isCurrentDay = isToday(date); // 🔍 Check if today
+  const isCurrentDay = isToday(date); // Check if today
 
   return (
     <div

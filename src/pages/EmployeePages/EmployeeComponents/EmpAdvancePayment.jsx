@@ -1,106 +1,111 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaMoneyCheckAlt, FaInfoCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import StatusPill from "../../../components/StatusPill";
-// Helper: Determine status from month/year with 7th rule
-const getInstallmentStatus = (monthYear) => {
-  const [monthStr, yearStr] = monthYear.split(" ");
-  const monthIndex = new Date(`${monthStr} 1, ${yearStr}`).getMonth();
-  const year = parseInt(yearStr);
+import axiosInstance from "../../../axiosInstance/axiosInstance";
+import useAuthStore from "../../../store/authStore";
+import Select from "react-select";
 
+const getInstallmentStatus = (dueDate) => {
   const today = new Date();
-  const currentMonthIndex = today.getMonth();
-  const currentYear = today.getFullYear();
-  const currentDate = today.getDate();
-
-  // If the month/year is in the past → always Deducted
-  if (year < currentYear || (year === currentYear && monthIndex < currentMonthIndex)) {
-    return "Deducted";
-  }
-
-  // If the month/year is the current month/year
-  if (year === currentYear && monthIndex === currentMonthIndex) {
-    if (currentDate >= 7) {
-      return "Deducted"; // 7th or later of current month
-    } else {
-      return "Pending"; // Before 7th
-    }
-  }
-
-  // Future months → Pending
-  return "Pending";
+  const due = new Date(dueDate);
+  return due < today ? "Deducted" : "Pending";
 };
+
+const paymentTypeOptions = [
+  { value: "Cash", label: "Cash" },
+  { value: "Cheque", label: "Cheque" },
+  { value: "Bank Transfer", label: "Bank Transfer" },
+  { value: "UPI", label: "UPI" },
+];
 
 const EmpAdvancePayment = () => {
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [repaymentDate, setRepaymentDate] = useState("");
   const [installments, setInstallments] = useState("");
+  const [advancePaymentType, setAdvancePaymentType] = useState(null);
+  const User = useAuthStore((state) => state.user);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [statusMap, setStatusMap] = useState({}); // Dynamic status map
 
-  const [pendingRequests, setPendingRequests] = useState([
-    {
-      id: 1,
-      amount: 12000,
-      reason: "Medical emergency",
-      status: "Pending",
-      date: "2025-07-28",
-      installments: 3,
-      installmentDetails: [
-        { month: "Aug 2025", amount: 4000 },
-        { month: "Sep 2025", amount: 4000 },
-        { month: "Oct 2025", amount: 4000 },
-      ],
-    },
-    {
-      id: 2,
-      amount: 8000,
-      reason: "Child's school fee",
-      status: "Approved",
-      date: "2025-07-15",
-      installments: 2,
-      installmentDetails: [
-        { month: "Aug 2025", amount: 4000 },
-        { month: "Sep 2025", amount: 4000 },
-      ],
-    },
-  ]);
+  // Fetch statuses
+  const fetchStatuses = async () => {
+    try {
+      const res = await axiosInstance.get("/StatusMaster");
+      const map = {};
+      res.data.data.forEach((s) => {
+        map[s.statusId] = s.statusName;
+      });
+      setStatusMap(map);
+    } catch (error) {
+      console.error("Error fetching status master:", error);
+      toast.error("Failed to load status master");
+    }
+  };
 
-  const handleSubmit = (e) => {
+  // Fetch advance payments
+  const fetchAdvancePayments = async () => {
+    if (!User?.userId) return;
+    try {
+      const res = await axiosInstance.get(`/AdvancePayment/employee/${User.userId}`);
+      setPendingRequests(res.data?.data || []);
+    } catch (error) {
+      console.error("Error fetching advance payments:", error);
+      toast.error(error?.response?.data?.message || "Failed to load requests");
+    }
+  };
+
+  useEffect(() => {
+    fetchStatuses();
+    fetchAdvancePayments();
+  }, [User?.userId]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!amount || !reason || !repaymentDate || !installments) {
+    if (!amount || !reason || !repaymentDate || !installments || !advancePaymentType) {
       toast.error("Please fill all fields");
       return;
     }
 
-    const newRequest = {
-      id: Date.now(),
-      amount,
-      reason,
-      status: "Pending",
-      date: new Date().toISOString().split("T")[0],
-      installments: parseInt(installments),
-      installmentDetails: [], // Admin will fill later
-    };
+    try {
+      const totalAmount = parseFloat(amount);
+      const noOfInstallments = parseInt(installments);
+      const installmentAmount = totalAmount / noOfInstallments;
 
-    setPendingRequests([newRequest, ...pendingRequests]);
-    toast.success("Advance payment request submitted!");
+      const payload = {
+        employeeId: User.userId,
+        advancePaymentAmount: totalAmount,
+        advancePaymentType: advancePaymentType.value,
+        noOfInstallments,
+        installmentAmount,
+        repaymentStartDate: new Date(repaymentDate).toISOString(),
+        reason,
+        comments: "",
+        customApproverIds: [],
+      };
 
-    setAmount("");
-    setReason("");
-    setRepaymentDate("");
-    setInstallments("");
+      await axiosInstance.post("/AdvancePayment", payload);
+      toast.success("Advance payment request submitted!");
+      fetchAdvancePayments(); // Refresh list
+      setAmount("");
+      setReason("");
+      setRepaymentDate("");
+      setInstallments("");
+      setAdvancePaymentType(null);
+    } catch (error) {
+      console.error("Error submitting advance payment:", error);
+      // toast.error("Failed to submit request");
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 mt-2 bg-white rounded-2xl shadow-lg space-y-10">
+    <div className="max-w-3xl mx-auto p-6 mt-2 bg-white rounded-2xl shadow-lg space-y-5">
       {/* Header */}
       <div>
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-2">
           <FaMoneyCheckAlt className="text-2xl text-blue-600 mr-2" />
-          <h2 className="text-2xl font-bold text-gray-800">
-            Advance Payment Request
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800">Advance Payment Request</h2>
         </div>
         <p className="text-gray-600">
           Facing an urgent financial need? Request advance salary below.
@@ -109,7 +114,7 @@ const EmpAdvancePayment = () => {
 
       {/* Rules Section */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center text-blue-700 font-semibold mb-2">
+        <div className="flex items-center text-blue-700 font-semibold">
           <FaInfoCircle className="mr-2" />
           Advance Salary Rules
         </div>
@@ -124,9 +129,7 @@ const EmpAdvancePayment = () => {
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Requested Amount (₹)
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Requested Amount (₹)</label>
           <input
             type="number"
             value={amount}
@@ -138,9 +141,7 @@ const EmpAdvancePayment = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Reason for Advance
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Advance</label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
@@ -152,9 +153,7 @@ const EmpAdvancePayment = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Preferred Repayment Date
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Repayment Date</label>
           <input
             type="date"
             value={repaymentDate}
@@ -165,9 +164,19 @@ const EmpAdvancePayment = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Number of Installments
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Advance Payment Type</label>
+          <Select
+            options={paymentTypeOptions}
+            value={advancePaymentType}
+            onChange={setAdvancePaymentType}
+            placeholder="Select payment type"
+            className="text-sm"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Number of Installments</label>
           <input
             type="number"
             value={installments}
@@ -182,62 +191,52 @@ const EmpAdvancePayment = () => {
         <div className="pt-4">
           <button
             type="submit"
-            className="w-full bg-primary text-white py-2 rounded-lg font-semibold hover:bg-secondary transition duration-200"
+            className="w-full cursor-pointer bg-primary text-white py-2 rounded-lg font-semibold hover:bg-secondary transition duration-200"
           >
             Submit Request
           </button>
         </div>
       </form>
 
-      {/* Pending Requests Section */}
+      {/* Pending Requests */}
       {pendingRequests.length > 0 && (
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            Your Advance Requests
-          </h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Your Advance Requests</h3>
           <div className="space-y-4">
             {pendingRequests.map((req) => (
-              <div
-                key={req.id}
-                className="p-4 border rounded-lg shadow-sm bg-gray-50"
-              >
+              <div key={req.advancePaymentId} className="p-4 border rounded-lg shadow-sm bg-gray-50">
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="text-gray-800 font-medium">
-                      ₹{req.amount}
-                    </div>
-                    <div className="text-sm text-gray-600">{req.reason}</div>
+                    <div className="text-gray-800 font-medium"><strong className="font-bold">Amount :</strong> ₹{req.advancePaymentAmount}</div>
+                    <div className="text-sm text-gray-600">{req.reason || "N/A"}</div>
                     <div className="text-xs text-gray-400">
-                      Requested on: {req.date}
+                      Requested on: {new Date(req.createdOn).toLocaleDateString()}
                     </div>
-                    {req.installments && (
+                    {req.noOfInstallments && (
                       <div className="text-xs text-gray-500 mt-1">
-                        Installments: {req.installments} month(s)
+                        Installments: {req.noOfInstallments} month(s)
                       </div>
                     )}
                   </div>
-                  <StatusPill status={req.status} />
+                  <StatusPill status={statusMap[req.statusId] || "Pending"} />
                 </div>
 
                 {/* Installment Breakdown */}
-                {req.installmentDetails?.length > 0 && (
+                {req.installments?.length > 0 && (
                   <div className="mt-2 border-t pt-2">
-                    <div className="text-xs font-semibold text-gray-700 mb-1">
-                      Installment Plan:
-                    </div>
+                    <div className="text-xs font-semibold text-gray-700 mb-1">Installment Plan:</div>
                     <ul className="text-xs text-gray-600 space-y-1">
-                      {req.installmentDetails.map((inst, i) => {
-                        const status = getInstallmentStatus(inst.month);
+                      {req.installments.map((inst) => {
+                        const status = getInstallmentStatus(inst.dueDate);
                         return (
-                          <li key={i} className="flex justify-between items-center">
+                          <li key={inst.installmentId} className="flex justify-between items-center">
                             <span>
-                              {inst.month}: ₹{inst.amount}
+                              {new Date(inst.dueDate).toLocaleString("default", { month: "short", year: "numeric" })}
+                              : ₹{inst.installmentAmount}
                             </span>
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                                status === "Deducted"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-yellow-100 text-yellow-700"
+                                status === "Deducted" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
                               }`}
                             >
                               {status}

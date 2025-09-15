@@ -42,19 +42,19 @@ const EmployeeNavbar = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="text-gray-600 hover:text-black relative">
+          <button className="text-gray-600 hover:text-black relative cursor-pointer">
             <FaBell />
             <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full animate-ping" />
           </button>
 
-          <button className="text-gray-600 hover:text-black">
+          <button className="text-gray-600 hover:text-black cursor-pointer">
             <FaCog onClick={() => setProfileDrawerOpen(true)} />
           </button>
 
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileMenuOpen((prev) => !prev)}
-              className="flex items-center gap-2"
+              className="flex items-center cursor-pointer gap-2"
             >
               <img
                 src={user?.profilePicture || "https://i.pravatar.cc/300"}
@@ -65,9 +65,9 @@ const EmployeeNavbar = () => {
             </button>
 
             {profileMenuOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md py-2 z-30">
+              <div className="absolute right-0 mt-2 w-40 bg-white cursor-pointer shadow-lg rounded-md py-2 z-30">
                 <button
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
                   onClick={() => {
                     setProfileDrawerOpen(true);
                     setProfileMenuOpen(false);
@@ -78,7 +78,7 @@ const EmployeeNavbar = () => {
                 <hr className="my-1" />
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="w-full text-left cursor-pointer px-4 py-2 text-red-500 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <FaSignOutAlt />
                   Logout

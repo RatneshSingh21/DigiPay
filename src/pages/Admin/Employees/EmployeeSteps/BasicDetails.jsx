@@ -182,7 +182,7 @@ const BasicDetails = () => {
               className={`w-full px-4 py-2 border rounded-md ${
                 employeeId
                   ? "bg-gray-100 cursor-not-allowed"
-                  : "border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  : "border-blue-300 uppercase focus:outline-none focus:ring-2 focus:ring-blue-400"
               }`}
             />
           </div>
@@ -223,7 +223,7 @@ const BasicDetails = () => {
               name="mobileNumber"
               value={form.mobileNumber || ""}
               onChange={handleChange}
-              type="number"
+              type="text"
               maxLength={10}
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />

@@ -45,13 +45,13 @@ const LandingSection = () => {
 
           <div className="flex flex-col md:flex-row gap-3 mt-5">
             <button
-              className="bg-[#F08A2E] text-white px-6 py-3 rounded-md shadow hover:opacity-90 transition"
+              className="bg-[#F08A2E] text-white px-6 py-3 rounded-md shadow cursor-pointer hover:opacity-90 transition"
               onClick={() => handleAuthNavigation("SuperAdmin")}
             >
               Continue as Admin
             </button>
             <button
-              className="bg-[#CF6C12] text-white px-6 py-3 rounded-md shadow hover:opacity-90 transition"
+              className="bg-[#CF6C12] text-white px-6 py-3 rounded-md shadow cursor-pointer hover:opacity-90 transition"
               onClick={() => handleAuthNavigation("Employee")}
             >
               Login as Employee

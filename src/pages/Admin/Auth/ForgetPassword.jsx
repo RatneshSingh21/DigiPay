@@ -56,7 +56,6 @@ const ForgetPassword = () => {
       }}
     >
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-lg px-5 pt-3 pb-5 text-center z-10">
-        {/* Illustration Image */}
         <button
           type="button"
           onClick={() => navigate(-1)}

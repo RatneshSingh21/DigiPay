@@ -79,8 +79,8 @@ import ComplianceRules from "./pages/Admin/Compliance/ComplianceRules";
 // Employee Pages
 import EmployeeProfile from "./pages/EmployeePages/EmployeeComponents/EmployeeProfile";
 import EmpAttendance from "./pages/EmployeePages/EmployeeComponents/EmpAttendance";
-import EmpLeaveRequest1 from "./pages/EmployeePages/EmployeeComponents/EmpLeaveRequest1";
-import EmpSettings from "./pages/EmployeePages/EmployeeComponents/EmpSettings";
+import EmpLeaveRequest from "./pages/EmployeePages/EmployeeComponents/EmpLeaveRequest";
+import EmpMarkAttendance from "./pages/EmployeePages/EmployeeComponents/EmpMarkAttendance";
 import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
 import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
@@ -278,9 +278,9 @@ const App = () => {
                 <Route path="home" element={<EmployeeDashboard />} />{" "}
                 <Route path="profile" element={<EmployeeProfile />} />
                 <Route path="attendance" element={<EmpAttendance />} />
-                <Route path="leave" element={<EmpLeaveRequest1 />} />
+                <Route path="leave" element={<EmpLeaveRequest />} />
                 <Route path="salary-slip" element={<EmpSalarySlip />} />
-                <Route path="settings" element={<EmpSettings />} />
+                <Route path="mark-attendance" element={<EmpMarkAttendance />} />
                 <Route path="advance-payment" element={<EmpAdvancePayment />} />
                 <Route path="on-duty" element={<EmpOutDuty />} />
                 <Route path="*" element={<NotFound />} />

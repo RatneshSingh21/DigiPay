@@ -16,7 +16,6 @@ const useAuthStore = create(
 
         try {
           const decoded = jwtDecode(token);
-          // handle both possible casings and force it into a number
           const rawCompanyId = decoded.companyId || decoded.CompanyId || null;
           companyId = rawCompanyId ? Number(rawCompanyId) : null;
         } catch (error) {
@@ -30,6 +29,7 @@ const useAuthStore = create(
           companyId,
         });
       },
+
       logout: () => {
         set({
           user: null,
@@ -37,7 +37,7 @@ const useAuthStore = create(
           refreshToken: null,
           companyId: null,
         });
-        localStorage.removeItem("auth-storage"); // clear persisted store
+        localStorage.removeItem("auth-storage");
       },
 
       setAuthReady: () => set({ isAuthReady: true }),
@@ -49,6 +49,23 @@ const useAuthStore = create(
           user: { ...state.user, ...data },
           companyId: data.companyId ?? state.companyId,
         })),
+
+      // New function to update only the token & companyId
+      updateToken: (newToken) => {
+        let companyId = null;
+        try {
+          const decoded = jwtDecode(newToken);
+          const rawCompanyId = decoded.companyId || decoded.CompanyId || null;
+          companyId = rawCompanyId ? Number(rawCompanyId) : null;
+        } catch (error) {
+          console.error("Failed to decode new JWT:", error);
+        }
+
+        set((state) => ({
+          token: newToken,
+          companyId: companyId ?? state.companyId, // fallback to old if not found
+        }));
+      },
     }),
     {
       name: "auth-storage",

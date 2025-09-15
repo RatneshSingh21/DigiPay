@@ -24,7 +24,7 @@ const LeaveTypeLocation = () => {
       const res = await axiosInstance.get("LeaveType/leave-type-location/getAll");
       setData(res.data);
     } catch (err) {
-      toast.error("Error fetching mappings");
+      toast.error(err?.response?.data?.message || "Error fetching mappings");
       console.error("Error fetching mappings:", err);
     } finally {
       setLoading(false);
@@ -41,7 +41,7 @@ const LeaveTypeLocation = () => {
       }));
       setLeaveOptions(options);
     } catch (err) {
-      toast.error("Error fetching leave types");
+      toast.error(err?.response?.data?.message || "Error fetching leaves");
       console.error("Error fetching leaves:", err);
     }
   };
@@ -56,7 +56,7 @@ const LeaveTypeLocation = () => {
       }));
       setLocationOptions(options);
     } catch (err) {
-      toast.error("Error fetching locations");
+      toast.error(err?.response?.data?.message || "Error fetching locations");
       console.error("Error fetching locations:", err);
     }
   };

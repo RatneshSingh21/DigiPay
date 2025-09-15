@@ -6,15 +6,17 @@ import UpcomingHolidays from "./UpcomingHolidays.jsx";
 
 const EmployeeDashboard = () => {
   const records = {
-    "2025-07-22": { hours: "8.10", status: "Office" },
-    "2025-07-23": { hours: "9.15", status: "Office" },
-    "2025-07-24": { hours: "8.20", status: "Office" },
-    "2025-07-25": { hours: "9.20", status: "Office" },
-    "2025-07-28": { hours: "0.0", status: "Absent" },
-    "2025-07-29": { hours: "8.55", status: "Office" },
-    "2025-07-30": { hours: "8.40", status: "Office" },
-    "2025-07-31": { hours: "0.0", status: "Leave" },
+    "2025-09-01": { hours: "8.10", status: "Office" },
+    "2025-09-02": { hours: "9.15", status: "Office" },
+    "2025-09-03": { hours: "8.20", status: "Office" },
+    "2025-09-04": { hours: "9.20", status: "Office" },
+    "2025-09-05": { hours: "0.0", status: "Absent" },
+    "2025-09-06": { hours: "8.55", status: "Office" },
+    "2025-09-07": { hours: "8.40", status: "Office" },
+    "2025-09-08": { hours: "8.50", status: "Office" },
+    "2025-09-09": { hours: "0.0", status: "Absent" },
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">

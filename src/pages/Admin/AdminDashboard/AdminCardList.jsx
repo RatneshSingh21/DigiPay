@@ -1,67 +1,76 @@
-const cards = [
-  {
-    type: "Saving",
-    bank: "SBI",
-    name: "Jack Grealish",
-    number: "**** 1234",
-    status: "Active",
+import React from "react";
+
+const insights = {
+  thisWeek: {
+    workingDays: 5,
+    absences: 3,
+    overtimeHours: 12,
   },
-  {
-    type: "Current",
-    bank: "Axis",
-    name: "David Beckham",
-    number: "**** 3344",
-    status: "Inactive",
+  nextPayroll: {
+    date: "30 Sep 2025",
+    pendingEmployees: 4,
+    estimatedExpense: "₹13.2L",
   },
-  {
-    type: "Others",
-    bank: "HDFC",
-    name: "John Stones",
-    number: "**** 5566",
-    status: "Active",
-  },
-];
+};
 
 const AdminCardList = () => {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-5">
+      {/* Header */}
       <div className="flex justify-between mb-4">
-        <h3 className="text-lg font-semibold">Bank Account Details</h3>
-        <button className="text-sm text-gray-400">This Week</button>
+        <h3 className="text-lg font-semibold">Payroll & Attendance Insights</h3>
+        <button className="text-sm text-gray-400">Summary</button>
       </div>
 
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-gray-400 border-b">
-            <th>Account Type</th>
-            <th>Bank Name</th>
-            <th>Name</th>
-            <th>Account Number</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cards.map((card, i) => (
-            <tr key={i} className="border-b">
-              <td className="py-2">{card.type}</td>
-              <td>{card.bank}</td>
-              <td>{card.name}</td>
-              <td>{card.number}</td>
-              <td>
-                <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    card.status === "Active"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-200 text-gray-500"
-                  }`}
-                >
-                  {card.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* This Week Section */}
+      <div className="mb-4">
+        <h4 className="text-sm font-semibold text-gray-600 mb-2">This Week</h4>
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <p className="text-lg font-bold text-blue-700">
+              {insights.thisWeek.workingDays}
+            </p>
+            <p className="text-xs text-gray-500">Working Days</p>
+          </div>
+          <div className="p-3 bg-red-50 rounded-lg">
+            <p className="text-lg font-bold text-red-700">
+              {insights.thisWeek.absences}
+            </p>
+            <p className="text-xs text-gray-500">Absences</p>
+          </div>
+          <div className="p-3 bg-green-50 rounded-lg">
+            <p className="text-lg font-bold text-green-700">
+              {insights.thisWeek.overtimeHours}
+            </p>
+            <p className="text-xs text-gray-500">Overtime Hours</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Next Payroll Section */}
+      <div>
+        <h4 className="text-sm font-semibold text-gray-600 mb-2">Next Payroll</h4>
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="p-3 bg-purple-50 rounded-lg">
+            <p className="text-lg font-bold text-purple-700">
+              {insights.nextPayroll.date}
+            </p>
+            <p className="text-xs text-gray-500">Date</p>
+          </div>
+          <div className="p-3 bg-yellow-50 rounded-lg">
+            <p className="text-lg font-bold text-yellow-700">
+              {insights.nextPayroll.pendingEmployees}
+            </p>
+            <p className="text-xs text-gray-500">Pending Employees</p>
+          </div>
+          <div className="p-3 bg-indigo-50 rounded-lg">
+            <p className="text-lg font-bold text-indigo-700">
+              {insights.nextPayroll.estimatedExpense}
+            </p>
+            <p className="text-xs text-gray-500">Estimated Expense</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

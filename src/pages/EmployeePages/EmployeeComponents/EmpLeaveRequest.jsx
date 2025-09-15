@@ -1,130 +1,149 @@
-import React, { useState } from "react";
-import { FaPlus, FaTimes } from "react-icons/fa";
-import { format, parseISO, isBefore, isAfter } from "date-fns";
-import Select from "react-select";
+import { useEffect, useState, useCallback } from "react";
+import useAuthStore from "../../../store/authStore";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
+import ApplyLeaveForm from "../EmployeeLeave/ApplyLeaveForm";
+import { FaPlus } from "react-icons/fa";
+import { isBefore, format } from "date-fns";
 import { toast } from "react-toastify";
-import StatusPill from "../../../components/StatusPill";
 
-const initialLeaveBalance = {
-  CL: 5,
-  SL: 3,
-  EL: 8,
+// ================= Status Pill =================
+const StatusPill = ({ status }) => {
+  const colors = {
+    pending: "bg-yellow-100 text-yellow-700",
+    approved: "bg-green-100 text-green-700",
+    rejected: "bg-red-100 text-red-700",
+    cancelled: "bg-gray-200 text-gray-700",
+    default: "bg-blue-100 text-blue-700",
+  };
+  return (
+    <span className={`px-3 py-1 text-xs font-medium rounded-full ${colors[status?.toLowerCase()] || colors.default}`}>
+      {status}
+    </span>
+  );
 };
 
-const initialLeaveHistory = [
-  {
-    id: 1,
-    type: "CL",
-    from: "2025-07-12",
-    to: "2025-07-13",
-    status: "Approved",
-  },
-  {
-    id: 2,
-    type: "SL",
-    from: "2025-06-18",
-    to: "2025-06-18",
-    status: "Rejected",
-  },
-];
-
+// ================= Emp Leave Request =================
 const EmpLeaveRequest = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    type: null,
-    from: "",
-    to: "",
-    reason: "",
-  });
-  const [leaveBalance, setLeaveBalance] = useState(initialLeaveBalance);
-  const [leaveHistory, setLeaveHistory] = useState(initialLeaveHistory);
-  const [error, setError] = useState("");
+  const { user } = useAuthStore();
 
-  const leaveOptions = Object.entries(leaveBalance).map(([type, count]) => ({
-    label: `${type} (${count} left)`,
-    value: type,
+  const [showModal, setShowModal] = useState(false);
+  const [leaveTypes, setLeaveTypes] = useState([]);
+  const [leaveHistory, setLeaveHistory] = useState([]);
+  const [employees, setEmployees] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  // --------- Fetch Leave Types ---------
+  useEffect(() => {
+    axiosInstance.get("/LeaveType/active")
+      .then(res => setLeaveTypes(res.data || []))
+      .catch(() => toast.error("Unable to load leave types."));
+  }, []);
+
+  // --------- Fetch Employees ---------
+  useEffect(() => {
+    if (!user?.userId) return;
+
+    setLoading(true);
+    // axiosInstance.get(`/user-auth/User-Employee/${user.userId}`)
+    axiosInstance.get(`/user-auth/User-Employee/24`)
+      .then(res => setEmployees(res.data || {}))
+      .catch(err => {
+        console.error(err);
+        toast.error(err.response?.data?.message || "Error fetching employees");
+      })
+      .finally(() => setLoading(false));
+  }, [user?.userId]);
+
+  // --------- Fetch Leave History ---------
+  const fetchLeaveHistory = useCallback(async () => {
+    if (!user?.userId) return;
+
+    setLoading(true);
+    try {
+      const res = await axiosInstance.get("/EmployeeLeave");
+      const data = res.data?.data || [];
+
+      const filteredLeaves = data.filter(
+        leave =>
+          leave.employeeId === user.userId ||
+          employees.employees?.some(emp => emp.employeeId === leave.employeeId)
+      );
+      setLeaveHistory(filteredLeaves);
+    } catch (err) {
+      console.error(err);
+      toast.error("Unable to load leave history.");
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.userId, employees]);
+
+  useEffect(() => {
+    fetchLeaveHistory();
+  }, [fetchLeaveHistory]);
+
+  // --------- React-Select Options ---------
+  const leaveOptions = leaveTypes.map(lt => ({
+    label: lt.leaveName,
+    value: lt.leaveTypeId,
+    code: lt.leaveCode,
+    maxLeavesPerYear: lt.maxLeavesPerYear,
   }));
 
-  const handleOpenModal = () => {
-    setShowModal(true);
-    setError("");
-  };
+  const employeeOptions = [
+    { label: `${employees.userName} (Admin)`, value: employees.userId, role: "admin" },
+    ...(employees.employees?.map(emp => ({ label: `${emp.employeeName} (Employee)`, value: emp.employeeId, role: "employee" })) || [])
+  ];
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setFormData({ type: null, from: "", to: "", reason: "" });
-    setError("");
-  };
-
-  const handleInputChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const checkOverlap = (from, to) => {
-    return leaveHistory.some((leave) => {
-      const existingFrom = parseISO(leave.from);
-      const existingTo = parseISO(leave.to);
-      return (
-        (isBefore(parseISO(from), existingTo) &&
-          isAfter(parseISO(from), existingFrom)) ||
-        (isBefore(parseISO(to), existingTo) &&
-          isAfter(parseISO(to), existingFrom)) ||
-        from === leave.from ||
-        to === leave.to
-      );
+  // --------- Utility: Check Overlap ---------
+  const checkOverlap = (newFrom, newTo) =>
+    leaveHistory.some(leave => {
+      const leaveFrom = new Date(leave.fromDate || leave.from);
+      const leaveTo = new Date(leave.toDate || leave.to);
+      return (newFrom <= leaveTo && newTo >= leaveFrom);
     });
-  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const { type, from, to, reason } = formData;
+  // --------- Handle Submit Leave ---------
+  const handleSubmitLeave = async ({ type, from, to, reason, approvers }) => {
     const days = (new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24) + 1;
     const today = new Date();
 
-    if (!type || !from || !to || !reason) {
-      setError("Please complete all fields.");
-      return;
+    if (!type || !from || !to || !reason) return "Please complete all fields.";
+    if (isBefore(new Date(to), new Date(from))) return "To date cannot be before From date.";
+    if (isBefore(new Date(from), today)) return "You cannot apply for backdated leave.";
+    if (checkOverlap(new Date(from), new Date(to))) return "You already have a leave applied in this date range.";
+    if (days > type.maxLeavesPerYear) return `You cannot apply more than ${type.maxLeavesPerYear} days for ${type.label}.`;
+
+    try {
+      await axiosInstance.post("/EmployeeLeave", {
+        employeeId: user.userId,
+        leaveTypeId: type.value,
+        leaveName: type.label,
+        leaveCode: type.code,
+        fromDate: new Date(from).toISOString(),
+        toDate: new Date(to).toISOString(),
+        reason,
+        status: "Pending",
+        approvedBy: 14,
+        createdOn: new Date().toISOString(),
+        updatedOn: new Date().toISOString(),
+        customApproverIds: approvers?.map(a => a.value) || [],
+      });
+
+      toast.success(`Leave Applied Successfully for ${days} day(s)!`);
+      fetchLeaveHistory(); // refresh table
+      return null;
+    } catch (err) {
+      console.error(err);
+      // toast.error("Failed to apply leave. Please try again.");
+      return "API request failed.";
     }
+  };
 
-    if (isBefore(new Date(to), new Date(from))) {
-      setError("To date cannot be before From date.");
-      return;
-    }
-
-    if (isBefore(new Date(from), today)) {
-      setError("You cannot apply for backdated leave.");
-      return;
-    }
-
-    if (checkOverlap(from, to)) {
-      setError("You already have a leave applied in this date range.");
-      return;
-    }
-
-    if (leaveBalance[type.value] < days) {
-      setError("Insufficient leave balance.");
-      return;
-    }
-
-    // Update leave history
-    const newLeave = {
-      id: Date.now(),
-      type: type.value,
-      from,
-      to,
-      status: "Pending",
-    };
-
-    setLeaveHistory((prev) => [...prev, newLeave]);
-
-    // Update leave balance
-    setLeaveBalance((prev) => ({
-      ...prev,
-      [type.value]: prev[type.value] - days,
-    }));
-
-    toast.success(`Leave Applied Successfully for ${days} day(s)!`);
-    handleCloseModal();
+  // --------- Render ---------
+  const renderDate = (date) => {
+    if (!date) return "—";
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? "—" : format(d, "dd MMM yyyy");
   };
 
   return (
@@ -132,33 +151,14 @@ const EmpLeaveRequest = () => {
       {/* Header */}
       <div className="px-4 py-3 shadow mb-6 sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-2xl text-gray-800">Leave Requests</h2>
-        <button
-          onClick={handleOpenModal}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition"
-        >
+        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition">
           <FaPlus /> Apply Leave
         </button>
       </div>
 
-      {/* Leave Balance Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-6">
-        {Object.entries(leaveBalance).map(([type, balance]) => (
-          <div
-            key={type}
-            className="bg-white shadow-md rounded-lg p-5 border border-gray-200 hover:shadow-lg transition"
-          >
-            <p className="text-sm text-gray-500 font-bold">{type}</p>
-            <h3 className="text-3xl font-bold text-primary">{balance}</h3>
-            <p className="text-xs text-gray-400">Available Days</p>
-          </div>
-        ))}
-      </div>
-
       {/* Leave History */}
       <div className="bg-white shadow rounded mt-8 mx-6 p-6">
-        <h3 className="text-xl font-semibold mb-4 text-gray-700">
-          Leave History
-        </h3>
+        <h3 className="text-xl font-semibold mb-4 text-gray-700">Leave History</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border rounded overflow-hidden">
             <thead className="text-gray-600 bg-gray-100">
@@ -167,31 +167,21 @@ const EmpLeaveRequest = () => {
                 <th className="px-4 py-3 text-left">From</th>
                 <th className="px-4 py-3 text-left">To</th>
                 <th className="px-4 py-3 text-left">Status</th>
+                <th className="px-4 py-3 text-left">Approvers</th>
               </tr>
             </thead>
             <tbody>
-              {leaveHistory.map((leave) => (
-                <tr
-                  key={leave.id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
-                  <td className="px-4 py-3">{leave.type}</td>
-                  <td className="px-4 py-3">
-                    {format(new Date(leave.from), "dd MMM yyyy")}
-                  </td>
-                  <td className="px-4 py-3">
-                    {format(new Date(leave.to), "dd MMM yyyy")}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusPill status={leave.status} />
-                  </td>
+              {leaveHistory.length ? leaveHistory.map((leave) => (
+                <tr key={leave.applyLeaveId || leave.leaveId} className="border-t hover:bg-gray-50 transition">
+                  <td className="px-4 py-3">{leave.leaveName || leave.type}</td>
+                  <td className="px-4 py-3">{renderDate(leave.fromDate || leave.from)}</td>
+                  <td className="px-4 py-3">{renderDate(leave.toDate || leave.to)}</td>
+                  <td className="px-4 py-3"><StatusPill status={leave.status} /></td>
+                  <td className="px-4 py-3">{leave.approvers?.map(a => a.label).join(", ") || "—"}</td>
                 </tr>
-              ))}
-              {leaveHistory.length === 0 && (
+              )) : (
                 <tr>
-                  <td colSpan={4} className="text-center py-4 text-gray-400">
-                    No leave records found.
-                  </td>
+                  <td colSpan={5} className="text-center py-4 text-gray-400">No leave records found.</td>
                 </tr>
               )}
             </tbody>
@@ -200,87 +190,13 @@ const EmpLeaveRequest = () => {
       </div>
 
       {/* Apply Leave Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4">
-          <div className="bg-white p-6 rounded-lg shadow w-full max-w-md animate-fade-in">
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="text-xl font-semibold text-gray-800">
-                Apply Leave
-              </h3>
-              <button onClick={handleCloseModal}>
-                <FaTimes className="text-gray-600 hover:text-red-600" />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {error && (
-                <div className="bg-red-100 text-red-700 px-3 py-2 rounded text-sm">
-                  {error}
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Leave Type
-                </label>
-                <Select
-                  options={leaveOptions}
-                  value={formData.type}
-                  onChange={(selected) =>
-                    setFormData({ ...formData, type: selected })
-                  }
-                  placeholder="Select Leave Type"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    From Date
-                  </label>
-                  <input
-                    type="date"
-                    name="from"
-                    value={formData.from}
-                    onChange={handleInputChange}
-                    className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    To Date
-                  </label>
-                  <input
-                    type="date"
-                    name="to"
-                    value={formData.to}
-                    onChange={handleInputChange}
-                    className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Reason
-                </label>
-                <textarea
-                  name="reason"
-                  value={formData.reason}
-                  onChange={handleInputChange}
-                  className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter your reason for leave"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-primary text-white py-2 rounded hover:bg-secondary transition"
-              >
-                Submit Leave Request
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <ApplyLeaveForm
+        leaveOptions={leaveOptions}
+        employeeOptions={employeeOptions}
+        onSubmit={handleSubmitLeave}
+        onClose={() => setShowModal(false)}
+        showModal={showModal}
+      />
     </div>
   );
 };

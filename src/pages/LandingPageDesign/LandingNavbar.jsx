@@ -8,7 +8,7 @@ const LandingNavbar = () => {
     <nav className="fixed top-0 left-0 w-full z-50 bg-white shadow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 cursor-pointer">
             <img src={assets.logo} alt="DigiCode Logo" className="w-10 h-10" />
             <Link
               to="/"
@@ -20,7 +20,7 @@ const LandingNavbar = () => {
 
           <div className="flex items-center space-x-4">
             <button
-              className="bg-[#CF6C12] text-white px-4 py-2 text-sm sm:text-base rounded-md hover:opacity-90 transition duration-200"
+              className="bg-[#CF6C12] text-white px-4 py-2 text-sm sm:text-base cursor-pointer rounded-md hover:opacity-90 transition duration-200"
               onClick={() => navigate("/auth")}
             >
               Access DigiPay

@@ -15,7 +15,7 @@ const AdminDashboardLayout = () => {
         }`}
       >
         <AdminNavbar />
-        <div>
+        <div className="flex-1">
           <Outlet />
         </div>
       </div>

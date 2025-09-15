@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import Select from "react-select";
 
@@ -12,6 +12,21 @@ const ApplyLeaveForm = ({ leaveOptions, employeeOptions, onClose, showModal, onS
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ✅ Auto-select admin approver when modal opens
+  useEffect(() => {
+    if (showModal) {
+      const adminApprovers = employeeOptions.filter(
+        (emp) => emp.role?.toLowerCase() === "admin"
+      );
+      if (adminApprovers.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          approvers: adminApprovers, // pre-select admin(s)
+        }));
+      }
+    }
+  }, [showModal, employeeOptions]);
 
   const handleInputChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -127,7 +142,7 @@ const ApplyLeaveForm = ({ leaveOptions, employeeOptions, onClose, showModal, onS
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-white py-2 rounded hover:bg-secondary transition disabled:opacity-50"
+            className="w-full bg-primary cursor-pointer text-white py-2 rounded hover:bg-secondary transition disabled:opacity-50"
           >
             {loading ? "Submitting..." : "Submit Leave Request"}
           </button>

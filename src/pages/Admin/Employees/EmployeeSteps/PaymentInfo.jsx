@@ -183,7 +183,7 @@ const PaymentInfo = () => {
               name="accountHolderName"
               value={form.accountHolderName || ""}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -197,7 +197,7 @@ const PaymentInfo = () => {
               value={form.bankName || ""}
               onChange={handleChange}
               placeholder="e.g., HDFC Bank"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -211,7 +211,7 @@ const PaymentInfo = () => {
               value={form.branchName || ""}
               onChange={handleChange}
               placeholder="e.g., Connaught Place Branch"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -225,7 +225,7 @@ const PaymentInfo = () => {
               value={form.branchAddress || ""}
               onChange={handleChange}
               placeholder="e.g., 12 MG Road, Delhi"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -239,7 +239,7 @@ const PaymentInfo = () => {
               value={form.accountNumber || ""}
               onChange={handleChange}
               placeholder="e.g., 123456789012"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -253,7 +253,7 @@ const PaymentInfo = () => {
               value={form.ifscCode || ""}
               onChange={handleChange}
               placeholder="e.g., HDFC0001234"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 

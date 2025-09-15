@@ -195,7 +195,7 @@ const EmpCreatePassword = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-orange-500 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-orange-600 transition disabled:opacity-50"
+            className="w-full py-2 bg-orange-500 text-white rounded-lg flex items-center cursor-pointer justify-center gap-2 hover:bg-orange-600 transition disabled:opacity-50"
           >
             {loading && <Spinner />}
             Create Password

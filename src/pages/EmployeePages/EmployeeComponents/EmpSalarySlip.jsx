@@ -1,23 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AmountInWords from "../../../components/AmountInWords";
 import assets from "../../../assets/assets";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
+import { useReactToPrint } from "react-to-print";
 
 const EmpSalarySlip = () => {
-  const [config, setConfig] = useState({
-    showPAN: true,
-    showYTD: false,
-    showBank: true,
-    showWorkLocation: true,
-    showDepartment: true,
-    showDesignation: true,
-    showOrgName: true,
-    showOrgAddress: true,
-    orgName: "Digicode Software Pvt. Ltd.",
-    orgAddress: "Noida, Uttar Pradesh",
-  });
-
+  const [config, setConfig] = useState(null);
+  const { user } = useAuthStore();
+  const slipRef = useRef();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,22 +16,27 @@ const EmpSalarySlip = () => {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
 
-  const { user } = useAuthStore();
+  // Load config once
+  useEffect(() => {
+    const savedConfigs = localStorage.getItem("templateConfigs");
+    if (savedConfigs) {
+      const parsedConfigs = JSON.parse(savedConfigs);
+      setConfig(parsedConfigs.simple || null);
+    }
+  }, []);
 
   useEffect(() => {
+    if (!user) return;
     const fetchSlip = async () => {
       try {
         const res = await axiosInstance.get("/EmployeeSalarySlip/get", {
           params: {
             employeeId: user.userId,
-            year: currentYear,
-            month: currentMonth, // previous month slip
+            year: new Date().getFullYear(),
+            month: new Date().getMonth() + 1,
           },
         });
-        console.log("Payslip data:", res.data);
-        if (res.data && res.data.length > 0) {
-          setData(res.data[0]);
-        }
+        if (res.data?.length > 0) setData(res.data[0]);
       } catch (err) {
         console.error("Error fetching payslip:", err);
       } finally {
@@ -48,16 +44,23 @@ const EmpSalarySlip = () => {
       }
     };
     fetchSlip();
-  }, []);
+  }, [user]);
+
+  // Print handler
+  const handlePrint = useReactToPrint({
+    contentRef: slipRef,
+    documentTitle: "Salary Slip",
+    onAfterPrint: () => console.log("Print success"),
+    onPrintError: (err) => console.error("Print error", err),
+  });
+
+  // Conditional UI, not conditional hooks
+  if (!config) {
+    return <p className="text-center text-gray-500">Loading salary slip...</p>;
+  }
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500 text-sm animate-pulse">
-          Loading payslip...
-        </p>
-      </div>
-    );
+    return <p className="text-center text-gray-500">Loading payslip...</p>;
   }
 
   if (!data) {
@@ -87,7 +90,7 @@ const EmpSalarySlip = () => {
             No Payslip Available
           </h2>
           <p className="text-sm text-gray-500">
-            We couldn’t find your payslip for this month. Please check back
+            We couldn't find your payslip for this month. Please check back
             later or contact HR.
           </p>
 
@@ -129,202 +132,244 @@ const EmpSalarySlip = () => {
   const netPay = salary.netPay || 0;
 
   return (
-    <div className="bg-white p-8 my-5 shadow-md max-w-4xl mx-auto text-sm text-gray-800 border rounded-md">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <img
-            src={assets.Digicode}
-            alt="Company Logo"
-            style={{ width: "140px" }}
-            className="mb-2"
-          />
-          {config.showOrgName && (
-            <h1 className="text-lg font-bold text-gray-900">
-              {config.orgName}
-            </h1>
-          )}
-          {config.showOrgAddress && (
-            <p className="text-xs text-gray-600 whitespace-pre-line">
-              {config.orgAddress}
-            </p>
-          )}
+    <div>
+      {/* Print Button */}
+      {data && (
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={handlePrint}
+            className="px-4 py-2 relative right-5 top-3 bg-primary text-white rounded-md shadow hover:bg-secondary transition"
+          >
+            Print Slip
+          </button>
         </div>
-        <div className="text-right">
-          <h2 className="text-xs font-medium text-gray-500">
-            Payslip For the Month
-          </h2>
-          <p className="text-base font-semibold">
-            {new Date(salary.paymentDate).toLocaleString("default", {
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
-        </div>
-      </div>
+      )}
 
-      {/* Employee Summary */}
-      <div className="grid grid-cols-2 gap-6 mb-6">
-        <div>
-          <p>
-            <span className="font-semibold">Employee Name</span> :{" "}
-            {employee.fullName}
-          </p>
-          {config.showDesignation && (
+      {/* Salary Slip Content to Print */}
+      <div
+        ref={slipRef}
+        className="bg-white p-6 shadow-md max-w-4xl mx-auto text-sm text-gray-800 border rounded-md cursor-grab"
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            {config.logo && (
+              <img
+                src={config.logo}
+                alt="Company Logo"
+                style={{ width: config.logoSize || 140 }}
+                className="mb-2"
+              />
+            )}
+            {config.showOrgName && (
+              <h1 className="text-lg font-bold text-gray-900">
+                {config.orgName}
+              </h1>
+            )}
+            {config.showOrgAddress && (
+              <p className="text-xs text-gray-600 whitespace-pre-line">
+                {config.orgAddress}
+              </p>
+            )}
+          </div>
+          <div className="text-right">
+            <h2 className="text-xs font-medium text-gray-500">
+              Payslip For the Month
+            </h2>
+            <p className="text-base font-semibold">
+              {new Date(salary.paymentDate).toLocaleString("default", {
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+        </div>
+
+        {/* Employee Summary */}
+        <div className="grid grid-cols-2 gap-6 mb-5">
+          <div>
+            <p>
+              <span className="font-semibold">Employee Name</span> :{" "}
+              {employee.fullName}
+            </p>
+            {/* {config.showDesignation && (
             <p>
               <span className="font-semibold">Designation</span> :{" "}
               {employee.designation || "-"}
             </p>
-          )}
-          {config.showDepartment && (
+          )} */}
+            {config.showDepartment && (
+              <p>
+                <strong>Department</strong> : {dept}
+              </p>
+            )}
+            {config.showWorkLocation && (
+              <p>
+                <strong>Work Location</strong> : {location}
+              </p>
+            )}
             <p>
-              <strong>Department</strong> : {dept}
+              <span className="font-semibold">Employee ID</span> :{" "}
+              {employee.employeeCode}
             </p>
-          )}
-          {config.showWorkLocation && (
             <p>
-              <strong>Work Location</strong> : {location}
+              <span className="font-semibold">Date of Joining</span> :{" "}
+              {employee.dateOfJoining
+                ? new Date(employee.dateOfJoining)
+                    .toLocaleDateString("en-GB")
+                    .replace(/\//g, "-")
+                : ""}
             </p>
-          )}
-          <p>
-            <span className="font-semibold">Employee ID</span> :{" "}
-            {employee.employeeCode}
-          </p>
-          <p>
-            <span className="font-semibold">Date of Joining</span> :{" "}
-            {employee.dateOfJoining?.slice(0, 10)}
-          </p>
-          <p>
-            <span className="font-semibold">Pay Period</span> :{" "}
-            {new Date(salary.paymentDate).toLocaleString("default", {
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
-          <p>
-            <span className="font-semibold">Pay Date</span> :{" "}
-            {salary.paymentDate?.slice(0, 10)}
-          </p>
+            <p>
+              <span className="font-semibold">Pay Period</span> :{" "}
+              {new Date(salary.paymentDate).toLocaleString("default", {
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+            <p>
+              <span className="font-semibold">Pay Date</span> :{" "}
+              {salary.paymentDate
+                ? new Date(salary.paymentDate)
+                    .toLocaleDateString("en-GB")
+                    .replace(/\//g, "-")
+                : ""}
+            </p>
+          </div>
+          <div className="bg-green-50 border rounded p-4">
+            <p className="text-sm text-gray-500">Total Net Pay</p>
+            <p className="text-2xl font-bold text-green-600">
+              ₹{netPay.toLocaleString("en-IN")}
+            </p>
+            <div className="mt-2 text-sm">
+              <p>
+                <span className="font-semibold">Paid Days</span> :{" "}
+                {salary.totalWorkingDays}
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="bg-green-50 border rounded p-4">
-          <p className="text-sm text-gray-500">Total Net Pay</p>
-          <p className="text-2xl font-bold text-green-600">
-            ₹{netPay.toLocaleString("en-IN")}
-          </p>
-          <div className="mt-2 text-sm">
+
+        {/* Bank and ID Info */}
+        <div className="grid grid-cols-2 gap-6 mb-2 text-sm">
+          <div>
             <p>
-              <span className="font-semibold">Paid Days</span> :{" "}
-              {salary.totalWorkingDays}
+              <span className="font-semibold">PF A/C Number</span> :
+              AA/AAA/0000000/000/0000000
+            </p>
+            {config.showBank && bank.accountNumber && (
+              <p>
+                <span className="font-semibold">Bank Account No</span> :{" "}
+                {bank.accountNumber}
+              </p>
+            )}
+          </div>
+          <div>
+            {config.showPAN && (
+              <p>
+                <span className="font-semibold">UAN</span> : 101010101010
+              </p>
+            )}
+            <p>
+              <span className="font-semibold">ESI Number</span> : 1234567890
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Bank and ID Info */}
-      <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
-        <div>
-          <p>
-            <span className="font-semibold">PF A/C Number</span> :
-            AA/AAA/0000000/000/0000000
-          </p>
-          {config.showBank && bank.accountNumber && (
-            <p>
-              <span className="font-semibold">Bank Account No</span> :{" "}
-              {bank.accountNumber}
-            </p>
-          )}
+        {/* Earnings & Deductions */}
+        <div className="mb-6 border rounded overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-gray-600">
+              <tr>
+                <th className="p-2 text-left w-1/6">EARNINGS</th>
+                <th className="p-2 text-right w-1/6">AMOUNT</th>
+                {config.showYTD && (
+                  <th className="p-2 text-right w-1/6">YTD</th>
+                )}
+                <th className="p-2 text-left w-1/6">DEDUCTIONS</th>
+                <th className="p-2 text-right w-1/6">AMOUNT</th>
+                {config.showYTD && (
+                  <th className="p-2 text-right w-1/6">YTD</th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({
+                length: Math.max(earnings.length, deductions.length),
+              }).map((_, index) => {
+                const earning = earnings[index] || { label: "", amount: "" };
+                const deduction = deductions[index] || {
+                  label: "",
+                  amount: "",
+                };
+                return (
+                  <tr key={index} className="border-t">
+                    <td className="p-2">{earning.label}</td>
+                    <td className="p-2 text-right">{earning.amount}</td>
+                    {config.showYTD && <td className="p-2 text-right">-</td>}
+                    <td className="p-2">{deduction.label}</td>
+                    <td className="p-2 text-right">{deduction.amount}</td>
+                    {config.showYTD && <td className="p-2 text-right">-</td>}
+                  </tr>
+                );
+              })}
+              <tr className="bg-gray-50 border-t font-semibold">
+                <td className="p-2">Gross Earnings</td>
+                <td className="p-2 text-right">
+                  ₹{totalEarnings.toLocaleString("en-IN")}
+                </td>
+                {config.showYTD && <td className="p-2 text-right">-</td>}
+                <td className="p-2">Total Deductions</td>
+                <td className="p-2 text-right">
+                  ₹{totalDeductions.toLocaleString("en-IN")}
+                </td>
+                {config.showYTD && <td className="p-2 text-right">-</td>}
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div>
-          {config.showPAN && (
-            <p>
-              <span className="font-semibold">UAN</span> : 101010101010
-            </p>
-          )}
-          <p>
-            <span className="font-semibold">ESI Number</span> : 1234567890
-          </p>
+
+        {/* Net Pay Box */}
+        <div className="border rounded p-4 mb-2 bg-gray-50">
+          <p className="text-xs text-gray-500 mb-1">TOTAL NET PAYABLE</p>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-500">
+              Gross Earnings - Total Deductions
+            </span>
+            <span className="text-xl font-bold text-green-700 bg-green-100 px-4 py-1 rounded">
+              ₹{netPay.toLocaleString("en-IN")}
+            </span>
+          </div>
         </div>
+
+        {/* Amount in Words */}
+        <p className="text-center text-xs text-gray-400 mt-1">
+          Amount In Words :{" "}
+          <AmountInWords amount={netPay} currency="Indian Rupee" />
+        </p>
+
+        {/* Signature */}
+        {config.signature && (
+          <div
+            className={`flex flex-col ${
+              config.signatureAlign === "right" ? "items-end" : "items-start"
+            }`}
+          >
+            <img
+              src={config.signature}
+              alt="Signature"
+              className="inline-block"
+              style={{ width: "80px" }}
+            />
+
+            <p className="text-xs text-gray-500">Authorized Signatory</p>
+          </div>
+        )}
+
+        <p className="text-center text-gray-400 text-xs">
+          — This is a system-generated document —
+        </p>
       </div>
-
-      {/* Earnings & Deductions */}
-      <div className="mb-6 border rounded overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
-            <tr>
-              <th className="p-2 text-left w-1/6">EARNINGS</th>
-              <th className="p-2 text-right w-1/6">AMOUNT</th>
-              {config.showYTD && <th className="p-2 text-right w-1/6">YTD</th>}
-              <th className="p-2 text-left w-1/6">DEDUCTIONS</th>
-              <th className="p-2 text-right w-1/6">AMOUNT</th>
-              {config.showYTD && <th className="p-2 text-right w-1/6">YTD</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({
-              length: Math.max(earnings.length, deductions.length),
-            }).map((_, index) => {
-              const earning = earnings[index] || { label: "", amount: "" };
-              const deduction = deductions[index] || { label: "", amount: "" };
-              return (
-                <tr key={index} className="border-t">
-                  <td className="p-2">{earning.label}</td>
-                  <td className="p-2 text-right">{earning.amount}</td>
-                  {config.showYTD && <td className="p-2 text-right">-</td>}
-                  <td className="p-2">{deduction.label}</td>
-                  <td className="p-2 text-right">{deduction.amount}</td>
-                  {config.showYTD && <td className="p-2 text-right">-</td>}
-                </tr>
-              );
-            })}
-            <tr className="bg-gray-50 border-t font-semibold">
-              <td className="p-2">Gross Earnings</td>
-              <td className="p-2 text-right">
-                ₹{totalEarnings.toLocaleString("en-IN")}
-              </td>
-              {config.showYTD && <td className="p-2 text-right">-</td>}
-              <td className="p-2">Total Deductions</td>
-              <td className="p-2 text-right">
-                ₹{totalDeductions.toLocaleString("en-IN")}
-              </td>
-              {config.showYTD && <td className="p-2 text-right">-</td>}
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Net Pay Box */}
-      <div className="border rounded p-4 mb-2 bg-gray-50">
-        <p className="text-xs text-gray-500 mb-1">TOTAL NET PAYABLE</p>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-500">
-            Gross Earnings - Total Deductions
-          </span>
-          <span className="text-xl font-bold text-green-700 bg-green-100 px-4 py-1 rounded">
-            ₹{netPay.toLocaleString("en-IN")}
-          </span>
-        </div>
-      </div>
-
-      {/* Amount in Words */}
-      <p className="text-center text-xs text-gray-400 mt-1">
-        Amount In Words :{" "}
-        <AmountInWords amount={netPay} currency="Indian Rupee" />
-      </p>
-
-      {/* Signature */}
-      <div className="mt-6 text-right">
-        <img
-          src={assets.sign}
-          alt="Signature"
-          className="inline-block"
-          style={{ width: "90px" }}
-        />
-        <p className="text-xs mt-1 text-gray-500">Authorized Signatory</p>
-      </div>
-
-      <p className="text-center text-gray-400 text-xs mt-6">
-        — This is a system-generated document —
-      </p>
     </div>
   );
 };
