@@ -20,7 +20,7 @@ const submenuMap = {
     "General Imports",
     "General Settings",
   ],
-  Role: ["Role Master", "Role Approval"],
+  Role: ["Role Master", "Role Approval" ,"Emp. Role Mapping"],
   Reports: [
     "Attendance Report",
     "Salary Register",
@@ -28,7 +28,7 @@ const submenuMap = {
     "Payroll Report",
   ],
   Leave: ["Leave Types", "Leave Mapping", "Leave Requests", "Leave Balance", "Holiday List"],
-  Policy: ["Policy Details", "Policy Settings", "Weekend Policy"],
+  Policy: ["Policy Details", "PF Settings", "Weekend Policy"],
   Compliance: ["Compliance Details", "Compliance Rules"],
 };
 

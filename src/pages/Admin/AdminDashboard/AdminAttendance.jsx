@@ -11,7 +11,7 @@ const statusColors = {
 };
 
 const AdminAttendance = () => {
-  const [activeTab, setActiveTab] = useState("Day");
+  const [activeTab, setActiveTab] = useState("Today");
   const [attendanceData, setAttendanceData] = useState([]);
   const [employeeMap, setEmployeeMap] = useState({});
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,7 @@ const AdminAttendance = () => {
   // filter attendance by active tab
   const filterByTab = (data) => {
     const today = new Date();
-    if (activeTab === "Day") {
+    if (activeTab === "Today") {
       return data.filter((att) => att.inTime && isSameDay(new Date(att.inTime), today));
     }
     if (activeTab === "Week") {
@@ -93,7 +93,7 @@ const AdminAttendance = () => {
 
         {/* Tabs */}
         <div className="flex bg-gray-100 rounded-lg">
-          {["Day", "Week", "Month"].map((tab) => (
+          {["Today", "Week", "Month"].map((tab) => (
             <button
               key={tab}
               className={`px-4 py-1.5 text-sm rounded-md transition-all ${activeTab === tab

@@ -16,6 +16,7 @@ const EmpAdvancePayment = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [statusMap, setStatusMap] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [approverMap, setApproverMap] = useState({});
   const User = useAuthStore((state) => state.user);
 
   const fetchStatuses = async () => {
@@ -32,12 +33,39 @@ const EmpAdvancePayment = () => {
     }
   };
 
+  const fetchApprovers = async () => {
+    try {
+      const res = await axiosInstance.get("/EmployeeRoleMapping/approvers/all");
+      console.log("Approvers:", res.data);
+
+      const map = {};
+      const all = res.data?.data || res.data || [];
+
+      // Find the AdvancePayment rule
+      const advanceRule = all.find((r) => r.requestType === "AdvancePayment");
+
+      if (advanceRule?.approvers?.length > 0) {
+        advanceRule.approvers.forEach((a) => {
+          // Map for EmployeeName
+          map[a.employeeId] = `${a.employeeName} (${a.roleName})`;
+        });
+      }
+
+      setApproverMap(map);
+    } catch (error) {
+      console.error("Error fetching approvers:", error);
+      toast.error("Failed to load approvers");
+    }
+  };
+
   const fetchAdvancePayments = async () => {
     if (!User?.userId) return;
     try {
       const res = await axiosInstance.get(
         `/AdvancePayment/employee/${User.userId}`
       );
+      console.log("Advance Payments:", res.data);
+
       setPendingRequests(res.data?.data || []);
     } catch (error) {
       console.error("Error fetching advance payments:", error);
@@ -47,6 +75,7 @@ const EmpAdvancePayment = () => {
 
   useEffect(() => {
     fetchStatuses();
+    fetchApprovers();
     fetchAdvancePayments();
   }, [User?.userId]);
 
@@ -111,7 +140,30 @@ const EmpAdvancePayment = () => {
                         </div>
                       )}
                     </div>
-                    <StatusPill status={statusMap[req.statusId] || "Pending"} />
+                    <div className="flex flex-col items-end gap-2">
+                      {/* Show ALL approvers */}
+                      {/* Show ONLY approvers who approved this request */}
+                      {Object.keys(approverMap).length > 0 && (
+                        <div className="mt-2 text-xs text-gray-600 text-right">
+                          <span className="font-semibold">Approved By:</span>
+                          <ul className="mt-1 space-y-1">
+                            {req.approvedBy?.map((id) => (
+                              <li
+                                key={id}
+                                className="flex items-center gap-1 text-green-600 font-medium"
+                              >
+                                <span>
+                                  • {approverMap[id] || `Employee ${id}`}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      <StatusPill
+                        status={statusMap[req.statusId] || "Pending"}
+                      />
+                    </div>
                   </div>
 
                   {req.installments?.length > 0 && (

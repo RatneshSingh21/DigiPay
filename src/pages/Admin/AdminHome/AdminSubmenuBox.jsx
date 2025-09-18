@@ -47,6 +47,7 @@ const labelToPath = {
   "Status Master": "status-master",
   "Role Master": "role-master",
   "Role Approval": "role-approval",
+  "Emp. Role Mapping": "emp-role-mapping",
   "Attendance Report": "attendance-report",
   "Payroll Report": "payroll-report",
   "Salary Register": "salary-register",
@@ -58,7 +59,7 @@ const labelToPath = {
   "Leave Balance": "leave-balance",
   "Holiday List": "holiday-list",
   "Policy Details": "policy-details",
-  "Policy Settings": "policy-settings",
+  "PF Settings": "pf-settings",
   "Weekend Policy": "weekend-policy",
   "Compliance Details": "compliance-details",
   "Compliance Rules": "compliance-rules",
@@ -79,6 +80,7 @@ const labelToIcon = {
   Designation: <HiOutlineBriefcase className="mr-2" />,
   "Role Master": <MdAdminPanelSettings className="mr-2" />,
   "Role Approval": <MdAdminPanelSettings className="mr-2" />,
+  "Emp. Role Mapping": <MdAdminPanelSettings className="mr-2" />,
   "Status Master": <MdOutlineTrackChanges className="mr-2" />,
   "Salary Configuration": <TbCurrencyRupee className="mr-2" />,
   "Attendance Report": <FaCalendarCheck className="mr-2" />,
@@ -92,7 +94,7 @@ const labelToIcon = {
   "Leave Balance": <FaBalanceScale className="mr-2" />,
   "Holiday List": <MdCelebration className="mr-2" />,
   "Policy Details": <FaFileAlt className="mr-2" />,
-  "Policy Settings": <FaCogs className="mr-2" />,
+  "PF Settings": <FaCogs className="mr-2" />,
   "Weekend Policy": <FaUmbrellaBeach className="mr-2" />,
   "Compliance Details": <FaFileAlt className="mr-2" />,
   "Compliance Rules": <FaBalanceScale className="mr-2" />,
@@ -119,7 +121,7 @@ const AdminSubmenuBox = ({ items, selectedMenu }) => {
             <li key={idx}>
               <Link
                 to={path}
-                className={`flex items-center p-2 rounded transition-all duration-200 ${
+                className={`flex items-center p-2 text-xs rounded transition-all duration-200 ${
                   isActive
                     ? "bg-primary text-white"
                     : "hover:bg-primary hover:text-white text-gray-700"

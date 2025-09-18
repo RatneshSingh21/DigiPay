@@ -50,9 +50,10 @@ import StatusMaster from "./pages/Admin/Settings/StatusMaster";
 import Salary from "./pages/Admin/Settings/Salary";
 import Attendance from "./pages/Admin/Settings/Attendance";
 
-// Role Pages 
+// Role Pages
 import RoleMaster from "./pages/Admin/Role/RoleMaster";
 import RoleApproval from "./pages/Admin/Role/RoleApproval";
+import EmpRoleMapping from "./pages/Admin/Role/EmpRoleMapping";
 
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
@@ -69,7 +70,7 @@ import HolidayList from "./pages/Admin/Leave/HolidayList";
 
 // Policy Pages
 import PolicyDetails from "./pages/Admin/Policies/PolicyDetails";
-import PolicySettings from "./pages/Admin/Policies/PolicySettings";
+import PFSettings from "./pages/Admin/Policies/PFSettings";
 import WeekendPolicy from "./pages/Admin/Policies/WeekendPolicy/WeekendPolicy";
 
 // Compliance Pages
@@ -85,43 +86,12 @@ import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvan
 import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
 
-
-
-
-
 const App = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
   const companyId = useAuthStore((state) => state.companyId);
   const isAuthReady = useAuthStore((state) => state.isAuthReady);
-
-  const mode = useThemeStore((state) => state.mode);
-  const palette = useThemeStore((state) => state.palette);
-
   const [showCompanyModal, setShowCompanyModal] = useState(false);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (mode === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-
-    // Reset theme classes
-    root.classList.remove(
-      "theme-orange",
-      "theme-blue",
-      "theme-green",
-      "theme-red",
-      "theme-purple",
-      "theme-teal",
-      "theme-rose",
-      "theme-indigo",
-      "theme-pink"
-    );
-    root.classList.add(`theme-${palette}`);
-  }, [mode, palette]);
 
   // Show modal only if Admin/SuperAdmin has no company yet
   useEffect(() => {
@@ -219,6 +189,7 @@ const App = () => {
                   <Route index element={<Navigate to="role-master" />} />
                   <Route path="role-master" element={<RoleMaster />} />
                   <Route path="role-approval" element={<RoleApproval />} />
+                  <Route path="emp-role-mapping" element={<EmpRoleMapping />} />
                 </Route>
 
                 {/* Reports SubRoutes */}
@@ -251,14 +222,20 @@ const App = () => {
                   <Route index element={<Navigate to="policy-details" />} />
                   <Route path="weekend-policy" element={<WeekendPolicy />} />
                   <Route path="policy-details" element={<PolicyDetails />} />
-                  <Route path="policy-settings" element={<PolicySettings />} />
+                  <Route path="pf-settings" element={<PFSettings />} />
                 </Route>
 
-              {/* Compliance SubRoutes */}
+                {/* Compliance SubRoutes */}
                 <Route path="compliance/*" element={<AdminContentBox />}>
                   <Route index element={<Navigate to="compliance-details" />} />
-                  <Route path="compliance-details" element={<ComplianceDetails />} />
-                  <Route path="compliance-rules" element={<ComplianceRules />} />
+                  <Route
+                    path="compliance-details"
+                    element={<ComplianceDetails />}
+                  />
+                  <Route
+                    path="compliance-rules"
+                    element={<ComplianceRules />}
+                  />
                 </Route>
 
                 {/* Nested 404 Catcher for /admin-dashboard/* */}

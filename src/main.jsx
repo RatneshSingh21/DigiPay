@@ -12,8 +12,10 @@ function ThemeWrapper() {
   useEffect(() => {
     const html = document.documentElement;
 
+    // Apply dark mode
     html.classList.toggle("dark", mode === "dark");
 
+    // Reset palettes
     html.classList.remove(
       "theme-orange",
       "theme-blue",
@@ -25,7 +27,6 @@ function ThemeWrapper() {
       "theme-indigo",
       "theme-pink"
     );
-
     html.classList.add(`theme-${palette}`);
   }, [mode, palette]);
 

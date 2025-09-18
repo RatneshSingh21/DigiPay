@@ -67,7 +67,7 @@ const Pagination = ({
             onChange={(e) =>
               paginate(1) || setPerPageData(Number(e.target.value))
             }
-            className="appearance-none border border-gray-300 rounded-md pl-3 pr-8 py-1.5 text-sm 
+            className="appearance-none border border-primary rounded-md pl-3 pr-8 py-1.5 text-sm 
                      bg-white dark:bg-surface text-gray-700 dark:text-surface shadow-sm 
                      hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary transition"
           >

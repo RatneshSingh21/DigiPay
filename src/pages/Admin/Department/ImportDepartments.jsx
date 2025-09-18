@@ -59,11 +59,15 @@ const ImportDepartments = ({ onClose, fetchDepartments = () => {} }) => {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await axiosInstance.post("/Department/import", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axiosInstance.post(
+        "/Department/importdept",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       if (response.status === 200 || response.status === 201) {
         toast.success("Departments imported successfully!");

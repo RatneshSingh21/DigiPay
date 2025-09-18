@@ -1,8 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { X, Bell, Clock } from "lucide-react";
+import { toast } from "react-toastify";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
 
 const NotificationPanel = ({ notifications, onClose }) => {
+  const [statusMap, setStatusMap] = useState({});
+  const [statusColorMap, setStatusColorMap] = useState({});
+
+  // Fetch Status Master
+  const fetchStatuses = async () => {
+    try {
+      const res = await axiosInstance.get("/StatusMaster");
+      const map = {};
+      const colorMap = {};
+
+      // Define badge colors for each status
+      res.data.data.forEach((s) => {
+        map[s.statusId] = s.statusName;
+
+        switch (s.statusName.toLowerCase()) {
+          case "pending":
+            colorMap[s.statusId] = "bg-yellow-100 text-yellow-700";
+            break;
+          case "approved":
+            colorMap[s.statusId] = "bg-green-100 text-green-700";
+            break;
+          case "rejected":
+            colorMap[s.statusId] = "bg-red-100 text-red-700";
+            break;
+          default:
+            colorMap[s.statusId] = "bg-gray-100 text-gray-700";
+            break;
+        }
+      });
+
+      setStatusMap(map);
+      setStatusColorMap(colorMap);
+    } catch (error) {
+      console.error("Error fetching status master:", error);
+      toast.error("Failed to load status master");
+    }
+  };
+
+  useEffect(() => {
+    fetchStatuses();
+  }, []);
+
   return (
     <div className="absolute right-0 mt-2 w-96 bg-white shadow-xl rounded-xl border z-30 max-h-96 overflow-y-auto">
       {/* Header */}
@@ -26,7 +70,7 @@ const NotificationPanel = ({ notifications, onClose }) => {
 
       {/* Body */}
       {notifications.length === 0 ? (
-        <div className="p-6 text-center  text-gray-500 text-sm">
+        <div className="p-6 text-center text-gray-500 text-sm">
           No new notifications.
         </div>
       ) : (
@@ -45,12 +89,10 @@ const NotificationPanel = ({ notifications, onClose }) => {
                   is{" "}
                   <span
                     className={`font-medium px-2 py-0.5 rounded-md text-xs ${
-                      item.statusId === 1
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-green-100 text-green-700"
+                      statusColorMap[item.statusId] || "bg-gray-100 text-gray-700"
                     }`}
                   >
-                    {item.statusId === 1 ? "Pending" : "Updated"}
+                    {statusMap[item.statusId] || "Unknown"}
                   </span>
                 </p>
               </div>

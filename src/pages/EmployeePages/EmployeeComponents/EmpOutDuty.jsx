@@ -1,23 +1,30 @@
 import React, { useState, useEffect } from "react";
-import Select from "react-select";
 import { format } from "date-fns";
 import { FaPlus } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
-
-
+import Pagination from "../../../components/Pagination";
+import useAuthStore from "../../../store/authStore";
+import OutDutyFormModal from "../EmpOutDuty/OutDutyFormModal";
 
 const EmpOutDuty = () => {
-  const [formData, setFormData] = useState({
-    inDateTime: "",
-    outDateTime: "",
-    reason: "",
-    statusId: null,
-  });
   const [requests, setRequests] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [approverMapping, setApproverMapping] = useState({});
+  const userId = useAuthStore((state) => state.user?.userId);
+
+  // 🔹 Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPageData, setPerPageData] = useState(7);
+
+  // Derived data
+  const totalDataLength = requests.length;
+  const totalPages = Math.ceil(totalDataLength / perPageData);
+  const indexOfLast = currentPage * perPageData;
+  const indexOfFirst = indexOfLast - perPageData;
+  const currentRequests = requests.slice(indexOfFirst, indexOfLast);
 
   // Fetch Status Master
   const fetchStatuses = async () => {
@@ -42,23 +49,45 @@ const EmpOutDuty = () => {
     Rejected: "bg-red-100 text-red-700",
   };
 
-  // Function to get status name & color by statusId
   const getStatusInfo = (statusId) => {
     const statusObj = statuses.find((s) => s.value === statusId);
     const name = statusObj?.label || "Pending";
-    const color =
-      statusColor[name] || "bg-gray-200 text-gray-700";
+    const color = statusColor[name] || "bg-gray-200 text-gray-700";
     return { name, color };
   };
 
+  const fetchApprovers = async () => {
+    try {
+      const res = await axiosInstance.get("/EmployeeRoleMapping/approvers/all");
+      if (res.status === 200) {
+        const mapping = {};
+        res.data.forEach((rule) => {
+          if (rule.requestType === "onDuty") {
+            mapping[rule.requestType] = {};
+            rule.approvers.forEach((a) => {
+              mapping[rule.requestType][a.employeeId] = a.employeeName;
+            });
+          }
+        });
+        setApproverMapping(mapping);
+      }
+    } catch (err) {
+      toast.error("Failed to fetch approvers");
+      console.error(err);
+    }
+  };
 
-  // Fetch Out Duty
   const fetchOnDuty = async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/OnDuty");
       if (res.data?.status === 200) {
-        setRequests(res.data.data || []);
+        // 🔹 Filter only records for logged-in user
+        const filtered = res.data.data.filter(
+          (item) => item.appliedByInt === userId
+        );
+        setRequests(filtered || []);
+        console.log(filtered);
       }
     } catch (err) {
       toast.error("Failed to fetch Out Duty requests");
@@ -71,41 +100,11 @@ const EmpOutDuty = () => {
   useEffect(() => {
     fetchOnDuty();
     fetchStatuses();
+    fetchApprovers();
   }, []);
 
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleStatusChange = (selected) => {
-    setFormData((prev) => ({ ...prev, statusId: selected?.value }));
-  };
-
-  // Submit new request
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const payload = {
-        inDateTime: new Date(formData.inDateTime).toISOString(),
-        outDateTime: new Date(formData.outDateTime).toISOString(),
-        reason: formData.reason,
-        isActive: true,
-        statusId: formData.statusId || 6, // fallback default Pending
-      };
-
-      await axiosInstance.post("/OnDuty", payload);
-      toast.success("Out Duty request submitted successfully");
-      setShowModal(false);
-      setFormData({ inDateTime: "", outDateTime: "", reason: "", statusId: null });
-      fetchOnDuty(); // refresh list
-    } catch (err) {
-      // toast.error("Failed to submit request");
-      console.error(err);
-    }
-  };
+  // 🔹 Handle pagination click
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div>
@@ -124,38 +123,73 @@ const EmpOutDuty = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto bg-white rounded-xl shadow mx-2 sm:mx-4">
-        <table className="min-w-full text-sm sm:text-base table-auto">
+      <div className="overflow-x-auto bg-white rounded-xl shadow">
+        <table className="min-w-full text-sm sm:text-base text-center table-auto">
           <thead className="bg-gray-100 text-gray-700">
             <tr className="border-b">
-              <th className="px-2 sm:px-4 py-3 text-left">#</th>
-              <th className="px-2 sm:px-4 py-3 text-left">In Date & Time</th>
-              <th className="px-2 sm:px-4 py-3 text-left">Out Date & Time</th>
-              <th className="px-2 sm:px-4 py-3 text-left">Reason</th>
-              <th className="px-2 sm:px-4 py-3 text-left">Status</th>
+              <th className="px-2 sm:px-4 py-3">#</th>
+              <th className="px-2 sm:px-4 py-3">In Date & Time</th>
+              <th className="px-2 sm:px-4 py-3">Out Date & Time</th>
+              <th className="px-2 sm:px-4 py-3">Reason</th>
+              <th className="px-2 sm:px-4 py-3">Approvers</th>
+              <th className="px-2 sm:px-4 py-3">Time(hrs)</th>
+              <th className="px-2 sm:px-4 py-3">Applied On</th>
+              <th className="px-2 sm:px-4 py-3">Status</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="5" className="text-center py-4 text-gray-500">
+                <td colSpan="8" className="text-center py-4 text-gray-500">
                   Loading...
                 </td>
               </tr>
-            ) : requests.length > 0 ? (
-              requests.map((req, index) => (
+            ) : currentRequests.length > 0 ? (
+              currentRequests.map((req, index) => (
                 <tr
-                  key={req.id || index}
+                  key={req.onDutyID || index}
                   className="border-t hover:bg-gray-50 transition-all duration-150"
                 >
-                  <td className="px-2 sm:px-4 py-3">{index + 1}</td>
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap">
-                    {format(new Date(req.inDateTime), "dd MMM yyyy HH:mm")}
+                  {/* Index */}
+                  <td className="px-2 sm:px-4 py-3">
+                    {indexOfFirst + index + 1}
                   </td>
+
+                  {/* In Date */}
                   <td className="px-2 sm:px-4 py-3 whitespace-nowrap">
-                    {format(new Date(req.outDateTime), "dd MMM yyyy HH:mm")}
+                    {format(new Date(req.inDateTime), "dd MMM yyyy HH:mm a")}
                   </td>
+
+                  {/* Out Date */}
+                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap">
+                    {format(new Date(req.outDateTime), "dd MMM yyyy HH:mm a")}
+                  </td>
+
+                  {/* Reason */}
                   <td className="px-2 sm:px-4 py-3">{req.reason}</td>
+
+                  {/* Approvers */}
+                  <td className="px-2 sm:px-4 py-3">
+                    {req.approvers && req.approvers.length > 0
+                      ? req.approvers
+                          .map((id) => approverMapping?.onDuty?.[id] || "N/A")
+                          .join(", ")
+                      : "N/A"}
+                  </td>
+
+                  {/* Total Time (hrs) */}
+                  <td className="px-2 sm:px-4 py-3">
+                    {(req.totalTime / 60).toFixed(1)} hrs
+                  </td>
+
+                  {/* Applied On */}
+                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap">
+                    {req.appliedAt
+                      ? format(new Date(req.appliedAt), "dd MMM yyyy HH:mm a")
+                      : "-"}
+                  </td>
+
+                  {/* Status */}
                   <td className="px-2 sm:px-4 py-3">
                     {(() => {
                       const { name, color } = getStatusInfo(req.statusId);
@@ -168,13 +202,12 @@ const EmpOutDuty = () => {
                       );
                     })()}
                   </td>
-
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="8"
                   className="text-center py-4 text-gray-500 text-sm"
                 >
                   No out duty requests found.
@@ -184,90 +217,28 @@ const EmpOutDuty = () => {
           </tbody>
         </table>
       </div>
+      {/* 🔹 Pagination Component */}
+      {requests.length > 0 && (
+        <div className="p-4 pt-0 flex gap-4 justify-end">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            paginate={paginate}
+            perPageData={perPageData}
+            setPerPageData={setPerPageData}
+            filteredData={requests}
+            totalDataLength={totalDataLength}
+          />
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center px-2 sm:px-4">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md sm:max-w-xl p-4 sm:p-6 relative animate-fade-in">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-2xl"
-            >
-              &times;
-            </button>
-
-            <h2 className="text-lg sm:text-xl font-semibold mb-5 text-gray-800">
-              Submit Out Duty Request
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  In Date & Time
-                </label>
-                <input
-                  type="datetime-local"
-                  name="inDateTime"
-                  className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm sm:text-base"
-                  value={formData.inDateTime}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Out Date & Time
-                </label>
-                <input
-                  type="datetime-local"
-                  name="outDateTime"
-                  className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm sm:text-base"
-                  value={formData.outDateTime}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Reason
-                </label>
-                <textarea
-                  name="reason"
-                  className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm sm:text-base"
-                  rows={3}
-                  placeholder="Reason for Out Duty"
-                  value={formData.reason}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Status Select (instead of Location) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <Select
-                  options={statuses}
-                  value={statuses.find((s) => s.value === formData.statusId) || null}
-                  onChange={handleStatusChange}
-                  placeholder="Select status"
-                  className="text-sm sm:text-base"
-                />
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="bg-primary text-white px-4 sm:px-6 py-2 rounded hover:bg-secondary transition cursor-pointer w-full sm:w-auto"
-                >
-                  Submit Request
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <OutDutyFormModal
+          onClose={() => setShowModal(false)}
+          onSuccess={fetchOnDuty}
+          statuses={statuses}
+        />
       )}
     </div>
   );
