@@ -44,7 +44,7 @@ const WorkLocations = () => {
         {locations.length > 0 && (
           <div className="flex gap-2 items-center">
             <button
-              className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
+              className="bg-primary hover:bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg font-medium"
               onClick={() => {
                 setIsEdit("Add");
                 setSelectedLocation(null);
@@ -54,7 +54,7 @@ const WorkLocations = () => {
               Add Work Location
             </button>
             <button
-              className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
+              className="border border-gray-300 cursor-pointer text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
               onClick={openImport}
             >
               <FiDownload />
@@ -80,7 +80,7 @@ const WorkLocations = () => {
           </p>
           <div className="flex gap-4">
             <button
-              className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-lg font-medium transition duration-200"
+              className="bg-primary hover:bg-secondary cursor-pointer text-white px-6 py-2 rounded-lg font-medium transition duration-200"
               onClick={() => {
                 setIsEdit("Add");
                 setSelectedLocation(null);
@@ -90,7 +90,7 @@ const WorkLocations = () => {
               + Add Work Location
             </button>
             <button
-              className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
+              className="border border-gray-300 cursor-pointer text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
               onClick={openImport}
             >
               <FiDownload />

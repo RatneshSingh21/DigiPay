@@ -43,7 +43,7 @@ const FilingAddressModal = ({
         {/* Close (X) Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+          className="absolute top-4 right-4 cursor-pointer text-gray-500 hover:text-gray-700 focus:outline-none"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -100,7 +100,7 @@ const FilingAddressModal = ({
 
         <div className="mt-6 flex justify-end gap-3">
           <button
-            className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+            className="px-4 py-2 bg-black cursor-pointer text-white rounded hover:bg-gray-800"
             onClick={() => {
               if (selectedLocation) {
                 onSave(selectedLocation);
@@ -112,7 +112,7 @@ const FilingAddressModal = ({
           </button>
 
           <button
-            className="px-4 py-2 border rounded hover:bg-gray-100"
+            className="px-4 py-2 border rounded cursor-pointer hover:bg-gray-100"
             onClick={onClose}
           >
             Cancel

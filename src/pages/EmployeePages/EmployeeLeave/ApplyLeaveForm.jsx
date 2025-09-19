@@ -189,7 +189,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-xl font-semibold text-gray-800">Apply Leave</h3>
           <button onClick={onClose}>
-            <FaTimes className="text-gray-600 hover:text-red-600" />
+            <FaTimes className="text-gray-600 cursor-pointer hover:text-red-600" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-1">

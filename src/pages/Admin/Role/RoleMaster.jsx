@@ -99,7 +99,7 @@ const RoleMaster = () => {
           <button
             type="submit"
             disabled={submitting}
-            className={`w-72 px-4 py-2 rounded-lg shadow text-white transition ${
+            className={`w-72 flex items-center justify-center px-4 py-2 cursor-pointer rounded-lg shadow text-white transition ${
               submitting
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-primary hover:bg-secondary"

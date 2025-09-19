@@ -66,7 +66,7 @@ const WorkLocationList = ({
                   {location.name}
                 </h2>
                 <div className="flex gap-2">
-                  <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
+                  <button className="p-2 bg-gray-100 cursor-pointer rounded-full hover:bg-gray-200">
                     <FiEdit2
                       size={16}
                       onClick={() => {
@@ -78,7 +78,7 @@ const WorkLocationList = ({
                   </button>
                   <div className="dropdown-wrapper relative">
                     <button
-                      className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
+                      className="p-2 bg-gray-100 cursor-pointer rounded-full hover:bg-gray-200"
                       onClick={() =>
                         setActiveDropdown(
                           activeDropdown === location.id ? null : location.id
@@ -92,13 +92,13 @@ const WorkLocationList = ({
                       <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-10">
                         <button
                          onClick={() => setConfirmDeleteId(location.id)}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          className="block w-full text-left cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           Delete
                         </button>
                         <button
                           onClick={() => handleMarkInactive(location.id)}
-                          className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                          className="block w-full text-left cursor-pointer px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
                         >
                           Mark as Inactive
                         </button>

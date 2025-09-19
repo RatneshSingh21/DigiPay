@@ -82,7 +82,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
         >
           <button
             type="button"
-            className="absolute top-4 right-4 text-gray-600 hover:text-red-500 text-xl"
+            className="absolute top-4 cursor-pointer right-4 text-gray-600 hover:text-red-500 text-xl"
             onClick={onClose}
           >
             &times;
@@ -170,7 +170,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`px-6 py-2 rounded-lg text-white ${
+                className={`px-6 py-2 rounded-lg cursor-pointer text-white ${
                   loading
                     ? "bg-blue-300 cursor-not-allowed"
                     : "bg-primary hover:bg-secondary"
@@ -181,7 +181,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
 
               <button
                 type="reset"
-                className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100"
+                className="border border-gray-300 cursor-pointer text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100"
                 onClick={() =>
                   setFormData({
                     name: "",

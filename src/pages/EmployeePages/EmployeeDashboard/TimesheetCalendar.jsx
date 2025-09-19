@@ -36,13 +36,13 @@ const TimesheetCalendar = ({ records }) => {
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-3">
           <button onClick={handlePrevMonth}>
-            <ChevronLeft className="w-5 h-5 text-gray-700 hover:text-black" />
+            <ChevronLeft className="w-5 h-5 text-gray-700 hover:text-black cursor-pointer" />
           </button>
           <h2 className="text-lg font-bold">
             {format(currentMonth, "MMM yyyy")}
           </h2>
           <button onClick={handleNextMonth}>
-            <ChevronRight className="w-5 h-5 text-gray-700 hover:text-black" />
+            <ChevronRight className="w-5 h-5 text-gray-700 hover:text-black cursor-pointer" />
           </button>
         </div>
 

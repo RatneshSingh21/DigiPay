@@ -111,9 +111,9 @@ const ComplianceDetails = () => {
                 className="bg-white rounded-xl shadow-md p-6 relative hover:shadow-lg transition"
               >
                 {/* Card Header */}
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start text-sm">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
+                    <h2 className="text-lg font-semibold text-gray-900">
                       {item.complianceName}
                     </h2>
                     <p className="text-sm text-gray-500">
@@ -144,7 +144,7 @@ const ComplianceDetails = () => {
                 </div>
 
                 {/* Card Body */}
-                <div className="mt-4 space-y-1 text-gray-700">
+                <div className="mt-4 space-y-1 text-sm text-gray-700">
                   <p>
                     <span className="font-semibold">Description:</span>{" "}
                     {item.description || "—"}
@@ -185,7 +185,7 @@ const ComplianceDetails = () => {
         <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg w-[600px] p-6 relative">
             <button
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+              className="absolute top-3 right-3 cursor-pointer text-gray-500 hover:text-gray-700"
               onClick={closeModal}
             >
               ✖

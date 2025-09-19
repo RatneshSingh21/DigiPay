@@ -18,7 +18,7 @@ const ModalOverlay = ({ children, onClose }) => {
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-red-600 text-xl"
+          className="absolute top-3 right-3 cursor-pointer text-gray-500 hover:text-red-600 text-xl"
         >
           &times;
         </button>

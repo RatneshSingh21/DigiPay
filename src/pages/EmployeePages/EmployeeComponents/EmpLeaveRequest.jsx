@@ -125,7 +125,7 @@ const EmpLeaveRequest = () => {
         <h2 className="font-semibold text-xl text-gray-800">Leave Requests</h2>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition"
+          className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded hover:bg-secondary transition"
         >
           <FaPlus /> Apply Leave
         </button>

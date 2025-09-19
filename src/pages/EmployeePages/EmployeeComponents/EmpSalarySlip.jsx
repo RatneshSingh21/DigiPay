@@ -97,7 +97,7 @@ const EmpSalarySlip = () => {
           {/* Action Button */}
           <button
             onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"
+            className="mt-4 px-4 py-2 bg-green-600 cursor-pointer text-white rounded-lg shadow hover:bg-green-700 transition"
           >
             Refresh
           </button>
@@ -138,7 +138,7 @@ const EmpSalarySlip = () => {
         <div className="flex justify-end mb-4">
           <button
             onClick={handlePrint}
-            className="px-4 py-2 relative right-5 top-3 bg-primary text-white rounded-md shadow hover:bg-secondary transition"
+            className="px-4 py-2 relative right-5 top-3 cursor-pointer bg-primary text-white rounded-md shadow hover:bg-secondary transition"
           >
             Print Slip
           </button>

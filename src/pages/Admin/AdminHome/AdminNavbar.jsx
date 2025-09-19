@@ -102,7 +102,7 @@ const AdminNavbar = () => {
           {/* Notification Icon */}
           <div className="relative" ref={notificationRef}>
             <button
-              className="w-14 h-14 flex items-center justify-center text-gray-600 hover:text-black relative notification-btn rounded-full"
+              className="w-14 h-14 flex items-center cursor-pointer justify-center text-gray-600 hover:text-black relative notification-btn rounded-full"
               onClick={() => setShowNotifications((prev) => !prev)}
             >
               <RiBellFill className="text-lg" />
@@ -122,7 +122,7 @@ const AdminNavbar = () => {
 
           {/* Settings Icon */}
           <button
-            className="text-gray-600 hover:text-black"
+            className="text-gray-600 cursor-pointer hover:text-black"
             onClick={() => setAdminDrawerOpen(true)}
           >
             <FaCog />
@@ -132,7 +132,7 @@ const AdminNavbar = () => {
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileMenuOpen((prev) => !prev)}
-              className="flex items-center gap-2"
+              className="flex items-center cursor-pointer gap-2"
             >
               <img
                 src={user?.profilePicture || "https://i.pravatar.cc/300"}
@@ -144,7 +144,7 @@ const AdminNavbar = () => {
             {profileMenuOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md py-2 z-30">
                 <button
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                  className="w-full text-left px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm"
                   onClick={() => {
                     setProfileDrawerOpen(true);
                     setProfileMenuOpen(false);
@@ -155,7 +155,7 @@ const AdminNavbar = () => {
                 <hr className="my-1" />
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100 text-sm flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 cursor-pointer text-red-500 hover:bg-gray-100 text-sm flex items-center gap-2"
                 >
                   <FaSignOutAlt />
                   Logout
@@ -166,7 +166,7 @@ const AdminNavbar = () => {
 
           {/* Logout */}
           <button
-            className="text-gray-600 hover:text-red-600"
+            className="text-gray-600 cursor-pointer hover:text-red-600"
             title="Logout"
             onClick={handleLogout}
           >

@@ -109,7 +109,7 @@ const AdminSchedule = () => {
         </h3>
         <button
           onClick={addTask}
-          className="text-sm text-white hover:bg-secondary p-1 rounded  bg-primary transition"
+          className="text-sm text-white cursor-pointer hover:bg-secondary p-1 rounded  bg-primary transition"
         >
           + Add Task
         </button>
@@ -168,7 +168,7 @@ const AdminSchedule = () => {
               <div className="relative group">
                 <button
                   onClick={() => markComplete(item.id)}
-                  className="hover:text-green-600 transition"
+                  className="hover:text-green-600 transition cursor-pointer"
                 >
                   <FaCheckCircle />
                 </button>
@@ -180,7 +180,7 @@ const AdminSchedule = () => {
               <div className="relative group">
                 <button
                   onClick={() => editTask(item.id)}
-                  className="hover:text-blue-600 transition"
+                  className="hover:text-blue-600 transition cursor-pointer"
                 >
                   <FaEdit />
                 </button>
@@ -192,7 +192,7 @@ const AdminSchedule = () => {
               <div className="relative group">
                 <button
                   onClick={() => deleteTask(item.id)}
-                  className="hover:text-red-600 transition"
+                  className="hover:text-red-600 transition cursor-pointer"
                 >
                   <FaTrash />
                 </button>

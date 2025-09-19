@@ -4,7 +4,6 @@ import { Switch } from "@headlessui/react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
-
 const DayToggle = ({ label, value, onChange }) => (
   <div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-lg shadow-sm">
     <span className="text-gray-700 font-medium">{label}</span>
@@ -203,7 +202,7 @@ const AddWeekendPolicy = ({ onClose, onSuccess, initialData, isEdit }) => {
           onClick={onClose}
         >
           &times;
-        </button> 
+        </button>
 
         <h2 className="text-2xl font-bold mb-8 text-gray-800">
           {isEdit === "Edit" ? "Edit" : "New"} Weekend Policy
@@ -365,7 +364,7 @@ const AddWeekendPolicy = ({ onClose, onSuccess, initialData, isEdit }) => {
             <button
               type="submit"
               disabled={loading}
-              className={`bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition ${
+              className={`bg-primary hover:bg-secondary cursor-pointer  text-white px-8 py-3 rounded-full font-semibold shadow-lg transition ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >

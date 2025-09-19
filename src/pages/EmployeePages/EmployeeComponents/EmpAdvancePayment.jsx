@@ -88,7 +88,7 @@ const EmpAdvancePayment = () => {
         </h2>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition"
+          className="flex items-center gap-2 cursor-pointer bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition"
         >
           <FaPlus /> Apply Advance
         </button>
@@ -217,7 +217,7 @@ const EmpAdvancePayment = () => {
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="text-gray-500 hover:text-gray-800"
+                  className="text-gray-500 cursor-pointer hover:text-gray-800"
                 >
                   ✕
                 </button>

@@ -102,7 +102,7 @@ const SalaryConfig = () => {
                   </td>
                   <td className="px-4 py-2 flex gap-2 justify-center">
                     <button
-                      className="flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                      className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
                       onClick={() => setEditData(item)}
                     >
                       <FiEdit size={14} />
@@ -110,7 +110,7 @@ const SalaryConfig = () => {
                     </button>
 
                     <button
-                      className="flex items-center gap-1 px-2.5 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition"
+                      className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition"
                       onClick={() => setConfirmDeleteId(item)}
                     >
                       <FiTrash2 size={14} />

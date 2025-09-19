@@ -208,7 +208,7 @@ const EmpMarkAttendance = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-primary hover:bg-secondary transition-colors duration-200 text-white px-8 py-2 rounded-lg flex items-center justify-center min-w-[140px] shadow-md"
+              className="bg-primary hover:bg-secondary cursor-pointer transition-colors duration-200 text-white px-8 py-2 rounded-lg flex items-center justify-center min-w-[140px] shadow-md"
             >
               {isSubmitting ? <Spinner /> : "Submit"}
             </button>

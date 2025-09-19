@@ -29,7 +29,7 @@ const ProfileSettingsDrawer = ({ isOpen, onClose }) => {
           </h2>
           <button
             onClick={onClose}
-            className="text-xl text-gray-500 hover:text-red-500"
+            className="text-xl text-gray-500 cursor-pointer hover:text-red-500"
           >
             <IoClose />
           </button>

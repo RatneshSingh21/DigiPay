@@ -38,7 +38,7 @@ export default function ComingSoon() {
           🚀 Coming Soon
         </h1>
         <p className="text-lg md:text-xl text-gray-600 mb-10">
-          We’re crafting something special for you. Be the first to know when we launch!
+          We're crafting something special for you. Be the first to know when we launch!
         </p>
 
         {/* Countdown Timer */}
@@ -46,7 +46,7 @@ export default function ComingSoon() {
           {["days", "hours", "minutes", "seconds"].map((unit) => (
             <div
               key={unit}
-              className="flex flex-col items-center bg-gray-100 px-5 py-4 rounded-2xl shadow-md"
+              className="flex flex-col cursor-pointer items-center bg-gray-100 px-5 py-4 rounded-2xl shadow-md"
             >
               <span className="text-3xl font-bold text-primary">
                 {timeLeft[unit] ?? "00"}
@@ -65,7 +65,7 @@ export default function ComingSoon() {
           />
           <button
             type="submit"
-            className="px-3 py-3 rounded-xl text-sm bg-primary hover:bg-secondary text-white font-semibold transition shadow-md"
+            className="px-3 py-3 rounded-xl cursor-pointer text-sm bg-primary hover:bg-secondary text-white font-semibold transition shadow-md"
           >
             Notify Me
           </button>

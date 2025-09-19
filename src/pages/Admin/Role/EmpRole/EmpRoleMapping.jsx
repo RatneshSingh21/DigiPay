@@ -33,7 +33,7 @@ const EmpRoleMapping = () => {
         <h2 className="font-semibold text-xl">Employee Role Mapping</h2>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 text-sm bg-primary text-white px-3 py-2 rounded-lg hover:bg-secondary transition"
+          className="flex items-center cursor-pointer gap-2 text-sm bg-primary text-white px-3 py-2 rounded-lg hover:bg-secondary transition"
         >
           <FaPlus /> Add Mapping
         </button>

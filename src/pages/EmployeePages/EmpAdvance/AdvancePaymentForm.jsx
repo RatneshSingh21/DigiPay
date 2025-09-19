@@ -228,14 +228,14 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
         <button
           type="button"
           onClick={onClose}
-          className="w-1/2 bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold shadow hover:bg-gray-200 transition"
+          className="w-1/2 bg-gray-100 text-gray-700 cursor-pointer py-2 rounded-lg font-semibold shadow hover:bg-gray-200 transition"
         >
           Cancel
         </button>
-        <button
+        <button 
           type="submit"
           disabled={submitting}
-          className="w-1/2 bg-primary flex items-center justify-center text-white py-2 rounded-lg font-semibold shadow hover:bg-secondary transition disabled:opacity-50"
+          className="w-1/2 bg-primary flex items-center cursor-pointer justify-center text-white py-2 rounded-lg font-semibold shadow hover:bg-secondary transition disabled:opacity-50"
         >
           {submitting ? <Spinner /> : "Submit Request"}
         </button>

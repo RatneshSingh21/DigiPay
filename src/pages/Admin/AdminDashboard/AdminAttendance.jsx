@@ -104,7 +104,7 @@ const AdminAttendance = () => {
           {["Today", "Week", "Month"].map((tab) => (
             <button
               key={tab}
-              className={`px-4 py-1.5 text-sm rounded-md transition-all ${
+              className={`px-4 py-1.5 cursor-pointer text-sm rounded-md transition-all ${
                 activeTab === tab
                   ? "bg-primary text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-800"

@@ -76,7 +76,7 @@ export default function SignInEmployeeForm() {
       <button
         type="button"
         onClick={() => navigate(-1)}
-        className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md px-3 py-1 mb-4"
+        className="flex items-center cursor-pointer text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md px-3 py-1 mb-4"
       >
         <svg
           className="w-4 h-4 mr-1"
@@ -132,7 +132,7 @@ export default function SignInEmployeeForm() {
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-3 top-9 text-gray-500 hover:text-orange-500"
+          className="absolute right-3 cursor-pointer top-9 text-gray-500 hover:text-orange-500"
         >
           {showPassword ? <FaEyeSlash /> : <FaEye />}
         </button>

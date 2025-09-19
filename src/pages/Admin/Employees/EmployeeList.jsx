@@ -114,7 +114,7 @@ const EmployeeList = () => {
         {employees.length > 0 && (
           <div className="flex gap-2 items-center">
             <button
-              className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
+              className="bg-primary hover:bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg font-medium"
               onClick={() => navigate("/admin-dashboard/employees/add")}
             >
               Add Employee

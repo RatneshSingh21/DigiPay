@@ -126,7 +126,7 @@ const WeekendPolicyMap = ({ policy, onClose }) => {
           </h2>
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-gray-600 hover:text-red-500 text-2xl"
+            className="absolute top-4 cursor-pointer right-4 text-gray-600 hover:text-red-500 text-2xl"
           >
             &times;
           </button>
@@ -243,13 +243,13 @@ const WeekendPolicyMap = ({ policy, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              className="px-4 py-2 bg-gray-200 cursor-pointer text-gray-800 rounded hover:bg-gray-300"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2 border border-primary hover:bg-primary hover:text-white  text-primary font-semibold rounded-lg  transition-all"
+              className="px-6 py-2 border border-primary cursor-pointer hover:bg-primary hover:text-white  text-primary font-semibold rounded-lg  transition-all"
             >
               Map Policy
             </button>

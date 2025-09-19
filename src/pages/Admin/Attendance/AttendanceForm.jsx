@@ -263,7 +263,7 @@ const AttendanceForm = () => {
           <div className="md:col-span-2 flex justify-end">
             <button
               type="submit"
-              className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-md flex items-center justify-center min-w-[120px]"
+              className="bg-primary cursor-pointer hover:bg-secondary text-white px-6 py-2 rounded-md flex items-center justify-center min-w-[120px]"
               disabled={isSubmitting}
             >
               {isSubmitting ? <Spinner /> : "Submit"}

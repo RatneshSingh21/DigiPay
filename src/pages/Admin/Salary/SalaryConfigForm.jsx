@@ -177,7 +177,7 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
           }
         >
           <span
-            className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-300 ${
+            className={`inline-block w-4 h-4 transform cursor-pointer bg-white rounded-full transition-transform duration-300 ${
               formData.isEnabled ? "translate-x-6" : "translate-x-1"
             }`}
           />
@@ -190,7 +190,7 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
       <div className="flex gap-2">
         <button
           type="submit"
-          className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary"
+          className="bg-primary text-white cursor-pointer px-4 py-2 rounded hover:bg-secondary"
         >
           {editId ? "Update" : "Add"} Component
         </button>
@@ -198,7 +198,7 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
           <button
             type="button"
             onClick={resetForm}
-            className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+            className="bg-gray-300 text-black cursor-pointer px-4 py-2 rounded hover:bg-gray-400"
           >
             Cancel
           </button>

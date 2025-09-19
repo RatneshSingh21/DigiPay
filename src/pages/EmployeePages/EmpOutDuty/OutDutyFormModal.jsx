@@ -103,7 +103,7 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-2xl"
+          className="absolute top-2 right-3 cursor-pointer text-gray-500 hover:text-red-600 text-2xl"
         >
           &times;
         </button>
@@ -186,7 +186,7 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
           <button
             type="submit"
             disabled={loading}
-            className={`bg-primary flex items-center justify-center text-white px-4 sm:px-6 py-2 rounded transition w-full sm:w-auto ${
+            className={`bg-primary flex items-center cursor-pointer justify-center text-white px-4 sm:px-6 py-2 rounded transition w-full sm:w-auto ${
               loading
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-secondary cursor-pointer"

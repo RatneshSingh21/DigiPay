@@ -289,7 +289,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
                 key={day}
                 type="button"
                 onClick={() => toggleDay(day)}
-                className={`px-4 py-2 border text-sm rounded-sm ${
+                className={`px-4 py-2 border cursor-pointer text-sm rounded-sm ${
                   selectedDays.includes(day)
                     ? "bg-blue-100 border-blue-500 text-blue-800"
                     : "bg-white border-gray-300 text-gray-700"
@@ -519,7 +519,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
             type="button"
             onClick={handleSave}
             disabled={loading}
-            className={`bg-primary text-white px-6 py-2 rounded-md hover:bg-secondary flex items-center gap-2 ${
+            className={`bg-primary text-white cursor-pointer px-6 py-2 rounded-md hover:bg-secondary flex items-center gap-2 ${
               loading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >

@@ -105,7 +105,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
       {/* Collapse Button */}
       <div className="absolute bottom-0 left-0 w-full">
         <button
-          className="w-full py-2 text-sm text-center bg-primary hover:bg-gray-500"
+          className="w-full py-2 text-sm text-center cursor-pointer bg-primary hover:bg-gray-500"
           onClick={() => setCollapsed(!collapsed)}
         >
           {collapsed ? "➤" : "⮜ Collapse"}

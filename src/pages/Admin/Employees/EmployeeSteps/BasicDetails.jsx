@@ -319,7 +319,7 @@ const BasicDetails = () => {
           <button
             type="submit"
             disabled={loading}
-            className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full shadow flex items-center justify-center gap-2"
+            className="bg-primary cursor-pointer hover:bg-secondary text-white px-6 py-2 rounded-full shadow flex items-center justify-center gap-2"
           >
             {loading && <Spinner />}
             {employeeId ? "Update & Continue" : "Save & Continue"}
@@ -327,7 +327,7 @@ const BasicDetails = () => {
           <button
             type="button"
             onClick={handleCancel}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-full shadow hover:bg-gray-300 flex items-center justify-center gap-2"
+            className="bg-gray-200 cursor-pointer text-gray-700 px-4 py-2 rounded-full shadow hover:bg-gray-300 flex items-center justify-center gap-2"
           >
             Cancel
           </button>

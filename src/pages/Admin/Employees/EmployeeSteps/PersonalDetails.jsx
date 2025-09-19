@@ -338,7 +338,7 @@ const PersonalDetails = () => {
         <button
           type="submit"
           disabled={loading}
-          className={`flex items-center justify-center gap-2 bg-primary text-white px-6 py-2 rounded-full ${
+          className={`flex items-center cursor-pointer justify-center gap-2 bg-primary text-white px-6 py-2 rounded-full ${
             loading ? "opacity-50 cursor-not-allowed" : "hover:bg-secondary"
           }`}
         >

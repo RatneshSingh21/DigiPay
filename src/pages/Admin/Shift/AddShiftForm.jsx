@@ -170,7 +170,7 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
       >
         <button
           type="button"
-          className="absolute top-4 right-4 text-gray-600 hover:text-red-500 text-2xl"
+          className="absolute top-4 cursor-pointer right-4 text-gray-600 hover:text-red-500 text-2xl"
           onClick={onClose}
         >
           &times;
@@ -313,7 +313,7 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
                     <button
                       type="button"
                       onClick={() => removeCoreHour(index)}
-                      className="text-red-500"
+                      className="text-red-500 cursor-pointer"
                     >
                       <FiTrash />
                     </button>
@@ -414,7 +414,7 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
                 <button
                   type="button"
                   onClick={() => setShowCriteria(false)}
-                  className="text-red-500"
+                  className="text-red-500 cursor-pointer"
                 >
                   <FiTrash />
                 </button>
@@ -422,7 +422,7 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
             ) : (
               <button
                 type="button"
-                className="mt-4 text-sm bg-primary text-white px-4 py-2 rounded hover:bg-secondary"
+                className="mt-4 text-sm bg-primary cursor-pointer text-white px-4 py-2 rounded hover:bg-secondary"
                 onClick={() => setShowCriteria(true)}
               >
                 + Add Criteria
@@ -435,13 +435,13 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
             <button
               type="button"
               onClick={onClose}
-              className="border px-5 py-2 rounded"
+              className="border px-5 py-2 cursor-pointer rounded"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-primary text-white px-5 py-2 rounded hover:bg-secondary"
+              className="bg-primary text-white cursor-pointer px-5 py-2 rounded hover:bg-secondary"
             >
               Save
             </button>

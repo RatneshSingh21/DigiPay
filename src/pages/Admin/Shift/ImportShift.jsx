@@ -109,7 +109,7 @@ const ImportShift = ({ onClose , fetchShifts }) => {
         className="w-full max-w-3xl bg-white p-6 rounded-lg shadow-xl relative"
       >
         <button
-          className="absolute top-4 right-4 text-gray-600 hover:text-red-500 text-xl"
+          className="absolute top-4 cursor-pointer right-4 text-gray-600 hover:text-red-500 text-xl"
           onClick={onClose}
         >
           &times;
@@ -123,7 +123,7 @@ const ImportShift = ({ onClose , fetchShifts }) => {
           Download a{" "}
           <button
             onClick={handleDownloadSample}
-            className="text-blue-600 underline font-medium hover:text-blue-800"
+            className="text-blue-600 cursor-pointer underline font-medium hover:text-blue-800"
           >
             sample Excel file
           </button>{" "}
@@ -158,14 +158,14 @@ const ImportShift = ({ onClose , fetchShifts }) => {
 
         <div className="flex items-center gap-4">
           <button
-            className="bg-primary text-white px-6 py-2 rounded-md hover:bg-secondary transition duration-200 flex items-center gap-2"
+            className="bg-primary text-white px-6 cursor-pointer py-2 rounded-md hover:bg-secondary transition duration-200 flex items-center gap-2"
             onClick={handleUpload}
             disabled={loading}
           >
             {loading ? <Spinner /> : "Save"}
           </button>
           <button
-            className="border px-6 py-2 rounded-md text-gray-700 hover:bg-gray-100"
+            className="border px-6 py-2 rounded-md cursor-pointer text-gray-700 hover:bg-gray-100"
             onClick={() => {
               setFileName(null);
               setSelectedFile(null);

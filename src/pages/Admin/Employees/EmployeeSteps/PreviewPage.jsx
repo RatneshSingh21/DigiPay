@@ -187,7 +187,7 @@ const PreviewPage = () => {
       <div className=" flex justify-end">
         <button
           onClick={handleFinish}
-          className="px-4 py-2 bg-primary text-white mt-2 mr-2 rounded-full hover:bg-secondary transition"
+          className="px-4 py-2 bg-primary cursor-pointer text-white mt-2 mr-2 rounded-full hover:bg-secondary transition"
         >
           Finish
         </button>

@@ -91,7 +91,7 @@ const StatusMaster = () => {
           />
           <button
             type="submit"
-            className="bg-primary text-white w-72 px-4 py-2 rounded-lg shadow hover:bg-secondary transition"
+            className="bg-primary cursor-pointer text-white w-72 px-4 py-2 rounded-lg shadow hover:bg-secondary transition"
           >
             Add Status
           </button>
@@ -142,7 +142,7 @@ const StatusMaster = () => {
                         hour12: true,
                       })}
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-2 cursor-pointer">
                       {status.isActive ? (
                         <span className="text-green-600 font-medium">
                           Active

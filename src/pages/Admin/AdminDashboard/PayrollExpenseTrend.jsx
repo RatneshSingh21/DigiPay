@@ -25,7 +25,7 @@ const PayrollExpenseTrend = () => {
       {/* Header */}
       <div className="flex justify-between mb-4">
         <h3 className="text-lg font-semibold">Payroll Expense Trend</h3>
-        <button className="text-sm text-gray-400">Last 6 Months</button>
+        <button className="text-sm cursor-pointer text-gray-400">Last 6 Months</button>
       </div>
 
       {/* Chart */}

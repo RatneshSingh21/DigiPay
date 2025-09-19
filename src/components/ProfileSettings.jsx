@@ -33,7 +33,7 @@ const ProfileSettings = () => {
           {/* Day Button */}
           <button
             onClick={() => mode !== "light" && toggleMode()}
-            className={`flex items-center gap-1 px-4 py-1 rounded-full text-sm font-medium transition-all duration-200
+            className={`flex items-center cursor-pointer gap-1 px-4 py-1 rounded-full text-sm font-medium transition-all duration-200
             ${
               mode === "light"
                 ? "bg-primary text-white shadow"
@@ -48,7 +48,7 @@ const ProfileSettings = () => {
           {/* Night Button */}
           <button
             onClick={() => mode !== "dark" && toggleMode()}
-            className={`flex items-center gap-1 px-4 py-1 rounded-full text-sm font-medium transition-all duration-200
+            className={`flex items-center gap-1 cursor-pointer px-4 py-1 rounded-full text-sm font-medium transition-all duration-200
             ${
               mode === "dark"
                 ? "bg-primary text-white shadow"
@@ -71,7 +71,7 @@ const ProfileSettings = () => {
           {Object.entries(colorPalettes).map(([name, value]) => (
             <button
               key={name}
-              className={`w-8 h-8 rounded-full border-2 ${
+              className={`w-8 h-8 rounded-full cursor-pointer border-2 ${
                 palette === name
                   ? "border-black dark:border-white ring-2 ring-primary"
                   : "border-gray-300"

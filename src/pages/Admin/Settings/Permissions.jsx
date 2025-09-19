@@ -144,7 +144,7 @@ const Permissions = () => {
         <div className="flex gap-2 items-center">
           <button
             onClick={() => setIsModalOpen(true)} //open modal
-            className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
+            className="bg-primary cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
           >
             Add Module
           </button>
@@ -260,7 +260,7 @@ const Permissions = () => {
         <button
           onClick={handleSave}
           disabled={isDisabled}
-          className={`px-6 py-2 rounded font-medium text-white flex items-center gap-2 ${
+          className={`px-6 py-2 rounded cursor-pointer font-medium text-white flex items-center gap-2 ${
             isDisabled
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-primary hover:bg-secondary transition"
@@ -272,7 +272,7 @@ const Permissions = () => {
         <button
           onClick={() => setPermissions({})}
           disabled={isDisabled}
-          className={`px-6 py-2 rounded font-medium ${
+          className={`px-6 py-2 rounded cursor-pointer font-medium ${
             isDisabled
               ? "bg-gray-200 text-gray-500 cursor-not-allowed"
               : "bg-gray-300 hover:bg-gray-400"

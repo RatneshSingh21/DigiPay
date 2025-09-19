@@ -61,7 +61,7 @@ const NotificationPanel = ({ notifications, onClose }) => {
           )}
         </div>
         <button
-          className="p-1 rounded-full hover:bg-red-600"
+          className="p-1 rounded-full cursor-pointer hover:bg-red-600"
           onClick={onClose}
         >
           <X className="w-5 h-5 text-gray-600 hover:text-white" />

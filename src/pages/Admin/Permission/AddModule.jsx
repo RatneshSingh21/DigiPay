@@ -101,13 +101,13 @@ const AddModule = ({ isOpen, onClose, onSuccess }) => {
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100"
+            className="px-4 py-2 rounded-md cursor-pointer border border-gray-300 hover:bg-gray-100"
           >
             Cancel
           </button>
           <button
             onClick={addModule}
-            className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-md"
+            className="bg-primary hover:bg-secondary cursor-pointer text-white px-4 py-2 rounded-md"
           >
             Save
           </button>

@@ -321,7 +321,7 @@ const PaymentInfo = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`bg-primary text-white px-6 py-2 rounded-full flex items-center gap-2 ${
+            className={`bg-primary text-white cursor-pointer px-6 py-2 rounded-full flex items-center gap-2 ${
               loading ? "opacity-50 cursor-not-allowed" : "hover:bg-secondary"
             }`}
           >

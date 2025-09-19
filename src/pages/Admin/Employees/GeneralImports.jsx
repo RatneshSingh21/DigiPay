@@ -166,7 +166,7 @@ export default function GeneralImports() {
                 <td className="p-3 text-center flex justify-center">
                   <button
                     onClick={() => handleImport(item)}
-                    className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-md shadow-sm transition"
+                    className="flex items-center cursor-pointer justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-md shadow-sm transition"
                   >
                     <FiDownload className="h-4 w-4" />
                     Import
@@ -175,7 +175,7 @@ export default function GeneralImports() {
                 <td className="p-3 text-center">
                   <button
                     onClick={() => handleExport(item.exportApi, item.name)}
-                    className="inline-flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-md shadow-sm transition"
+                    className="inline-flex items-center cursor-pointer justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-md shadow-sm transition"
                   >
                     <FiUpload className="h-4 w-4" />
                     Export

@@ -70,7 +70,7 @@ const PaySchedule = () => {
         <h2 className="font-semibold text-xl">Pay Schedule</h2>
         <button
           onClick={handleAddNew}
-          className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary"
+          className="bg-primary cursor-pointer text-white px-4 py-2 rounded hover:bg-secondary"
         >
           + Add Schedule
         </button>

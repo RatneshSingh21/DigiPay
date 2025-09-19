@@ -63,13 +63,13 @@ const RuleModal = ({ isOpen, onClose, formData, setFormData, createRule }) => {
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border text-sm border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+            className="px-4 py-2 rounded-lg cursor-pointer border text-sm border-gray-300 text-gray-600 hover:bg-gray-100 transition"
           >
             Cancel
           </button>
           <button
             onClick={createRule}
-            className="px-5 py-2 rounded-lg bg-primary text-sm text-white hover:bg-secondary transition shadow-sm"
+            className="px-5 py-2 rounded-lg cursor-pointer bg-primary text-sm text-white hover:bg-secondary transition shadow-sm"
           >
             Save Rule
           </button>

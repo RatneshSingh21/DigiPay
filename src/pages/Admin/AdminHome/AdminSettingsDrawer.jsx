@@ -65,7 +65,7 @@ const AdminSettingsDrawer = ({ isOpen, onClose }) => {
           </h2>
           <button
             onClick={onClose}
-            className="text-xl text-gray-500 hover:text-red-500 transition-colors duration-150"
+            className="text-xl text-gray-500 cursor-pointer hover:text-red-500 transition-colors duration-150"
           >
             <IoClose />
           </button>
@@ -83,7 +83,7 @@ const AdminSettingsDrawer = ({ isOpen, onClose }) => {
                   navigate(`/admin-dashboard/settings/${item.path}`);
                   onClose();
                 }}
-                className={`flex items-center w-full gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 
+                className={`flex items-center cursor-pointer w-full gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 
                   ${
                     isActive
                       ? "bg-primary text-white shadow"

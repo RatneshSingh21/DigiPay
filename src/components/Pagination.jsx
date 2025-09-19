@@ -104,7 +104,7 @@ const Pagination = ({
           {currentPage > 1 && (
             <button
               onClick={() => paginate(currentPage - 1)}
-              className="flex items-center px-3 py-1.5 rounded-full border border-gray-300 bg-white dark:bg-surface text-gray-600 dark:text-surface hover:bg-primary/10 hover:text-primary transition shadow-sm"
+              className="flex items-center px-3 cursor-pointer py-1.5 rounded-full border border-gray-300 bg-white dark:bg-surface text-gray-600 dark:text-surface hover:bg-primary/10 hover:text-primary transition shadow-sm"
             >
               <ChevronLeft className="w-4 h-4 mr-1" /> Prev
             </button>
@@ -115,7 +115,7 @@ const Pagination = ({
             <button
               key={page}
               onClick={() => paginate(page)}
-              className={`px-3 py-1.5 rounded-full border shadow-sm transition ${
+              className={`px-3 py-1.5 rounded-full cursor-pointer border shadow-sm transition ${
                 currentPage === page
                   ? "bg-primary text-white border-primary font-semibold"
                   : "bg-white dark:bg-surface text-gray-600 dark:text-surface border-gray-300 hover:bg-primary/10 hover:text-primary"
@@ -129,7 +129,7 @@ const Pagination = ({
           {currentPage < totalPages && (
             <button
               onClick={() => paginate(currentPage + 1)}
-              className="flex items-center px-3 py-1.5 rounded-full border border-gray-300 bg-white dark:bg-surface text-gray-600 dark:text-surface hover:bg-primary/10 hover:text-primary transition shadow-sm"
+              className="flex items-center cursor-pointer px-3 py-1.5 rounded-full border border-gray-300 bg-white dark:bg-surface text-gray-600 dark:text-surface hover:bg-primary/10 hover:text-primary transition shadow-sm"
             >
               Next <ChevronRight className="w-4 h-4 ml-1" />
             </button>

@@ -110,7 +110,7 @@ const AddDepartmentForm = ({ onClose, isEdit, initialData, onSuccess }) => {
             <button
               type="submit"
               disabled={loading}
-              className={`px-6 py-2 rounded-lg text-white ${
+              className={`px-6 py-2 cursor-pointer rounded-lg text-white ${
                 loading
                   ? "bg-blue-300 cursor-not-allowed"
                   : "bg-primary hover:bg-secondary"
@@ -121,7 +121,7 @@ const AddDepartmentForm = ({ onClose, isEdit, initialData, onSuccess }) => {
 
             <button
               type="reset"
-              className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100"
+              className="border cursor-pointer border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100"
               onClick={() =>
                 setFormData({
                   name: "",
