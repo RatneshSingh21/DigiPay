@@ -1,5 +1,4 @@
 import AdminAttendance from "./AdminAttendance";
-import AdminCardList from "./AdminCardList";
 import AdminSchedule from "./AdminSchedule";
 import AdminSummaryCards from "./AdminSummaryCards";
 import PayrollExpenseTrend from "./PayrollExpenseTrend";

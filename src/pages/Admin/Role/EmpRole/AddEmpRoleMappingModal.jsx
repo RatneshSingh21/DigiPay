@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import Select from "react-select";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import Spinner from "../../../../components/Spinner";
 
 const AddEmpRoleMappingModal = ({ onClose, onSuccess }) => {
   const [employeeOptions, setEmployeeOptions] = useState([]);
@@ -117,17 +118,17 @@ const AddEmpRoleMappingModal = ({ onClose, onSuccess }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded border cursor-pointer hover:bg-gray-200 disabled:opacity-50"
+              className="px-4 py-2 rounded border text-sm cursor-pointer hover:bg-gray-200 disabled:opacity-50"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary text-white rounded cursor-pointer hover:bg-secondary disabled:opacity-50"
+              className="px-4 py-2 bg-primary text-sm text-white rounded cursor-pointer hover:bg-secondary disabled:opacity-50"
               disabled={loading}
             >
-              {loading ? "Saving..." : "Save"}
+              {loading ? <Spinner /> : "Save"}
             </button>
           </div>
         </form>

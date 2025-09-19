@@ -52,8 +52,8 @@ import Attendance from "./pages/Admin/Settings/Attendance";
 
 // Role Pages
 import RoleMaster from "./pages/Admin/Role/RoleMaster";
-import RoleApproval from "./pages/Admin/Role/RoleApproval";
-import EmpRoleMapping from "./pages/Admin/Role/EmpRoleMapping";
+import RoleApproval from "./pages/Admin/Role/RoleApproval/RoleApproval";
+import EmpRoleMapping from "./pages/Admin/Role/EmpRole/EmpRoleMapping";
 
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
@@ -85,6 +85,7 @@ import EmpMarkAttendance from "./pages/EmployeePages/EmployeeComponents/EmpMarkA
 import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
 import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
+
 
 const App = () => {
   const token = useAuthStore((state) => state.token);

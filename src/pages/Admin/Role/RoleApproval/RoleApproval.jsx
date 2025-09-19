@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import RuleModal from "./RuleModal";
 import RoleModal from "./RoleModal";
 import { FaPlus } from "react-icons/fa";
 import { HiLink, HiOutlineClipboardCheck } from "react-icons/hi";
 import { MdGavel } from "react-icons/md";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
 const RoleApproval = () => {
   const [rules, setRules] = useState([]);
@@ -103,21 +103,6 @@ const RoleApproval = () => {
     <>
       <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Approval Rules Management</h2>
-
-        <div className="flex gap-4 items-center">
-          {/* <button
-            onClick={() => setIsRuleModalOpen(true)}
-            className="bg-primary hover:opacity-80 cursor-pointer flex items-center text-white px-5 py-2 rounded-lg shadow-md"
-          >
-            <FaPlus className="mr-2" /> Create Rule
-          </button> */}
-          <button
-            onClick={() => setIsRoleModalOpen(true)}
-            className="bg-primary hover:bg-secondary cursor-pointer flex items-center text-white px-5 py-2 rounded-lg shadow-md"
-          >
-            <HiLink className="mr-2" /> Assign Role
-          </button>
-        </div>
       </div>
 
       <div className="p-6 space-y-6">
@@ -126,9 +111,18 @@ const RoleApproval = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-lg text-gray-800 flex items-center gap-2">
               <HiOutlineClipboardCheck className="text-primary" /> Existing
-              Rules
+              Rules{" "}
+              <span className="text-sm text-gray-500">
+                {rules.length} total
+              </span>
             </h3>
-            <span className="text-sm text-gray-500">{rules.length} total</span>
+
+            <button
+              onClick={() => setIsRuleModalOpen(true)}
+              className="bg-primary text-sm hover:opacity-80 cursor-pointer flex items-center text-white px-5 py-2 rounded-lg shadow-md"
+            >
+              <FaPlus className="mr-2" /> Create Rule
+            </button>
           </div>
 
           {rules.length === 0 ? (
@@ -141,7 +135,7 @@ const RoleApproval = () => {
               <table className="w-full text-sm">
                 <thead className="bg-gray-200 text-gray-900 uppercase text-xs tracking-wide">
                   <tr>
-                    <th className="px-4 py-3 text-left">Request Type</th>
+                    <th className="px-4 py-3 text-center">Request Type</th>
                     <th className="px-4 py-3 text-center">Custom Approver</th>
                   </tr>
                 </thead>
@@ -151,7 +145,7 @@ const RoleApproval = () => {
                       key={r.ruleId}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-4 py-3 font-medium text-gray-800">
+                      <td className="px-4 py-3 font-medium text-center text-gray-800">
                         {r.requestType}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -177,11 +171,18 @@ const RoleApproval = () => {
         <div className="bg-white  shadow-lg rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-lg text-gray-800 flex items-center gap-2">
-              <MdGavel className="text-secondary" /> Rule Roles
+              <MdGavel className="text-secondary" /> Rule Roles{" "}
+              <span className="text-sm text-gray-500">
+                {ruleRoles.length} assigned
+              </span>
             </h3>
-            <span className="text-sm text-gray-500">
-              {ruleRoles.length} assigned
-            </span>
+
+            <button
+              onClick={() => setIsRoleModalOpen(true)}
+              className="bg-primary text-sm hover:bg-secondary cursor-pointer flex items-center text-white px-5 py-2 rounded-lg shadow-md"
+            >
+              <HiLink className="mr-2" /> Assign Role
+            </button>
           </div>
 
           {ruleRoles.length === 0 ? (
@@ -194,7 +195,7 @@ const RoleApproval = () => {
               <table className="w-full text-sm">
                 <thead className="bg-gray-200 text-gray-900 uppercase text-xs tracking-wide">
                   <tr>
-                    <th className="px-4 py-3 text-left">Rule Id</th>
+                    <th className="px-4 py-3 text-center">Rule Id</th>
                     <th className="px-4 py-3 text-center">Role</th>
                     <th className="px-4 py-3 text-center">Sequence</th>
                   </tr>
@@ -209,7 +210,7 @@ const RoleApproval = () => {
                         key={rr.ruleRoleId}
                         className="hover:bg-gray-50 transition-colors"
                       >
-                        <td className="px-4 py-3 font-medium text-gray-800">
+                        <td className="px-4 py-3 text-center font-medium text-gray-800">
                           {rr.ruleRoleId}
                         </td>
                         <td className="px-4 py-3 text-center text-gray-700">

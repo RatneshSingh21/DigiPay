@@ -58,13 +58,21 @@ const AdminAttendance = () => {
   const filterByTab = (data) => {
     const today = new Date();
     if (activeTab === "Today") {
-      return data.filter((att) => att.inTime && isSameDay(new Date(att.inTime), today));
+      return data.filter(
+        (att) => att.inTime && isSameDay(new Date(att.inTime), today)
+      );
     }
     if (activeTab === "Week") {
-      return data.filter((att) => att.inTime && isSameWeek(new Date(att.inTime), today, { weekStartsOn: 1 }));
+      return data.filter(
+        (att) =>
+          att.inTime &&
+          isSameWeek(new Date(att.inTime), today, { weekStartsOn: 1 })
+      );
     }
     if (activeTab === "Month") {
-      return data.filter((att) => att.inTime && isSameMonth(new Date(att.inTime), today));
+      return data.filter(
+        (att) => att.inTime && isSameMonth(new Date(att.inTime), today)
+      );
     }
     return data;
   };
@@ -96,10 +104,11 @@ const AdminAttendance = () => {
           {["Today", "Week", "Month"].map((tab) => (
             <button
               key={tab}
-              className={`px-4 py-1.5 text-sm rounded-md transition-all ${activeTab === tab
-                ? "bg-primary text-white shadow-sm"
-                : "text-gray-600 hover:text-gray-800"
-                }`}
+              className={`px-4 py-1.5 text-sm rounded-md transition-all ${
+                activeTab === tab
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
               onClick={() => {
                 setActiveTab(tab);
                 setCurrentPage(1); // reset to first page on tab change
@@ -141,17 +150,24 @@ const AdminAttendance = () => {
                       </td>
                       <td>
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[att.status] ||
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            statusColors[att.status] ||
                             "bg-gray-100 text-gray-700"
-                            }`}
+                          }`}
                         >
                           {att.status}
                         </span>
                       </td>
-                      <td className="text-gray-700">{formatTime(att.inTime)}</td>
-                      <td className="text-gray-700">{formatTime(att.outTime)}</td>
                       <td className="text-gray-700">
-                        {att.totalHours !== null ? att.totalHours.toFixed(2) : "-"}
+                        {formatTime(att.inTime)}
+                      </td>
+                      <td className="text-gray-700">
+                        {formatTime(att.outTime)}
+                      </td>
+                      <td className="text-gray-700">
+                        {att.totalHours !== null
+                          ? att.totalHours.toFixed(2)
+                          : "-"}
                       </td>
                       <td className="text-gray-700">
                         {att.latitude != null ? att.latitude.toFixed(4) : "-"}

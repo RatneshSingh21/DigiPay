@@ -65,7 +65,7 @@ export default function ComingSoon() {
           />
           <button
             type="submit"
-            className="px-6 py-3 rounded-xl bg-primary hover:bg-secondary text-white font-semibold transition shadow-md"
+            className="px-3 py-3 rounded-xl text-sm bg-primary hover:bg-secondary text-white font-semibold transition shadow-md"
           >
             Notify Me
           </button>

@@ -13,7 +13,6 @@ const LeaveTypeDepartment = () => {
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
 

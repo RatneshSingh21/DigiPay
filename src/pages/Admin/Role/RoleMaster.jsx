@@ -3,7 +3,6 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import Spinner from "../../../components/Spinner";
 
-
 const RoleMaster = () => {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,21 +13,21 @@ const RoleMaster = () => {
   });
 
   // Fetch roles
- const fetchRoles = async () => {
-  setLoading(true);
-  try {
-    const res = await axiosInstance.get("/RoleList/getall");
-    if (Array.isArray(res.data)) {
-      setRoles(res.data);
-    } else {
-      toast.error("Unexpected API response");
+  const fetchRoles = async () => {
+    setLoading(true);
+    try {
+      const res = await axiosInstance.get("/RoleList/getall");
+      if (Array.isArray(res.data)) {
+        setRoles(res.data);
+      } else {
+        toast.error("Unexpected API response");
+      }
+    } catch {
+      toast.error("Failed to fetch roles.");
+    } finally {
+      setLoading(false);
     }
-  } catch {
-    toast.error("Failed to fetch roles.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // Handle form submit
   const handleSubmit = async (e) => {

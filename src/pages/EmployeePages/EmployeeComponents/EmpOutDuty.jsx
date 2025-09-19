@@ -137,7 +137,7 @@ const EmpOutDuty = () => {
               <th className="px-2 sm:px-4 py-3">Status</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-sm">
             {loading ? (
               <tr>
                 <td colSpan="8" className="text-center py-4 text-gray-500">

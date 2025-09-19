@@ -42,7 +42,7 @@ const LeaveTypeRole = () => {
       const res = await axiosInstance.get("LeaveType/leave-type-role");
       setData(res.data);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Error fetching data");
+      // toast.error(err?.response?.data?.message || "Error fetching data");
       console.error("Error fetching data:", err);
     } finally {
       setLoading(false);
