@@ -39,6 +39,7 @@ import ForgetGif from "./ForgetGif.gif"
 import StopGif from "./StopGif.gif"
 import LostGif from "./LostGif.gif"
 import holiday from "./holiday.png"
+import ComplianceRuleIllustration from "./ComplianceRuleIllustration.jpg"
 
 const assets = {
   bg: bg,
@@ -63,6 +64,7 @@ const assets = {
   WeekendPolicyIllustration: WeekendPolicyIllustration,
   LeaveIllustration: LeaveIllustration,
   ComplianceIllustration: ComplianceIllustration,
+  ComplianceRuleIllustration: ComplianceRuleIllustration,
   BankTransfer: BankTransfer,
   Cash: Cash,
   NEFT: NEFT,

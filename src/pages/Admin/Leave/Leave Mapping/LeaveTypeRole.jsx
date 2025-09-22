@@ -59,7 +59,7 @@ const LeaveTypeRole = () => {
       }));
       setLeaveOptions(options);
     } catch (err) {
-      toast.error(err?.response?.data?.message ||"Error fetching leave names");
+      // toast.error(err?.response?.data?.message ||"Error fetching leave names");
       console.error("Error fetching leaves:", err);
     }
   };

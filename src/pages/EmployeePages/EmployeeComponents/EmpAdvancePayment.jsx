@@ -69,7 +69,7 @@ const EmpAdvancePayment = () => {
       setPendingRequests(res.data?.data || []);
     } catch (error) {
       console.error("Error fetching advance payments:", error);
-      toast.error(error?.response?.data?.message || "Failed to load requests");
+      // toast.error(error?.response?.data?.message || "Failed to load requests");
     }
   };
 

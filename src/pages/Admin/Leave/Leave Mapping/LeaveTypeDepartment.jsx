@@ -23,7 +23,7 @@ const LeaveTypeDepartment = () => {
       const res = await axiosInstance.get("/LeaveType/leave-type-department/get");
       setData(res.data);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Error fetching data");
+      // toast.error(err?.response?.data?.message || "Error fetching data");
       console.error("Error fetching data:", err);
     } finally {
       setLoading(false);
@@ -40,7 +40,7 @@ const LeaveTypeDepartment = () => {
       }));
       setLeaveOptions(options);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Error fetching leave types");
+      // toast.error(err?.response?.data?.message || "Error fetching leave types");
       console.error("Error fetching leaves:", err);
     }
   };
@@ -55,7 +55,7 @@ const LeaveTypeDepartment = () => {
       }));
       setDepartmentOptions(options);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Error fetching departments");
+      // toast.error(err?.response?.data?.message || "Error fetching departments");
       console.error("Error fetching departments:", err);
     }
   };

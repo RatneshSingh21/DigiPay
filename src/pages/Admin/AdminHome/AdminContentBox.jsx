@@ -12,7 +12,7 @@ const submenuMap = {
     "Shifts",
     "Salary Configuration",
     "Status Master",
-    "Attendance"
+    "Attendance",
   ],
   Employees: [
     "Add Employee",
@@ -20,15 +20,26 @@ const submenuMap = {
     "General Imports",
     "General Settings",
   ],
-  Role: ["Role Master", "Role Approval" ,"Emp. Role Mapping"],
+  Role: ["Role Master", "Role Approval", "Emp. Role Mapping"],
   Reports: [
     "Attendance Report",
     "Salary Register",
     "Payslip Templates",
-    "Payroll Report",
+    // "Payroll Report",
   ],
-  Leave: ["Leave Types", "Leave Mapping", "Leave Requests", "Leave Balance", "Holiday List"],
-  Policy: ["Policy Details", "PF Settings", "Weekend Policy"],
+  Leave: [
+    "Leave Types",
+    "Leave Mapping",
+    "Leave Requests",
+    "Leave Balance",
+    "Holiday List",
+  ],
+  Policy: [
+    "PF Settings",
+    "PF Transaction",
+    "Weekend Policy",
+     // "Policy Details",
+  ],
   Compliance: ["Compliance Details", "Compliance Rules"],
 };
 

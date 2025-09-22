@@ -70,7 +70,8 @@ import HolidayList from "./pages/Admin/Leave/HolidayList";
 
 // Policy Pages
 import PolicyDetails from "./pages/Admin/Policies/PolicyDetails";
-import PFSettings from "./pages/Admin/Policies/PFSettings";
+import PFSettings from "./pages/Admin/Policies/PFSettings/PFSettings";
+import PFTransaction from "./pages/Admin/Policies/PFTransaction/PFTransaction";
 import WeekendPolicy from "./pages/Admin/Policies/WeekendPolicy/WeekendPolicy";
 
 // Compliance Pages
@@ -220,10 +221,11 @@ const App = () => {
 
                 {/* Policy SubRoutes */}
                 <Route path="policy/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="policy-details" />} />
+                  <Route index element={<Navigate to="pf-settings" />} />
+                  <Route path="pf-settings" element={<PFSettings />} />
+                  <Route path="pf-transaction" element={<PFTransaction />} />
                   <Route path="weekend-policy" element={<WeekendPolicy />} />
                   <Route path="policy-details" element={<PolicyDetails />} />
-                  <Route path="pf-settings" element={<PFSettings />} />
                 </Route>
 
                 {/* Compliance SubRoutes */}

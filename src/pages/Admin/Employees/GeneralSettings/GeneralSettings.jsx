@@ -3,10 +3,11 @@ import EmployeeUpdates from "./EmployeeUpdates/EmployeeUpdates";
 import PolicySetup from "./PolicySetup/PolicySetup";
 import OvertimeSetup from "./OvertimeSetup/OvertimeSetup";
 import ComplianceRules from "./ComplianceRules/ComplianceRules";
+import EmployeePFMapping from "./PolicySetup/EmployeePFMapping/EmployeePFMapping";
 
 const tabs = [
   { id: "employee", label: "Employee Updates" },
-  { id: "policies", label: "Policies" },
+  { id: "pf", label: "PF Settings" },
   { id: "overtime", label: "Overtime Setup" },
   { id: "compliance", label: "Compliance" },
 ];
@@ -36,7 +37,7 @@ const GeneralSettings = () => {
       {/* Tab content */}
       <div className="mt-4">
         {activeTab === "employee" && <EmployeeUpdates />}
-        {activeTab === "policies" && <PolicySetup />}
+        {activeTab === "pf" && <EmployeePFMapping />}
         {activeTab === "overtime" && <OvertimeSetup />}
         {activeTab === "compliance" && <ComplianceRules />}
       </div>

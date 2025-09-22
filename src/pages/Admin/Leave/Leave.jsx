@@ -29,9 +29,7 @@ const Leave = () => {
       setLeaves(response.data || []);
     } catch (error) {
       console.error("Error fetching Leave:", error);
-      toast.error(
-        error?.response?.data?.message || "Failed to load designations"
-      );
+      // toast.error(error?.response?.data?.message || "Failed to load Leave Types");
     }
   };
 
@@ -91,13 +89,13 @@ const Leave = () => {
             >
               + New Leaves
             </button>
-            <button
+            {/* <button
               className="border border-gray-300 cursor-pointer text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
               onClick={openImport}
             >
               <FiDownload />
               Import
-            </button>
+            </button> */}
           </div>
         </div>
       ) : (
