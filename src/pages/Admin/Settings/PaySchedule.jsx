@@ -23,6 +23,7 @@ const PaySchedule = () => {
     try {
       const res = await axiosInstance.get("/PaySchedule/all");
       setPaySchedules(res.data);
+      console.log(res.data);
     } catch (error) {
       console.error("Failed to fetch schedules:", error);
     } finally {
@@ -38,7 +39,9 @@ const PaySchedule = () => {
       fetchSchedules();
     } catch (error) {
       console.error("Delete failed:", error);
-      toast.error("Failed to delete Pay Schedule");
+      toast.error(
+        error?.response?.data?.message || "Failed to delete Pay Schedule"
+      );
     } finally {
       setConfirmDeleteId(null);
     }
@@ -70,7 +73,7 @@ const PaySchedule = () => {
         <h2 className="font-semibold text-xl">Pay Schedule</h2>
         <button
           onClick={handleAddNew}
-          className="bg-primary cursor-pointer text-white px-4 py-2 rounded hover:bg-secondary"
+          className="bg-primary text-sm cursor-pointer text-white px-4 py-2 rounded hover:bg-secondary"
         >
           + Add Schedule
         </button>
@@ -99,10 +102,10 @@ const PaySchedule = () => {
             >
               + Add Schedule
             </button>
-            <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2">
+            {/* <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2">
               <FiDownload />
               Import
-            </button>
+            </button> */}
           </div>
         </div>
       ) : (
@@ -116,6 +119,7 @@ const PaySchedule = () => {
                 <th className="px-4 py-3">Start Date</th>
                 <th className="px-4 py-3">Pay On</th>
                 <th className="px-4 py-3">Work Days</th>
+                <th className="px-4 py-3">Salary Based On</th>
                 <th className="px-4 py-3">Actions</th>
               </tr>
             </thead>
@@ -133,11 +137,12 @@ const PaySchedule = () => {
                   <td className="px-4 py-3 font-medium">{item.name}</td>
                   <td className="px-4 py-3 capitalize">{item.payFrequency}</td>
                   <td className="px-4 py-3">
-                    {new Date(item.firstPayrollStartFrom).toLocaleDateString()}
+                    {new Date(item.firstPayrollStartFrom).toLocaleDateString(
+                      "en-Gb"
+                    )}
                   </td>
                   <td className="px-4 py-3 capitalize">
-                    {item.payOnType === "Specific Day" ||
-                    item.payOnType === "fixedDay"
+                    {item.payOnType === "fixedDay"
                       ? `Day ${item.specificPayDay}`
                       : item.payOnType === "lastDay"
                       ? "Last Day"
@@ -147,6 +152,13 @@ const PaySchedule = () => {
                     {item.workWeekDays?.length > 0
                       ? item.workWeekDays.join(", ")
                       : "-"}
+                  </td>
+                  <td className="px-4 py-3 capitalize">
+                    {item.salaryBasedOn === "actual"
+                      ? "Actual Days Worked"
+                      : item.salaryBasedOn === "org"
+                      ? "Organization Working Days"
+                      : item.salaryBasedOn}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-3 items-center justify-center">

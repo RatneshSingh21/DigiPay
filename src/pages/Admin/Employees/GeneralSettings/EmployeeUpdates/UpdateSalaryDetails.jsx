@@ -14,11 +14,11 @@ import useAuthStore from "../../../../../store/authStore";
 const UPDATE_SALARY_ENDPOINT = "/Salary/update";
 
 const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
-  const { user } = useAuthStore(); // ✅ move hook inside component
+  const { user } = useAuthStore(); // move hook inside component
 
   const [form, setForm] = useState({
-    employeeId: employeeId, // ✅ stays in payload, not in UI
-    orgId: user.userId,     // ✅ stays in payload, not in UI
+    employeeId: employeeId, // stays in payload, not in UI
+    orgId: user.userId,     // stays in payload, not in UI
     month: data?.month || new Date().getMonth() + 1,
     year: data?.year || new Date().getFullYear(),
     employeeCategory: data?.employeeCategory || 0,

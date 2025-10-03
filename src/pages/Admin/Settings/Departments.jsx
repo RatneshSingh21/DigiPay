@@ -27,8 +27,8 @@ const Departments = () => {
       const response = await axiosInstance.get("/Department");
       setDepartments(response.data || []);
     } catch (error) {
-      console.error("Error fetching locations:", error);
-      toast.error(error?.response?.data?.message || "Failed to load work locations");
+      console.error("Error fetching Departments :", error);
+      toast.error(error?.response?.data?.message || "Failed to load Departments");
     }
   };
 
@@ -43,7 +43,7 @@ const Departments = () => {
         {departments.length > 0 && (
           <div className="flex gap-2 items-center">
             <button
-              className="bg-primary cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
+              className="bg-primary text-sm cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
               onClick={() => {
                 setIsEdit("Add");
                 setSelectedDepartment(null);
@@ -53,7 +53,7 @@ const Departments = () => {
               Add Department
             </button>
             <button
-              className="border border-gray-300 cursor-pointer text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
+              className="border text-sm border-gray-300 cursor-pointer text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
               onClick={openImport}
             >
               <FiDownload />

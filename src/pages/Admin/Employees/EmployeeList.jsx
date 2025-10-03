@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiDownload, FiUsers } from "react-icons/fi";
+import { FiUsers } from "react-icons/fi";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import Select from "react-select";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { format } from "date-fns";
 
 import assets from "../../../assets/assets";
+import Pagination from "../../../components/Pagination";
 
 // Reusable Status Pill
 const StatusPill = ({ enabled }) => (
@@ -31,11 +32,14 @@ const createSelectValue = (id, dataArray, labelKey = "name") => {
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showImportModal, setShowImportModal] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [locations, setLocations] = useState([]);
   const navigate = useNavigate();
+
+  // 🔹 Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPageData, setPerPageData] = useState(10);
 
   useEffect(() => {
     const fetchLookups = async () => {
@@ -61,9 +65,6 @@ const EmployeeList = () => {
     department: "",
     designation: "",
   });
-
-  const openImport = () => setShowImportModal(true);
-  const closeImport = () => setShowImportModal(false);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -96,6 +97,15 @@ const EmployeeList = () => {
     );
   });
 
+  // 🔹 Pagination calculation
+  const totalDataLength = filteredEmployees.length;
+  const totalPages = Math.ceil(totalDataLength / perPageData);
+  const indexOfLast = currentPage * perPageData;
+  const indexOfFirst = indexOfLast - perPageData;
+  const currentEmployees = filteredEmployees.slice(indexOfFirst, indexOfLast);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   const getDepartmentName = (id) =>
     departments.find((d) => d.id === id)?.name || "Deleted";
 
@@ -114,18 +124,11 @@ const EmployeeList = () => {
         {employees.length > 0 && (
           <div className="flex gap-2 items-center">
             <button
-              className="bg-primary hover:bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg font-medium"
+              className="bg-primary text-sm hover:bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg font-medium"
               onClick={() => navigate("/admin-dashboard/employees/add")}
             >
               Add Employee
             </button>
-            {/* <button
-              className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
-              onClick={openImport}
-            >
-              <FiDownload />
-              Import
-            </button> */}
           </div>
         )}
       </div>
@@ -241,105 +244,122 @@ const EmployeeList = () => {
           </div>
 
           {/* Employee Table */}
-          {filteredEmployees.length > 0 ? (
-            <div className="border md:max-w-4xl lg:max-w-5xl border-gray-200 rounded-lg overflow-x-scroll max-h-[65vh]">
-              <table className="text-sm w-full">
-                <thead className="bg-gray-100 text-gray-700 sticky top-0">
-                  <tr className="text-center">
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      EmpCode
-                    </th>
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      EmpName
-                    </th>
-                    <th scope="col" className="px-4 py-2  bg-gray-100">
-                      WorkEmail
-                    </th>
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      Department
-                    </th>
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      Designation
-                    </th>
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      Work Location
-                    </th>
+          {currentEmployees.length > 0 ? (
+            <>
+              <div className="border max-w-xl md:max-w-5xl 2xl:max-w-full overflow-auto border-gray-200 rounded-lg max-h-[60vh]">
+                <table className="text-xs ">
+                  <thead className="bg-gray-100 text-gray-700 sticky top-0">
+                    <tr className="text-center">
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        S.No
+                      </th>
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        EmpCode
+                      </th>
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        EmpName
+                      </th>
+                      <th scope="col" className="px-2 py-2  bg-gray-100">
+                        WorkEmail
+                      </th>
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        Department
+                      </th>
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        Designation
+                      </th>
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        Work Location
+                      </th>
 
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      Gender
-                    </th>
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      Mobile
-                    </th>
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      Joining Date
-                    </th>
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      Director
-                    </th>
-                    <th scope="col" className="px-4 py-2 bg-gray-100">
-                      Portal Access
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredEmployees.map((emp, index) => (
-                    <tr
-                      key={emp.id}
-                      className={`border-b text-center ${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      } hover:bg-gray-100 transition-all`}
-                    >
-                      <td className="px-4 py-2">{emp.employeeCode}</td>
-                      <td className="py-3 px-4 flex items-center gap-3">
-                        <img
-                          src={
-                            emp.profilePic
-                              ? emp.profilePic
-                              : `https://i.pravatar.cc/150?u=${
-                                  emp.id || emp.workEmail
-                                }`
-                          }
-                          alt={emp.fullName}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-
-                        <div className="font-medium text-gray-800">
-                          {emp.fullName}
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-2 truncate">{emp.workEmail}</td>
-                      <td>{getDepartmentName(emp.departmentId)}</td>
-                      <td>{getDesignationTitle(emp.designationId)}</td>
-                      <td>{getLocationName(emp.workLocationId)}</td>
-
-                      <td className="px-4 py-2">{emp.gender}</td>
-                      <td className="px-4 py-2">{emp.mobileNumber}</td>
-                      <td className="px-4 py-2">
-                        {emp.dateOfJoining
-                          ? format(new Date(emp.dateOfJoining), "dd MMM yyyy")
-                          : "N/A"}
-                      </td>
-                      <td className="px-4 py-2">
-                        {emp.isDirector ? (
-                          <span className="text-green-600 font-bold flex items-center gap-1">
-                            <FaCheckCircle /> Yes
-                          </span>
-                        ) : (
-                          <span className="text-gray-500 flex items-center gap-1">
-                            <FaTimesCircle /> No
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-2">
-                        <StatusPill enabled={emp.portalAccessEnabled} />
-                      </td>
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        Gender
+                      </th>
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        Mobile
+                      </th>
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        Joining Date
+                      </th>
+                      {/* <th scope="col" className="px-2 py-2 bg-gray-100">
+                        Director
+                      </th> */}
+                      <th scope="col" className="px-2 py-2 bg-gray-100">
+                        Portal Access
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {currentEmployees.map((emp, index) => (
+                      <tr
+                        key={emp.id}
+                        className={`border-b text-center ${
+                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        } hover:bg-gray-100 transition-all`}
+                      >
+                        <td className="px-2 py-2">{index+1}</td>
+                        <td className="px-2 py-2">{emp.employeeCode}</td>
+                        <td className="py-2 px-2 flex items-center gap-1">
+                          <img
+                            src={
+                              emp.profilePic
+                                ? emp.profilePic
+                                : `https://i.pravatar.cc/150?u=${
+                                    emp.id || emp.workEmail
+                                  }`
+                            }
+                            alt={emp.fullName}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+
+                          <div className="font-medium text-gray-800">
+                            {emp.fullName}
+                          </div>
+                        </td>
+                        <td className="px-2 py-2 truncate">{emp.workEmail}</td>
+                        <td>{getDepartmentName(emp.departmentId)}</td>
+                        <td>{getDesignationTitle(emp.designationId)}</td>
+                        <td>{getLocationName(emp.workLocationId)}</td>
+                        <td className="px-2 py-2">{emp.gender}</td>
+                        <td className="px-2 py-2">{emp.mobileNumber}</td>
+                        <td className="px-2 py-2">
+                          {emp.dateOfJoining
+                            ? format(new Date(emp.dateOfJoining), "dd MMM yyyy")
+                            : "N/A"}
+                        </td>
+                        {/* <td className="px-2 py-2">
+                          {emp.isDirector ? (
+                            <span className="text-green-600 font-bold flex items-center gap-1">
+                              <FaCheckCircle /> Yes
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 flex items-center gap-1">
+                              <FaTimesCircle /> No
+                            </span>
+                          )}
+                        </td> */}
+                        <td className="px-2 py-2">
+                          <StatusPill enabled={emp.portalAccessEnabled} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* 🔹 Pagination Component */}
+              <div className="flex justify-end pr-5">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  paginate={paginate}
+                  perPageData={perPageData}
+                  setPerPageData={setPerPageData}
+                  filteredData={filteredEmployees}
+                  totalDataLength={totalDataLength}
+                />
+              </div>
+            </>
           ) : (
             <p className="text-center text-gray-500 mt-4">
               No employees match the filters.
@@ -360,18 +380,12 @@ const EmployeeList = () => {
             Easily onboard employees and manage payroll, benefits, and
             reimbursements—all in one place.
           </p>
-          <div className="flex gap-4">
+          <div className="flex">
             <button
               className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-lg font-medium transition duration-200"
               onClick={() => navigate("/admin-dashboard/employees/add")}
             >
               Add Employee
-            </button>
-            <button
-              className="border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition duration-200"
-              onClick={openImport}
-            >
-              Import Employees
             </button>
           </div>
         </div>

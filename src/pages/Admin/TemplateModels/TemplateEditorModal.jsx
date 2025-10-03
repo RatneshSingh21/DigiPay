@@ -11,7 +11,7 @@ const TemplateEditorModal = ({
 }) => {
   const [formState, setFormState] = useState({
     showPAN: false,
-    showYTD: true,
+    showYTD: false,
     showBank: true,
     showWorkLocation: false,
     showDepartment: false,
@@ -68,7 +68,7 @@ const TemplateEditorModal = ({
           {/* Toggle Switches */}
           <div className="grid grid-cols-2 gap-3 text-sm">
             {[
-              { label: "Show PAN", field: "showPAN" },
+              { label: "Show UAN", field: "showPAN" },
               { label: "Show YTD", field: "showYTD" },
               { label: "Bank Acc/No", field: "showBank" },
               { label: "Work Location", field: "showWorkLocation" },

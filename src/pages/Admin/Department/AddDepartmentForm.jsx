@@ -9,7 +9,6 @@ const AddDepartmentForm = ({ onClose, isEdit, initialData, onSuccess }) => {
    const user = useAuthStore((state) => state.user);
   const [formData, setFormData] = useState({
     name: "",
-    adminUserId: user?.userId || null,
     description: "",
   });
 
@@ -125,7 +124,6 @@ const AddDepartmentForm = ({ onClose, isEdit, initialData, onSuccess }) => {
               onClick={() =>
                 setFormData({
                   name: "",
-                  adminUserId: null,
                   description: "",
                 })
               }

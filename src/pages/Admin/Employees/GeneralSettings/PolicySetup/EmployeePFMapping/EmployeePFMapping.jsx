@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { Plus, Edit, X } from "lucide-react";
 import axiosInstance from "../../../../../../axiosInstance/axiosInstance";
 import EmployeePFMappingForm from "./EmployeePFMappingForm";
+import { FiEdit } from "react-icons/fi";
 
 const EmployeePFMapping = () => {
   const [mappings, setMappings] = useState([]);
@@ -59,7 +60,7 @@ const EmployeePFMapping = () => {
             setSelectedMapping(null);
             setIsModalOpen(true);
           }}
-          className="bg-primary hover:bg-secondary text-white text-sm px-4 py-2 rounded flex items-center gap-2 font-medium transition"
+          className="bg-primary cursor-pointer hover:bg-secondary text-white text-sm px-4 py-2 rounded flex items-center gap-2 font-medium transition"
         >
           <Plus size={16} /> Add Mapping
         </button>
@@ -67,15 +68,15 @@ const EmployeePFMapping = () => {
 
       {/* Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full text-sm text-center border-collapse">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
-              <th className="p-3 border text-left">Employee</th>
-              <th className="p-3 border text-left">PF Number</th>
-              <th className="p-3 border text-left">PF Setting Id</th>
-              <th className="p-3 border text-left">Override %</th>
-              <th className="p-3 border text-left">Override Fixed</th>
-              <th className="p-3 border text-center">Actions</th>
+              <th className="px-3 py-2 border">Employee</th>
+              <th className="px-3 py-2 border">PF Number</th>
+              <th className="px-3 py-2 border">PF Setting Id</th>
+              <th className="px-3 py-2 border">Override %</th>
+              <th className="px-3 py-2 border">Override Fixed</th>
+              <th className="px-3 py-2 border">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -85,22 +86,27 @@ const EmployeePFMapping = () => {
                   key={m.pfEmployeeMappingId}
                   className="hover:bg-gray-50 transition"
                 >
-                  <td className="p-3 border">
+                  <td className="px-3 py-2 border">
                     {employeeMap[m.employeeId] || `ID: ${m.employeeId}`}
                   </td>
-                  <td className="p-3 border">{m.pfNumber}</td>
-                  <td className="p-3 border">{m.pfSettingsId}</td>
-                  <td className="p-3 border">{m.overridePercentage || "-"}</td>
-                  <td className="p-3 border">{m.overrideFixedAmount || "-"}</td>
-                  <td className="p-3 border text-center">
+                  <td className="px-3 py-2 border">{m.pfNumber}</td>
+                  <td className="px-3 py-2 border">{m.pfSettingsId}</td>
+                  <td className="px-3 py-2 border">
+                    {m.overridePercentage || "-"}
+                  </td>
+                  <td className="px-3 py-2 border">
+                    {m.overrideFixedAmount || "-"}
+                  </td>
+                  <td className="px-3 py-2 border text-center">
                     <button
-                      className="text-blue-600 hover:text-blue-800 flex items-center gap-1 font-medium transition"
+                      className="inline-flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
                       onClick={() => {
                         setSelectedMapping(m);
                         setIsModalOpen(true);
                       }}
                     >
-                      <Edit size={16} /> Edit
+                      <FiEdit size={14} />
+                      <span>Edit</span>
                     </button>
                   </td>
                 </tr>
@@ -130,7 +136,7 @@ const EmployeePFMapping = () => {
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-800 transition"
+                className="text-gray-500 cursor-pointer hover:text-red-600 transition"
               >
                 <X size={20} />
               </button>

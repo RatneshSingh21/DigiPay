@@ -20,7 +20,7 @@ const RoleApproval = () => {
   const [roleAssignment, setRoleAssignment] = useState({
     ruleId: "",
     roleId: "",
-    sequenceOrder: 1,
+    sequenceOrder: "",
   });
 
   // Modal states
@@ -77,8 +77,8 @@ const RoleApproval = () => {
       setFormData({ requestType: "", allowCustomApprover: false });
       setIsRuleModalOpen(false);
       fetchRules();
-    } catch {
-      toast.error("Failed to create rule");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to create rule");
     }
   };
 
@@ -88,14 +88,36 @@ const RoleApproval = () => {
       toast.error("Please select a rule and a role");
       return;
     }
+
+    // Frontend validation: prevent duplicate sequence for same rule
+    const existingRoleForSequence = ruleRoles.find(
+      (r) =>
+        r.ruleId === roleAssignment.ruleId &&
+        r.sequenceOrder === roleAssignment.sequenceOrder
+    );
+
+    if (existingRoleForSequence) {
+      toast.error(
+        `Sequence order ${roleAssignment.sequenceOrder} is already used for this rule`
+      );
+      return;
+    }
+
     try {
-      await axiosInstance.post("/ApprovalRuleRole", roleAssignment);
+      await axiosInstance.post("/ApprovalRuleRole", {
+        ruleId: roleAssignment.ruleId,
+        roleId: roleAssignment.roleId,
+        sequenceOrder: roleAssignment.sequenceOrder,
+      });
+
       toast.success("Role assigned successfully");
-      setRoleAssignment({ ruleId: "", roleId: "", sequenceOrder: 1 });
+
+      // reset form
+      setRoleAssignment({ ruleId: "", roleId: "", sequenceOrder: "" });
       setIsRoleModalOpen(false);
       fetchRuleRoles();
-    } catch {
-      toast.error("Failed to assign role");
+    } catch(error) {
+      toast.error(error?.response?.data?.message || "Failed to assign role");
     }
   };
 

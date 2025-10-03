@@ -93,7 +93,7 @@ const SignUpForm = ({ switchToSignIn }) => {
       <button
         type="button"
         onClick={() => navigate(-1)}
-        className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
+        className="flex items-center cursor-pointer text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
       >
         <svg
           className="w-4 h-4 mr-1"
@@ -120,7 +120,7 @@ const SignUpForm = ({ switchToSignIn }) => {
         <button
           type="button"
           onClick={switchToSignIn}
-          className="text-orange-500 font-medium hover:underline transition"
+          className="text-orange-500 cursor-pointer font-medium hover:underline transition"
         >
           Login
         </button>
@@ -185,7 +185,7 @@ const SignUpForm = ({ switchToSignIn }) => {
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-3 top-9 text-gray-500 hover:text-orange-500"
+          className="absolute cursor-pointer right-3 top-9 text-gray-500 hover:text-orange-500"
         >
           {showPassword ? <FaEyeSlash /> : <FaEye />}
         </button>
@@ -213,7 +213,7 @@ const SignUpForm = ({ switchToSignIn }) => {
       {/* Google */}
       {/* <button
         type="button"
-        className="w-full flex items-center justify-center border border-gray-300 text-sm py-2.5 rounded-lg hover:bg-gray-50 transition-all font-medium text-gray-700"
+        className="w-full flex items-center cursor-pointer justify-center border border-gray-300 text-sm py-2.5 rounded-lg hover:bg-gray-50 transition-all font-medium text-gray-700"
       >
         <img src={assets.Google} alt="Google" className="w-5 h-5 mr-2" />
         Continue with Google

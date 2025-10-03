@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import EmployeeUpdates from "./EmployeeUpdates/EmployeeUpdates";
-import PolicySetup from "./PolicySetup/PolicySetup";
-import OvertimeSetup from "./OvertimeSetup/OvertimeSetup";
-import ComplianceRules from "./ComplianceRules/ComplianceRules";
 import EmployeePFMapping from "./PolicySetup/EmployeePFMapping/EmployeePFMapping";
+import EmployeeESIDetails from "./PolicySetup/EmployeeESIMapping/EmployeeESIDetails";
 
 const tabs = [
   { id: "employee", label: "Employee Updates" },
   { id: "pf", label: "PF Settings" },
-  { id: "overtime", label: "Overtime Setup" },
-  { id: "compliance", label: "Compliance" },
+  { id: "esi", label: "ESI Setup" },
+  // { id: "compliance", label: "Compliance" },
 ];
 
 const GeneralSettings = () => {
@@ -38,7 +36,7 @@ const GeneralSettings = () => {
       <div className="mt-4">
         {activeTab === "employee" && <EmployeeUpdates />}
         {activeTab === "pf" && <EmployeePFMapping />}
-        {activeTab === "overtime" && <OvertimeSetup />}
+        {activeTab === "esi" && <EmployeeESIDetails />}
         {activeTab === "compliance" && <ComplianceRules />}
       </div>
     </div>

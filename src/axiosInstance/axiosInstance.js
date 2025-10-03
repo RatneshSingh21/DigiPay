@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 // Create base Axios instance
 //baseURL: "https://marigoldapi.digicodesoftware.com/api",
 //baseURL: "https://digipaydevops.digicodesoftware.com/api",
+//baseURL: "https://digipaystaggingapi.digicodesoftware.com/api",
 
 const axiosInstance = axios.create({
   baseURL: "https://digipaystaggingapi.digicodesoftware.com/api",
@@ -21,6 +22,7 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
+    
   },
   (error) => Promise.reject(error)
 );
@@ -70,8 +72,8 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await axios.post(
-          "https://digipaydevops.digicodesoftware.com/api/user-auth/refresh-token",
+        const res = await axiosInstance.post(
+          `/user-auth/refresh-token`,
           { refreshToken }
         );
 

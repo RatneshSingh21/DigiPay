@@ -90,10 +90,10 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
       onSuccess();
       onClose();
     } catch (err) {
-      console.error(err);
-      setError("Failed to submit request. Please try again.");
+      console.error(err?.response?.data.error);
+      setError(err?.response?.data.error || "Failed to submit request. Please try again.");
     } finally {
-      setLoading(false);
+      setLoading(false);a
     }
   };
 
@@ -163,22 +163,6 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
               value={formData.reason}
               onChange={handleChange}
               required
-            />
-          </div>
-
-          {/* Status Select */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <Select
-              options={statuses}
-              value={
-                statuses.find((s) => s.value === formData.statusId) || null
-              }
-              onChange={handleStatusChange}
-              placeholder="Select status"
-              className="text-sm sm:text-base"
             />
           </div>
 

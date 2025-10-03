@@ -184,7 +184,7 @@ const VerifyOtp = () => {
           ) : (
             <button
               onClick={handleResend}
-              className="text-orange-500 font-medium hover:underline"
+              className="text-orange-500 cursor-pointer font-medium hover:underline"
             >
               Resend
             </button>
@@ -194,7 +194,7 @@ const VerifyOtp = () => {
         <button
           onClick={handleVerify}
           disabled={loading}
-          className={`w-full py-2 rounded-full text-white font-medium shadow-md flex justify-center items-center ${
+          className={`w-full py-2 cursor-pointer rounded-full text-white font-medium shadow-md flex justify-center items-center ${
             loading
               ? "bg-orange-300 cursor-not-allowed"
               : "bg-orange-500 hover:bg-orange-600"

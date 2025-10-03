@@ -52,7 +52,7 @@ const SendLoginOtp = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
+            className="flex items-center cursor-pointer text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
           >
             <svg
               className="w-4 h-4 mr-1"
@@ -70,11 +70,21 @@ const SendLoginOtp = () => {
             Back
           </button>
           <div className="flex justify-center mb-4">
-            <img
+            <video
+              src={assets.LoginWithOtp}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="h-32 mx-auto"
+            >
+              Your browser does not support the video tag.
+            </video>
+            {/* <img
               src={assets.OtpLogin}
               alt="Illustration"
               className="h-32 mx-auto"
-            />
+            /> */}
           </div>
 
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">
@@ -100,7 +110,7 @@ const SendLoginOtp = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center py-2 rounded-full bg-orange-500 text-white font-semibold hover:bg-orange-600 transition disabled:opacity-50"
+              className="w-full flex items-center cursor-pointer justify-center py-2 rounded-full bg-orange-500 text-white font-semibold hover:bg-orange-600 transition disabled:opacity-50"
             >
               {loading ? <Spinner /> : "Send OTP"}
             </button>

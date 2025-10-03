@@ -63,7 +63,7 @@ const ComplianceDetails = () => {
         {compliance.length >= 0 && (
           <div className="flex gap-2 items-center">
             <button
-              className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium cursor-pointer"
+              className="bg-primary text-sm hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium cursor-pointer"
               onClick={() => {
                 setIsEdit("Add");
                 setSelectedCompliance(null);

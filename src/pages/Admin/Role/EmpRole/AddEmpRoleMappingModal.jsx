@@ -68,7 +68,7 @@ const AddEmpRoleMappingModal = ({ onClose, onSuccess }) => {
       onClose(); // Close modal
     } catch (error) {
       console.error("Error adding role mapping:", error);
-      toast.error("Failed to add role mapping.");
+      toast.error(error?.response?.data?.message ||"Failed to add role mapping.");
     } finally {
       setLoading(false);
     }

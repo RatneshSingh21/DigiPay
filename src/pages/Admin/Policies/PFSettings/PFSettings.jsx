@@ -14,6 +14,8 @@ const PFSettings = () => {
   const fetchSettings = async () => {
     try {
       const res = await axiosInstance.get("/PFSettings");
+      console.log(res.data);
+
       setSettings(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -39,7 +41,7 @@ const PFSettings = () => {
             setEditData(null);
             setIsFormOpen(true);
           }}
-          className="bg-primary cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded flex items-center"
+          className="bg-primary text-sm cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded flex items-center"
         >
           <Plus className="mr-2" size={16} /> Add PF Setting
         </button>
@@ -95,7 +97,7 @@ const PFSettings = () => {
 
               {/* Tabs */}
               <div className="flex border-b mb-3 text-sm font-medium">
-                {["overview", "advanced", "meta"].map((tab) => (
+                {["overview", "advanced"].map((tab) => (
                   <button
                     key={tab}
                     className={`px-3 py-1 cursor-pointer ${
@@ -142,10 +144,13 @@ const PFSettings = () => {
                         ? `₹${s.employerShare}`
                         : `${s.employerShare}%`}
                     </p>
-
                     <p>
                       <span className="font-medium">Applies On:</span>{" "}
                       {s.appliesOn}
+                    </p>
+                    <p>
+                      <span className="font-medium">Wage Limit:</span> ₹
+                      {s.wageLimit?.toLocaleString() || "-"}
                     </p>
                   </>
                 )}
@@ -158,11 +163,6 @@ const PFSettings = () => {
                         {s.customFormula || "-"}
                       </p>
                     )}
-
-                    <p>
-                      <span className="font-medium">Wage Limit:</span> ₹
-                      {s.wageLimit?.toLocaleString() || "-"}
-                    </p>
                     <p>
                       <span className="font-medium">
                         Restricted to Wage Limit:
@@ -178,29 +178,12 @@ const PFSettings = () => {
                       {s.roundingMethod || "—"}
                     </p>
                     <p>
-                      <span className="font-medium">
-                        Applies On Components:
-                      </span>{" "}
-                      {s.appliesOnComponents?.length > 0
-                        ? s.appliesOnComponents.join(", ")
-                        : "—"}
-                    </p>
-                  </>
-                )}
-
-                {activeTab === "meta" && (
-                  <>
-                    <p>
                       <span className="font-medium">Effective From:</span>{" "}
                       {new Date(s.effectiveFrom).toLocaleDateString("en-GB")}
                     </p>
                     <p>
                       <span className="font-medium">Effective To:</span>{" "}
                       {new Date(s.effectiveTo).toLocaleDateString("en-GB")}
-                    </p>
-                    <p>
-                      <span className="font-medium">Created By:</span>{" "}
-                      {s.createdBy || "—"}
                     </p>
                     <p>
                       <span className="font-medium">Created At:</span>{" "}

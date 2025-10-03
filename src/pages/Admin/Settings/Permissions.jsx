@@ -14,39 +14,49 @@ const Permissions = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // modal state
-  const { user } = useAuthStore();
+
+  const { companyId } = useAuthStore();
+
+  
 
   const isDisabled = !selectedEmployee || saving;
 
-  // Fetch employees
-  const fetchEmployees = async (userId) => {
-    try {
-      setLoading(true);
-      const res = await axiosInstance.get(`/user-auth/User-Employee/${userId}`);
-      const { userId: uId, userName, employees } = res.data;
+  // Fetch admins and employees separately
+const fetchEmployees = async (companyId) => {
+  try {
+    setLoading(true);
 
-      const adminOption = {
-        value: uId,
-        label: `${userName} (Admin)`,
-        type: "admin",
-      };
+    // 1. Fetch Admins
+    const adminRes = await axiosInstance.get("/user-auth/all");
+    const adminOptions = adminRes.data.map((admin) => ({
+      value: admin.userId,
+      label: `${admin.name} (${admin.role})`,
+      type: "admin",
+    }));
 
-      const empOptions = employees.map((emp) => ({
-        value: emp.employeeId,
-        label: `${emp.employeeName} (${emp.employeeCode})`,
+    // 2. Fetch Employees by companyId
+    const empRes = await axiosInstance.get(
+      `/user-auth/getEmployee/companyId/${companyId}`
+    );
+    const empOptions =
+      empRes.data?.data?.map((emp) => ({
+        value: emp.id,
+        label: `${emp.fullName} (${emp.employeeCode})`,
         type: "employee",
-      }));
+      })) || [];
 
-      setEmployees([
-        { label: "Admin", options: [adminOption] },
-        { label: "Employees", options: empOptions },
-      ]);
-    } catch (err) {
-      toast.error("Failed to load employees");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // 3. Set grouped options
+    setEmployees([
+      { label: "Admins", options: adminOptions },
+      { label: "Employees", options: empOptions },
+    ]);
+  } catch (err) {
+    toast.error("Failed to load users");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // fetch modules from API
   const fetchModules = async () => {
@@ -64,9 +74,11 @@ const Permissions = () => {
   };
 
   useEffect(() => {
-    fetchEmployees(user.userId);
+  if (companyId) {
+    fetchEmployees(companyId);
     fetchModules();
-  }, []);
+  }
+}, [companyId]);
 
   const fetchPermissions = async (employeeId) => {
     try {
@@ -144,7 +156,7 @@ const Permissions = () => {
         <div className="flex gap-2 items-center">
           <button
             onClick={() => setIsModalOpen(true)} //open modal
-            className="bg-primary cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
+            className="bg-primary text-sm cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
           >
             Add Module
           </button>

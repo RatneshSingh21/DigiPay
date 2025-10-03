@@ -21,7 +21,10 @@ const SalaryConfig = () => {
       });
       setComponentConfigs(res.data?.data || []);
     } catch (err) {
-      console.error("Error fetching configs", err);
+      console.error(
+        err?.response?.data?.message || "Error fetching configs",
+        err
+      );
     }
   };
 
@@ -66,7 +69,7 @@ const SalaryConfig = () => {
               <th className="px-4 py-2">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="capitalize">
             {componentConfigs.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center p-4">

@@ -85,7 +85,7 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
         {/* Close Button */}
         <button
           type="button"
-          className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-2xl font-bold"
+          className="absolute cursor-pointer top-4 right-4 text-gray-500 hover:text-red-500 text-2xl font-bold"
           onClick={onClose}
         >
           &times;
@@ -208,7 +208,7 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-2 px-4 rounded-lg shadow text-white transition ${
+              className={`w-full cursor-pointer py-2 px-4 rounded-lg shadow text-white transition ${
                 loading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-primary hover:bg-secondary"

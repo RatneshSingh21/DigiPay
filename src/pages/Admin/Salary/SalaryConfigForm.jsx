@@ -98,7 +98,7 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
       resetForm();
       fetchConfigs();
     } catch (err) {
-      console.error("Error saving config", err);
+      console.error(err?.response?.data?.message || "Error saving config", err);
       toast.error("Error saving component.");
     }
   };

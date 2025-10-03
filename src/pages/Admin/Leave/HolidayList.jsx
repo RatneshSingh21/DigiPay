@@ -21,17 +21,21 @@ const HolidayList = () => {
   };
 
   const fetchHolidays = async () => {
-    try {
-      setLoading(true);
-      const res = await axiosInstance.get("/HolidayListMaster/get-all");
-      setHolidays(res.data || []);
-    } catch (err) {
-      toast.error("Failed to fetch holiday list!");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const res = await axiosInstance.get("/HolidayListMaster/get-all");
+    const sortedHolidays = (res.data || []).sort(
+      (a, b) => new Date(a.holidayDate) - new Date(b.holidayDate)
+    );
+    setHolidays(sortedHolidays);
+  } catch (err) {
+    toast.error("Failed to fetch holiday list!");
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleDelete = async (id) => {
     try {

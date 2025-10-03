@@ -17,16 +17,20 @@ import { useAddEmployeeStore } from "../../../../store/useAddEmployeeStore";
 const steps = [
   { label: "Basic Detail", icon: FaUser, component: BasicDetails },
   { label: "Salary Details", icon: FaMoneyCheckAlt, component: SalaryDetails },
-  { label: "Personal Details", icon: FaAddressCard, component: PersonalDetails },
+  {
+    label: "Personal Details",
+    icon: FaAddressCard,
+    component: PersonalDetails,
+  },
   { label: "Payment Info", icon: FaCreditCard, component: PaymentInfo },
   { label: "Preview", icon: FaEye, component: PreviewPage },
 ];
 
 const StepTabs = () => {
   const { currentStep, setCurrentStep } = useAddEmployeeStore();
-   // Prevent index out of range
+  // Prevent index out of range
   const safeStepIndex = Math.min(Math.max(currentStep, 0), steps.length - 1);
-const CurrentComponent = steps[safeStepIndex]?.component || (() => null);
+  const CurrentComponent = steps[safeStepIndex]?.component || (() => null);
 
   return (
     <div>
@@ -56,9 +60,7 @@ const CurrentComponent = steps[safeStepIndex]?.component || (() => null);
                 </div>
                 <span
                   className={`mt-2 text-xs sm:text-sm font-medium ${
-                    isActive
-                      ? "text-blue-600"
-                      : "text-gray-500"
+                    isActive ? "text-blue-600" : "text-gray-500"
                   }`}
                 >
                   {step.label}

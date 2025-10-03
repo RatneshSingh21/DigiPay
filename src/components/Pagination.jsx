@@ -34,7 +34,7 @@ const Pagination = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 gap-4">
+    <div className="flex flex-col md:flex-row justify-between items-center mt-2 mb-2 gap-4">
       {/* Showing X to Y of Z entries */}
       <div className="text-gray-600 dark:text-surface text-sm font-medium">
         Showing{" "}

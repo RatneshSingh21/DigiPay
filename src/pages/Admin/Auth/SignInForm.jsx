@@ -67,7 +67,7 @@ export default function SignInForm({ switchToSignUp }) {
       <button
         type="button"
         onClick={() => navigate(-1)}
-        className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
+        className="flex items-center cursor-pointer text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-5 px-3 py-1"
       >
         <svg
           className="w-4 h-4 mr-1"
@@ -96,7 +96,7 @@ export default function SignInForm({ switchToSignUp }) {
         <button
           onClick={switchToSignUp}
           type="button"
-          className="text-orange-500 font-semibold hover:underline"
+          className="text-orange-500 cursor-pointer font-semibold hover:underline"
         >
           Sign Up
         </button>
@@ -136,7 +136,7 @@ export default function SignInForm({ switchToSignUp }) {
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-3 top-9 text-gray-500 hover:text-orange-500"
+          className="absolute cursor-pointer right-3 top-9 text-gray-500 hover:text-orange-500"
         >
           {showPassword ? <FaEyeSlash /> : <FaEye />}
         </button>
@@ -159,14 +159,14 @@ export default function SignInForm({ switchToSignUp }) {
       <div className="flex justify-between text-xs text-orange-500 font-semibold mt-3">
         <button
           type="button"
-          className="hover:underline"
+          className="hover:underline cursor-pointer"
           onClick={() => navigate("/login-otp")}
         >
           Login with OTP
         </button>
         <button
           type="button"
-          className="hover:underline"
+          className="hover:underline cursor-pointer"
           onClick={() => navigate("/forget-password")}
         >
           Forgot Password?
@@ -183,7 +183,7 @@ export default function SignInForm({ switchToSignUp }) {
       {/* Google Login */}
       {/* <button
         type="button"
-        className="w-full flex items-center justify-center gap-2 border text-sm py-2 rounded hover:bg-gray-50 transition-all"
+        className="w-full flex items-center cursor-pointer justify-center gap-2 border text-sm py-2 rounded hover:bg-gray-50 transition-all"
       >
         <img src={assets.Google} alt="Google" className="w-6 h-6" />
         Continue with Google

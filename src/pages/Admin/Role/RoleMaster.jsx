@@ -46,8 +46,8 @@ const RoleMaster = () => {
       toast.success("Role added successfully!");
       setFormData({ roleName: "", description: "" });
       fetchRoles();
-    } catch {
-      toast.error("Error adding role.");
+    } catch(error) {
+      toast.error(error?.response?.data?.message || "Error adding role.");
     } finally {
       setSubmitting(false);
     }

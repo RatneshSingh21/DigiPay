@@ -28,6 +28,13 @@ const AddModule = ({ isOpen, onClose, onSuccess }) => {
       };
       await axiosInstance.post("/ModuleMaster", payload);
       toast.success("Module added successfully!");
+
+      setformdata({
+        moduleName: "",
+        description: "",
+        isActive: true,
+      });
+
       onSuccess?.(); // refresh list if needed
       onClose();
     } catch (error) {

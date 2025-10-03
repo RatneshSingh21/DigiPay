@@ -12,184 +12,139 @@ const PreviewPage = () => {
     resetStore,
   } = useAddEmployeeStore();
   const navigate = useNavigate();
+
   useEffect(() => {
     console.log("Payment Details:", paymentInfo);
   }, [paymentInfo]);
 
   const renderValue = (val) => {
     if (val === undefined || val === null || val === "") return "—";
-    if (typeof val === "object" && val.label) return val.label; // nested object
+    if (typeof val === "object" && val.label) return val.label;
     if (typeof val === "string" && val.match(/^\d{4}-\d{2}-\d{2}T/)) {
-      // date string
-      return val.split("T")[0];
+      return val.split("T")[0]; // date formatting
     }
     return val;
   };
 
   const handleFinish = () => {
-    // reset the store
     resetStore();
-
-    // show toast
     toast.success("Employee added successfully");
-
-    // navigate after small delay to let toast appear
     setTimeout(() => {
       navigate("/admin-dashboard/employees/list");
     }, 500);
   };
 
+  const Section = ({ title, children }) => (
+    <div className="bg-white rounded-2xl border shadow-sm p-5">
+      <h3 className="text-lg font-semibold text-primary border-b pb-2 mb-3">
+        {title}
+      </h3>
+      <div className="divide-y text-sm">{children}</div>
+    </div>
+  );
+
+  const Row = ({ label, value }) => (
+    <div className="flex py-2">
+      <span className="w-48 font-medium text-gray-600">{label} :</span>
+      <span className="flex-1 text-gray-800">{renderValue(value)}</span>
+    </div>
+  );
+
   return (
-    <div className="p-2 md:px-8 bg-white min-h-screen">
-      <h2 className="text-2xl font-bold text-gray-800 border-b border-blue-300 pb-2 mb-3">
-        Preview Details
-      </h2>
+    <div className="p-3 md:px-8 bg-gray-50 min-h-screen space-y-6">
+      {/* Profile Header */}
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-200 text-white rounded-2xl p-6 shadow">
+        <h2 className="text-2xl font-bold">
+          {renderValue(
+            `${basicDetails.firstName || ""} ${basicDetails.middleName || ""} ${
+              basicDetails.lastName || ""
+            }`
+          )}
+        </h2>
+        <p className="text-sm opacity-90">
+          Designation : {renderValue(basicDetails.designation)} <br />
+          Department : {renderValue(basicDetails.department)}
+        </p>
+        <p className="text-sm">
+          Employee Code: {renderValue(basicDetails.employeeId)}
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Basic Details */}
-        <div className="bg-white rounded-2xl shadow p-5 space-y-2 border">
-          <h3 className="text-lg font-semibold text-blue-700 border-b pb-2">
-            Basic Details
-          </h3>
-          <p>
-            <strong>Employee Code:</strong>{" "}
-            {renderValue(basicDetails.employeeId)}
-          </p>
-          <p>
-            <strong>Full Name:</strong>{" "}
-            {renderValue(
-              `${basicDetails.firstName || ""} ${
-                basicDetails.middleName || ""
-              } ${basicDetails.lastName || ""}`
-            )}
-          </p>
-          <p>
-            <strong>Email:</strong> {renderValue(basicDetails.workEmail)}
-          </p>
-          <p>
-            <strong>Mobile:</strong> {renderValue(basicDetails.mobileNumber)}
-          </p>
-          <p>
-            <strong>Gender:</strong> {renderValue(basicDetails.gender)}
-          </p>
-          <p>
-            <strong>Department:</strong> {renderValue(basicDetails.department)}
-          </p>
-          <p>
-            <strong>Designation:</strong>{" "}
-            {renderValue(basicDetails.designation)}
-          </p>
-          <p>
-            <strong>Work Location:</strong>{" "}
-            {renderValue(basicDetails.workLocation)}
-          </p>
-          <p>
-            <strong>Pay Schedule:</strong>{" "}
-            {renderValue(basicDetails.payschedule)}
-          </p>
-          <p>
-            <strong>Date of Joining:</strong>{" "}
-            {renderValue(basicDetails.dateOfJoining)}
-          </p>
-        </div>
+        <Section title="Basic Details">
+          <Row label="Email" value={basicDetails.workEmail} />
+          <Row label="Mobile" value={basicDetails.mobileNumber} />
+          <Row label="Gender" value={basicDetails.gender} />
+          <Row label="Work Location" value={basicDetails.workLocation} />
+          <Row label="Pay Schedule" value={basicDetails.payschedule} />
+          <Row label="Date of Joining" value={basicDetails.dateOfJoining} />
+        </Section>
 
         {/* Salary Details */}
-        <div className="bg-white rounded-2xl shadow p-5 space-y-2 border">
-          <h3 className="text-lg font-semibold text-blue-700 border-b pb-2">
-            Salary Details
-          </h3>
-          <p>
-            <strong>Basic Salary:</strong> ₹
-            {renderValue(salaryDetails.basicSalary)}
-          </p>
-          <p>
-            <strong>HRA:</strong> ₹{renderValue(salaryDetails.hra)}
-          </p>
-          <p>
-            <strong>Bonus:</strong> ₹{renderValue(salaryDetails.bonus)}
-          </p>
-          <p>
-            <strong>Fixed Allowance:</strong> ₹
-            {renderValue(salaryDetails.fixedAllowance)}
-          </p>
-          <p>
-            <strong>PF:</strong> ₹{renderValue(salaryDetails.pfEmployee)}
-          </p>
-          <p>
-            <strong>TDS:</strong> ₹{renderValue(salaryDetails.tds)}
-          </p>
-          <p>
-            <strong>Other Deductions:</strong> ₹
-            {renderValue(salaryDetails.otherDeductions)}
-          </p>
-        </div>
+        <Section title="Salary Details">
+          <Row label="Basic Salary" value={`₹${salaryDetails.basicSalary}`} />
+          <Row label="HRA" value={`₹${salaryDetails.hra}`} />
+          <Row label="Bonus" value={`₹${salaryDetails.bonus}`} />
+          <Row
+            label="Fixed Allowance"
+            value={`₹${salaryDetails.fixedAllowance}`}
+          />
+          <Row label="PF" value={`₹${salaryDetails.pfEmployee}`} />
+          <Row label="TDS" value={`₹${salaryDetails.tds}`} />
+          <Row
+            label="Other Deductions"
+            value={`₹${salaryDetails.otherDeductions}`}
+          />
+        </Section>
 
         {/* Personal Details */}
-        <div className="bg-white rounded-2xl shadow p-5 space-y-2 border">
-          <h3 className="text-lg font-semibold text-blue-700 border-b pb-2">
-            Personal Details
-          </h3>
-          {Object.entries(personalDetails).map(([key, val]) => (
-            <p key={key} className="capitalize">
-              <strong>{key.replace(/([A-Z])/g, " $1")}: </strong>
-              {renderValue(val)}
-            </p>
-          ))}
-        </div>
+        <Section title="Personal Details">
+          {Object.entries(personalDetails).map(([key, val]) => {
+            const label = key
+              .replace(/([A-Z])/g, " $1") // split camelCase
+              .replace(/^./, (c) => c.toUpperCase()); // capitalize first letter
+            return <Row key={key} label={label} value={val} />;
+          })}
+        </Section>
 
         {/* Payment Info */}
-        <div className="bg-white rounded-2xl shadow p-5 space-y-2 border">
-          <h3 className="text-lg font-semibold text-blue-700 border-b pb-2">
-            Payment Info
-          </h3>
+        <Section title="Payment Info">
           {paymentInfo?.data ? (
             <>
-              <p>
-                <strong>Account Holder Name:</strong>{" "}
-                {renderValue(paymentInfo.data.accountHolderName)}
-              </p>
-              <p>
-                <strong>Bank Name:</strong>{" "}
-                {renderValue(paymentInfo.data.bankName)}
-              </p>
-              <p>
-                <strong>Branch Name:</strong>{" "}
-                {renderValue(paymentInfo.data.branchName)}
-              </p>
-              <p>
-                <strong>Branch Address:</strong>{" "}
-                {renderValue(paymentInfo.data.branchAddress)}
-              </p>
-              <p>
-                <strong>Account Number:</strong>{" "}
-                {renderValue(paymentInfo.data.accountNumber)}
-              </p>
-              <p>
-                <strong>Account Type:</strong>{" "}
-                {renderValue(paymentInfo.data.accountType)}
-              </p>
-              <p>
-                <strong>IFSC Code:</strong>{" "}
-                {renderValue(paymentInfo.data.ifscCode)}
-              </p>
-              <p>
-                <strong>Payment Mode:</strong>{" "}
-                {renderValue(paymentInfo.data.paymnetMode)}
-              </p>
+              <Row
+                label="Account Holder Name"
+                value={paymentInfo.data.accountHolderName}
+              />
+              <Row label="Bank Name" value={paymentInfo.data.bankName} />
+              <Row label="Branch Name" value={paymentInfo.data.branchName} />
+              <Row
+                label="Branch Address"
+                value={paymentInfo.data.branchAddress}
+              />
+              <Row
+                label="Account Number"
+                value={paymentInfo.data.accountNumber}
+              />
+              <Row label="Account Type" value={paymentInfo.data.accountType} />
+              <Row label="IFSC Code" value={paymentInfo.data.ifscCode} />
+              <Row label="Payment Mode" value={paymentInfo.data.paymentMode} />
             </>
           ) : (
-            <p className="text-gray-500 italic">No payment info available</p>
+            <p className="text-gray-500 italic py-2">
+              No payment info available
+            </p>
           )}
-        </div>
+        </Section>
       </div>
 
       {/* Buttons */}
-      <div className=" flex justify-end">
+      <div className="flex justify-center">
         <button
           onClick={handleFinish}
-          className="px-4 py-2 bg-primary cursor-pointer text-white mt-2 mr-2 rounded-full hover:bg-secondary transition"
+          className="px-6 py-2 bg-primary text-white rounded-full shadow-md hover:bg-secondary transition"
         >
-          Finish
+          Finish & Save
         </button>
       </div>
     </div>

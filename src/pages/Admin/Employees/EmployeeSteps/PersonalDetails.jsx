@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Select from "react-select";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
@@ -74,9 +74,10 @@ const PersonalDetails = () => {
     totalSteps,
     basicDetails,
   } = useAddEmployeeStore();
+
   const [form, setForm] = useState(personalDetails || {});
-  const [isEdit, setIsEdit] = useState(false);
-  const [loading, setLoading] = useState(false); // loading state
+  const [isEdit, setIsEdit] = useState(!!personalDetails && personalDetails.employeeId); // edit if store already has data
+  const [loading, setLoading] = useState(false);
 
   if (!basicDetails) return null;
 
@@ -86,24 +87,6 @@ const PersonalDetails = () => {
   const employeeCode = basicDetails.employeeId || "N/A";
   const email = basicDetails.workEmail || "N/A";
   const departmentName = basicDetails.department?.label || "N/A";
-
-  useEffect(() => {
-    if (employeeId) {
-      setLoading(true);
-      axiosInstance
-        .get(`/PersonalDetails/${employeeId}`)
-        .then((res) => {
-          if (res.data) {
-            setForm(res.data);
-            setIsEdit(true);
-          }
-        })
-        .catch((err) => {
-          console.error("Error fetching personal details:", err);
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [employeeId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -125,7 +108,7 @@ const PersonalDetails = () => {
       setLoading(true);
       let response;
       if (isEdit) {
-        response = await axiosInstance.put(`/PersonalDetails/${employeeId}`, {
+        response = await axiosInstance.put(`/PersonalDetails/update`, {
           employeeId,
           ...form,
         });
@@ -136,13 +119,13 @@ const PersonalDetails = () => {
           ...form,
         });
         toast.success("Personal details added successfully!");
-        // setIsEdit(true); // switch to edit after creation
+        setIsEdit(true); // switch to edit mode after creation
       }
 
       // Update store
       setStepData("personalDetails", response.data);
 
-      // Move to next step reactively
+      // Move to next step
       setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
     } catch (error) {
       console.error("Error saving personal details:", error);
@@ -156,6 +139,7 @@ const PersonalDetails = () => {
 
   return (
     <>
+      {/* Employee summary */}
       <div className="p-4 bg-white rounded-xl shadow mb-4">
         <h2 className="text-lg font-semibold text-green-600 mb-2">
           Employee Summary :
@@ -176,6 +160,7 @@ const PersonalDetails = () => {
         </div>
       </div>
 
+      {/* Form */}
       <form
         onSubmit={handleSubmit}
         className="px-12 py-4 bg-white rounded-xl shadow space-y-4"
@@ -223,7 +208,7 @@ const PersonalDetails = () => {
               onChange={handleChange}
               placeholder="ABCDE1234F"
               maxLength={10}
-              className="w-full px-4 py-2 uppercase border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -252,7 +237,7 @@ const PersonalDetails = () => {
                   (opt) => opt.value === form.differentlyAbledType
                 ) || null
               }
-              onChange={(selectedOption, actionMeta) =>
+              onChange={(selectedOption) =>
                 handleSelectChange(selectedOption, {
                   name: "differentlyAbledType",
                 })
@@ -264,16 +249,41 @@ const PersonalDetails = () => {
             />
           </div>
 
-          {/* Pincode */}
+          {/* Address Line 1 */}
           <div>
-            <label className="block text-sm font-medium">Pin Code</label>
+            <label className="block text-sm font-medium">Address Line 1</label>
             <input
               type="text"
-              name="pinCode"
-              value={form.pinCode || ""}
+              name="addressLine1"
+              value={form.addressLine1 || ""}
               onChange={handleChange}
-              placeholder="110001"
-              maxLength={6}
+              placeholder="House No, Street"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          {/* Address Line 2 */}
+          <div>
+            <label className="block text-sm font-medium">Address Line 2</label>
+            <input
+              type="text"
+              name="addressLine2"
+              value={form.addressLine2 || ""}
+              onChange={handleChange}
+              placeholder="Locality, Landmark"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          {/* City */}
+          <div>
+            <label className="block text-sm font-medium">City</label>
+            <input
+              type="text"
+              name="city"
+              value={form.city || ""}
+              onChange={handleChange}
+              placeholder="Enter city"
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
@@ -294,41 +304,16 @@ const PersonalDetails = () => {
             />
           </div>
 
-          {/* City */}
+          {/* Pincode */}
           <div>
-            <label className="block text-sm font-medium">City</label>
+            <label className="block text-sm font-medium">Pin Code</label>
             <input
               type="text"
-              name="city"
-              value={form.city || ""}
+              name="pinCode"
+              value={form.pinCode || ""}
               onChange={handleChange}
-              placeholder="Enter city"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-        </div>
-
-        {/* Address Line 1 & 2 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium">Address Line 1</label>
-            <input
-              type="text"
-              name="addressLine1"
-              value={form.addressLine1 || ""}
-              onChange={handleChange}
-              placeholder="House No, Street"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Address Line 2</label>
-            <input
-              type="text"
-              name="addressLine2"
-              value={form.addressLine2 || ""}
-              onChange={handleChange}
-              placeholder="Locality, Landmark"
+              placeholder="110001"
+              maxLength={6}
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>

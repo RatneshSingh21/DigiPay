@@ -3,6 +3,7 @@ import { MdEmail, MdPhone, MdWork, MdCalendarToday } from "react-icons/md";
 import { format } from "date-fns";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
+import assets from "../../../assets/assets";
 
 const EmployeeProfile = () => {
   const User = useAuthStore((state) => state.user);
@@ -60,7 +61,7 @@ const EmployeeProfile = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-6">
             <img
-              src={employee.profileImage || "https://i.pravatar.cc/150?img=13"}
+              src={employee.profileImage || assets.UserDummy}
               alt="Profile"
               className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-gray-200 shadow-md mx-auto sm:mx-0"
             />

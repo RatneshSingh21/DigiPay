@@ -6,6 +6,7 @@ import {
   FaSignOutAlt as FaLogout,
 } from "react-icons/fa";
 import { RiBellFill } from "react-icons/ri";
+import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "../../../store/authStore";
 import ProfileSettingsDrawer from "../../../components/ProfileSettingsDrawer";
 import AdminSettingsDrawer from "./AdminSettingsDrawer";
@@ -61,11 +62,9 @@ const AdminNavbar = () => {
     };
     fetchApprovals();
 
-    // Auto refresh every 30 sec (optional)
     const interval = setInterval(fetchApprovals, 30000);
     return () => clearInterval(interval);
   }, []);
-
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -86,10 +85,11 @@ const AdminNavbar = () => {
 
   return (
     <>
-      <nav className="sticky top-0 w-full h-14 bg-white shadow-sm z-20 flex items-center justify-between px-4 md:px-6">
+      <nav className="sticky top-0 w-full h-14 bg-white/70 backdrop-blur-md shadow-sm z-20 flex items-center justify-between px-4 md:px-6 border-b border-gray-200">
+        {/* Company Branding */}
         <div className="flex items-center gap-2">
           <div className="flex flex-col leading-tight">
-            <span className="font-bold text-sm text-primary">
+            <span className="font-bold text-sm text-primary tracking-wide">
               {companyName}
             </span>
             <span className="text-xs text-gray-500 -mt-1">
@@ -98,31 +98,48 @@ const AdminNavbar = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Right Icons */}
+        <div className="flex items-center">
           {/* Notification Icon */}
           <div className="relative" ref={notificationRef}>
             <button
-              className="w-14 h-14 flex items-center cursor-pointer justify-center text-gray-600 hover:text-black relative notification-btn rounded-full"
+              className="flex items-center cursor-pointer justify-center text-gray-600 hover:text-black relative notification-btn p-2 rounded-full hover:bg-gray-200 transition"
               onClick={() => setShowNotifications((prev) => !prev)}
             >
-              <RiBellFill className="text-lg" />
+              <RiBellFill className="text-xl" />
               {notifications.length > 0 && (
-                <span className="absolute top-2 right-2 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="absolute top-1.5 right-1.5 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full animate-pulse"
+                >
                   {notifications.length}
-                </span>
+                </motion.span>
               )}
             </button>
-            {showNotifications && (
-              <NotificationPanel
-                notifications={notifications}
-                onClose={() => setShowNotifications(false)}
-              />
-            )}
+
+            <AnimatePresence>
+              {showNotifications && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 mt-2"
+                >
+                  <NotificationPanel
+                    notifications={notifications}
+                    onClose={() => setShowNotifications(false)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Settings Icon */}
           <button
-            className="text-gray-600 cursor-pointer hover:text-black"
+            className="text-gray-600 cursor-pointer hover:text-black p-2 rounded-full hover:bg-gray-200 transition"
             onClick={() => setAdminDrawerOpen(true)}
           >
             <FaCog />
@@ -132,41 +149,50 @@ const AdminNavbar = () => {
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileMenuOpen((prev) => !prev)}
-              className="flex items-center cursor-pointer gap-2"
+              className="flex items-center cursor-pointer gap-2 group"
             >
               <img
                 src={user?.profilePicture || "https://i.pravatar.cc/300"}
                 alt="Profile"
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-9 h-9 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition"
               />
-              <FaChevronDown className="text-sm text-gray-600" />
+              <FaChevronDown className="text-sm text-gray-600 group-hover:text-primary transition" />
             </button>
-            {profileMenuOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md py-2 z-30">
-                <button
-                  className="w-full text-left px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm"
-                  onClick={() => {
-                    setProfileDrawerOpen(true);
-                    setProfileMenuOpen(false);
-                  }}
+
+            <AnimatePresence>
+              {profileMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-xl py-2 z-30 border border-gray-100"
                 >
-                  Profile Settings
-                </button>
-                <hr className="my-1" />
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 cursor-pointer text-red-500 hover:bg-gray-100 text-sm flex items-center gap-2"
-                >
-                  <FaSignOutAlt />
-                  Logout
-                </button>
-              </div>
-            )}
+                  <button
+                    className="w-full text-left px-4 py-2 cursor-pointer hover:bg-gray-50 text-sm transition"
+                    onClick={() => {
+                      setProfileDrawerOpen(true);
+                      setProfileMenuOpen(false);
+                    }}
+                  >
+                    Profile Settings
+                  </button>
+                  <hr className="my-1" />
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 cursor-pointer text-red-500 hover:bg-red-200 text-sm flex items-center gap-2 transition"
+                  >
+                    <FaSignOutAlt />
+                    Logout
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Logout */}
+          {/* Direct Logout Button */}
           <button
-            className="text-gray-600 cursor-pointer hover:text-red-600"
+            className="text-gray-600 cursor-pointer hover:text-red-600 p-2 rounded-full hover:bg-red-50 transition"
             title="Logout"
             onClick={handleLogout}
           >
@@ -175,6 +201,7 @@ const AdminNavbar = () => {
         </div>
       </nav>
 
+      {/* Drawers */}
       <ProfileSettingsDrawer
         isOpen={profileDrawerOpen}
         onClose={() => setProfileDrawerOpen(false)}

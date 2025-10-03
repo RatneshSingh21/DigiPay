@@ -59,7 +59,7 @@ const ForgetPassword = () => {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="flex items-center text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-2 px-3 py-1"
+          className="flex items-center cursor-pointer text-sm text-orange-500 hover:text-orange-600 bg-orange-100 hover:bg-orange-200 border border-orange-300 font-semibold rounded-md -ml-2 px-3 py-1"
         >
           <svg
             className="w-4 h-4 mr-1"
@@ -106,7 +106,7 @@ const ForgetPassword = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center bg-orange-500 text-white py-2 rounded-full shadow-md hover:bg-orange-600 transition-all disabled:opacity-50"
+            className="w-full flex items-center cursor-pointer justify-center bg-orange-500 text-white py-2 rounded-full shadow-md hover:bg-orange-600 transition-all disabled:opacity-50"
           >
             {loading ? <Spinner /> : "Send Code"}
           </button>

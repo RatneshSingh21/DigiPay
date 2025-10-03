@@ -11,7 +11,14 @@ const UpcomingHolidays = () => {
     const fetchHolidays = async () => {
       try {
         const response = await axiosInstance.get("/HolidayListMaster/get-all");
-        setHolidays(response.data || []);
+        const today = new Date();
+
+        // Filter upcoming + sort by date + take only first 5
+        const sortedUpcoming = (response.data || [])
+          .filter((h) => new Date(h.holidayDate) >= today)
+          .sort((a, b) => new Date(a.holidayDate) - new Date(b.holidayDate))
+
+        setHolidays(sortedUpcoming);
       } catch (error) {
         console.error("Error fetching holidays:", error);
       } finally {
@@ -25,14 +32,16 @@ const UpcomingHolidays = () => {
   if (loading) {
     return (
       <div className="w-full bg-white py-3">
-        <div className="text-center text-gray-500 py-4">Loading holidays...</div>
+        <div className="text-center text-gray-500 py-4">
+          Loading holidays...
+        </div>
       </div>
     );
   }
 
   return (
     <div className="w-full bg-white py-3">
-      <div className="max-h-64 overflow-y-auto divide-y divide-gray-200">
+      <div className="max-h-52 overflow-y-auto divide-y divide-gray-200">
         {holidays.length > 0 ? (
           holidays.map((holiday) => {
             const dateObj = parseISO(holiday.holidayDate);
@@ -59,13 +68,12 @@ const UpcomingHolidays = () => {
           })
         ) : (
           <div className="flex flex-col items-center justify-center py-6">
-            {/* Replace with your own illustration image */}
             <img
               src={assets.holiday}
               alt="No holidays"
               className="w-40 h-40 object-contain opacity-80"
             />
-            <p className="text-gray-500 text-sm mt-2">No holidays available</p>
+            <p className="text-gray-500 text-sm mt-2">No upcoming holidays</p>
           </div>
         )}
       </div>

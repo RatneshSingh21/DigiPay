@@ -14,7 +14,7 @@ const attendanceColors = {
   Present: "bg-green-500",
   Absent: "bg-red-500",
   Leave: "bg-yellow-400",
-  "Half-Day": "bg-blue-400",
+  "Half Day": "bg-blue-400",
   Weekend: "bg-gray-300",
   Holiday: "bg-purple-400",
   Unknown: "bg-gray-100",

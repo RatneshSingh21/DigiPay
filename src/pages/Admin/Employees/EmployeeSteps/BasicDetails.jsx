@@ -31,8 +31,7 @@ const BasicDetails = () => {
   const [department, setDepartment] = useState([]);
   const [payschedule, setPayschedule] = useState([]);
   const [openModalField, setOpenModalField] = useState(null);
-  const [loading, setLoading] = useState(false); // 🔹 loading state
-
+  const [loading, setLoading] = useState(false); 
   const navigate = useNavigate();
   const resetStore = useAddEmployeeStore((state) => state.resetStore);
 
@@ -182,7 +181,7 @@ const BasicDetails = () => {
               className={`w-full px-4 py-2 border rounded-md ${
                 employeeId
                   ? "bg-gray-100 cursor-not-allowed"
-                  : "border-blue-300 uppercase focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  : "border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
               }`}
             />
           </div>

@@ -9,20 +9,19 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
     initialData || {
       isPfEnabled: true,
       calculationType: "Percentage",
-      percentage: "",
-      fixedAmount: "",
+      percentage: 0,
+      fixedAmount: 0,
       appliesOn: "Basic",
       customFormula: "",
-      employeeShare: "",
-      employerShare: "",
-      wageLimit: "",
+      employeeShare: 0,
+      employerShare: 0,
+      wageLimit: 0,
       isRestrictedToWageLimit: true,
-      minServiceMonths: "",
+      minServiceMonths: 0,
       roundingMethod: "Up",
       effectiveFrom: "",
       effectiveTo: "",
       isActive: true,
-      appliesOnComponents: [],
     }
   );
 
@@ -32,8 +31,10 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
     { value: "Percentage", label: "Percentage" },
     { value: "Fixed", label: "Fixed Amount" },
   ];
+
   const appliesOnOptions = [
     { value: "Basic", label: "Basic" },
+    { value: "Gross", label: "Gross" },
     { value: "CustomFormula", label: "Custom Formula" },
   ];
 
@@ -53,18 +54,12 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
 
     const payload = {
       ...formData,
-      percentage: formData.percentage ? Number(formData.percentage) : 0,
-      fixedAmount: formData.fixedAmount ? Number(formData.fixedAmount) : 0,
-      employeeShare: formData.employeeShare
-        ? Number(formData.employeeShare)
-        : 0,
-      employerShare: formData.employerShare
-        ? Number(formData.employerShare)
-        : 0,
-      wageLimit: formData.wageLimit ? Number(formData.wageLimit) : 0,
-      minServiceMonths: formData.minServiceMonths
-        ? Number(formData.minServiceMonths)
-        : 0,
+      percentage: Number(formData.percentage),
+      fixedAmount: Number(formData.fixedAmount),
+      employeeShare: Number(formData.employeeShare),
+      employerShare: Number(formData.employerShare),
+      wageLimit: Number(formData.wageLimit),
+      minServiceMonths: Number(formData.minServiceMonths),
     };
 
     try {
@@ -82,14 +77,17 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Error saving PF Setting");
+      toast.error(err?.response?.data?.message || "Error saving PF Setting");
     }
   };
+
+  // input class css
+  const inputClass =
+    "w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm z-50 flex justify-center items-center">
       <div className="bg-white overflow-hidden relative rounded-lg w-full max-w-2xl h-[80vh] flex flex-col shadow-xl">
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
@@ -101,9 +99,8 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
           {initialData ? "Edit PF Setting" : "Add PF Setting"}
         </h2>
 
-        {/* Tabs */}
         <div className="border-b px-6 flex space-x-6">
-          {["overview", "advanced", "meta"].map((tab) => (
+          {["overview", "advanced"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -115,20 +112,17 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
             >
               {tab === "overview" && "Overview"}
               {tab === "advanced" && "Advanced"}
-              {tab === "meta" && "Meta"}
             </button>
           ))}
         </div>
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit}
           className="flex-1 overflow-y-auto px-6 py-4 space-y-4"
         >
-          {/* ---------------- Overview Tab ---------------- */}
+          {/* Overview */}
           {activeTab === "overview" && (
             <div className="grid grid-cols-2 gap-3">
-              {/* PF Enabled */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   PF Enabled
@@ -144,7 +138,6 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                 />
               </div>
 
-              {/* Active */}
               <div>
                 <label className="block text-sm font-medium mb-1">Active</label>
                 <Select
@@ -158,7 +151,6 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                 />
               </div>
 
-              {/* Calculation Type */}
               <div className="col-span-2">
                 <label className="block text-sm font-medium mb-1">
                   Calculation Type
@@ -174,6 +166,8 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                       calculationType: selected.value,
                     })
                   }
+                  autoFocus
+                  required
                 />
               </div>
 
@@ -186,13 +180,9 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                     type="number"
                     value={formData.percentage}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        percentage: e.target.value,
-                      })
+                      setFormData({ ...formData, percentage: e.target.value })
                     }
-                    className="w-full border rounded px-3 py-2"
-                    placeholder="Enter Percentage"
+                    className={inputClass}
                   />
                 </div>
               )}
@@ -206,18 +196,13 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                     type="number"
                     value={formData.fixedAmount}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        fixedAmount: e.target.value,
-                      })
+                      setFormData({ ...formData, fixedAmount: e.target.value })
                     }
-                    className="w-full border rounded px-3 py-2"
-                    placeholder="Enter Fixed Amount"
+                    className={inputClass}
                   />
                 </div>
               )}
 
-              {/* Applies On */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Applies On
@@ -233,7 +218,6 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                 />
               </div>
 
-              {/* Custom Formula */}
               <div className="col-span-2">
                 <label className="block text-sm font-medium mb-1">
                   Custom Formula
@@ -244,82 +228,49 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                   onChange={(e) =>
                     setFormData({ ...formData, customFormula: e.target.value })
                   }
+                  disabled={formData.appliesOn !== "CustomFormula"}
                   className={`w-full border rounded px-3 py-2 ${
                     formData.appliesOn !== "CustomFormula"
                       ? "bg-gray-100 cursor-not-allowed"
                       : ""
                   }`}
-                  placeholder="e.g. (Basic + HRA) * 12%"
-                  disabled={formData.appliesOn !== "CustomFormula"}
+                  placeholder="e.g. (Basic + DA) * 12%"
                 />
               </div>
             </div>
           )}
 
-          {/* ---------------- Advanced Tab ---------------- */}
+          {/* Advanced */}
           {activeTab === "advanced" && (
             <div className="grid grid-cols-2 gap-3">
-              {/* Applies On Components */}
-              <div className="col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  Applies On Components (comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={formData.appliesOnComponents?.join(", ")}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      appliesOnComponents: e.target.value
-                        .split(",")
-                        .map((c) => c.trim())
-                        .filter((c) => c),
-                    })
-                  }
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="e.g. Basic, HRA, DA"
-                />
-              </div>
-
-              {/* Employee Share */}
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Employee Share
+                  Employee Share %
                 </label>
                 <input
                   type="number"
                   value={formData.employeeShare}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      employeeShare: e.target.value,
-                    })
+                    setFormData({ ...formData, employeeShare: e.target.value })
                   }
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="Enter Employee Share"
+                  className={inputClass}
                 />
               </div>
 
-              {/* Employer Share */}
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Employer Share
+                  Employer Share %
                 </label>
                 <input
                   type="number"
                   value={formData.employerShare}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      employerShare: e.target.value,
-                    })
+                    setFormData({ ...formData, employerShare: e.target.value })
                   }
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="Enter Employer Share"
+                  className={inputClass}
                 />
               </div>
 
-              {/* Wage Limit */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Wage Limit
@@ -328,17 +279,12 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                   type="number"
                   value={formData.wageLimit}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      wageLimit: e.target.value,
-                    })
+                    setFormData({ ...formData, wageLimit: e.target.value })
                   }
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="Enter Wage Limit"
+                  className={inputClass}
                 />
               </div>
 
-              {/* Min Service Months */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Min Service Months
@@ -352,17 +298,10 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                       minServiceMonths: e.target.value,
                     })
                   }
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="Enter Minimum Service Months"
+                  className={inputClass}
                 />
               </div>
-            </div>
-          )}
 
-          {/* ---------------- Meta Tab ---------------- */}
-          {activeTab === "meta" && (
-            <div className="grid grid-cols-2 gap-4">
-              {/* Restricted to Wage Limit */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Restricted to Wage Limit
@@ -381,7 +320,6 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                 />
               </div>
 
-              {/* Rounding */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Rounding
@@ -397,7 +335,6 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                 />
               </div>
 
-              {/* Effective From */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Effective From
@@ -406,16 +343,12 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                   type="date"
                   value={formData.effectiveFrom?.split("T")[0] || ""}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      effectiveFrom: e.target.value,
-                    })
+                    setFormData({ ...formData, effectiveFrom: e.target.value })
                   }
-                  className="w-full border rounded px-3 py-2"
+                  className={inputClass}
                 />
               </div>
 
-              {/* Effective To */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Effective To
@@ -424,17 +357,13 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
                   type="date"
                   value={formData.effectiveTo?.split("T")[0] || ""}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      effectiveTo: e.target.value,
-                    })
+                    setFormData({ ...formData, effectiveTo: e.target.value })
                   }
-                  className="w-full border rounded px-3 py-2"
+                  className={inputClass}
                 />
               </div>
 
-              {/* Actions */}
-              <div className="flex justify-start space-x-3 pt-4">
+              <div className="flex justify-start space-x-3 pt-4 col-span-2">
                 <button
                   type="submit"
                   className="px-5 py-2 bg-primary hover:bg-secondary text-white rounded"

@@ -102,47 +102,47 @@ const PFTransaction = () => {
             });
             setIsModalOpen(true);
           }}
-          className="bg-primary text-white text-sm px-4 py-2 rounded flex items-center gap-2 hover:bg-secondary transition"
+          className="bg-primary text-white text-sm cursor-pointer px-4 py-2 rounded flex items-center gap-2 hover:bg-secondary transition"
         >
           <Plus className="mr-2" size={16} /> Add Transaction
         </button>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto bg-white rounded shadow p-4">
-        <table className="w-full border text-sm">
-          <thead className="bg-gray-100">
+      <div className="overflow-x-auto shadow rounded-lg px-3">
+        <table className="min-w-full divide-y text-xs divide-gray-200">
+          <thead className="bg-gray-100 text-gray-600 text-center">
             <tr>
-              <th className="p-2 border">Trans. ID</th>
-              <th className="p-2 border">Employee</th>
-              <th className="p-2 border">Payroll Month</th>
-              <th className="p-2 border">Wage Considered</th>
-              <th className="p-2 border">Employee Contr.</th>
-              <th className="p-2 border">Employer Contr.</th>
-              <th className="p-2 border">Total</th>
-              <th className="p-2 border">Formula</th>
-              <th className="p-2 border">Actions</th>
+              <th className="p-2">Trans. ID</th>
+              <th className="p-2">Employee</th>
+              <th className="p-2">Payroll Month</th>
+              <th className="p-2">Wage Considered</th>
+              <th className="p-2">Employee Contr.</th>
+              <th className="p-2">Employer Contr.</th>
+              <th className="p-2">Total</th>
+              <th className="p-2">Formula</th>
+              <th className="p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
             {transactions.length > 0 ? (
               transactions.map((t) => (
                 <tr key={t.pfTransactionId} className="hover:bg-gray-50">
-                  <td className="p-2 border">{t.pfTransactionId}</td>
-                  <td className="p-2 border">
+                  <td className="p-2">{t.pfTransactionId}</td>
+                  <td className="p-2">
                     {employeeMap[t.employeeId] || "Loading..."}
                   </td>
-                  <td className="p-2 border">
+                  <td className="p-2">
                     {new Date(t.payrollMonth).toLocaleDateString()}
                   </td>
-                  <td className="p-2 border">{t.wageConsidered}</td>
-                  <td className="p-2 border">{t.employeeContribution}</td>
-                  <td className="p-2 border">{t.employerContribution}</td>
-                  <td className="p-2 border">{t.totalContribution}</td>
-                  <td className="p-2 border">{t.formulaUsed}</td>
-                  <td className="p-2 border">
+                  <td className="p-2">{t.wageConsidered}</td>
+                  <td className="p-2">{t.employeeContribution}</td>
+                  <td className="p-2">{t.employerContribution}</td>
+                  <td className="p-2">{t.totalContribution}</td>
+                  <td className="p-2">{t.formulaUsed}</td>
+                  <td className="p-2">
                     <button
-                      className="text-blue-600 flex items-center"
+                      className="text-blue-600 cursor-pointer flex items-center"
                       onClick={() => {
                         setFormData({
                           employeeId: t.employeeId,

@@ -24,7 +24,7 @@ const AdminSummaryCards = () => {
       setEmployees(response.data?.data || response.data || []);
     } catch (error) {
       console.error("Error fetching employees:", error);
-      toast.error("Failed to fetch employees");
+      // toast.error("Failed to fetch employees");
     }
   };
 

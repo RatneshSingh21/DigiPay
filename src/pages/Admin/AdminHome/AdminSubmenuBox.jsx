@@ -13,91 +13,149 @@ import {
   FaFileAlt,
   FaCogs,
   FaBalanceScale,
+  FaExchangeAlt,
 } from "react-icons/fa";
 import {
   MdAdminPanelSettings,
   MdCelebration,
+  MdGavel,
   MdOutlineCorporateFare,
   MdOutlineMap,
   MdOutlineRequestPage,
   MdOutlineTrackChanges,
+  MdPersonAddAlt1,
 } from "react-icons/md";
 import { GoLocation } from "react-icons/go";
+import { GiBookCover } from "react-icons/gi";
 import { RiShieldKeyholeLine } from "react-icons/ri";
 import { AiOutlineSchedule } from "react-icons/ai";
 import { BiTimeFive } from "react-icons/bi";
 import { HiOutlineBriefcase, HiOutlineDocumentReport } from "react-icons/hi";
 import { TbCurrencyRupee, TbReportMoney } from "react-icons/tb";
 import { FaGears } from "react-icons/fa6";
+import { BsCashStack } from "react-icons/bs";
 
 // Label to path mapping
 const labelToPath = {
+  // Employee
   "Add Employee": "add",
   "Employee List": "list",
+  "Employee Salary": "employee-salary-details",
   "General Imports": "general-imports",
   "General Settings": "general-settings",
+
+  // Settings
   "Organisation Profile": "organisation-profile",
+  "Create Admin": "create-admin",
   Departments: "departments",
+  Designation: "designation",
   "Work Locations": "work-locations",
   Permissions: "permissions",
   PaySchedule: "payschedule",
   Shifts: "shifts",
-  Designation: "designation",
   "Salary Configuration": "salary",
   "Status Master": "status-master",
+  "LetterField Master": "field-master",
+  Attendance: "attendance",
+
+  // Role
   "Role Master": "role-master",
   "Role Approval": "role-approval",
   "Emp. Role Mapping": "emp-role-mapping",
+
+  // Reports
   "Attendance Report": "attendance-report",
-  "Payroll Report": "payroll-report",
   "Salary Register": "salary-register",
-  Attendance: "attendance",
   "Payslip Templates": "payslip-templates",
+  "Appointment Letter": "appointment-certi",
+  "Confirmation Letter": "confirmation-certi",
+  "Offer Letter": "offer-letter",
+  "Letter of Intent": "letter-intent",
+  "Increment Letter": "increment-letter",
+  "Experience Cert.": "experience-certi",
+  "Nomination-Declaration": "nomination-declaration",
+  "Job Posting": "job-posting",
+
+  // Leave
   "Leave Types": "leave-types",
   "Leave Mapping": "leave-mapping",
   "Leave Requests": "leave-requests",
   "Leave Balance": "leave-balance",
   "Holiday List": "holiday-list",
-  "Policy Details": "policy-details",
+
+  // Policies
   "PF Settings": "pf-settings",
   "PF Transaction": "pf-transaction",
+  "PF Contribution Rule": "pf-contribution-rule",
+  "ESI Rules": "esi-rule",
+  "ESI Transactions": "esi-transaction",
   "Weekend Policy": "weekend-policy",
+  "Policy Details": "policy-details",
+
+  // Compliance
   "Compliance Details": "compliance-details",
   "Compliance Rules": "compliance-rules",
 };
 
 // Label to icon mapping
+// Label to icon mapping
 const labelToIcon = {
+  // Employee
   "Add Employee": <FaUserPlus className="mr-2" />,
   "Employee List": <FaList className="mr-2" />,
+  "Employee Salary": <BsCashStack className="mr-2" />,
   "General Imports": <FaGlobeAmericas className="mr-2" />,
   "General Settings": <FaGears className="mr-2" />,
+
+  // Settings
   "Organisation Profile": <FaBuilding className="mr-2" />,
+  "Create Admin": <MdPersonAddAlt1 className="mr-2" />,
   Departments: <MdOutlineCorporateFare className="mr-2" />,
+  Designation: <HiOutlineBriefcase className="mr-2" />,
   "Work Locations": <GoLocation className="mr-2" />,
   Permissions: <RiShieldKeyholeLine className="mr-2" />,
   PaySchedule: <AiOutlineSchedule className="mr-2" />,
   Shifts: <BiTimeFive className="mr-2" />,
-  Designation: <HiOutlineBriefcase className="mr-2" />,
+  "Salary Configuration": <TbCurrencyRupee className="mr-2" />,
+  "Status Master": <MdOutlineTrackChanges className="mr-2" />,
+  Attendance: <FaUserCheck className="mr-2" />,
+  "LetterField Master": <HiOutlineDocumentReport className="mr-2" />,
+
+  // Role
   "Role Master": <MdAdminPanelSettings className="mr-2" />,
   "Role Approval": <MdAdminPanelSettings className="mr-2" />,
   "Emp. Role Mapping": <MdAdminPanelSettings className="mr-2" />,
-  "Status Master": <MdOutlineTrackChanges className="mr-2" />,
-  "Salary Configuration": <TbCurrencyRupee className="mr-2" />,
+
+  // Reports
   "Attendance Report": <FaCalendarCheck className="mr-2" />,
-  "Payroll Report": <FaFileInvoiceDollar className="mr-2" />,
   "Salary Register": <TbReportMoney className="mr-2" />,
-  Attendance: <FaUserCheck className="mr-2" />,
   "Payslip Templates": <HiOutlineDocumentReport className="mr-2" />,
+  "Appointment Letter": <FaFileAlt className="mr-2" />,
+  "Confirmation Letter": <FaFileAlt className="mr-2" />,
+  "Offer Letter": <FaFileAlt className="mr-2" />,
+  "Letter of Intent": <FaFileAlt className="mr-2" />,
+  "Increment Letter": <FaFileAlt className="mr-2" />,
+  "Experience Cert.": <FaFileInvoiceDollar className="mr-2" />,
+  "Nomination-Declaration": <FaFileAlt className="mr-2" />,
+  "Job Posting": <MdGavel className="mr-2" />,
+
+  // Leave
   "Leave Types": <FaUmbrellaBeach className="mr-2" />,
   "Leave Mapping": <MdOutlineMap className="mr-2" />,
   "Leave Requests": <MdOutlineRequestPage className="mr-2" />,
   "Leave Balance": <FaBalanceScale className="mr-2" />,
   "Holiday List": <MdCelebration className="mr-2" />,
-  "Policy Details": <FaFileAlt className="mr-2" />,
+
+  // Policies
   "PF Settings": <FaCogs className="mr-2" />,
   "PF Transaction": <FaFileInvoiceDollar className="mr-2" />,
+  "PF Contribution Rule": <FaFileInvoiceDollar className="mr-2" />,
+  "ESI Rules": <GiBookCover className="mr-2" />,
+  "ESI Transactions": <FaExchangeAlt className="mr-2" />,
   "Weekend Policy": <FaUmbrellaBeach className="mr-2" />,
+  "Policy Details": <FaFileAlt className="mr-2" />,
+
+  // Compliance
   "Compliance Details": <FaFileAlt className="mr-2" />,
   "Compliance Rules": <FaBalanceScale className="mr-2" />,
 };

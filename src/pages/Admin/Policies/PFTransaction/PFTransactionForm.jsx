@@ -3,7 +3,13 @@ import { X } from "lucide-react";
 import Select from "react-select";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
-const PFTransactionForm = ({ formData, setFormData, onClose, onSubmit, editId }) => {
+const PFTransactionForm = ({
+  formData,
+  setFormData,
+  onClose,
+  onSubmit,
+  editId,
+}) => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -11,7 +17,7 @@ const PFTransactionForm = ({ formData, setFormData, onClose, onSubmit, editId })
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get("/Employee"); // ✅ make sure API returns employeeId, fullName, employeeCode
+      const res = await axiosInstance.get("/Employee"); // make sure API returns employeeId, fullName, employeeCode
       const data = res.data || [];
       setEmployees(
         data.map((emp) => ({
@@ -32,8 +38,11 @@ const PFTransactionForm = ({ formData, setFormData, onClose, onSubmit, editId })
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData); // ✅ only employeeId gets posted
+    onSubmit(formData);
   };
+
+  const inputClass =
+    "w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -43,26 +52,35 @@ const PFTransactionForm = ({ formData, setFormData, onClose, onSubmit, editId })
           <h3 className="text-lg font-semibold">
             {editId ? "Edit Transaction" : "Add Transaction"}
           </h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+          <button
+            onClick={onClose}
+            className="text-gray-500 cursor-pointer hover:text-gray-800"
+          >
             <X size={20} />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 h-[70vh] overflow-y-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 space-y-4 h-[70vh] overflow-y-auto"
+        >
           {/* Employee Selection */}
           <div>
             <label className="block text-sm font-medium mb-1">Employee</label>
             <Select
               options={employees}
               isLoading={loading}
-              value={employees.find((e) => e.value === formData.employeeId) || null}
+              value={
+                employees.find((e) => e.value === formData.employeeId) || null
+              }
               onChange={(option) =>
                 setFormData({ ...formData, employeeId: option?.value })
               }
               placeholder="Select Employee"
               className="react-select-container"
               classNamePrefix="react-select"
+              autoFocus
               isDisabled={!!editId} // disable in edit mode
               required
             />
@@ -71,14 +89,16 @@ const PFTransactionForm = ({ formData, setFormData, onClose, onSubmit, editId })
           {/* Payroll Month only in Add Mode */}
           {!editId && (
             <div>
-              <label className="block text-sm font-medium mb-1">Payroll Month</label>
+              <label className="block text-sm font-medium mb-1">
+                Payroll Month
+              </label>
               <input
                 type="date"
                 value={formData.payrollMonth || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, payrollMonth: e.target.value })
                 }
-                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary"
+                className={inputClass}
                 required
               />
             </div>
@@ -88,74 +108,95 @@ const PFTransactionForm = ({ formData, setFormData, onClose, onSubmit, editId })
           {editId && (
             <>
               <div>
-                <label className="block text-sm font-medium mb-1">Wage Considered</label>
+                <label className="block text-sm font-medium mb-1">
+                  Wage Considered
+                </label>
                 <input
                   type="number"
                   value={formData.wageConsidered || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, wageConsidered: e.target.value })
                   }
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Employee Contribution</label>
+                <label className="block text-sm font-medium mb-1">
+                  Employee Contribution
+                </label>
                 <input
                   type="number"
                   value={formData.employeeContribution || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, employeeContribution: e.target.value })
+                    setFormData({
+                      ...formData,
+                      employeeContribution: e.target.value,
+                    })
                   }
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Employer Contribution</label>
+                <label className="block text-sm font-medium mb-1">
+                  Employer Contribution
+                </label>
                 <input
                   type="number"
                   value={formData.employerContribution || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, employerContribution: e.target.value })
+                    setFormData({
+                      ...formData,
+                      employerContribution: e.target.value,
+                    })
                   }
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Formula Used</label>
+                <label className="block text-sm font-medium mb-1">
+                  Formula Used
+                </label>
                 <input
                   type="text"
                   value={formData.formulaUsed || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, formulaUsed: e.target.value })
                   }
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Transaction Status</label>
+                <label className="block text-sm font-medium mb-1">
+                  Transaction Status
+                </label>
                 <input
                   type="number"
                   value={formData.transactionStatusId || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, transactionStatusId: e.target.value })
+                    setFormData({
+                      ...formData,
+                      transactionStatusId: e.target.value,
+                    })
                   }
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Processed At</label>
+                <label className="block text-sm font-medium mb-1">
+                  Processed At
+                </label>
                 <input
                   type="datetime-local"
                   value={formData.processedAt || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, processedAt: e.target.value })
                   }
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary"
+                  className={inputClass}
                 />
               </div>
             </>
@@ -166,13 +207,13 @@ const PFTransactionForm = ({ formData, setFormData, onClose, onSubmit, editId })
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+              className="px-4 py-2 bg-gray-200 cursor-pointer rounded-lg hover:bg-gray-300"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary"
+              className="px-4 py-2 bg-primary cursor-pointer text-white rounded-lg hover:bg-secondary"
             >
               Save
             </button>

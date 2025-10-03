@@ -10,8 +10,10 @@ import otpIllustration from "./otpIllustration.png";
 import BackgroundPopup from "./BackgroundPopup.png";
 import ForgetImage from "./ForgetImage.png";
 import OtpLogin from "./OtpLogin.png";
+import LoginWithOtp from "./LoginWithOtp.mp4"
 import DesignationIllustration from "./DesignationIllustration.png";
 import EmployeeIllustration from "./EmployeeIllustration.png";
+import SalaryIllustration from "./SalaryIllustration.png";
 import WorkLocationIllustration from "./WorkLocationIllustration.png";
 import DepartmentIllustration from "./DepartmentIllustration.png";
 import PaySchuduleIllustration from "./PaySchuduleIllustration.png";
@@ -40,6 +42,10 @@ import StopGif from "./StopGif.gif"
 import LostGif from "./LostGif.gif"
 import holiday from "./holiday.png"
 import ComplianceRuleIllustration from "./ComplianceRuleIllustration.jpg"
+import UserDummy from "./UserDummy.png"
+import Header from "./Header.png"
+import Footer from "./Footer.png"
+
 
 const assets = {
   bg: bg,
@@ -55,8 +61,10 @@ const assets = {
   ForgetImage: ForgetImage,
   ForgetGif: ForgetGif,
   OtpLogin: OtpLogin,
+  LoginWithOtp: LoginWithOtp,
   DesignationIllustration: DesignationIllustration,
   EmployeeIllustration: EmployeeIllustration,
+  SalaryIllustration: SalaryIllustration,
   WorkLocationIllustration: WorkLocationIllustration,
   DepartmentIllustration: DepartmentIllustration,
   PaySchuduleIllustration: PaySchuduleIllustration,
@@ -84,6 +92,9 @@ const assets = {
   StopGif: StopGif,
   LostGif: LostGif,
   holiday: holiday,
+  UserDummy: UserDummy,
+  Header: Header,
+  Footer: Footer,
 };
 
 export default assets;

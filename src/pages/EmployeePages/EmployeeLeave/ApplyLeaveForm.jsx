@@ -97,13 +97,17 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
             value: s.statusId,
             label: s.statusName,
           })) || [];
-        setStatusOptions(formatted);
 
-        // Preselect "Pending"
+        // Always pick "Pending" (case-insensitive)
         const pending = formatted.find(
-          (s) => s.label.toLowerCase() === "pending"
+          (s) => s.label?.trim().toLowerCase() === "pending"
         );
-        if (pending) setSelectedStatus(pending);
+
+        if (pending) {
+          setSelectedStatus(pending);
+        } else {
+          toast.error("Pending status not found. Please check StatusMaster.");
+        }
       })
       .catch(() => toast.error("Unable to load statuses."));
   }, [showModal]);
@@ -174,8 +178,8 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
       setError("");
       onClose();
     } catch (err) {
-      console.error(err);
-      setError("Failed to apply leave.");
+      console.error(err?.response?.data.error);
+      setError(err?.response?.data.error || "Failed to apply leave.");
     } finally {
       setLoading(false);
     }
@@ -258,19 +262,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
               required
               placeholder="Enter your reason for leave"
               className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <Select
-              options={statusOptions}
-              value={selectedStatus}
-              onChange={(selected) => setSelectedStatus(selected)}
-              placeholder="Select Status"
             />
           </div>
 

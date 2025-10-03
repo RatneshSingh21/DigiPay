@@ -92,6 +92,26 @@ const RoleModal = ({
               classNamePrefix="react-select"
             />
           </div>
+
+          {/* Sequence Order Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Sequence Order
+            </label>
+            <input
+              type="number"
+              min={1}
+              value={roleAssignment.sequenceOrder}
+              onChange={(e) =>
+                setRoleAssignment({
+                  ...roleAssignment,
+                  sequenceOrder: parseInt(e.target.value, 10) || 1,
+                })
+              }
+              className="w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm"
+              placeholder="Enter sequence order"
+            />
+          </div>
         </div>
 
         <div className="flex justify-end gap-3">

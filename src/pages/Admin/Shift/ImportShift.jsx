@@ -60,7 +60,7 @@ const ImportShift = ({ onClose , fetchShifts }) => {
     const formData = new FormData();
     formData.append("file", selectedFile); // Must be 'file'
 
-    const response = await axiosInstance.post("/shift/import", formData, {
+    const response = await axiosInstance.post("/shift/importshift", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

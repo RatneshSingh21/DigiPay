@@ -35,11 +35,13 @@ import AdminContentBox from "./pages/Admin/AdminHome/AdminContentBox";
 // Admin Dashboard Pages
 import EmployeeList from "./pages/Admin/Employees/EmployeeList";
 import AddEmployee from "./pages/Admin/Employees/AddEmployee";
+import EmpSalaryDetails from "./pages/Admin/Employees/EmpSalaryDetails";
 import GeneralImports from "./pages/Admin/Employees/GeneralImports";
 import GeneralSettings from "./pages/Admin/Employees/GeneralSettings/GeneralSettings";
 
 //Admin Settings Pages
 import OrganisationProfile from "./pages/Admin/Settings/OrganisationProfile";
+import CreateSuperAdmin from "./pages/Admin/Settings/CreateSuperAdmin";
 import Departments from "./pages/Admin/Settings/Departments";
 import WorkLocations from "./pages/Admin/Settings/WorkLocations";
 import PaySchedule from "./pages/Admin/Settings/PaySchedule";
@@ -57,9 +59,9 @@ import EmpRoleMapping from "./pages/Admin/Role/EmpRole/EmpRoleMapping";
 
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
-import PayrollReport from "./pages/Admin/Reports/PayrollReport";
 import SalaryRegister from "./pages/Admin/Reports/SalaryRegister";
 import PayslipTemplates from "./pages/Admin/Reports/PayslipTemplates";
+import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificateEditor";
 
 // Leave Pages
 import Leave from "./pages/Admin/Leave/Leave";
@@ -72,6 +74,9 @@ import HolidayList from "./pages/Admin/Leave/HolidayList";
 import PolicyDetails from "./pages/Admin/Policies/PolicyDetails";
 import PFSettings from "./pages/Admin/Policies/PFSettings/PFSettings";
 import PFTransaction from "./pages/Admin/Policies/PFTransaction/PFTransaction";
+import PFContributionRule from "./pages/Admin/Policies/PFContributionRule/PFContributionRule";
+import ESIRules from "./pages/Admin/Policies/ESI/ESIRule/ESIRules";
+import ESITransactions from "./pages/Admin/Policies/ESI/ESITransaction/ESITransactions";
 import WeekendPolicy from "./pages/Admin/Policies/WeekendPolicy/WeekendPolicy";
 
 // Compliance Pages
@@ -86,7 +91,14 @@ import EmpMarkAttendance from "./pages/EmployeePages/EmployeeComponents/EmpMarkA
 import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
 import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
-
+import AppointmentLetter from "./pages/Admin/Reports/PayrollReport/AppointmentLetter";
+import ConfirmationLetter from "./pages/Admin/Reports/PayrollReport/ConfirmationLetter";
+import IncrementLetter from "./pages/Admin/Reports/PayrollReport/IncrementLetter";
+import JobPosting from "./pages/Admin/Reports/PayrollReport/JobPosting";
+import OfferLetter from "./pages/Admin/Reports/PayrollReport/OfferLetter";
+import LetterOfIntent from "./pages/Admin/Reports/PayrollReport/LetterOfIntent";
+import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/NominationDeclaration";
+import LetterFieldMaster from "./pages/Admin/Settings/LetterFieldMaster";
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -152,6 +164,10 @@ const App = () => {
                   <Route index element={<Navigate to="add" />} />
                   <Route path="list" element={<EmployeeList />} />
                   <Route path="add" element={<AddEmployee />} />
+                  <Route
+                    path="employee-salary-details"
+                    element={<EmpSalaryDetails />}
+                  />
                   <Route path="general-imports" element={<GeneralImports />} />
                   <Route
                     path="general-settings"
@@ -176,6 +192,7 @@ const App = () => {
                     element={<OrganisationProfile />}
                   />
                   <Route path="departments" element={<Departments />} />
+                  <Route path="create-admin" element={<CreateSuperAdmin />} />
                   <Route path="work-locations" element={<WorkLocations />} />
                   <Route path="permissions" element={<Permissions />} />
                   <Route path="payschedule" element={<PaySchedule />} />
@@ -183,6 +200,7 @@ const App = () => {
                   <Route path="designation" element={<Designation />} />
                   <Route path="salary" element={<Salary />} />
                   <Route path="status-master" element={<StatusMaster />} />
+                  <Route path="field-master" element={<LetterFieldMaster />} />
                   <Route path="attendance" element={<Attendance />} />
                 </Route>
 
@@ -205,8 +223,30 @@ const App = () => {
                     path="payslip-templates"
                     element={<PayslipTemplates />}
                   />
-                  <Route path="payroll-report" element={<PayrollReport />} />
                   <Route path="salary-register" element={<SalaryRegister />} />
+                  <Route
+                    path="appointment-certi"
+                    element={<AppointmentLetter />}
+                  />
+                  <Route
+                    path="confirmation-certi"
+                    element={<ConfirmationLetter />}
+                  />
+                  <Route path="offer-letter" element={<OfferLetter />} />
+                  <Route path="letter-intent" element={<LetterOfIntent />} />
+                  <Route
+                    path="increment-letter"
+                    element={<IncrementLetter />}
+                  />
+                  <Route
+                    path="experience-certi"
+                    element={<ExperienceCertificateEditor />}
+                  />
+                  <Route
+                    path="nomination-declaration"
+                    element={<NominationDeclaration />}
+                  />
+                  <Route path="job-posting" element={<JobPosting />} />
                 </Route>
 
                 {/* Leave SubRoutes */}
@@ -224,6 +264,12 @@ const App = () => {
                   <Route index element={<Navigate to="pf-settings" />} />
                   <Route path="pf-settings" element={<PFSettings />} />
                   <Route path="pf-transaction" element={<PFTransaction />} />
+                  <Route
+                    path="pf-contribution-rule"
+                    element={<PFContributionRule />}
+                  />
+                  <Route path="esi-rule" element={<ESIRules />} />
+                  <Route path="esi-transaction" element={<ESITransactions />} />
                   <Route path="weekend-policy" element={<WeekendPolicy />} />
                   <Route path="policy-details" element={<PolicyDetails />} />
                 </Route>

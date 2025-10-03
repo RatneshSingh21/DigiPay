@@ -45,7 +45,7 @@ const StatusMaster = () => {
       setFormData({ statusName: "", statusCode: "", isActive: true });
       fetchStatuses();
     } catch (err) {
-      setError("Error adding status.");
+      setError(err?.response?.data?.message || "Error adding status.");
     }
   };
 

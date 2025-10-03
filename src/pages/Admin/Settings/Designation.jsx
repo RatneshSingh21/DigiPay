@@ -46,7 +46,7 @@ const Designation = () => {
         {designations.length > 0 && (
           <div className="flex gap-2 items-center">
             <button
-              className="bg-primary cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
+              className="bg-primary text-sm cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium"
               onClick={() => {
                 setIsEdit("Add");
                 setSelectedDesignation(null);
@@ -56,7 +56,7 @@ const Designation = () => {
               Add Designation
             </button>
             <button
-              className="border border-gray-300 cursor-pointer text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
+              className="border text-sm border-gray-300 cursor-pointer text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-2"
               onClick={openImport}
             >
               <FiDownload />

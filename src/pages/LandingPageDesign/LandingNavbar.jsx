@@ -19,6 +19,7 @@ const LandingNavbar = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* <img src={assets.Atul} className="w-10 h-10 rounded-full" alt="" /> */}
             <button
               className="bg-[#CF6C12] text-white px-4 py-2 text-sm sm:text-base cursor-pointer rounded-md hover:opacity-90 transition duration-200"
               onClick={() => navigate("/auth")}

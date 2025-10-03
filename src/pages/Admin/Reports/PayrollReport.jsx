@@ -1,5 +1,6 @@
 import React from "react";
 import ComingSoon from "../../../components/ComingSoon";
+import ExperienceCertificateEditor from "./PayrollReport/ExperienceCertificateEditor";
 
 const PayrollReport = () => {
   return (
@@ -8,7 +9,7 @@ const PayrollReport = () => {
         <h2 className="font-semibold text-xl">Payroll Report</h2>
       </div>
       <div>
-        <ComingSoon />
+        <ExperienceCertificateEditor />
       </div>
     </>
   );

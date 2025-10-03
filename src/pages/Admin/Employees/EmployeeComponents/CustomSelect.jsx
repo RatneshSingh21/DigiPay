@@ -10,7 +10,7 @@ const CustomSelect = ({
   onChange,
   options = [],
   allowAddOption = false,
-  onAddNewOption = () => {}, 
+  onAddNewOption = () => {},
 }) => {
   const [localOptions, setLocalOptions] = useState([]);
 
@@ -50,7 +50,9 @@ const CustomSelect = ({
         options={localOptions}
         value={value}
         onChange={(selected) =>
-          onChange(selected ? { ...selected, name } : { name, value: "", label: "" })
+          onChange(
+            selected ? { ...selected, name } : { name, value: "", label: "" }
+          )
         }
         placeholder={`Select ${label || "option"}`}
         isSearchable

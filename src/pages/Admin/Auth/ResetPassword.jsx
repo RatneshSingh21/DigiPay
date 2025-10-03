@@ -118,7 +118,7 @@ const ResetPassword = () => {
             <button
               type="button"
               onClick={() => setShowNewPassword((prev) => !prev)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              className="absolute cursor-pointer right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
             >
               {showNewPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
@@ -142,7 +142,7 @@ const ResetPassword = () => {
             <button
               type="button"
               onClick={() => setShowConfirmPassword((prev) => !prev)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              className="absolute cursor-pointer right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
@@ -155,7 +155,7 @@ const ResetPassword = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center bg-orange-500 text-white py-2 rounded-full shadow-md hover:bg-orange-600 transition-all disabled:opacity-50"
+            className="w-full flex items-center cursor-pointer justify-center bg-orange-500 text-white py-2 rounded-full shadow-md hover:bg-orange-600 transition-all disabled:opacity-50"
           >
             {loading ? <Spinner /> : "Reset Password"}
           </button>

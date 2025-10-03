@@ -7,11 +7,7 @@ import Spinner from "../../../../components/Spinner";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
 const paymentModes = [
-  {
-    label: "Bank Transfer",
-    value: "Bank Transfer",
-    image: assets.BankTransfer,
-  },
+  { label: "Bank Transfer", value: "Bank Transfer", image: assets.BankTransfer },
   { label: "Cash", value: "Cash", image: assets.Cash },
   { label: "Cheque", value: "Cheque", image: assets.Cheque },
   { label: "NEFT", value: "NEFT", image: assets.NEFT },
@@ -35,14 +31,13 @@ const PaymentInfo = () => {
   } = useAddEmployeeStore();
 
   const [form, setForm] = useState(paymentInfo || {});
-  const [isEdit, setIsEdit] = useState(false);
+  const [bankDetailId, setBankDetailId] = useState(null);
   const [loading, setLoading] = useState(false);
 
   if (!basicDetails) return null;
 
-  const fullName = `${basicDetails.firstName || ""} ${
-    basicDetails.lastName || ""
-  }`.trim();
+  const fullName = `${basicDetails.firstName || ""} ${basicDetails.lastName || ""
+    }`.trim();
   const employeeCode = basicDetails.employeeId || "N/A";
   const email = basicDetails.workEmail || "N/A";
   const departmentName = basicDetails.department?.label || "N/A";
@@ -55,24 +50,33 @@ const PaymentInfo = () => {
     }));
   }, [fullName]);
 
-  // Fetch existing payment info (optional GET integration if needed)
+  // Fetch existing bank details if employeeId exists
   useEffect(() => {
-    if (employeeId) {
+    const fetchBankDetails = async () => {
+      if (!employeeId) return;
       setLoading(true);
-      /*
-      axiosInstance
-        .get(`/BankDetails/${employeeId}`)
-        .then((res) => {
-          if (res.data) {
-            setForm(res.data);
-            setIsEdit(true);
-          }
-        })
-        .catch((err) => console.error("Error fetching payment info:", err))
-        .finally(() => setLoading(false));
-      */
-      setTimeout(() => setLoading(false), 500);
-    }
+      try {
+        const response = await axiosInstance.get(
+          `/BankDetails/employee/${employeeId}`
+        );
+        if (
+          response.data &&
+          response.data.data &&
+          response.data.data.length > 0
+        ) {
+          const existing = response.data.data[0];
+          setForm(existing);
+          setBankDetailId(existing.bankDetailId);
+        }
+      } catch (error) {
+        console.error("Error fetching bank details:", error);
+        // toast.error("Failed to fetch bank details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBankDetails();
   }, [employeeId]);
 
   const handleChange = (e) => {
@@ -101,6 +105,7 @@ const PaymentInfo = () => {
 
     try {
       const payload = {
+        bankDetailId: bankDetailId || 0,
         bankName: form.bankName,
         accountNumber: form.accountNumber,
         ifscCode: form.ifscCode,
@@ -108,18 +113,27 @@ const PaymentInfo = () => {
         branchName: form.branchName,
         branchAddress: form.branchAddress,
         accountHolderName: form.accountHolderName,
-        paymnetMode: form.paymentMode,
+        paymentMode: form.paymentMode,
         employeeId,
       };
-      console.log(payload);
 
-      const response = await axiosInstance.post("/BankDetails", payload);
+      let response;
+      if (bankDetailId) {
+        // Update existing bank details
+        response = await axiosInstance.put(
+          `/BankDetails/${bankDetailId}`,
+          payload
+        );
+        toast.success("Payment info updated successfully!");
+      } else {
+        // Create new bank details
+        response = await axiosInstance.post("/BankDetails", payload);
+        toast.success("Payment info added successfully!");
+        if (response.data?.data?.bankDetailId) {
+          setBankDetailId(response.data.data.bankDetailId);
+        }
+      }
 
-      toast.success(
-        isEdit
-          ? "Payment info updated successfully!"
-          : "Payment info added successfully!"
-      );
       setStepData("paymentInfo", response.data);
       setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
     } catch (error) {
@@ -183,7 +197,7 @@ const PaymentInfo = () => {
               name="accountHolderName"
               value={form.accountHolderName || ""}
               onChange={handleChange}
-              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -197,7 +211,7 @@ const PaymentInfo = () => {
               value={form.bankName || ""}
               onChange={handleChange}
               placeholder="e.g., HDFC Bank"
-              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -211,7 +225,7 @@ const PaymentInfo = () => {
               value={form.branchName || ""}
               onChange={handleChange}
               placeholder="e.g., Connaught Place Branch"
-              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -225,7 +239,7 @@ const PaymentInfo = () => {
               value={form.branchAddress || ""}
               onChange={handleChange}
               placeholder="e.g., 12 MG Road, Delhi"
-              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -239,7 +253,7 @@ const PaymentInfo = () => {
               value={form.accountNumber || ""}
               onChange={handleChange}
               placeholder="e.g., 123456789012"
-              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -253,7 +267,7 @@ const PaymentInfo = () => {
               value={form.ifscCode || ""}
               onChange={handleChange}
               placeholder="e.g., HDFC0001234"
-              className="w-full px-4 py-2 border uppercase border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -292,11 +306,10 @@ const PaymentInfo = () => {
               <div
                 key={mode.value}
                 onClick={() => handlePaymentModeSelect(mode.value)}
-                className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center shadow-sm transition-all duration-200 ${
-                  form.paymentMode === mode.value
+                className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center shadow-sm transition-all duration-200 ${form.paymentMode === mode.value
                     ? "border-blue-500 ring-2 ring-blue-400 bg-green-50"
                     : "hover:border-blue-300 bg-white"
-                }`}
+                  }`}
               >
                 <img
                   src={mode.image}
@@ -321,9 +334,8 @@ const PaymentInfo = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`bg-primary text-white cursor-pointer px-6 py-2 rounded-full flex items-center gap-2 ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-secondary"
-            }`}
+            className={`bg-primary text-white cursor-pointer px-6 py-2 rounded-full flex items-center gap-2 ${loading ? "opacity-50 cursor-not-allowed" : "hover:bg-secondary"
+              }`}
           >
             {loading && <Spinner />}
             Save and Continue
