@@ -117,7 +117,10 @@ const ComplianceDetails = () => {
                       {item.complianceName}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      {item.complianceCode}
+                      ComplianceCode : {item.complianceCode}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      ComplianceId : {item.complianceId}
                     </p>
                   </div>
                   <div className="flex gap-2">

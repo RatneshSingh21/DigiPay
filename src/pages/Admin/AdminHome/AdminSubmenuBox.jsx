@@ -14,26 +14,37 @@ import {
   FaCogs,
   FaBalanceScale,
   FaExchangeAlt,
+  FaProjectDiagram,
+  FaBriefcase,
+  FaClock,
+  FaRegClock,
 } from "react-icons/fa";
 import {
   MdAdminPanelSettings,
   MdCelebration,
+  MdChecklistRtl,
   MdGavel,
   MdOutlineCorporateFare,
   MdOutlineMap,
   MdOutlineRequestPage,
   MdOutlineTrackChanges,
   MdPersonAddAlt1,
+  MdPunchClock,
+  MdWorkOutline,
 } from "react-icons/md";
 import { GoLocation } from "react-icons/go";
 import { GiBookCover } from "react-icons/gi";
 import { RiShieldKeyholeLine } from "react-icons/ri";
-import { AiOutlineSchedule } from "react-icons/ai";
+import { AiOutlinePlusCircle, AiOutlineSchedule } from "react-icons/ai";
 import { BiTimeFive } from "react-icons/bi";
 import { HiOutlineBriefcase, HiOutlineDocumentReport } from "react-icons/hi";
-import { TbCurrencyRupee, TbReportMoney } from "react-icons/tb";
+import {
+  TbCalendarStats,
+  TbCurrencyRupee,
+  TbReportMoney,
+} from "react-icons/tb";
 import { FaGears } from "react-icons/fa6";
-import { BsCashStack } from "react-icons/bs";
+import { BsBriefcase, BsCashStack, BsPeople } from "react-icons/bs";
 
 // Label to path mapping
 const labelToPath = {
@@ -41,8 +52,22 @@ const labelToPath = {
   "Add Employee": "add",
   "Employee List": "list",
   "Employee Salary": "employee-salary-details",
+  "Emp Category": "emp-category",
+  "Employment Type": "emp-employmenttype",
+  "Work Type": "emp-worktype",
+  "Work Nature": "emp-worknature",
   "General Imports": "general-imports",
   "General Settings": "general-settings",
+
+  //Shifts
+  "Add Shift": "add-shift",
+  "Shift Mapping": "mapp-shift",
+
+  //Attendance
+  Attendance: "attendance",
+  "Add Attendance": "add-attendance",
+  Punch: "punch",
+  "Attendance Policy": "atten-policy",
 
   // Settings
   "Organisation Profile": "organisation-profile",
@@ -56,7 +81,6 @@ const labelToPath = {
   "Salary Configuration": "salary",
   "Status Master": "status-master",
   "LetterField Master": "field-master",
-  Attendance: "attendance",
 
   // Role
   "Role Master": "role-master",
@@ -89,23 +113,39 @@ const labelToPath = {
   "PF Contribution Rule": "pf-contribution-rule",
   "ESI Rules": "esi-rule",
   "ESI Transactions": "esi-transaction",
+  "Late Policy": "late-policy",
   "Weekend Policy": "weekend-policy",
   "Policy Details": "policy-details",
 
   // Compliance
   "Compliance Details": "compliance-details",
   "Compliance Rules": "compliance-rules",
+  "OT Master": "otrate",
+  "OT Rule": "otrate-rules",
 };
 
-// Label to icon mapping
 // Label to icon mapping
 const labelToIcon = {
   // Employee
   "Add Employee": <FaUserPlus className="mr-2" />,
   "Employee List": <FaList className="mr-2" />,
   "Employee Salary": <BsCashStack className="mr-2" />,
+  "Emp Category": <BsPeople className="mr-2" />,
+  "Employment Type": <BsBriefcase className="mr-2" />,
+  "Work Type": <MdWorkOutline className="mr-2" />,
+  "Work Nature": <FaBriefcase className="mr-2" />,
   "General Imports": <FaGlobeAmericas className="mr-2" />,
   "General Settings": <FaGears className="mr-2" />,
+
+  // Shifts
+  "Add Shift": <AiOutlinePlusCircle className="mr-2" />,
+  "Shift Mapping": <FaProjectDiagram className="mr-2" />,
+
+  // Attendance
+  Attendance: <FaUserCheck className="mr-2" />,
+  "Add Attendance": <TbCalendarStats className="mr-2" />,
+  Punch: <MdPunchClock className="mr-2" />,
+  "Attendance Policy": <MdPunchClock className="mr-2" />,
 
   // Settings
   "Organisation Profile": <FaBuilding className="mr-2" />,
@@ -118,7 +158,6 @@ const labelToIcon = {
   Shifts: <BiTimeFive className="mr-2" />,
   "Salary Configuration": <TbCurrencyRupee className="mr-2" />,
   "Status Master": <MdOutlineTrackChanges className="mr-2" />,
-  Attendance: <FaUserCheck className="mr-2" />,
   "LetterField Master": <HiOutlineDocumentReport className="mr-2" />,
 
   // Role
@@ -152,12 +191,15 @@ const labelToIcon = {
   "PF Contribution Rule": <FaFileInvoiceDollar className="mr-2" />,
   "ESI Rules": <GiBookCover className="mr-2" />,
   "ESI Transactions": <FaExchangeAlt className="mr-2" />,
+  "Late Policy": <FaExchangeAlt className="mr-2" />,
   "Weekend Policy": <FaUmbrellaBeach className="mr-2" />,
   "Policy Details": <FaFileAlt className="mr-2" />,
 
   // Compliance
   "Compliance Details": <FaFileAlt className="mr-2" />,
   "Compliance Rules": <FaBalanceScale className="mr-2" />,
+  "OT Master": <FaClock className="mr-2" />,
+"OT Rule": <FaRegClock className="mr-2" />,
 };
 
 const AdminSubmenuBox = ({ items, selectedMenu }) => {

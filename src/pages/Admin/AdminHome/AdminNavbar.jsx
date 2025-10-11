@@ -62,7 +62,7 @@ const AdminNavbar = () => {
     };
     fetchApprovals();
 
-    const interval = setInterval(fetchApprovals, 30000);
+    const interval = setInterval(fetchApprovals, 300000);
     return () => clearInterval(interval);
   }, []);
 

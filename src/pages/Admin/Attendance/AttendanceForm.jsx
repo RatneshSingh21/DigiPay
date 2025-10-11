@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Select from "react-select";
 import { toast } from "react-toastify";
@@ -22,25 +22,28 @@ const workTypeOptions = [
 const AttendanceForm = () => {
   const [shiftOptions, setShiftOptions] = useState([]);
   const [employeeOptions, setEmployeeOptions] = useState([]);
+  const [punchTypeOptions, setPunchTypeOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     employee: null,
-    attendanceDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+    attendanceDate: new Date().toISOString().split("T")[0],
     inTime: "09:00",
     outTime: "18:00",
     status: null,
     workType: null,
     shift: null,
+    punchType: null,
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [empRes, shiftRes] = await Promise.all([
+        const [empRes, shiftRes, punchRes] = await Promise.all([
           axiosInstance.get("/Employee"),
           axiosInstance.get("/Shift"),
+          axiosInstance.get("/PunchType"),
         ]);
 
         setEmployeeOptions(
@@ -55,6 +58,13 @@ const AttendanceForm = () => {
             label: shift.shiftName,
             value: shift.id,
           }))
+        );
+
+        setPunchTypeOptions(
+          punchRes.data.data?.map((p) => ({
+            label: p.name,
+            value: p.code,
+          })) || []
         );
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -83,9 +93,10 @@ const AttendanceForm = () => {
       outTime,
       attendanceDate,
       shift,
+      punchType,
     } = formData;
 
-    if (!employee || !status || !workType) {
+    if (!employee || !status || !workType || !punchType) {
       toast.error("Please fill all required fields.");
       setIsSubmitting(false);
       return;
@@ -103,23 +114,19 @@ const AttendanceForm = () => {
     }
 
     const formatLocalDateTime = (dateStr, timeStr) => {
-      return `${dateStr}T${timeStr}:00`; // e.g. "2025-07-24T09:00:00"
+      return `${dateStr}T${timeStr}:00`;
     };
-
-    const inTimeISO = formatLocalDateTime(attendanceDate, inTime);
-    const outTimeISO = formatLocalDateTime(attendanceDate, outTime);
 
     const payload = {
       employeeId: employee.value,
       attendanceDate: new Date(attendanceDate).toISOString(),
-      inTime: inTimeISO,
-      outTime: outTimeISO,
+      inTime: formatLocalDateTime(attendanceDate, inTime),
+      outTime: formatLocalDateTime(attendanceDate, outTime),
       status: status.value,
       workType: workType.value,
       shiftId: shift?.value || 0,
+      punchTypeCode: punchType.value,
     };
-    console.log(payload);
-    
 
     try {
       await axiosInstance.post("/Attendance/create", payload);
@@ -133,23 +140,28 @@ const AttendanceForm = () => {
         status: null,
         workType: null,
         shift: null,
+        punchType: null,
       });
     } catch (err) {
       console.error("Submission error:", err);
-      toast.error("Failed to submit attendance.");
+      toast.error(err?.response?.data?.message || "Failed to submit attendance.");
     } finally {
-      setIsSubmitting(false); // stop spinner
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="bg-white">
+      <div className="px-4 py-3 shadow sticky top-14 bg-white z-10">
+        <h2 className="font-semibold text-xl">Attendance</h2>
+      </div>
+
       <div className="p-8">
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          {/* Employee Name */}
+          {/* Employee */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Employee
@@ -161,20 +173,6 @@ const AttendanceForm = () => {
               onChange={(option) => handleChange("employee", option)}
               placeholder="Select Employee"
               classNamePrefix="react-select"
-              autoFocus
-            />
-          </div>
-
-          {/* Auto-filled Employee ID */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Employee ID
-            </label>
-            <input
-              type="text"
-              value={formData.employee?.value || ""}
-              readOnly
-              className="w-full rounded-md border-gray-300 p-2 bg-gray-100"
             />
           </div>
 
@@ -255,6 +253,20 @@ const AttendanceForm = () => {
               value={formData.shift}
               onChange={(option) => handleChange("shift", option)}
               placeholder="Select Shift"
+              classNamePrefix="react-select"
+            />
+          </div>
+
+          {/* Punch Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Punch Type
+            </label>
+            <Select
+              options={punchTypeOptions}
+              value={formData.punchType}
+              onChange={(option) => handleChange("punchType", option)}
+              placeholder="Select Punch Type"
               classNamePrefix="react-select"
             />
           </div>

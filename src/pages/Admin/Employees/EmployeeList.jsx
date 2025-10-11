@@ -247,7 +247,7 @@ const EmployeeList = () => {
           {currentEmployees.length > 0 ? (
             <>
               <div className="border max-w-xl md:max-w-5xl 2xl:max-w-full overflow-auto border-gray-200 rounded-lg max-h-[60vh]">
-                <table className="text-xs ">
+                <table className="text-xs">
                   <thead className="bg-gray-100 text-gray-700 sticky top-0">
                     <tr className="text-center">
                       <th scope="col" className="px-2 py-2 bg-gray-100">

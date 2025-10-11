@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Select from "react-select";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
@@ -24,6 +25,12 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
       setFormData({ ...initialData });
     }
   }, [isEdit, initialData]);
+
+  const statusOptions = [
+    { value: "Active", label: "Active" },
+    { value: "Pending", label: "Pending" },
+    { value: "Inactive", label: "Inactive" },
+  ];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -73,16 +80,18 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
     });
   };
 
+  const inputClass =
+    "w-full px-4 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400";
+
   return (
     <div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center px-4"
       onClick={onClose}
     >
       <div
         className="bg-white w-full max-w-lg md:max-w-2xl lg:max-w-3xl rounded-2xl shadow-xl relative p-8 sm:p-6 max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
         <button
           type="button"
           className="absolute cursor-pointer top-4 right-4 text-gray-500 hover:text-red-500 text-2xl font-bold"
@@ -95,10 +104,13 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
           {isEdit === "Edit" ? "Edit Compliance" : "Add Compliance"}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
           {/* Compliance Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-0.5">
               Compliance Name
             </label>
             <input
@@ -107,15 +119,15 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
               value={formData.complianceName}
               onChange={handleChange}
               placeholder="Enter compliance name"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              autoFocus
+              className={inputClass}
               required
+              autoFocus
             />
           </div>
 
           {/* Compliance Code */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-0.5">
               Compliance Code
             </label>
             <input
@@ -124,28 +136,13 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
               value={formData.complianceCode}
               onChange={handleChange}
               placeholder="Enter compliance code"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Write a short description..."
-              rows={3}
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className={inputClass}
             />
           </div>
 
           {/* Applicable States */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-0.5">
               Applicable States
             </label>
             <input
@@ -154,13 +151,13 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
               value={formData.applicableStates}
               onChange={handleChange}
               placeholder="Enter states (comma separated)"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className={inputClass}
             />
           </div>
 
           {/* Rule Count */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-0.5">
               Rule Count
             </label>
             <input
@@ -169,30 +166,51 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
               value={formData.ruleCount}
               onChange={handleChange}
               min="0"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className={inputClass}
             />
           </div>
 
           {/* Status */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-0.5">
               Status
             </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="">Select status</option>
-              <option value="Active">Active</option>
-              <option value="Pending">Pending</option>
-              <option value="Inactive">Inactive</option>
-            </select>
+            <Select
+              options={statusOptions}
+              value={
+                statusOptions.find((opt) => opt.value === formData.status) ||
+                null
+              }
+              onChange={(selectedOption) =>
+                setFormData({
+                  ...formData,
+                  status: selectedOption?.value || "",
+                })
+              }
+              placeholder="Select status..."
+              classNamePrefix="react-select"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  borderColor: "#93c5fd",
+                  boxShadow: "none",
+                  "&:hover": { borderColor: "#60a5fa" },
+                  minHeight: "36px",
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  padding: "0 6px",
+                }),
+                dropdownIndicator: (base) => ({
+                  ...base,
+                  padding: "2px",
+                }),
+              }}
+            />
           </div>
 
           {/* Is Enabled */}
-          <div className="flex items-center">
+          <div className="flex items-center mt-6">
             <input
               type="checkbox"
               name="isEnabled"
@@ -203,8 +221,23 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
             <label className="ml-2 text-sm text-gray-700">Enabled</label>
           </div>
 
-          {/* Submit Button */}
-          <div className="pt-4">
+          {/* Description — full width */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-0.5">
+              Description
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Write a short description..."
+              rows={3}
+              className={inputClass}
+            />
+          </div>
+
+          {/* Submit Button — full width */}
+          <div className="pt-4 md:col-span-2">
             <button
               type="submit"
               disabled={loading}

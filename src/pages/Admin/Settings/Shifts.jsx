@@ -29,7 +29,9 @@ const Shifts = () => {
       setShifts(response.data || []);
     } catch (error) {
       console.error("Error fetching locations:", error);
-      toast.error(error?.response?.data?.message || "Failed to load work locations");
+      toast.error(
+        error?.response?.data?.message || "Failed to load work locations"
+      );
     }
   };
 
@@ -39,7 +41,7 @@ const Shifts = () => {
 
   return (
     <>
-      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-2 text-sm shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Shifts</h2>
         {shifts.length > 0 && (
           <div className="flex gap-2 items-center">
@@ -118,13 +120,11 @@ const Shifts = () => {
         />
       )}
 
-      {showImportModal && <ImportShift onClose={closeImport} fetchShifts={fetchShifts} />}
+      {showImportModal && (
+        <ImportShift onClose={closeImport} fetchShifts={fetchShifts} />
+      )}
     </>
   );
 };
 
 export default Shifts;
-
-
-
-

@@ -160,12 +160,11 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
 
   return (
     <div
-      className=" fixed  inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4"
+      className=" fixed text-sm inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4"
       onClick={onClose}
     >
       <div
-        className="bg-white max-h-[90vh] 
- overflow-y-auto  p-6 rounded-lg shadow-lg max-w-xl w-full relative"
+        className="bg-white max-h-[80vh] overflow-y-auto p-6 rounded-lg shadow-lg max-w-xl w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -181,7 +180,7 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
           {isEdit === "Edit" ? "Edit" : "New"} Shift
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {/* Shift Info */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
             <div>
@@ -322,7 +321,7 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
                 <button
                   type="button"
                   onClick={addCoreHour}
-                  className="text-sm text-white bg-primary px-4 py-2 rounded hover:bg-secondary"
+                  className="text-sm text-white cursor-pointer bg-primary px-4 py-2 rounded hover:bg-secondary"
                 >
                   + Add
                 </button>

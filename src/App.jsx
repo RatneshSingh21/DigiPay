@@ -32,10 +32,14 @@ import NotFound from "./pages/NotFound";
 
 import AdminContentBox from "./pages/Admin/AdminHome/AdminContentBox";
 
-// Admin Dashboard Pages
+// Admin Employee Pages
 import EmployeeList from "./pages/Admin/Employees/EmployeeList";
 import AddEmployee from "./pages/Admin/Employees/AddEmployee";
 import EmpSalaryDetails from "./pages/Admin/Employees/EmpSalaryDetails";
+import EmpCategory from "./pages/Admin/Employees/EmpCategory";
+import EmpEmploymentType from "./pages/Admin/Employees/EmpEmploymentType";
+import EmpWorkType from "./pages/Admin/Employees/EmpWorkType";
+import EmpWorkNature from "./pages/Admin/Employees/EmpWorkNature";
 import GeneralImports from "./pages/Admin/Employees/GeneralImports";
 import GeneralSettings from "./pages/Admin/Employees/GeneralSettings/GeneralSettings";
 
@@ -46,42 +50,62 @@ import Departments from "./pages/Admin/Settings/Departments";
 import WorkLocations from "./pages/Admin/Settings/WorkLocations";
 import PaySchedule from "./pages/Admin/Settings/PaySchedule";
 import Permissions from "./pages/Admin/Settings/Permissions";
-import Shifts from "./pages/Admin/Settings/Shifts";
 import Designation from "./pages/Admin/Settings/Designation";
 import StatusMaster from "./pages/Admin/Settings/StatusMaster";
 import Salary from "./pages/Admin/Settings/Salary";
-import Attendance from "./pages/Admin/Settings/Attendance";
 
-// Role Pages
+
+//Admin Role Pages
 import RoleMaster from "./pages/Admin/Role/RoleMaster";
 import RoleApproval from "./pages/Admin/Role/RoleApproval/RoleApproval";
 import EmpRoleMapping from "./pages/Admin/Role/EmpRole/EmpRoleMapping";
+
+//Admin Shift Pages
+import Shifts from "./pages/Admin/Settings/Shifts";
+import ShiftMapping from "./pages/Admin/Shift/ShiftMapping";
+
+//Admin Attendance Pages
+import Attendance from "./pages/Admin/Settings/Attendance";
+import AttendanceForm from "./pages/Admin/Attendance/AttendanceForm";
+import AttendancePunch from "./pages/Admin/Attendance/AttendancePunch";
+import AttendancePolicy from "./pages/Admin/Attendance/AttendancePolicy";
 
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
 import SalaryRegister from "./pages/Admin/Reports/SalaryRegister";
 import PayslipTemplates from "./pages/Admin/Reports/PayslipTemplates";
+import AppointmentLetter from "./pages/Admin/Reports/PayrollReport/AppointmentLetter";
+import ConfirmationLetter from "./pages/Admin/Reports/PayrollReport/ConfirmationLetter";
+import IncrementLetter from "./pages/Admin/Reports/PayrollReport/IncrementLetter";
+import JobPosting from "./pages/Admin/Reports/PayrollReport/JobPosting";
+import OfferLetter from "./pages/Admin/Reports/PayrollReport/OfferLetter";
+import LetterOfIntent from "./pages/Admin/Reports/PayrollReport/LetterOfIntent";
+import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/NominationDeclaration";
+import LetterFieldMaster from "./pages/Admin/Settings/LetterFieldMaster";
 import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificateEditor";
 
-// Leave Pages
+//Admin Leave Pages
 import Leave from "./pages/Admin/Leave/Leave";
 import LeaveRequests from "./pages/Admin/Leave/LeaveRequests";
 import LeaveBalance from "./pages/Admin/Leave/LeaveBalance";
 import LeaveMapping from "./pages/Admin/Leave/LeaveMapping";
 import HolidayList from "./pages/Admin/Leave/HolidayList";
 
-// Policy Pages
+//Admin Policy Pages
 import PolicyDetails from "./pages/Admin/Policies/PolicyDetails";
 import PFSettings from "./pages/Admin/Policies/PFSettings/PFSettings";
 import PFTransaction from "./pages/Admin/Policies/PFTransaction/PFTransaction";
 import PFContributionRule from "./pages/Admin/Policies/PFContributionRule/PFContributionRule";
 import ESIRules from "./pages/Admin/Policies/ESI/ESIRule/ESIRules";
 import ESITransactions from "./pages/Admin/Policies/ESI/ESITransaction/ESITransactions";
+import LatePolicy from "./pages/Admin/Policies/LatePolicy/LatePolicy";
 import WeekendPolicy from "./pages/Admin/Policies/WeekendPolicy/WeekendPolicy";
 
-// Compliance Pages
+//Admin Compliance Pages
 import ComplianceDetails from "./pages/Admin/Compliance/ComplianceDetails";
 import ComplianceRules from "./pages/Admin/Compliance/ComplianceRules";
+import OTSlabMaster from "./pages/Admin/Policies/OT/OTSlabMaster";
+import OTSlabMasterRules from "./pages/Admin/Policies/OT/OTSlabMasterRules";
 
 // Employee Pages
 import EmployeeProfile from "./pages/EmployeePages/EmployeeComponents/EmployeeProfile";
@@ -91,14 +115,15 @@ import EmpMarkAttendance from "./pages/EmployeePages/EmployeeComponents/EmpMarkA
 import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
 import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
-import AppointmentLetter from "./pages/Admin/Reports/PayrollReport/AppointmentLetter";
-import ConfirmationLetter from "./pages/Admin/Reports/PayrollReport/ConfirmationLetter";
-import IncrementLetter from "./pages/Admin/Reports/PayrollReport/IncrementLetter";
-import JobPosting from "./pages/Admin/Reports/PayrollReport/JobPosting";
-import OfferLetter from "./pages/Admin/Reports/PayrollReport/OfferLetter";
-import LetterOfIntent from "./pages/Admin/Reports/PayrollReport/LetterOfIntent";
-import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/NominationDeclaration";
-import LetterFieldMaster from "./pages/Admin/Settings/LetterFieldMaster";
+
+
+
+
+
+
+
+
+
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -168,6 +193,10 @@ const App = () => {
                     path="employee-salary-details"
                     element={<EmpSalaryDetails />}
                   />
+                  <Route path="emp-category" element={<EmpCategory />} />
+                  <Route path="emp-employmenttype" element={<EmpEmploymentType />} />
+                  <Route path="emp-worktype" element={<EmpWorkType />} />
+                  <Route path="emp-worknature" element={<EmpWorkNature />} />
                   <Route path="general-imports" element={<GeneralImports />} />
                   <Route
                     path="general-settings"
@@ -206,10 +235,26 @@ const App = () => {
 
                 {/* Role SubRoutes */}
                 <Route path="role/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="role-master" />} />
+                  <Route index element={<Navigate to="role-master" />} /> 
                   <Route path="role-master" element={<RoleMaster />} />
                   <Route path="role-approval" element={<RoleApproval />} />
                   <Route path="emp-role-mapping" element={<EmpRoleMapping />} />
+                </Route>
+
+                {/* Shift SubRoutes */}
+                <Route path="shifts/*" element={<AdminContentBox />}>
+                  <Route index element={<Navigate to="add-shift" />} />
+                  <Route path="add-shift" element={<Shifts />} />
+                  <Route path="mapp-shift" element={<ShiftMapping />} />
+                </Route>
+
+                {/* Attendance SubRoutes */}
+                <Route path="attendance/*" element={<AdminContentBox />}>
+                  <Route index element={<Navigate to="attendance" />} />
+                  <Route path="attendance" element={<Attendance />} />
+                  <Route path="add-attendance" element={<AttendanceForm />} />
+                  <Route path="punch" element={<AttendancePunch />} />
+                  <Route path="atten-policy" element={<AttendancePolicy />} />
                 </Route>
 
                 {/* Reports SubRoutes */}
@@ -270,7 +315,9 @@ const App = () => {
                   />
                   <Route path="esi-rule" element={<ESIRules />} />
                   <Route path="esi-transaction" element={<ESITransactions />} />
+                  <Route path="late-policy" element={<LatePolicy />} />
                   <Route path="weekend-policy" element={<WeekendPolicy />} />
+                  <Route path="atten-policy" element={<AttendancePolicy />} />
                   <Route path="policy-details" element={<PolicyDetails />} />
                 </Route>
 
@@ -284,6 +331,14 @@ const App = () => {
                   <Route
                     path="compliance-rules"
                     element={<ComplianceRules />}
+                  />
+                  <Route
+                    path="otrate"
+                    element={<OTSlabMaster />}
+                  />
+                  <Route
+                    path="otrate-rules"
+                    element={<OTSlabMasterRules />}
                   />
                 </Route>
 

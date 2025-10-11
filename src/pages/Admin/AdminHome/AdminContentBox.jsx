@@ -2,6 +2,70 @@ import { Outlet, useLocation } from "react-router-dom";
 import AdminSubmenuBox from "./AdminSubmenuBox";
 
 const submenuMap = {
+  Employees: [
+    "Add Employee",
+    "Employee List",
+    "Employee Salary",
+    "Emp Category",
+    "Employment Type",
+    "Work Nature",
+    "Work Type",
+    "General Imports",
+    "General Settings",
+  ],
+
+  Role: ["Role Master", "Role Approval", "Emp. Role Mapping"],
+
+  Leave: [
+    "Leave Types",
+    "Leave Mapping",
+    // "Leave Requests",
+    // "Leave Balance",
+    "Holiday List",
+  ],
+
+  Policy: [
+    "PF Settings",
+    "PF Transaction",
+    "PF Contribution Rule",
+    "ESI Rules",
+    "ESI Transactions",
+    "Late Policy",
+    "Weekend Policy",
+    "Attendance Policy",
+    // "Policy Details",
+  ],
+
+  Compliance: [
+    "Compliance Details",
+    "Compliance Rules",
+    "OT Master",
+    // "OT Rule",
+  ],
+
+  Attendance: [
+    "Attendance",
+    "Add Attendance",
+    "Punch",
+    "Attendance Policy",
+  ],
+
+  Reports: [
+    "Attendance Report",
+    "Salary Register",
+    "Payslip Templates",
+    "Appointment Letter",
+    "Confirmation Letter",
+    "Offer Letter",
+    "Letter of Intent",
+    "Increment Letter",
+    "Experience Cert.",
+    // "Nomination-Declaration",
+    // "Job Posting",
+  ],
+
+  Shifts: ["Add Shift", "Shift Mapping"],
+
   Settings: [
     "Organisation Profile",
     "Create Admin",
@@ -16,45 +80,6 @@ const submenuMap = {
     "Attendance",
     "LetterField Master",
   ],
-  Employees: [
-    "Add Employee",
-    "Employee List",
-    "Employee Salary",
-    "General Imports",
-    "General Settings",
-  ],
-  Role: ["Role Master", "Role Approval", "Emp. Role Mapping"],
-  Reports: [
-    "Attendance Report",
-    "Salary Register",
-    "Payslip Templates",
-    "Appointment Letter",
-    "Confirmation Letter",
-    "Offer Letter",
-    "Letter of Intent",
-    "Increment Letter",
-    "Experience Cert.",
-    "Nomination-Declaration",
-    "Job Posting",
-
-  ],
-  Leave: [
-    "Leave Types",
-    "Leave Mapping",
-    // "Leave Requests",
-    // "Leave Balance",
-    "Holiday List",
-  ],
-  Policy: [
-    "PF Settings",
-    "PF Transaction",
-    "PF Contribution Rule",
-    "ESI Rules",
-    "ESI Transactions",
-    "Weekend Policy",
-    // "Policy Details",
-  ],
-  Compliance: ["Compliance Details", "Compliance Rules"],
 };
 
 const getMenuFromPath = (pathname) => {
@@ -62,6 +87,9 @@ const getMenuFromPath = (pathname) => {
   if (pathname.includes("/settings")) return "Settings";
   if (pathname.includes("/reports")) return "Reports";
   if (pathname.includes("/role")) return "Role";
+  if (pathname.includes("/shifts")) return "Shifts";
+  if (pathname.includes("/reports")) return "Reports";
+  if (pathname.includes("/attendance")) return "Attendance";
   if (pathname.includes("/payschedule")) return "Payschedule";
   if (pathname.includes("/leave")) return "Leave";
   if (pathname.includes("/policy")) return "Policy";

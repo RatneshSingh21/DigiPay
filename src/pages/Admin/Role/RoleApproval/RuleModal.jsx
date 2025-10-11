@@ -1,8 +1,16 @@
 import React from "react";
-import { X } from "lucide-react"; // for a modern close icon
+import { X } from "lucide-react";
+import CreatableSelect from "react-select/creatable";
 
 const RuleModal = ({ isOpen, onClose, formData, setFormData, createRule }) => {
   if (!isOpen) return null;
+
+  const options = [
+    { value: "AdvancePayment", label: "Advance Payment" },
+    { value: "Leave", label: "Leave" },
+    { value: "onDuty", label: "On Duty" },
+    { value: "Expense", label: "Expense" },
+  ];
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
@@ -14,26 +22,45 @@ const RuleModal = ({ isOpen, onClose, formData, setFormData, createRule }) => {
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition"
+            className="cursor-pointer text-gray-400 hover:text-gray-600 transition"
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Input */}
+        {/* Request Type (Creatable Select) */}
         <div className="mb-4">
           <label className="text-sm font-medium text-gray-700 block mb-1">
             Request Type
           </label>
-          <input
-            type="text"
-            placeholder="e.g. AdvancePayment, Leave, onDuty"
-            className="w-full border border-blue-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={formData.requestType}
-            onChange={(e) =>
-              setFormData({ ...formData, requestType: e.target.value })
-            }
+          <CreatableSelect
+            isClearable
             autoFocus
+            options={options}
+            placeholder="Select or type to add new..."
+            value={
+              formData.requestType
+                ? { value: formData.requestType, label: formData.requestType }
+                : null
+            }
+            onChange={(selectedOption) =>
+              setFormData({
+                ...formData,
+                requestType: selectedOption ? selectedOption.value : "",
+              })
+            }
+            formatCreateLabel={(inputValue) => ` Add "${inputValue}"`}
+            classNamePrefix="select"
+            styles={{
+              control: (base) => ({
+                ...base,
+                borderColor: "#93c5fd",
+                borderRadius: "0.5rem",
+                minHeight: "38px",
+                boxShadow: "none",
+                "&:hover": { borderColor: "#60a5fa" },
+              }),
+            }}
           />
         </div>
 

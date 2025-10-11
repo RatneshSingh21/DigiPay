@@ -50,7 +50,7 @@ const AddWeekendPolicy = ({ onClose, onSuccess, initialData, isEdit }) => {
     remarks: "",
     isActive: true,
     createdOn: new Date().toISOString(),
-    createdBy: "Admin",
+    createdBy: "",
   });
 
   const handleChange = (key, value) => {

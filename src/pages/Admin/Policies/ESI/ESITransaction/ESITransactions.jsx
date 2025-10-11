@@ -28,9 +28,12 @@ const ESITransactions = () => {
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
-      const contentDisposition = response.headers?.["content-disposition"] || "";
+      const contentDisposition =
+        response.headers?.["content-disposition"] || "";
       let filename = `ESI_Statement_${month}_${year}.xlsx`;
-      const match = contentDisposition.match(/filename\*=UTF-8''([^;\n]+)/) || contentDisposition.match(/filename=([^;\n]+)/);
+      const match =
+        contentDisposition.match(/filename\*=UTF-8''([^;\n]+)/) ||
+        contentDisposition.match(/filename=([^;\n]+)/);
       if (match && match[1]) {
         try {
           filename = decodeURIComponent(match[1].replace(/\"/g, "").trim());
@@ -109,10 +112,12 @@ const ESITransactions = () => {
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
           >
-            {[1,2,3,4,5,6,7,8,9,10,11,12].map((m) => (
-              <option key={m} value={m}>{m}</option>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
             ))}
-          </select> 
+          </select>
           <input
             type="number"
             className="border rounded px-2 py-1 w-24 text-sm"
@@ -121,9 +126,9 @@ const ESITransactions = () => {
           />
           <button
             onClick={handleExport}
-            className="bg-secondary text-sm cursor-pointer hover:bg-primary text-white px-4 py-2 rounded"
+            className="bg-green-600 text-white text-sm cursor-pointer px-3 py-2 rounded flex items-center gap-2 hover:bg-green-700 transition"
           >
-            Export
+            Generate ESi File
           </button>
           <button
             onClick={() => setIsModalOpen(true)}

@@ -116,7 +116,7 @@ const RoleApproval = () => {
       setRoleAssignment({ ruleId: "", roleId: "", sequenceOrder: "" });
       setIsRoleModalOpen(false);
       fetchRuleRoles();
-    } catch(error) {
+    } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to assign role");
     }
   };
@@ -127,7 +127,7 @@ const RoleApproval = () => {
         <h2 className="font-semibold text-xl">Approval Rules Management</h2>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="px-4 py-2 space-y-2">
         {/* Existing Rules */}
         <div className="bg-white shadow-lg rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
@@ -153,12 +153,12 @@ const RoleApproval = () => {
               <p className="italic">No rules created yet.</p>
             </div>
           ) : (
-            <div className="rounded-lg border">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-200 text-gray-900 uppercase text-xs tracking-wide">
+            <div className="overflow-x-auto shadow h-[150px] overflow-y-scroll">
+              <table className="min-w-full divide-y text-xs divide-gray-200">
+                <thead className="bg-gray-100 text-gray-600 text-center">
                   <tr>
-                    <th className="px-4 py-3 text-center">Request Type</th>
-                    <th className="px-4 py-3 text-center">Custom Approver</th>
+                    <th className="p-2">Request Type</th>
+                    <th className="p-2">Custom Approver</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -167,10 +167,10 @@ const RoleApproval = () => {
                       key={r.ruleId}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-4 py-3 font-medium text-center text-gray-800">
+                      <td className="p-2 font-medium text-center text-gray-800">
                         {r.requestType}
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="p-2 text-center">
                         {r.allowCustomApprover ? (
                           <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
                             Yes
@@ -213,13 +213,13 @@ const RoleApproval = () => {
               <p className="italic">No roles assigned yet.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-200 text-gray-900 uppercase text-xs tracking-wide">
+            <div className="overflow-x-auto shadow h-[150px] overflow-y-scroll">
+              <table className="min-w-full divide-y text-xs divide-gray-200 text-center ">
+                <thead className="bg-gray-100 text-gray-600">
                   <tr>
-                    <th className="px-4 py-3 text-center">Rule Id</th>
-                    <th className="px-4 py-3 text-center">Role</th>
-                    <th className="px-4 py-3 text-center">Sequence</th>
+                    <th className="p-2">Rule Id</th>
+                    <th className="p-2">Role</th>
+                    <th className="p-2">Sequence</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -232,13 +232,11 @@ const RoleApproval = () => {
                         key={rr.ruleRoleId}
                         className="hover:bg-gray-50 transition-colors"
                       >
-                        <td className="px-4 py-3 text-center font-medium text-gray-800">
+                        <td className="p-2 font-medium text-gray-800">
                           {rr.ruleRoleId}
                         </td>
-                        <td className="px-4 py-3 text-center text-gray-700">
-                          {roleName}
-                        </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="p-2 text-gray-700">{roleName}</td>
+                        <td className="p-2">
                           <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
                             {rr.sequenceOrder}
                           </span>

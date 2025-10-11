@@ -1,7 +1,12 @@
 import { AiFillDashboard, AiFillSetting } from "react-icons/ai";
 import { RiArticleFill, RiFolderOpenFill } from "react-icons/ri";
-import { FaClipboardCheck, FaUsers } from "react-icons/fa";
-import { MdAdminPanelSettings, MdEventAvailable, MdPolicy } from "react-icons/md";
+import { FaClipboardCheck, FaBusinessTime, FaUsers } from "react-icons/fa";
+import {
+  MdAdminPanelSettings,
+  MdChecklistRtl,
+  MdEventAvailable,
+  MdPolicy,
+} from "react-icons/md";
 import AdminSidebarItem from "./AdminSidebarItem";
 import assets from "../../../assets/assets";
 import { Link } from "react-router-dom";
@@ -32,9 +37,9 @@ const menuItems = [
     collapseOnClick: true,
   },
   {
-    label: "Reports",
-    icon: <RiFolderOpenFill />,
-    to: "/admin-dashboard/reports",
+    label: "Shifts",
+    icon: <FaBusinessTime />,
+    to: "/admin-dashboard/shifts",
     collapseOnClick: true,
   },
   {
@@ -49,10 +54,22 @@ const menuItems = [
     to: "/admin-dashboard/policy",
     collapseOnClick: true,
   },
-    {
+  {
     label: "Compliance",
     icon: <FaClipboardCheck />,
     to: "/admin-dashboard/compliance",
+    collapseOnClick: true,
+  },
+   {
+    label: "Attendance",
+    icon: <MdChecklistRtl />,
+    to: "/admin-dashboard/attendance",
+    collapseOnClick: true,
+  },
+  {
+    label: "Reports",
+    icon: <RiFolderOpenFill />,
+    to: "/admin-dashboard/reports",
     collapseOnClick: true,
   },
   {

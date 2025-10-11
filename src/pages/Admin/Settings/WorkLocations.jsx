@@ -29,7 +29,9 @@ const WorkLocations = () => {
       setLocations(response.data || []);
     } catch (error) {
       console.error("Error fetching locations:", error);
-      toast.error(error?.response?.data?.message || "Failed to load work locations");
+      toast.error(
+        error?.response?.data?.message || "Failed to load work locations"
+      );
     }
   };
 
@@ -107,7 +109,7 @@ const WorkLocations = () => {
           openModal={openModal}
         />
       )}
-      
+
       {showAddModel && (
         <WorkLocationForm
           onClose={closeModal}
@@ -116,7 +118,12 @@ const WorkLocations = () => {
           onSuccess={fetchLocations}
         />
       )}
-      {showImportModal && <ImportWorkLocations onClose={closeImport} fetchLocations={fetchLocations} />}
+      {showImportModal && (
+        <ImportWorkLocations
+          onClose={closeImport}
+          fetchLocations={fetchLocations}
+        />
+      )}
     </>
   );
 };

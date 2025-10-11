@@ -17,46 +17,43 @@ const Permissions = () => {
 
   const { companyId } = useAuthStore();
 
-  
-
   const isDisabled = !selectedEmployee || saving;
 
   // Fetch admins and employees separately
-const fetchEmployees = async (companyId) => {
-  try {
-    setLoading(true);
+  const fetchEmployees = async (companyId) => {
+    try {
+      setLoading(true);
 
-    // 1. Fetch Admins
-    const adminRes = await axiosInstance.get("/user-auth/all");
-    const adminOptions = adminRes.data.map((admin) => ({
-      value: admin.userId,
-      label: `${admin.name} (${admin.role})`,
-      type: "admin",
-    }));
+      // 1. Fetch Admins
+      const adminRes = await axiosInstance.get("/user-auth/all");
+      const adminOptions = adminRes.data.map((admin) => ({
+        value: admin.userId,
+        label: `${admin.name} (${admin.role})`,
+        type: "admin",
+      }));
 
-    // 2. Fetch Employees by companyId
-    const empRes = await axiosInstance.get(
-      `/user-auth/getEmployee/companyId/${companyId}`
-    );
-    const empOptions =
-      empRes.data?.data?.map((emp) => ({
-        value: emp.id,
-        label: `${emp.fullName} (${emp.employeeCode})`,
-        type: "employee",
-      })) || [];
+      // 2. Fetch Employees by companyId
+      const empRes = await axiosInstance.get(
+        `/user-auth/getEmployee/companyId/${companyId}`
+      );
+      const empOptions =
+        empRes.data?.data?.map((emp) => ({
+          value: emp.id,
+          label: `${emp.fullName} (${emp.employeeCode})`,
+          type: "employee",
+        })) || [];
 
-    // 3. Set grouped options
-    setEmployees([
-      { label: "Admins", options: adminOptions },
-      { label: "Employees", options: empOptions },
-    ]);
-  } catch (err) {
-    toast.error("Failed to load users");
-  } finally {
-    setLoading(false);
-  }
-};
-
+      // 3. Set grouped options
+      setEmployees([
+        { label: "Admins", options: adminOptions },
+        { label: "Employees", options: empOptions },
+      ]);
+    } catch (err) {
+      toast.error("Failed to load users");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // fetch modules from API
   const fetchModules = async () => {
@@ -74,11 +71,11 @@ const fetchEmployees = async (companyId) => {
   };
 
   useEffect(() => {
-  if (companyId) {
-    fetchEmployees(companyId);
-    fetchModules();
-  }
-}, [companyId]);
+    if (companyId) {
+      fetchEmployees(companyId);
+      fetchModules();
+    }
+  }, [companyId]);
 
   const fetchPermissions = async (employeeId) => {
     try {
@@ -119,34 +116,34 @@ const fetchEmployees = async (companyId) => {
   };
 
   const handleSave = async () => {
-  if (!selectedEmployee) return;
-  try {
-    setSaving(true);
+    if (!selectedEmployee) return;
+    try {
+      setSaving(true);
 
-    // build payload from all modules, not just toggled ones
-    const payload = modules.map((m) => ({
-      adminUserId: selectedEmployee.value,
-      moduleId: m.moduleId,
-      moduleName: m.moduleName,
-      canView: permissions[m.moduleName]?.canView || false,
-      canCreate: permissions[m.moduleName]?.canCreate || false,
-      canEdit: permissions[m.moduleName]?.canEdit || false,
-      canDelete: permissions[m.moduleName]?.canDelete || false,
-    }));
+      // build payload from all modules, not just toggled ones
+      const payload = modules.map((m) => ({
+        adminUserId: selectedEmployee.value,
+        moduleId: m.moduleId,
+        moduleName: m.moduleName,
+        canView: permissions[m.moduleName]?.canView || false,
+        canCreate: permissions[m.moduleName]?.canCreate || false,
+        canEdit: permissions[m.moduleName]?.canEdit || false,
+        canDelete: permissions[m.moduleName]?.canDelete || false,
+      }));
 
-    for (let item of payload) {
-      await axiosInstance.post("/Permission/set", item);
+      for (let item of payload) {
+        await axiosInstance.post("/Permission/set", item);
+      }
+
+      toast.success("Permissions updated!");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to update permissions"
+      );
+    } finally {
+      setSaving(false);
     }
-
-    toast.success("Permissions updated!");
-  } catch (error) {
-    toast.error(
-      error?.response?.data?.message || "Failed to update permissions"
-    );
-  } finally {
-    setSaving(false);
-  }
-};
+  };
 
   return (
     <>
@@ -229,12 +226,13 @@ const fetchEmployees = async (companyId) => {
             </div>
 
             {/* Table */}
-            <table className="w-full text-sm text-left border border-gray-200">
-              <thead className="bg-gray-100 text-gray-700">
+
+            <table className="min-w-full divide-y text-xs text-center divide-gray-200">
+              <thead className="bg-gray-100 text-gray-600">
                 <tr>
-                  <th className="p-3 border text-left">Modules</th>
+                  <th className="p-3">Modules</th>
                   {["View", "Create", "Edit", "Delete"].map((action) => (
-                    <th key={action} className="p-3 border text-center">
+                    <th key={action} className="p-3 text-center">
                       {action.toUpperCase()}
                     </th>
                   ))}
@@ -243,10 +241,10 @@ const fetchEmployees = async (companyId) => {
               <tbody>
                 {modules.map((m) => (
                   <tr key={m.moduleId} className="hover:bg-gray-50 transition">
-                    <td className="p-3 border font-medium">{m.moduleName}</td>
+                    <td className="p-3 font-medium">{m.moduleName}</td>
                     {["canView", "canCreate", "canEdit", "canDelete"].map(
                       (permKey) => (
-                        <td key={permKey} className="border text-center">
+                        <td key={permKey} className="text-center">
                           <input
                             type="checkbox"
                             className="w-5 h-5 cursor-pointer accent-primary"
@@ -268,7 +266,7 @@ const fetchEmployees = async (companyId) => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-4 px-5 pb-5">
+      <div className="flex justify-end gap-4 px-5 text-sm pb-5">
         <button
           onClick={handleSave}
           disabled={isDisabled}

@@ -46,7 +46,7 @@ const RoleMaster = () => {
       toast.success("Role added successfully!");
       setFormData({ roleName: "", description: "" });
       fetchRoles();
-    } catch(error) {
+    } catch (error) {
       toast.error(error?.response?.data?.message || "Error adding role.");
     } finally {
       setSubmitting(false);
@@ -119,23 +119,23 @@ const RoleMaster = () => {
         {loading ? (
           <p className="text-gray-600">Loading...</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-200 rounded-lg text-sm text-center">
-              <thead className="bg-gray-100 text-gray-700">
+          <div className="overflow-x-auto shadow">
+            <table className="min-w-full divide-y text-xs divide-gray-200 text-center">
+              <thead className="bg-gray-100 text-gray-600">
                 <tr>
-                  <th className="px-4 py-2 text-left">S NO.</th>
-                  <th className="px-4 py-2">Role Name</th>
-                  <th className="px-4 py-2">Description</th>
-                  <th className="px-4 py-2">Created By</th>
+                  <th className="p-2">S NO.</th>
+                  <th className="p-2">Role Name</th>
+                  <th className="p-2">Description</th>
+                  <th className="p-2">Created By</th>
                 </tr>
               </thead>
               <tbody>
                 {roles.map((role, idx) => (
-                  <tr key={role.roleID} className="border-t hover:bg-gray-50">
-                    <td className="px-4 py-2 text-left">{idx + 1}.</td>
-                    <td className="px-4 py-2">{role.roleName}</td>
-                    <td className="px-4 py-2">{role.description}</td>
-                    <td className="px-4 py-2">{role.createdBy || "-"}</td>
+                  <tr key={role.roleID} className="hover:bg-gray-50">
+                    <td className="p-2">{idx + 1}.</td>
+                    <td className="p-2">{role.roleName}</td>
+                    <td className="p-2">{role.description}</td>
+                    <td className="p-2">{role.createdBy || "-"}</td>
                   </tr>
                 ))}
               </tbody>

@@ -11,41 +11,63 @@ import { toast } from "react-toastify";
 const AdminSummaryCards = () => {
   const [employees, setEmployees] = useState([]);
   const [summary, setSummary] = useState({
-    totalSalaryPaid: 1250000, // dummy ₹12.5L
-    otPaid: 45000,            // dummy OT
-    pfPaid: 65000,            // dummy PF
-    esiPaid: 32000,           // dummy ESI
+    totalSalaryPaid: 0,
+    otPaid: 0,
+    pfPaid: 0,
+    esiPaid: 0,
   });
 
-  // Fetch employees
+  const currentMonth = new Date().getMonth() + 1; // e.g. 10 for October
+
+  // 🧾 Fetch employees (to show count)
   const fetchEmployees = async () => {
     try {
       const response = await axiosInstance.get("/Employee");
       setEmployees(response.data?.data || response.data || []);
     } catch (error) {
       console.error("Error fetching employees:", error);
-      // toast.error("Failed to fetch employees");
     }
   };
 
-  // 🔄 (Dummy) Payroll Summary Fetch
-  const fetchSummary = async () => {
+  // 💰 Fetch salary summary for current month
+  const fetchSalarySummary = async () => {
     try {
-      // Uncomment when backend ready
-      // const res = await axiosInstance.get("/api/Payroll/summary");
-      // setSummary(res.data);
+      const response = await axiosInstance.get(`/Salary/month/${currentMonth}`);
+      const salaries = response.data?.data || [];
+
+      // 🔢 Calculate totals
+      const totalSalaryPaid = salaries.reduce(
+        (sum, s) => sum + (s.netSalary || 0),
+        0
+      );
+      const otPaid = salaries.reduce(
+        (sum, s) => sum + (s.overtimeAmount || 0),
+        0
+      );
+      const pfPaid = salaries.reduce((sum, s) => sum + (s.pfEmployee || 0), 0);
+      const esiPaid = salaries.reduce(
+        (sum, s) => sum + (s.esicEmployee || 0),
+        0
+      );
+
+      setSummary({
+        totalSalaryPaid,
+        otPaid,
+        pfPaid,
+        esiPaid,
+      });
     } catch (error) {
-      console.error("Error fetching payroll summary:", error);
-      toast.error("Failed to fetch payroll summary");
+      console.error("Error fetching salary summary:", error);
+      toast.error("Failed to fetch salary summary");
     }
   };
 
   useEffect(() => {
     fetchEmployees();
-    fetchSummary();
+    fetchSalarySummary();
   }, []);
 
-  // 🔧 Cards Config
+  // 🧩 Card Data
   const cards = [
     {
       label: "Total Employees",
@@ -66,7 +88,7 @@ const AdminSummaryCards = () => {
     },
     {
       label: "Total Salary Paid",
-      value: `₹${(summary.totalSalaryPaid / 100000).toFixed(2)}L`,
+      value: `₹${summary.totalSalaryPaid.toLocaleString()}`,
       diff: "This month",
       icon: <FaMoneyCheckAlt />,
       color: "from-green-500 to-green-600",
@@ -83,7 +105,7 @@ const AdminSummaryCards = () => {
       customContent: (
         <div className="flex flex-col gap-1 text-gray-800 text-sm font-semibold">
           <div>PF: ₹{summary.pfPaid.toLocaleString()}</div>
-          <div>ESI: ₹{summary.esiPaid.toLocaleString()}</div>    
+          <div>ESI: ₹{summary.esiPaid.toLocaleString()}</div>
         </div>
       ),
       diff: "Employer + Employee",
@@ -100,7 +122,6 @@ const AdminSummaryCards = () => {
           className="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex flex-col gap-3"
         >
           <div className="flex justify-between items-center">
-            {/* If customContent exists (PF & ESI card), show that instead of value */}
             {card.customContent ? (
               <div>{card.customContent}</div>
             ) : (

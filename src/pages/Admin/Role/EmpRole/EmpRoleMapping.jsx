@@ -3,7 +3,6 @@ import AddEmpRoleMappingModal from "./AddEmpRoleMappingModal";
 import { FaPlus } from "react-icons/fa";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
-
 const EmpRoleMapping = () => {
   const [mappings, setMappings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +32,7 @@ const EmpRoleMapping = () => {
         <h2 className="font-semibold text-xl">Employee Role Mapping</h2>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center cursor-pointer gap-2 text-sm bg-primary text-white px-3 py-2 rounded-lg hover:bg-secondary transition"
+          className="flex items-center cursor-pointer gap-2 text-xs bg-primary text-white px-3 py-2 rounded-lg hover:bg-secondary transition"
         >
           <FaPlus /> Add Mapping
         </button>
@@ -48,15 +47,15 @@ const EmpRoleMapping = () => {
             No employee role mappings found.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-            <table className="w-full text-sm text-center border-collapse">
-              <thead className="bg-gray-100 text-gray-700 sticky top-0">
+          <div className="overflow-x-auto shadow">
+            <table className="min-w-full divide-y text-xs text-center divide-gray-200">
+              <thead className="bg-gray-100 text-gray-600">
                 <tr>
-                  <th className="border p-2">Employee ID</th>
-                  <th className="border p-2">Employee Name</th>
-                  <th className="border p-2">Role</th>
-                  <th className="border p-2">Assigned At</th>
-                  <th className="border p-2">Assigned By</th>
+                  <th className="p-2">Employee ID</th>
+                  <th className="p-2">Employee Name</th>
+                  <th className="p-2">Role</th>
+                  <th className="p-2">Assigned At</th>
+                  <th className="p-2">Assigned By</th>
                 </tr>
               </thead>
               <tbody>
@@ -67,13 +66,13 @@ const EmpRoleMapping = () => {
                       idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                     } hover:bg-blue-50 transition`}
                   >
-                    <td className="border p-2">{map.employeeId}</td>
-                    <td className="border p-2">{map.employeeName}</td>
-                    <td className="border p-2 font-medium">{map.roleName}</td>
-                    <td className="border p-2">
+                    <td className="p-2">{map.employeeId}</td>
+                    <td className="p-2">{map.employeeName}</td>
+                    <td className="p-2 font-medium">{map.roleName}</td>
+                    <td className="p-2">
                       {new Date(map.assignedAt).toLocaleString()}
                     </td>
-                    <td className="border p-2">{map.assignedBy}</td>
+                    <td className="p-2">{map.assignedBy}</td>
                   </tr>
                 ))}
               </tbody>

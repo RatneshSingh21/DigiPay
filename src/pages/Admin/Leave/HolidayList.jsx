@@ -21,21 +21,20 @@ const HolidayList = () => {
   };
 
   const fetchHolidays = async () => {
-  try {
-    setLoading(true);
-    const res = await axiosInstance.get("/HolidayListMaster/get-all");
-    const sortedHolidays = (res.data || []).sort(
-      (a, b) => new Date(a.holidayDate) - new Date(b.holidayDate)
-    );
-    setHolidays(sortedHolidays);
-  } catch (err) {
-    toast.error("Failed to fetch holiday list!");
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get("/HolidayListMaster/get-all");
+      const sortedHolidays = (res.data || []).sort(
+        (a, b) => new Date(a.holidayDate) - new Date(b.holidayDate)
+      );
+      setHolidays(sortedHolidays);
+    } catch (err) {
+      toast.error("Failed to fetch holiday list!");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -58,7 +57,7 @@ const HolidayList = () => {
       <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Holiday List</h2>
         {holidays.length > 0 && (
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 text-sm items-center">
             <button
               className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium cursor-pointer"
               onClick={() => {
@@ -80,19 +79,19 @@ const HolidayList = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse rounded-lg overflow-hidden">
+      <div className="overflow-x-auto shadow">
+        <table className="min-w-full divide-y text-xs text-center divide-gray-200">
           {/* Show table header only when there are holidays */}
           {holidays.length > 0 && (
-            <thead className="bg-gray-100 text-gray-700 text-sm">
+            <thead className="bg-gray-100 text-gray-600">
               <tr>
-                <th className="py-3 px-4 text-center">S NO.</th>
-                <th className="py-3 px-4 text-center">Holiday Name</th>
-                <th className="py-3 px-4 text-center">Date</th>
-                <th className="py-3 px-4 text-center">Day</th>
-                {/* <th className="py-3 px-4 text-center">Created By</th>
-                <th className="py-3 px-4 text-center">Updated By</th> */}
-                <th className="py-3 px-4 text-center">Actions</th>
+                <th className="py-2 px-4 text-center">S NO.</th>
+                <th className="py-2 px-4 text-center">Holiday Name</th>
+                <th className="py-2 px-4 text-center">Date</th>
+                <th className="py-2 px-4 text-center">Day</th>
+                {/* <th className="py-2 px-4 text-center">Created By</th>
+                <th className="py-2 px-4 text-center">Updated By</th> */}
+                <th className="py-2 px-4 text-center">Actions</th>
               </tr>
             </thead>
           )}
@@ -111,27 +110,27 @@ const HolidayList = () => {
               holidays.map((holiday, index) => (
                 <tr
                   key={holiday.holidayId || index}
-                  className="border-t hover:bg-gray-50 transition text-center"
+                  className="hover:bg-gray-50 transition text-center"
                 >
-                  <td className="py-3 px-4">{index + 1}</td>
-                  <td className="py-3 px-4 font-medium text-gray-800 text-center">
+                  <td className="py-2 px-4">{index + 1}</td>
+                  <td className="py-2 px-4 font-medium text-gray-800 text-center">
                     {holiday.holidayName}
                   </td>
-                  <td className="py-3 px-4 text-center">
+                  <td className="py-2 px-4 text-center">
                     {new Date(holiday.holidayDate).toLocaleDateString("en-GB")}
                   </td>
-                  <td className="py-3 px-4 text-gray-600 text-center">
+                  <td className="py-2 px-4 text-gray-600 text-center">
                     {new Date(holiday.holidayDate).toLocaleDateString("en-GB", {
                       weekday: "long",
                     })}
                   </td>
-                  {/* <td className="py-3 px-4 text-center">
+                  {/* <td className="py-2 px-4 text-center">
                     {holiday.createdBy || "-"}
                   </td>
-                  <td className="py-3 px-4 text-center">
+                  <td className="py-2 px-4 text-center">
                     {holiday.updatedBy || "-"}
                   </td> */}
-                  <td className="py-3 px-4 flex justify-center gap-2">
+                  <td className="py-2 px-4 flex justify-center gap-2">
                     <button
                       className="flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition cursor-pointer"
                       onClick={() => {

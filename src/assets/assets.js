@@ -10,7 +10,7 @@ import otpIllustration from "./otpIllustration.png";
 import BackgroundPopup from "./BackgroundPopup.png";
 import ForgetImage from "./ForgetImage.png";
 import OtpLogin from "./OtpLogin.png";
-import LoginWithOtp from "./LoginWithOtp.mp4"
+import LoginWithOtp from "./LoginWithOtp.mp4";
 import DesignationIllustration from "./DesignationIllustration.png";
 import EmployeeIllustration from "./EmployeeIllustration.png";
 import SalaryIllustration from "./SalaryIllustration.png";
@@ -18,34 +18,34 @@ import WorkLocationIllustration from "./WorkLocationIllustration.png";
 import DepartmentIllustration from "./DepartmentIllustration.png";
 import PaySchuduleIllustration from "./PaySchuduleIllustration.png";
 import ShiftIllustration from "./ShiftIllustration.png";
-import WeekendPolicyIllustration from "./WeekendPolicyIllustration.png"
-import LeaveIllustration from "./LeaveIllustration.jpg"
-import ComplianceIllustration from "./ComplianceIllustration.png"
+import WeekendPolicyIllustration from "./WeekendPolicyIllustration.png";
+import LeaveIllustration from "./LeaveIllustration.jpg";
+import ComplianceIllustration from "./ComplianceIllustration.png";
 import BankTransfer from "./BankTransfer.png";
 import Cash from "./Cash.png";
 import Cheque from "./Cheque.png";
 import NEFT from "./NEFT.png";
-import Otpgif from "./Otpgif.gif"
-import BP from "./BP.jpeg"
-import Atul from "./Atul.jpeg"
-import PayslipTemplate1 from "./PayslipTemplate1.png"
-import PayslipTemplate2 from "./PayslipTemplate2.png"
-import PayslipTemplate3 from "./PayslipTemplate3.png"
-import PayslipTemplate4 from "./PayslipTemplate4.png"
+import Otpgif from "./Otpgif.gif";
+import BP from "./BP.jpeg";
+import Atul from "./Atul.jpeg";
+import PayslipTemplate1 from "./PayslipTemplate1.png";
+import PayslipTemplate2 from "./PayslipTemplate2.png";
+import PayslipTemplate3 from "./PayslipTemplate3.png";
+import PayslipTemplate4 from "./PayslipTemplate4.png";
 import AllEmployeesSalaryReport from "./AllEmployeesSalaryReport.png";
-import SingleEmployeeSalaryReport from "./SingleEmployeeSalaryReport.png";  
+import SingleEmployeeSalaryReport from "./SingleEmployeeSalaryReport.png";
 import SampleAttendance from "./SampleAttendance.png";
-import Unauthorize from "./Unauthorize.png"
-import sign from "./sign.svg"
-import ForgetGif from "./ForgetGif.gif"
-import StopGif from "./StopGif.gif"
-import LostGif from "./LostGif.gif"
-import holiday from "./holiday.png"
-import ComplianceRuleIllustration from "./ComplianceRuleIllustration.jpg"
-import UserDummy from "./UserDummy.png"
-import Header from "./Header.png"
-import Footer from "./Footer.png"
-
+import Unauthorize from "./Unauthorize.png";
+import sign from "./sign.svg";
+import ForgetGif from "./ForgetGif.gif";
+import StopGif from "./StopGif.gif";
+import LostGif from "./LostGif.gif";
+import holiday from "./holiday.png";
+import ComplianceRuleIllustration from "./ComplianceRuleIllustration.jpg";
+import UserDummy from "./UserDummy.png";
+import Header from "./Header.png";
+import Footer from "./Footer.png";
+import Landscape from "./Landscape.jpg";
 
 const assets = {
   bg: bg,
@@ -95,6 +95,7 @@ const assets = {
   UserDummy: UserDummy,
   Header: Header,
   Footer: Footer,
+  Landscape: Landscape,
 };
 
 export default assets;
