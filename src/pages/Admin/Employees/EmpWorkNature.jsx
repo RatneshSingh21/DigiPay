@@ -9,6 +9,7 @@ const EmpWorkNature = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const User = useAuthStore((state) => state.user);
+
   const [form, setForm] = useState({
     workNatureName: "",
     description: "",
@@ -19,13 +20,15 @@ const EmpWorkNature = () => {
     updatedBy: "",
   });
 
+  // Fetch all work natures
   const fetchWorkNatures = async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get("/WorkNatureMaster/list");
-      setWorkNatures(res.data || []);
+      const res = await axiosInstance.get("/WorkNatureMaster/all");
+      setWorkNatures(res.data?.data || []); // Corrected path
     } catch (err) {
       console.error(err?.response?.data?.message || err);
+      toast.error("Failed to fetch work natures");
     } finally {
       setLoading(false);
     }
@@ -35,6 +38,7 @@ const EmpWorkNature = () => {
     fetchWorkNatures();
   }, []);
 
+  // Handle input change
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -43,11 +47,19 @@ const EmpWorkNature = () => {
     }));
   };
 
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const payload = {
+      ...form,
+      createdBy: User?.name || "Admin",
+      updatedBy: User?.name || "Admin",
+    };
+
     try {
-      const res = await axiosInstance.post("/WorkNatureMaster/create", form);
-      toast.success(res.data.message);
+      const res = await axiosInstance.post("/WorkNatureMaster/create", payload);
+      toast.success(res.data.message || "Work Nature created successfully");
       setShowModal(false);
       setForm({
         workNatureName: "",
@@ -63,12 +75,12 @@ const EmpWorkNature = () => {
       toast.error(
         err?.response?.data?.message || "Failed to create work nature"
       );
-      console.error(err);
     }
   };
 
   return (
     <div>
+      {/* Header Bar */}
       <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Work Natures</h2>
         <div className="flex items-center text-sm gap-3">
@@ -92,35 +104,37 @@ const EmpWorkNature = () => {
         <table className="min-w-full divide-y divide-gray-200 text-xs">
           <thead className="bg-gray-100 text-gray-600 text-center">
             <tr>
-              <th className="px-4 py-2">#</th>
+              <th className="px-4 py-2">ID</th>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Description</th>
               <th className="px-4 py-2">Active</th>
+              <th className="px-4 py-2">Created By</th>
               <th className="px-4 py-2">Created Date</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 text-center">
             {loading ? (
               <tr>
-                <td colSpan="5" className="py-4">
+                <td colSpan="6" className="py-4">
                   Loading...
                 </td>
               </tr>
             ) : workNatures.length > 0 ? (
-              workNatures.map((item, idx) => (
+              workNatures.map((item) => (
                 <tr key={item.workNatureId} className="hover:bg-gray-50">
-                  <td className="px-4 py-2">{idx + 1}</td>
+                  <td className="px-4 py-2">{item.workNatureId}</td>
                   <td className="px-4 py-2">{item.workNatureName}</td>
                   <td className="px-4 py-2">{item.description}</td>
                   <td className="px-4 py-2">{item.isActive ? "Yes" : "No"}</td>
+                  <td className="px-4 py-2">{item.createdBy || "-"}</td>
                   <td className="px-4 py-2">
-                    {new Date(item.createdDate).toLocaleString()}
+                    {new Date(item.createdAt).toLocaleString()}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="py-4">
+                <td colSpan="6" className="py-4">
                   No work natures found
                 </td>
               </tr>

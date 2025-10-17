@@ -18,6 +18,7 @@ import {
   FaBriefcase,
   FaClock,
   FaRegClock,
+  FaCalculator,
 } from "react-icons/fa";
 import {
   MdAdminPanelSettings,
@@ -68,6 +69,8 @@ const labelToPath = {
   "Add Attendance": "add-attendance",
   Punch: "punch",
   "Attendance Policy": "atten-policy",
+  "Attendance Record": "atten-record",
+  "Attendance Calculation": "atten-calculation",
 
   // Settings
   "Organisation Profile": "organisation-profile",
@@ -122,6 +125,7 @@ const labelToPath = {
   "Compliance Rules": "compliance-rules",
   "OT Master": "otrate",
   "OT Rule": "otrate-rules",
+  "OT Calculation": "otrate-calculation",
 };
 
 // Label to icon mapping
@@ -146,6 +150,8 @@ const labelToIcon = {
   "Add Attendance": <TbCalendarStats className="mr-2" />,
   Punch: <MdPunchClock className="mr-2" />,
   "Attendance Policy": <MdPunchClock className="mr-2" />,
+  "Attendance Record": <FaCalendarCheck className="mr-2" />,
+  "Attendance Calculation": <FaCalculator className="mr-2" />,
 
   // Settings
   "Organisation Profile": <FaBuilding className="mr-2" />,
@@ -199,7 +205,8 @@ const labelToIcon = {
   "Compliance Details": <FaFileAlt className="mr-2" />,
   "Compliance Rules": <FaBalanceScale className="mr-2" />,
   "OT Master": <FaClock className="mr-2" />,
-"OT Rule": <FaRegClock className="mr-2" />,
+  "OT Rule": <FaRegClock className="mr-2" />,
+  "OT Calculation": <FaCalculator className="mr-2" />,
 };
 
 const AdminSubmenuBox = ({ items, selectedMenu }) => {

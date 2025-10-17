@@ -64,7 +64,7 @@ const ESIRulesForm = ({ editData, onClose, onSuccess }) => {
       <div className="bg-white relative p-6 rounded-lg shadow-lg w-full h-[75%] overflow-y-scroll max-w-lg">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-600 hover:text-red-600"
+          className="absolute top-4 right-4 cursor-pointer text-gray-600 hover:text-red-600"
         >
           <X size={24} />
         </button>
@@ -183,7 +183,7 @@ const ESIRulesForm = ({ editData, onClose, onSuccess }) => {
             <button
               type="button"
               onClick={() => setForm({ ...form, isActive: !form.isActive })}
-              className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
+              className={`w-12 h-6 flex items-center cursor-pointer rounded-full p-1 transition-colors duration-300 ${
                 form.isActive ? "bg-green-500" : "bg-gray-300"
               }`}
             >
@@ -199,13 +199,13 @@ const ESIRulesForm = ({ editData, onClose, onSuccess }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              className="px-4 py-2 bg-gray-200 cursor-pointer rounded hover:bg-gray-300"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+              className="px-4 py-2 bg-primary cursor-pointer text-white rounded hover:bg-secondary"
             >
               {editData ? "Update" : "Save"}
             </button>

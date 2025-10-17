@@ -28,6 +28,7 @@ const HolidayList = () => {
         (a, b) => new Date(a.holidayDate) - new Date(b.holidayDate)
       );
       setHolidays(sortedHolidays);
+      console.log("Fetched Holidays: ", sortedHolidays);
     } catch (err) {
       toast.error("Failed to fetch holiday list!");
       console.error(err);
@@ -87,6 +88,7 @@ const HolidayList = () => {
               <tr>
                 <th className="py-2 px-4 text-center">S NO.</th>
                 <th className="py-2 px-4 text-center">Holiday Name</th>
+                <th className="py-2 px-4 text-center">Description</th>
                 <th className="py-2 px-4 text-center">Date</th>
                 <th className="py-2 px-4 text-center">Day</th>
                 {/* <th className="py-2 px-4 text-center">Created By</th>
@@ -115,6 +117,9 @@ const HolidayList = () => {
                   <td className="py-2 px-4">{index + 1}</td>
                   <td className="py-2 px-4 font-medium text-gray-800 text-center">
                     {holiday.holidayName}
+                  </td>
+                  <td className="py-2 px-4 font-medium text-gray-800 text-center">
+                    {holiday.description}
                   </td>
                   <td className="py-2 px-4 text-center">
                     {new Date(holiday.holidayDate).toLocaleDateString("en-GB")}

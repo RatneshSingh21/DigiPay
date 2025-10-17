@@ -171,7 +171,7 @@ const EmployeePFMappingForm = ({ initialData, onClose, refreshList }) => {
                   })
                 }
                 getOptionLabel={(pf) =>
-                  `${pf.calculationType} - ${pf.percentage || pf.fixedAmount}`
+                  `PF #${pf.pfSettingsId} || ${pf.calculationType} - ${pf.percentage || pf.fixedAmount}`
                 }
                 getOptionValue={(pf) => pf.pfSettingsId}
                 options={pfSettings}

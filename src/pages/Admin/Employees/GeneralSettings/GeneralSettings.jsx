@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import EmployeeUpdates from "./EmployeeUpdates/EmployeeUpdates";
 import EmployeePFMapping from "./PolicySetup/EmployeePFMapping/EmployeePFMapping";
 import EmployeeESIDetails from "./PolicySetup/EmployeeESIMapping/EmployeeESIDetails";
+import EmployeeAttendancePolicyMapping from "./PolicySetup/EmployeeAttendancePolicyMapping/EmployeeAttendancePolicyMapping";
 
 const tabs = [
   { id: "employee", label: "Employee Updates" },
   { id: "pf", label: "PF Settings" },
   { id: "esi", label: "ESI Setup" },
-  // { id: "compliance", label: "Compliance" },
+  { id: "attendance", label: "Attendance Policy" },
 ];
 
 const GeneralSettings = () => {
@@ -37,7 +38,7 @@ const GeneralSettings = () => {
         {activeTab === "employee" && <EmployeeUpdates />}
         {activeTab === "pf" && <EmployeePFMapping />}
         {activeTab === "esi" && <EmployeeESIDetails />}
-        {activeTab === "compliance" && <ComplianceRules />}
+        {activeTab === "attendance" && <EmployeeAttendancePolicyMapping />}
       </div>
     </div>
   );

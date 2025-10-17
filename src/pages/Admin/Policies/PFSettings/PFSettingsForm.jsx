@@ -90,7 +90,7 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
       <div className="bg-white overflow-hidden relative rounded-lg w-full max-w-2xl h-[80vh] flex flex-col shadow-xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
+          className="absolute top-4 right-4 cursor-pointer text-gray-600 hover:text-gray-900"
         >
           <X size={24} />
         </button>
@@ -104,7 +104,7 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`py-2 px-3 text-sm font-medium ${
+              className={`py-2 px-3 cursor-pointer text-sm font-medium ${
                 activeTab === tab
                   ? "border-b-2 border-primary text-primary"
                   : "text-gray-500 hover:text-gray-800"
@@ -366,14 +366,14 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
               <div className="flex justify-start space-x-3 pt-4 col-span-2">
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-primary hover:bg-secondary text-white rounded"
+                  className="px-5 py-2 bg-primary cursor-pointer hover:bg-secondary text-white rounded"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2 bg-gray-400 text-white rounded"
+                  className="px-5 py-2 bg-gray-400 cursor-pointer text-white rounded"
                 >
                   Cancel
                 </button>

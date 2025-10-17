@@ -141,7 +141,7 @@ export default function SignInEmployeeForm() {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full flex items-center justify-center py-2.5 mt-1 text-white rounded-lg font-semibold text-sm transition-all ${
+        className={`w-full flex items-center justify-center cursor-pointer py-2.5 mt-1 text-white rounded-lg font-semibold text-sm transition-all ${
           loading
             ? "bg-orange-300 cursor-not-allowed"
             : "bg-orange-500 hover:bg-orange-600"
@@ -149,7 +149,7 @@ export default function SignInEmployeeForm() {
       >
         {loading ? <Spinner /> : "Login"}
       </button>
-
+      
       <div className="flex justify-between text-xs text-orange-500 font-semibold mt-3">
         <button
           type="button"

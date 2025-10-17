@@ -1,40 +1,104 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { FiX } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
+import { fetchAllAttendancePolicyOptions } from "../../../services/attendancePolicyService";
 
 const customSelectStyles = {
-  control: (provided, state) => ({
+  control: (provided) => ({
     ...provided,
-    minHeight: "28px", // reduce height
-    height: "28px",
+    minHeight: "36px",   // increased from 28px
+    height: "36px",
     fontSize: "12px",
     padding: "0 4px",
+    overflow: "hidden",
   }),
-  valueContainer: (provided, state) => ({
+  valueContainer: (provided) => ({
     ...provided,
-    padding: "0 4px", // reduce padding inside selected value
-  }),
-  input: (provided) => ({
-    ...provided,
-    margin: "0",
-    padding: "0",
+    padding: "0 4px",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "2px",
+    maxHeight: "80px",   // increased max height
+    overflowY: "auto",
   }),
   indicatorsContainer: (provided) => ({
     ...provided,
-    height: "28px",
+    height: "36px",      // match control height
   }),
-  option: (provided, state) => ({
+  option: (provided) => ({
     ...provided,
     fontSize: "12px",
-    padding: "4px 8px", // reduce option padding
+    padding: "6px 8px",
   }),
+  multiValue: (provided) => ({
+    ...provided,
+    backgroundColor: "#e2e8f0",
+    borderRadius: "4px",
+    padding: "0 4px",
+    fontSize: "12px",
+  }),
+  multiValueLabel: (provided) => ({
+    ...provided,
+    padding: "0 2px",
+    fontSize: "12px",
+  }),
+  multiValueRemove: (provided) => ({
+    ...provided,
+    fontSize: "12px",
+    padding: "0 2px",
+    cursor: "pointer",
+  }),
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+    maxHeight: "200px",
+    overflowY: "auto",
+  }),
+  menuList: (provided) => ({
+    ...provided,
+    maxHeight: "200px",
+    overflowY: "auto",
+  }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
+
 
 const AttendancePolicyForm = ({ onClose, onSuccess }) => {
   const User = useAuthStore((state) => state.user);
+
+  const [options, setOptions] = useState({
+    shiftIds: [],
+    workTypeIds: [],
+    departmentIds: [],
+    locationIds: [],
+    latePolicyIds: [],
+    otPolicyIds: [],
+    otRateSlabIds: [],
+    bonusPolicyIds: [],
+    specialAllowancePolicyIds: [],
+    holidayListIds: [],
+    leaveTypeIds: [],
+    complianceIds: [],
+    complianceRuleIds: [],
+    weekendPolicyIds: [],
+    weekendPolicyMappingIds: [],
+  });
+
+  useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        const data = await fetchAllAttendancePolicyOptions();
+        setOptions(data);
+      } catch (err) {
+        toast.error("Failed to load attendance policy options");
+        console.error(err);
+      }
+    };
+    loadOptions();
+  }, []);
 
   const [form, setForm] = useState({
     policyName: "",
@@ -91,12 +155,6 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
     additionalMetadataJson: "{}",
     createdBy: User.userId,
   });
-
-  const exampleOptions = [
-    { value: 1, label: "Option 1" },
-    { value: 2, label: "Option 2" },
-    { value: 3, label: "Option 3" },
-  ];
 
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
@@ -226,6 +284,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
           </div>
 
           {/* Multi-select fields */}
+          
           {[
             "shiftIds",
             "workTypeIds",
@@ -249,11 +308,13 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
               </label>
               <Select
                 isMulti
-                options={exampleOptions}
+                options={options[field] || []}
                 onChange={(val) => handleSelectChange(field, val)}
                 placeholder={`Select ${field}`}
                 styles={customSelectStyles}
                 className="text-xs"
+                menuPortalTarget={document.body} // renders dropdown at body level
+                menuPosition="fixed" // keeps menu fixed above other elements
               />
             </div>
           ))}

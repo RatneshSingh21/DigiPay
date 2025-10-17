@@ -40,7 +40,8 @@ const submenuMap = {
     "Compliance Details",
     "Compliance Rules",
     "OT Master",
-    // "OT Rule",
+    "OT Rule",
+    "OT Calculation",
   ],
 
   Attendance: [
@@ -48,6 +49,8 @@ const submenuMap = {
     "Add Attendance",
     "Punch",
     "Attendance Policy",
+    "Attendance Record",
+    "Attendance Calculation",
   ],
 
   Reports: [
@@ -78,7 +81,7 @@ const submenuMap = {
     "Salary Configuration",
     "Status Master",
     "Attendance",
-    "LetterField Master",
+    // "LetterField Master",
   ],
 };
 

@@ -35,15 +35,21 @@ const AdminSummaryCards = () => {
       const response = await axiosInstance.get(`/Salary/month/${currentMonth}`);
       const salaries = response.data?.data || [];
 
-      // 🔢 Calculate totals
+      // 🔢 Calculate totals (OT calculated as rate × hours if amount missing)
       const totalSalaryPaid = salaries.reduce(
         (sum, s) => sum + (s.netSalary || 0),
         0
       );
+
       const otPaid = salaries.reduce(
-        (sum, s) => sum + (s.overtimeAmount || 0),
+        (sum, s) =>
+          sum +
+          (s.overtimeAmount && s.overtimeAmount > 0
+            ? s.overtimeAmount
+            : (s.overtimeRate || 0) * (s.overtimeHours || 0)),
         0
       );
+
       const pfPaid = salaries.reduce((sum, s) => sum + (s.pfEmployee || 0), 0);
       const esiPaid = salaries.reduce(
         (sum, s) => sum + (s.esicEmployee || 0),

@@ -45,60 +45,48 @@ const EmpMarkAttendance = () => {
     setFormData((prev) => ({ ...prev, inTime: time }));
   }, []);
 
-  // Fetch Shifts, PunchTypes, Employee Shift Mapping, and Today's Attendance
+  // Fetch data
+  // Remove attendance API from fetchAllData
   useEffect(() => {
-    // Inside useEffect for fetching data
     const fetchAllData = async () => {
       try {
         setLoading(true);
-        const today = new Date().toISOString().split("T")[0];
 
-        const [shiftRes, punchRes, mappingRes, attendanceRes] =
-          await Promise.all([
-            axiosInstance.get("/Shift"),
-            axiosInstance.get("/PunchType"),
-            axiosInstance.get("/ShiftMapping/all"),
-            axiosInstance.get(`/Attendance/GetByEmployeeId/${User?.userId}`),
-          ]);
+        const [shiftRes, punchRes, mappingRes] = await Promise.all([
+          axiosInstance.get("/Shift"),
+          axiosInstance.get("/PunchType"),
+          axiosInstance.get("/ShiftMapping/all"),
+        ]);
 
-        // Filter shifts mapped to logged-in employee
+        // Employee's mapped shifts
         const empShiftMappings = mappingRes.data?.data?.filter(
           (m) => m.employeeId === User?.userId
         );
         const mappedShiftIds = empShiftMappings.map((m) => m.shiftId);
 
-        // Format Shifts
         const shiftData = shiftRes.data
-          .filter((s) => mappedShiftIds.includes(s.id)) // only mapped shifts
+          .filter((s) => mappedShiftIds.includes(s.id))
           .map((s) => ({
             value: s.id,
             label: `${s.shiftName} (${s.shiftStart} - ${s.shiftEnd})`,
           }));
         setShiftOptions(shiftData);
 
-        // Format Punch Types
         const punchData = punchRes.data.data.map((p) => ({
           value: p.code,
           label: p.name,
         }));
         setPunchOptions(punchData);
 
-        // Auto map shift based on logged-in employee's first mapping
-        const empShift = empShiftMappings[0]; // take first mapping
+        // Default shift
+        const empShift = empShiftMappings[0];
         if (empShift) {
           const foundShift = shiftData.find(
             (s) => s.value === empShift.shiftId
           );
-          if (foundShift) {
+          if (foundShift)
             setFormData((prev) => ({ ...prev, shift: foundShift }));
-          }
         }
-
-        // Find today's attendance
-        const todayRecord = attendanceRes.data?.data?.find(
-          (att) => att.attendanceDate.split("T")[0] === today
-        );
-        setTodayAttendance(todayRecord || null);
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("Failed to load data. Please try again.");
@@ -108,6 +96,27 @@ const EmpMarkAttendance = () => {
     };
 
     fetchAllData();
+  }, [User]);
+
+  // Separate API call for today's attendance only
+  useEffect(() => {
+    const fetchTodayAttendance = async () => {
+      try {
+        const today = new Date().toISOString().split("T")[0];
+        const res = await axiosInstance.get(
+          `/Attendance/GetByEmployeeId/${User?.userId}`
+        );
+        const todayRecords =
+          res.data?.filter(
+            (att) => att.attendanceDate.split("T")[0] === today
+          ) || [];
+        setTodayAttendance(todayRecords);
+      } catch (err) {
+        console.error("Error fetching attendance:", err);
+      }
+    };
+
+    fetchTodayAttendance();
   }, [User]);
 
   const handleChange = (field, value) => {
@@ -126,26 +135,33 @@ const EmpMarkAttendance = () => {
       return;
     }
 
-    const [inHour, inMin] = inTime.split(":").map(Number);
-    const [outHour, outMin] = outTime.split(":").map(Number);
-    if (inHour * 60 + inMin >= outHour * 60 + outMin) {
-      toast.error("In Time must be earlier than Out Time.");
-      setIsSubmitting(false);
-      return;
-    }
-
     const today = new Date().toISOString().split("T")[0];
-    const formatDateTime = (date, time) => `${date}T${time}:00`;
-    console.log(todayAttendance);
+    // Combine today's date with given time and convert to full ISO string
+    const formatDateTime = (dateStr, timeStr) => {
+      if (!timeStr) return null;
+      const [hours, minutes] = timeStr.split(":").map(Number);
+      const date = new Date(dateStr);
+      date.setHours(hours, minutes, 0, 0);
+      // Convert to local ISO format without timezone shift
+      const localISO = date.toLocaleString("sv-SE").replace(" ", "T"); // e.g. "2025-10-13T18:00:00"
+      return localISO;
+    };
 
-    // Prevent multiple punch-ins or punch-outs
-    if (todayAttendance) {
-      if (todayAttendance.inTime && !formData.punchType.value.includes("OUT")) {
+    if (todayAttendance && Array.isArray(todayAttendance)) {
+      const hasIn = todayAttendance.some(
+        (rec) => rec.punchType?.toUpperCase() === "IN"
+      );
+      const hasOut = todayAttendance.some(
+        (rec) => rec.punchType?.toUpperCase() === "OUT"
+      );
+
+      if (punchType.value.includes("IN") && hasIn) {
         toast.error("You have already punched in today.");
         setIsSubmitting(false);
         return;
       }
-      if (todayAttendance.outTime && formData.punchType.value.includes("OUT")) {
+
+      if (punchType.value.includes("OUT") && hasOut) {
         toast.error("You have already punched out today.");
         setIsSubmitting(false);
         return;
@@ -155,25 +171,25 @@ const EmpMarkAttendance = () => {
     const payload = {
       employeeId: User?.userId,
       attendanceDate: new Date(today).toISOString(),
-      inTime: formatDateTime(today, inTime),
-      outTime: formatDateTime(today, outTime),
+      inTime: showInTime ? formatDateTime(today, inTime) : null,
+      outTime: showOutTime ? formatDateTime(today, outTime) : null,
       status: status.value,
       workType: workType.value,
       shiftId: shift?.value || 0,
       punchTypeCode: punchType.value,
     };
 
+    console.log("Submitting attendance:", payload);
+
     try {
       await axiosInstance.post("/Attendance/create", payload);
       toast.success("Attendance submitted successfully!");
-      setTodayAttendance(payload); // update today's record
-
+      setTodayAttendance(payload);
       setFormData((prev) => ({
         ...prev,
         outTime: "18:00",
         status: null,
         workType: null,
-        shift: prev.shift, // retain mapped shift
         punchType: null,
       }));
     } catch (err) {
@@ -186,6 +202,10 @@ const EmpMarkAttendance = () => {
     }
   };
 
+  // Determine whether to show InTime or OutTime based on PunchType
+  const showInTime = formData.punchType?.value?.includes("IN");
+  const showOutTime = formData.punchType?.value?.includes("OUT");
+
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="bg-white shadow-lg rounded-2xl p-6 mt-6 md:p-10 max-w-3xl mx-auto">
@@ -197,65 +217,6 @@ const EmpMarkAttendance = () => {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 sm:grid-cols-2 gap-6"
         >
-          {/* In Time */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              In Time
-            </label>
-            <input
-              type="time"
-              value={formData.inTime}
-              disabled={!!todayAttendance?.inTime}
-              className={`w-full rounded-lg border-gray-300 p-2 shadow-sm bg-gray-100 ${
-                todayAttendance?.inTime ? "cursor-not-allowed" : ""
-              }`}
-            />
-          </div>
-  
-          {/* Out Time */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Out Time
-            </label>
-            <input
-              type="time"
-              value={formData.outTime}
-              onChange={(e) => handleChange("outTime", e.target.value)}
-              disabled={!!todayAttendance?.outTime}
-              className={`w-full rounded-lg border-gray-300 p-2 shadow-sm focus:ring-primary focus:border-primary ${
-                todayAttendance?.outTime ? "bg-gray-100 cursor-not-allowed" : ""
-              }`}
-            />
-          </div>
-
-          {/* Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <Select
-              options={statusOptions}
-              value={formData.status}
-              onChange={(option) => handleChange("status", option)}
-              placeholder="Select Status"
-              classNamePrefix="react-select"
-            />
-          </div>
-
-          {/* Work Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Work Type
-            </label>
-            <Select
-              options={workTypeOptions}
-              value={formData.workType}
-              onChange={(option) => handleChange("workType", option)}
-              placeholder="Select Work Type"
-              classNamePrefix="react-select"
-            />
-          </div>
-
           {/* Punch Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -288,7 +249,65 @@ const EmpMarkAttendance = () => {
             />
           </div>
 
-          {/* Submit Button */}
+          {/* In Time (only when Punch Type = IN) */}
+          {showInTime && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                In Time
+              </label>
+              <input
+                type="time"
+                value={formData.inTime}
+                onChange={(e) => handleChange("inTime", e.target.value)}
+                className="w-full rounded-lg border-gray-300 p-2 shadow-sm focus:ring-primary focus:border-primary"
+              />
+            </div>
+          )}
+
+          {/* Out Time (only when Punch Type = OUT) */}
+          {showOutTime && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Out Time
+              </label>
+              <input
+                type="time"
+                value={formData.outTime}
+                onChange={(e) => handleChange("outTime", e.target.value)}
+                className="w-full rounded-lg border-gray-300 p-2 shadow-sm focus:ring-primary focus:border-primary"
+              />
+            </div>
+          )}
+
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <Select
+              options={statusOptions}
+              value={formData.status}
+              onChange={(option) => handleChange("status", option)}
+              placeholder="Select Status"
+              classNamePrefix="react-select"
+            />
+          </div>
+
+          {/* Work Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Work Type
+            </label>
+            <Select
+              options={workTypeOptions}
+              value={formData.workType}
+              onChange={(option) => handleChange("workType", option)}
+              placeholder="Select Work Type"
+              classNamePrefix="react-select"
+            />
+          </div>
+
+          {/* Submit */}
           <div className="sm:col-span-2 flex justify-center mt-4">
             <button
               type="submit"

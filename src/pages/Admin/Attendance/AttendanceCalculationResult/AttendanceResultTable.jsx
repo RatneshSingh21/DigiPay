@@ -1,0 +1,97 @@
+import React, { useState, useEffect } from "react";
+import { FiChevronDown } from "react-icons/fi";
+import PerDayAttendanceCalendar from "./PerDayAttendanceCalendar";
+import ModalOverlay from "../../../../components/ModalOverlay";
+import axiosInstance from "../../../../axiosInstance/axiosInstance"; // your axios setup
+
+const AttendanceResultTable = ({ results }) => {
+  const [selectedDetails, setSelectedDetails] = useState(null);
+  const [employeeMap, setEmployeeMap] = useState({}); 
+
+  // Fetch employee details by Id
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      const map = {};
+      for (const item of results) {
+        try {
+          const res = await axiosInstance.get(`/Employee/${item.employeeId}`);
+          map[item.employeeId] = res.data; 
+        } catch (err) {
+          console.error("Failed to fetch employee", item.employeeId, err);
+        }
+      }
+      setEmployeeMap(map);
+    };
+
+    if (results.length) fetchEmployees();
+  }, [results]);
+
+  if (results.length === 0)
+    return <p className="text-center text-gray-500">No data available.</p>;
+
+  return (
+    <>
+      <table className="min-w-full divide-y text-xs text-center divide-gray-200">
+        <thead className="bg-gray-100 text-gray-600">
+          <tr className="bg-gray-100 text-gray-700">
+            <th className="p-2">Employee</th>
+            <th className="p-2">Company ID</th>
+            <th className="p-2">Total Late (min)</th>
+            <th className="p-2">Early Leave (min)</th>
+            <th className="p-2">OT (min)</th>
+            <th className="p-2">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {results.map((item) => {
+            const employee = employeeMap[item.employeeId];
+            return (
+              <tr
+                key={item.attendanceCalculationResultID}
+                className="border-t hover:bg-gray-50"
+              >
+                <td className="p-2">
+                  {employee
+                    ? `${employee.fullName} (${employee.employeeCode})`
+                    : item.employeeId}
+                </td>
+                <td className="p-2">{item.companyId}</td>
+                <td className="p-2">{item.totalLateMinutes}</td>
+                <td className="p-2">{item.totalEarlyLeaveMinutes}</td>
+                <td className="p-2">{item.totalOTMinutes}</td>
+                <td className="p-2 text-center">
+                  <button
+                    className="flex items-center justify-center cursor-pointer mx-auto px-3 py-1.5 bg-blue-50 text-blue-700 font-semibold rounded-full shadow-sm hover:bg-blue-100 hover:shadow-md transition-all duration-200 focus:outline-none"
+                    onClick={() => setSelectedDetails(item)}
+                  >
+                    <FiChevronDown className="mr-1" />
+                    View
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      {/* Popup Modal */}
+      <ModalOverlay
+        isOpen={!!selectedDetails}
+        onClose={() => setSelectedDetails(null)}
+        title={
+          selectedDetails
+            ? `Attendance Details - Employee ${selectedDetails.employeeId}`
+            : ""
+        }
+      >
+        {selectedDetails && (
+          <PerDayAttendanceCalendar
+            perDayDetails={selectedDetails.perDayDetails}
+          />
+        )}
+      </ModalOverlay>
+    </>
+  );
+};
+
+export default AttendanceResultTable;

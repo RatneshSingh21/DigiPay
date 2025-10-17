@@ -62,6 +62,7 @@ const EmpSalaryDetails = () => {
         response = await axiosInstance.get(`/Salary/year/${selectedYear}`);
       }
       setSalaries(response.data?.data || []);
+      console.log(response.data?.data || []);
     } catch (error) {
       console.error("Error fetching salary data:", error);
       toast.error(
@@ -101,9 +102,7 @@ const EmpSalaryDetails = () => {
 
   const filteredSalaries = useMemo(() => {
     return salaries.filter((s) =>
-      (s.employeeName || "")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
+      (s.employeeName || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [salaries, searchTerm]);
 
@@ -221,7 +220,9 @@ const EmpSalaryDetails = () => {
                       <td className="px-2 py-2">{s.conveyanceAllowance}</td>
                       <td className="px-2 py-2">{s.fixedAllowance}</td>
                       <td className="px-2 py-2">{s.bonus}</td>
-                      <td className="px-2 py-2">{s.overtimeAmount}</td>
+                      <td className="px-2 py-2">
+                        {(s.overtimeHours * s.overtimeRate).toFixed(4)}
+                      </td>
                       <td className="px-2 py-2">{s.pfEmployee}</td>
                       <td className="px-2 py-2">{s.esicEmployee}</td>
                       <td className="px-2 py-2">{s.grossEarnings}</td>

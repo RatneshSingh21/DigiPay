@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Select from "react-select";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../../../components/Spinner";
+import ImportExportAttendance from "./ImportExportAttendance";
 
 const statusOptions = [
   { value: "Present", label: "Present" },
@@ -25,6 +25,7 @@ const AttendanceForm = () => {
   const [punchTypeOptions, setPunchTypeOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const [formData, setFormData] = useState({
     employee: null,
@@ -144,7 +145,9 @@ const AttendanceForm = () => {
       });
     } catch (err) {
       console.error("Submission error:", err);
-      toast.error(err?.response?.data?.message || "Failed to submit attendance.");
+      toast.error(
+        err?.response?.data?.message || "Failed to submit attendance."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -152,8 +155,16 @@ const AttendanceForm = () => {
 
   return (
     <div className="bg-white">
-      <div className="px-4 py-3 shadow sticky top-14 bg-white z-10">
+      <div className="px-4 py-3 shadow sticky top-14 bg-white flex items-center justify-between z-10">
         <h2 className="font-semibold text-xl">Attendance</h2>
+
+        <button
+          type="button"
+          className="bg-primary cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded-md text-sm font-medium"
+          onClick={() => setShowImportModal(true)}
+        >
+          Import / Export
+        </button>
       </div>
 
       <div className="p-8">
@@ -283,6 +294,14 @@ const AttendanceForm = () => {
           </div>
         </form>
       </div>
+
+      {/* 🔹 Import / Export Modal */}
+      {showImportModal && (
+        <ImportExportAttendance
+          onClose={() => setShowImportModal(false)}
+          fetchAttendance={() => {}} // optional refresh function
+        />
+      )}
     </div>
   );
 };

@@ -2,8 +2,8 @@
 @import "tailwindcss";
 
 /* Base Reset */
-body,
-html {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -171,7 +171,6 @@ body {
   --color-bg: 30 30 30;
   --color-text: 255 255 255;
 }
-
 
 /* Accent Colors */
 .accent-secondary {

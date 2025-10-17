@@ -69,6 +69,9 @@ import Attendance from "./pages/Admin/Settings/Attendance";
 import AttendanceForm from "./pages/Admin/Attendance/AttendanceForm";
 import AttendancePunch from "./pages/Admin/Attendance/AttendancePunch";
 import AttendancePolicy from "./pages/Admin/Attendance/AttendancePolicy";
+import AttendanceRecord from "./pages/Admin/Attendance/AttendanceRecord";
+import AttendanceCalculationResult from "./pages/Admin/Attendance/AttendanceCalculationResult/AttendanceCalculationResult";
+
 
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
@@ -106,6 +109,7 @@ import ComplianceDetails from "./pages/Admin/Compliance/ComplianceDetails";
 import ComplianceRules from "./pages/Admin/Compliance/ComplianceRules";
 import OTSlabMaster from "./pages/Admin/Policies/OT/OTSlabMaster";
 import OTSlabMasterRules from "./pages/Admin/Policies/OT/OTSlabMasterRules";
+import OTCalculation from "./pages/Admin/Policies/OT/OTCalculation";
 
 // Employee Pages
 import EmployeeProfile from "./pages/EmployeePages/EmployeeComponents/EmployeeProfile";
@@ -115,6 +119,9 @@ import EmpMarkAttendance from "./pages/EmployeePages/EmployeeComponents/EmpMarkA
 import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
 import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
+
+
+
 
 
 
@@ -255,6 +262,8 @@ const App = () => {
                   <Route path="add-attendance" element={<AttendanceForm />} />
                   <Route path="punch" element={<AttendancePunch />} />
                   <Route path="atten-policy" element={<AttendancePolicy />} />
+                  <Route path="atten-record" element={<AttendanceRecord />} />
+                  <Route path="atten-calculation" element={<AttendanceCalculationResult />} />
                 </Route>
 
                 {/* Reports SubRoutes */}
@@ -339,6 +348,10 @@ const App = () => {
                   <Route
                     path="otrate-rules"
                     element={<OTSlabMasterRules />}
+                  />
+                  <Route
+                    path="otrate-calculation"
+                    element={<OTCalculation />}
                   />
                 </Route>
 

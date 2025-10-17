@@ -5,18 +5,24 @@ import { toast } from "react-toastify";
 
 const Attendance = () => {
   const [attendanceData, setAttendanceData] = useState([]);
-  const [employees, setEmployees] = useState([]); // Added missing state
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch all attendance records
+  // Fetch attendance records (using correct API)
   const fetchAttendance = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get("/Attendance/all");
-      setAttendanceData(response.data || []);
+      const res = await axiosInstance.get(
+        "/AttendanceRecord/getAttendancerecord/all"
+      );
+      if (res.data && res.data.data) {
+        setAttendanceData(res.data.data);
+      } else {
+        setAttendanceData([]);
+      }
     } catch (error) {
       console.error("Error fetching attendance:", error);
-      toast.error("Failed to fetch attendance data");
+      // toast.error("Failed to fetch attendance data");
     } finally {
       setLoading(false);
     }
@@ -34,11 +40,10 @@ const Attendance = () => {
 
   // Get Employee Name by ID
   const getEmployeeName = (id) => {
-    const emp = employees.find((e) => e.id === id);
+    const emp = employees.find((e) => e.employeeId === id || e.id === id);
     return emp ? `${emp.fullName} (${emp.employeeCode})` : `Emp#${id}`;
   };
 
-  // Load both attendance + employee data on mount
   useEffect(() => {
     fetchAttendance();
     fetchEmployees();
@@ -48,7 +53,7 @@ const Attendance = () => {
     <>
       {/* Header */}
       <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
-        <h2 className="font-semibold text-xl">Attendance</h2>
+        <h2 className="font-semibold text-xl">Attendance Record</h2>
         <button
           onClick={fetchAttendance}
           className="flex cursor-pointer items-center text-sm gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
@@ -67,33 +72,38 @@ const Attendance = () => {
               <th className="py-2 px-3">In Time</th>
               <th className="py-2 px-3">Out Time</th>
               <th className="py-2 px-3">Total Hours</th>
-              <th className="py-2 px-3">Work Type</th>
-              <th className="py-2 px-3">Punch Type</th>
-              <th className="py-2 px-3">Status</th>
+              <th className="py-2 px-3">Late (mins)</th>
+              <th className="py-2 px-3">Early Leave (mins)</th>
+              <th className="py-2 px-3">OT (mins)</th>
+              <th className="py-2 px-3">Remarks</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="7" className="text-center py-4">
+                <td colSpan="9" className="text-center py-4">
                   Loading attendance data...
                 </td>
               </tr>
             ) : attendanceData.length > 0 ? (
               attendanceData.map((item) => (
                 <tr
-                  key={item.attendanceId}
+                  key={item.attendanceRecordId}
                   className="hover:bg-gray-50 text-center"
                 >
-                  <td className="py-2 px-3">{getEmployeeName(item.employeeId)}</td>
+                  <td className="py-2 px-3">
+                    {getEmployeeName(item.employeeId)}
+                  </td>
                   <td className="py-2 px-3">
                     {new Date(item.attendanceDate).toLocaleDateString("en-GB")}
                   </td>
                   <td className="py-2 px-3">
-                    {new Date(item.inTime).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {item.inTime
+                      ? new Date(item.inTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "-"}
                   </td>
                   <td className="py-2 px-3">
                     {item.outTime
@@ -103,25 +113,33 @@ const Attendance = () => {
                         })
                       : "-"}
                   </td>
-                  <td className="py-2 px-3">{item.totalHours}</td>
-                  <td className="py-2 px-3">{item.workType}</td>
-                  <td className="py-2 px-3">{item.punchType}</td>
-                  <td
-                    className={`py-2 px-3 font-medium ${
-                      item.status === "Present"
-                        ? "text-green-600"
-                        : item.status === "Absent"
-                        ? "text-red-600"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {item.status}
+                  <td className="py-2 px-3">{item.totalHoursWorked || "-"}</td>
+                  <td className="py-2 px-3">
+                    {item.shiftSegments?.reduce(
+                      (sum, seg) => sum + (seg.lateMinutes || 0),
+                      0
+                    ) || 0}
+                  </td>
+                  <td className="py-2 px-3">
+                    {item.shiftSegments?.reduce(
+                      (sum, seg) => sum + (seg.earlyLeaveMinutes || 0),
+                      0
+                    ) || 0}
+                  </td>
+                  <td className="py-2 px-3">
+                    {item.shiftSegments?.reduce(
+                      (sum, seg) => sum + (seg.otMinutes || 0),
+                      0
+                    ) || 0}
+                  </td>
+                  <td className="py-2 px-3 text-gray-600">
+                    {item.remarks || "-"}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-4 text-gray-500">
+                <td colSpan="9" className="text-center py-4 text-gray-500">
                   No attendance records found.
                 </td>
               </tr>

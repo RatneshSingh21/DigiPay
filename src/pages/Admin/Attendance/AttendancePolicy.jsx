@@ -12,7 +12,7 @@ const AttendancePolicyList = () => {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPageData, setPerPageData] = useState(10);
+  const [perPageData, setPerPageData] = useState(3);
 
   const fetchPolicies = async () => {
     try {
@@ -51,56 +51,92 @@ const AttendancePolicyList = () => {
         </button>
       </div>
 
-      {/* Table Wrapper (scrollable) */}
-      <div className="border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto max-h-[450px] overflow-y-auto">
-          <table className="min-w-full text-xs divide-y text-center divide-gray-200">
-            <thead className="bg-gray-50 sticky top-0 z-10">
-              <tr>
-                <th className="px-3 py-2">Policy Name</th>
-                <th className="px-3 py-2">Description</th>
-                <th className="px-3 py-2">Effective From</th>
-                <th className="px-3 py-2">Effective To</th>
-                <th className="px-3 py-2">Active</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {currentData.length > 0 ? (
-                currentData.map((policy) => (
-                  <tr
-                    key={policy.attendancePolicyId}
-                    className="hover:bg-gray-50"
+      {/* Table Wrapper */}
+      <div className="overflow-x-auto shadow rounded-lg px-3">
+        <div className="p-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredData.length > 0 ? (
+            currentData.map((policy) => (
+              <div
+                key={policy.attendancePolicyId}
+                className="border rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-200"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-sm">{policy.policyName}</h3>
+                  <span
+                    className={`text-xs px-2 py-1 rounded ${
+                      policy.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
                   >
-                    <td className="px-3 py-2">{policy.policyName}</td>
-                    <td className="px-3 py-2">{policy.description}</td>
-                    <td className="px-3 py-2">
-                      {policy.effectiveFrom?.split("T")[0]}
-                    </td>
-                    <td className="px-3 py-2">
-                      {policy.effectiveTo?.split("T")[0]}
-                    </td>
-                    <td className="px-3 py-2 text-center">
-                      {policy.isActive ? "Yes" : "No"}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="text-center text-gray-500 py-6 text-sm"
-                  >
-                    No policies found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    {policy.isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 mb-2">
+                  {policy.description}
+                </p>
+
+                <div className="text-xs space-y-1">
+                  <div>
+                    <strong>Effective:</strong>{" "}
+                    {policy.effectiveFrom?.split("T")[0]} →{" "}
+                    {policy.effectiveTo?.split("T")[0]}
+                  </div>
+                  <div>
+                    <strong>Shifts Ids:</strong> {policy.shiftIds.join(", ")}
+                  </div>
+                  <div>
+                    <strong>Work Types Ids:</strong>{" "}
+                    {policy.workTypeIds.join(", ")}
+                  </div>
+                  <div>
+                    <strong>Departments Ids:</strong>{" "}
+                    {policy.departmentIds.join(", ")}
+                  </div>
+                  <div>
+                    <strong>Locations Ids:</strong>{" "}
+                    {policy.locationIds.join(", ")}
+                  </div>
+                  <div>
+                    <strong>Late Policy Ids:</strong>{" "}
+                    {policy.latePolicyIds.join(", ")}
+                  </div>
+                  <div>
+                    <strong>OT Policy Ids:</strong>{" "}
+                    {policy.otPolicyIds.join(", ") || "-"}
+                  </div>
+                  <div>
+                    <strong>Holidays Ids:</strong>{" "}
+                    {policy.holidayListIds.join(", ")}
+                  </div>
+                  <div>
+                    <strong>Leave Types Ids:</strong>{" "}
+                    {policy.leaveTypeIds.join(", ")}
+                  </div>
+                  <div>
+                    <strong>Created By:</strong> {policy.createdBy}
+                  </div>
+                  <div>
+                    <strong>Created On:</strong>{" "}
+                    {policy.createdOn?.split("T")[0]}
+                  </div>
+                  <div>
+                    <strong>Updated On:</strong>{" "}
+                    {policy.updatedOn?.split("T")[0]}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center text-gray-500 py-6 text-sm">
+              No policies found.
+            </div>
+          )}
         </div>
 
         {/* Pagination */}
         {filteredData.length > 0 && (
-          <div className="flex justify-end pr-5">
+          <div className="flex justify-end py-2">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

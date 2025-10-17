@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 
-const ModalOverlay = ({ children, onClose }) => {
+const ModalOverlay = ({ isOpen, children, onClose, title }) => {
   useEffect(() => {
     const handleEsc = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [onClose]);
+
+  if (!isOpen) return null; // Only render if open
 
   return (
     <div
@@ -22,6 +24,9 @@ const ModalOverlay = ({ children, onClose }) => {
         >
           &times;
         </button>
+
+        {title && <h3 className="text-lg font-semibold mb-4">{title}</h3>}
+
         {children}
       </div>
     </div>

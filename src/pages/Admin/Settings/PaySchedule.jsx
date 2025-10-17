@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FiDownload, FiEdit, FiTrash2, FiUpload } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiUpload } from "react-icons/fi";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import ModalOverlay from "../../../components/ModalOverlay";
 import { toast } from "react-toastify";
@@ -68,6 +68,7 @@ const PaySchedule = () => {
 
   return (
     <>
+      {/* Header */}
       <div className="px-4 py-2 shadow sticky top-14 bg-white flex justify-between items-center">
         <h2 className="font-semibold text-xl">Pay Schedule</h2>
         <div className="flex gap-3">
@@ -87,6 +88,7 @@ const PaySchedule = () => {
         </div>
       </div>
 
+      {/* Main Content */}
       {loading ? (
         <div className="text-center py-6 text-gray-500">Loading...</div>
       ) : paySchedules.length === 0 ? (
@@ -105,13 +107,13 @@ const PaySchedule = () => {
           <div className="flex gap-4">
             <button
               onClick={handleAddNew}
-              className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary"
+              className="bg-primary cursor-pointer text-white px-4 py-2 rounded hover:bg-secondary"
             >
               + Add Schedule
             </button>
             <button
               onClick={() => setShowImportModal(true)}
-              className="border border-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-100 flex items-center gap-2"
+              className="border border-gray-300 cursor-pointer text-gray-700 px-6 py-2 rounded hover:bg-gray-100 flex items-center gap-2"
             >
               <FiUpload />
               Import
@@ -173,14 +175,14 @@ const PaySchedule = () => {
                   <td className="px-4 py-3">
                     <div className="flex gap-3 items-center justify-center">
                       <button
-                        className="flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                        className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
                         onClick={() => handleEdit(item)}
                       >
                         <FiEdit size={14} />
                         <span>Edit</span>
                       </button>
                       <button
-                        className="flex items-center gap-1 px-2.5 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition"
+                        className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition"
                         onClick={() => setConfirmDeleteId(item)}
                       >
                         <FiTrash2 size={14} />
@@ -195,24 +197,30 @@ const PaySchedule = () => {
         </div>
       )}
 
-      {/* Add/Edit Modal */}
-      {showModal && (
-        <ModalOverlay onClose={handleClose}>
-          <PayScheduleForm
-            schedule={editData}
-            onSuccess={handleSuccess}
-            onCancel={handleClose}
-          />
-        </ModalOverlay>
-      )}
+      {/* Add/Edit Modal using ModalOverlay */}
+      <ModalOverlay
+        isOpen={showModal}
+        onClose={handleClose}
+        title={editData ? "Edit Pay Schedule" : "Add Pay Schedule"}
+      >
+        <PayScheduleForm
+          schedule={editData}
+          onSuccess={handleSuccess}
+          onCancel={handleClose}
+        />
+      </ModalOverlay>
 
-      {/* Import Modal */}
-      {showImportModal && (
+      {/* Import Modal using ModalOverlay */}
+      <ModalOverlay
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        title="Import Pay Schedules"
+      >
         <ImportPayschedule
           onClose={() => setShowImportModal(false)}
           fetchShifts={fetchSchedules}
         />
-      )}
+      </ModalOverlay>
 
       {/* Confirm Delete Modal */}
       {confirmDeleteId && (

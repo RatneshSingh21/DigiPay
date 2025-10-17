@@ -1,15 +1,12 @@
-import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import Select from "react-select";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import FilingAddressModal from "../Organization/FilingAddressModal";
-import { Pencil } from "lucide-react";
+import { Pencil, Building2, Mail } from "lucide-react";
 import { FiUpload } from "react-icons/fi";
-import { MdContactPhone } from "react-icons/md";
 
 const OrganisationProfile = () => {
   const [orgCode, setOrgCode] = useState("");
-  const [dateFormat, setDateFormat] = useState(null);
   const [organizationData, setOrganizationData] = useState({
     technology: "",
   });
@@ -20,10 +17,7 @@ const OrganisationProfile = () => {
     state: null,
     pinCode: "",
   });
-
   const [logoPreview, setLogoPreview] = useState(null);
-
-  const [selectedState, setSelectedState] = useState(null);
   const [filingAddress, setFilingAddress] = useState(null);
   const [loadingAddress, setLoadingAddress] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,59 +65,6 @@ const OrganisationProfile = () => {
     indianStates.map((state) => ({ label: state, value: state }))
   );
 
-  const today = new Date();
-
-  const dateFormatConfig = {
-    short: [
-      { label: `MM.dd.yy [${format(today, "MM.dd.yy")}]`, value: "MM.dd.yy" },
-      { label: `dd.MM.yy [${format(today, "dd.MM.yy")}]`, value: "dd.MM.yy" },
-      { label: `yy.MM.dd [${format(today, "yy.MM.dd")}]`, value: "yy.MM.dd" },
-    ],
-    medium: [
-      {
-        label: `MM.dd.yyyy [${format(today, "MM.dd.yyyy")}]`,
-        value: "MM.dd.yyyy",
-      },
-      {
-        label: `dd.MM.yyyy [${format(today, "dd.MM.yyyy")}]`,
-        value: "dd.MM.yyyy",
-      },
-      {
-        label: `yyyy.MM.dd [${format(today, "yyyy.MM.dd")}]`,
-        value: "yyyy.MM.dd",
-      },
-    ],
-    long: [
-      {
-        label: format(today, "dd MMM yyyy"),
-        value: format(today, "dd MMM yyyy"),
-      },
-      {
-        label: format(today, "dd MMMM yyyy"),
-        value: format(today, "dd MMMM yyyy"),
-      },
-      {
-        label: format(today, "MMMM dd, yyyy"),
-        value: format(today, "MMMM dd, yyyy"),
-      },
-      {
-        label: format(today, "EEE, MMMM dd, yyyy"),
-        value: format(today, "EEE, MMMM dd, yyyy"),
-      },
-      {
-        label: format(today, "EEEE, MMMM dd, yyyy"),
-        value: format(today, "EEEE, MMMM dd, yyyy"),
-      },
-    ],
-  };
-
-  const [dateFormatOptions] = useState(
-    Object.entries(dateFormatConfig).map(([key, formats]) => ({
-      label: key,
-      options: formats,
-    }))
-  );
-
   const technologies = [
     "Agency or Sales House",
     "Agriculture",
@@ -143,11 +84,7 @@ const OrganisationProfile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = {
-      orgCode,
-      dateFormat: dateFormat?.value || null,
-      ...organizationData,
-    };
+    const data = { orgCode, ...organizationData };
     console.log("Submitted Data:", data);
   };
 
@@ -160,13 +97,10 @@ const OrganisationProfile = () => {
           setFilingAddress(res.data[0]);
         }
       })
-      .catch((err) => {
-        console.error("Failed to fetch filing address:", err);
-      })
-      .finally(() => {
-        setLoadingAddress(false);
-      });
+      .catch((err) => console.error("Failed to fetch filing address:", err))
+      .finally(() => setLoadingAddress(false));
   }, []);
+
   useEffect(() => {
     if (filingAddress) {
       setOrgAddress({
@@ -217,15 +151,12 @@ const OrganisationProfile = () => {
                   const file = e.target.files[0];
                   if (file) {
                     const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setLogoPreview(reader.result);
-                    };
+                    reader.onloadend = () => setLogoPreview(reader.result);
                     reader.readAsDataURL(file);
                   }
                 }}
               />
             </div>
-
             <div className="text-sm text-gray-600">
               <p className="mb-1">
                 This logo will be displayed on documents such as Payslip and TDS
@@ -252,7 +183,7 @@ const OrganisationProfile = () => {
           <input
             type="text"
             className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Enter Organization Name "
+            placeholder="Enter Organization Name"
           />
         </div>
 
@@ -289,21 +220,6 @@ const OrganisationProfile = () => {
               }
             />
           </div>
-        </div>
-
-        {/* Date Format & Field Separator */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Date <span className="text-red-500">*</span>
-          </label>
-          <Select
-            options={dateFormatOptions}
-            value={dateFormat}
-            onChange={setDateFormat}
-            placeholder="Select a date"
-            className="react-select-container"
-            classNamePrefix="react-select"
-          />
         </div>
 
         {/* Organisation Address */}
@@ -356,7 +272,6 @@ const OrganisationProfile = () => {
           <p className="text-sm text-gray-500 mb-3">
             This registered address will be used across all Forms and Payslips.
           </p>
-
           {loadingAddress ? (
             <p className="text-sm text-gray-500">Loading address...</p>
           ) : filingAddress ? (
@@ -369,8 +284,7 @@ const OrganisationProfile = () => {
                   onClick={() => setIsModalOpen(true)}
                   className="flex items-center text-blue-600 text-sm hover:underline"
                 >
-                  <Pencil size={14} className="mr-1" />
-                  Change
+                  <Pencil size={14} className="mr-1" /> Change
                 </button>
               </div>
               <p className="text-sm text-gray-800">
@@ -386,21 +300,22 @@ const OrganisationProfile = () => {
           )}
         </div>
 
-        {/* Contact Info */}
+        {/* Modernized Contact Information */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            📇 Contact Information
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-indigo-600">📇</span>
+            Contact Information
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Primary Contact Card */}
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 hover:shadow-md transition">
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:shadow-md transition-all">
               <div className="flex items-center gap-4 mb-4">
-                <div className="bg-indigo-100 text-indigo-700 rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">
-                  D
+                <div className="bg-indigo-100 text-indigo-700 rounded-full w-12 h-12 flex items-center justify-center">
+                  <span className="text-xl font-semibold">D</span>
                 </div>
                 <div>
-                  <p className="text-base font-medium text-gray-900">
+                  <p className="text-base font-semibold text-gray-900">
                     DigiCode Software
                   </p>
                   <p className="text-sm text-gray-600">
@@ -408,11 +323,11 @@ const OrganisationProfile = () => {
                   </p>
                 </div>
               </div>
-              <p className="text-sm text-gray-700 mb-3">
-                This email is your primary contact and receives all
-                payroll-related updates.
+              <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                This email serves as your primary contact and receives all
+                payroll-related updates and notifications.
               </p>
-              <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 text-sm rounded-lg px-4 py-3">
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg px-4 py-3">
                 Since this is a public domain email, emails will be sent via{" "}
                 <br />
                 <strong>info@digicodesoftware.com</strong> to prevent spam.
@@ -420,13 +335,13 @@ const OrganisationProfile = () => {
             </div>
 
             {/* Email Sender Settings Card */}
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 hover:shadow-md transition">
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:shadow-md transition-all">
               <div className="flex items-center gap-4 mb-4">
                 <div className="bg-blue-100 text-blue-700 rounded-full w-12 h-12 flex items-center justify-center text-xl">
-                  📧
+                  <Mail size={20} />
                 </div>
                 <div>
-                  <p className="text-base font-medium text-gray-900">
+                  <p className="text-base font-semibold text-gray-900">
                     Sender Settings
                   </p>
                   <p className="text-sm text-gray-600">
@@ -434,13 +349,12 @@ const OrganisationProfile = () => {
                   </p>
                 </div>
               </div>
-              <p className="text-sm text-gray-700 mb-3">
-                You can customize the email addresses used for sending payroll
-                emails.
+              <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                Customize which email addresses are used for sending payroll
+                notifications and reports.
               </p>
               <p className="text-sm text-gray-900">
-                Default Sender:
-                <br />
+                Default Sender: <br />
                 <strong>info@digicodesoftware.com</strong>
               </p>
             </div>
@@ -457,6 +371,7 @@ const OrganisationProfile = () => {
           </button>
           <p className="text-sm text-red-500">* indicates mandatory fields</p>
         </div>
+
         <FilingAddressModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}

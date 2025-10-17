@@ -13,13 +13,18 @@ const LandingSection = () => {
 
   return (
     <section
-      className="pb-16 pt-32 bg-no-repeat bg-cover bg-center"
-      style={{ backgroundImage: `url(${assets.Landingbg})` }}
+      className="flex-grow flex items-center justify-center bg-no-repeat bg-cover bg-center overflow-hidden"
+      style={{
+        backgroundImage: `url(${assets.Landingbg})`,
+        backgroundSize: "cover", // ensures it covers the screen
+        backgroundPosition: "center", // keeps center focus
+        backgroundRepeat: "no-repeat",
+      }}
     >
-      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-10">
+      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-20 py-16">
         <div className="md:w-1/2 text-center md:text-left">
           <p className="text-lg text-gray-900 font-medium mb-2">
-            Payroll Software
+            HRMS Software
           </p>
           <h1 className="text-2xl md:text-[30px] font-bold text-gray-900 leading-tight">
             Automated, Accurate & Hassle-Free{" "}
@@ -39,7 +44,7 @@ const LandingSection = () => {
               <GrMoney className="w-6 h-6 text-[#CF6C12]" />
             </div>
             <p className="text-[#CF6C12] text-sm font-bold ml-2">
-              ⭐ 4.1 average ratings on global review platforms
+              ⭐ 4.1 average ratings on review platforms
             </p>
           </div>
 
@@ -63,7 +68,7 @@ const LandingSection = () => {
           <img
             src={assets.LoginImage}
             alt="Illustration"
-            className="rounded-lg w-full max-w-md"
+            className="rounded-lg w-full max-w-md object-contain"
           />
         </div>
       </div>

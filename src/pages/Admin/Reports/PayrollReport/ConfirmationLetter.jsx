@@ -19,7 +19,7 @@ const ConfirmationLetter = () => {
     employeeName: "Santosh Kumar",
     designation: "Sr. Supervisor",
     department: "Production - Welding Shop",
-    dateOfJoining: "2012-04-04",
+    dateOfJoining: "04-04-2021",
     confirmationDate: new Date().toISOString().slice(0, 10),
     employmentType: "Permanent",
     remarks: "Employee has satisfactorily completed the probation period.",

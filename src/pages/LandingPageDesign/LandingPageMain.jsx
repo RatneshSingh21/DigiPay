@@ -1,13 +1,17 @@
-import LandingNavbar from './LandingNavbar'
-import LandingSection from './LandingSection'
+import LandingNavbar from "./LandingNavbar";
+import LandingSection from "./LandingSection";
+import LandingFooter from "./LandingFooter";
 
 const LandingPageMain = () => {
   return (
-    <div className='h-screen w-screen'>
-        <LandingNavbar />
+    <div className="min-h-screen flex flex-col overflow-x-hidden overflow-y-hidden">
+      <LandingNavbar />
+      <main className="flex-grow">
         <LandingSection />
+      </main>
+      <LandingFooter />
     </div>
-  )
-}
+  );
+};
 
-export default LandingPageMain
+export default LandingPageMain;

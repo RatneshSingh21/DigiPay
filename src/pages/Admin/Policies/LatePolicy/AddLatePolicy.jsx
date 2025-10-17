@@ -55,8 +55,8 @@ export default function AddLatePolicy({
       try {
         const shiftRes = await axiosInstance.get("/shift");
         setShiftOptions(
-  shiftRes.data.map((s) => ({ value: s.id, label: s.shiftName }))
-);
+          shiftRes.data.map((s) => ({ value: s.id, label: s.shiftName }))
+        );
 
         const deptRes = await axiosInstance.get("/Department");
         setDepartmentOptions(
@@ -198,9 +198,7 @@ export default function AddLatePolicy({
                 autoFocus
               />
               {errors.policyName && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.policyName}
-                </p>
+                <p className="text-xs text-red-500 mt-1">{errors.policyName}</p>
               )}
             </div>
 
@@ -283,7 +281,9 @@ export default function AddLatePolicy({
               <input
                 type="number"
                 value={form.deductionAmount}
-                onChange={(e) => handleChange("deductionAmount", e.target.value)}
+                onChange={(e) =>
+                  handleChange("deductionAmount", e.target.value)
+                }
                 className={`w-full border rounded-lg px-3 py-2 text-xs ${
                   errors.deductionAmount
                     ? "border-red-500"
@@ -352,7 +352,9 @@ export default function AddLatePolicy({
             <Select
               isMulti
               options={shiftOptions}
-              value={shiftOptions.filter((o) => form.shiftIds.includes(o.value))}
+              value={shiftOptions.filter((o) =>
+                form.shiftIds.includes(o.value)
+              )}
               onChange={(selected) =>
                 handleChange(
                   "shiftIds",
@@ -364,7 +366,9 @@ export default function AddLatePolicy({
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1">Departments</label>
+            <label className="block text-xs font-medium mb-1">
+              Departments
+            </label>
             <Select
               isMulti
               options={departmentOptions}

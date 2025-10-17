@@ -11,12 +11,16 @@ const LatePolicy = () => {
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState(null);
 
-  // Fetch all policies
+  // ✅ Fetch all late policies
   const fetchPolicies = async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get("/LatePolicy");
-      setPolicies(res.data || []);
+      const res = await axiosInstance.get("/LatePolicy/all");
+      if (res.data && res.data.data) {
+        setPolicies(res.data.data);
+      } else {
+        setPolicies([]);
+      }
     } catch (err) {
       toast.error("Failed to fetch late policies");
     } finally {
@@ -24,9 +28,9 @@ const LatePolicy = () => {
     }
   };
 
-  //   useEffect(() => {
-  //     fetchPolicies();
-  //   }, []);
+  useEffect(() => {
+    fetchPolicies();
+  }, []);
 
   const handleAdd = () => {
     setEditData(null);
@@ -41,12 +45,11 @@ const LatePolicy = () => {
   return (
     <>
       {/* Header */}
-      {/* Header */}
       <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Late Policies</h2>
         <div className="flex gap-2">
           <button
-            // onClick={fetchPolicies}
+            onClick={fetchPolicies}
             className="flex cursor-pointer items-center text-sm gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
           >
             <FiRefreshCw /> Refresh
@@ -61,7 +64,7 @@ const LatePolicy = () => {
       </div>
 
       {/* List */}
-      <div className="bg-white shadow-md mx-4 rounded-xl overflow-hidden border">
+      <div className="px-4 pb-6">
         {loading ? (
           <div className="p-6 text-center text-gray-500">Loading...</div>
         ) : policies.length === 0 ? (
@@ -69,51 +72,94 @@ const LatePolicy = () => {
             No late policies found.
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-gray-100 text-gray-700">
-              <tr>
-                <th className="py-2 px-3 text-left">Policy Name</th>
-                <th className="py-2 px-3 text-left">Effective From</th>
-                <th className="py-2 px-3 text-left">Effective To</th>
-                <th className="py-2 px-3 text-left">Deduction Type</th>
-                <th className="py-2 px-3 text-left">Active</th>
-                <th className="py-2 px-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {policies.map((p) => (
-                <tr key={p.latePolicyId} className="border-t hover:bg-gray-50">
-                  <td className="py-2 px-3">{p.policyName}</td>
-                  <td className="py-2 px-3">
-                    {p.effectiveFrom
-                      ? new Date(p.effectiveFrom).toLocaleDateString()
-                      : "-"}
-                  </td>
-                  <td className="py-2 px-3">
-                    {p.effectiveTo
-                      ? new Date(p.effectiveTo).toLocaleDateString()
-                      : "-"}
-                  </td>
-                  <td className="py-2 px-3">{p.deductionType || "-"}</td>
-                  <td className="py-2 px-3">
-                    {p.isActive ? (
-                      <span className="text-green-600 font-medium">Yes</span>
-                    ) : (
-                      <span className="text-red-500 font-medium">No</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-3 text-center">
-                    <button
-                      onClick={() => handleEdit(p)}
-                      className="text-blue-600 hover:text-blue-800 flex items-center gap-1 mx-auto"
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {policies.map((p) => (
+              <div
+                key={p.latePolicyId}
+                className="border rounded-xl shadow-sm hover:shadow-md transition bg-white p-4 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-lg text-gray-800">
+                      {p.policyName}
+                    </h3>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        p.isActive
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-600"
+                      }`}
                     >
-                      <Edit size={16} /> Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      {p.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+
+                  {p.description && (
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                      {p.description}
+                    </p>
+                  )}
+
+                  <div className="space-y-1 text-sm text-gray-700">
+                    <p>
+                      <span className="font-bold">Effective From:</span>{" "}
+                      {p.effectiveFrom
+                        ? new Date(p.effectiveFrom).toLocaleDateString()
+                        : "-"}
+                    </p>
+                    <p>
+                      <span className="font-bold">Effective To:</span>{" "}
+                      {p.effectiveTo
+                        ? new Date(p.effectiveTo).toLocaleDateString()
+                        : "-"}
+                    </p>
+                    <p>
+                      <span className="font-bold">Grace (mins/day):</span>{" "}
+                      {p.graceMinutesPerDay ?? "-"}
+                    </p>
+                    <p>
+                      <span className="font-bold">
+                        Max Grace Occurrences:
+                      </span>{" "}
+                      {p.maxGraceOccurrences ?? "-"}
+                    </p>
+                    <p>
+                      <span className="font-bold">
+                        Late Threshold (mins):
+                      </span>{" "}
+                      {p.lateThresholdMinutes ?? "-"}
+                    </p>
+                    <p>
+                      <span className="font-bold">Max Late/Month:</span>{" "}
+                      {p.maxLateAllowedPerMonth ?? "-"}
+                    </p>
+                    <p>
+                      <span className="font-bold">Deduct Half Day:</span>{" "}
+                      {p.deductHalfDay ? "Yes" : "No"}
+                    </p>
+                    <p>
+                      <span className="font-bold">Deduct Full Day:</span>{" "}
+                      {p.deductFullDay ? "Yes" : "No"}
+                    </p>
+                    <p>
+                      <span className="font-bold">Deduction Type:</span>{" "}
+                      {p.deductionType || "-"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-4 border-t pt-2 flex justify-end">
+                  <button
+                    onClick={() => handleEdit(p)}
+                    className="text-blue-600 hover:text-blue-800 cursor-pointer flex items-center gap-1 text-sm font-medium"
+                  >
+                    <Edit size={15} /> Edit
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -123,7 +169,7 @@ const LatePolicy = () => {
           onClose={() => setShowForm(false)}
           isEdit={!!editData}
           initialData={editData}
-          onSuccess={() => fetchPolicies()}
+          onSuccess={fetchPolicies}
         />
       )}
     </>

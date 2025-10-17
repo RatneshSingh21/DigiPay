@@ -6,6 +6,7 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 
 const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
+  const { user } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [workLocations, setWorkLocations] = useState([]);
   const [formData, setFormData] = useState({
@@ -20,201 +21,170 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
     description: "",
   });
 
-  const { user } = useAuthStore();
-
-  // Load Work Locations
   useEffect(() => {
-    const fetchWorkLocations = async () => {
-      try {
-        const res = await axiosInstance.get("/WorkLocation");
-        setWorkLocations(res.data);
-      } catch (error) {
-        toast.error("Failed to fetch work locations");
-      }
-    };
-    fetchWorkLocations();
+    axiosInstance
+      .get("/WorkLocation")
+      .then((res) => setWorkLocations(res.data))
+      .catch(() => toast.error("Failed to fetch work locations"));
   }, []);
 
-  // If editing, load initial data
   useEffect(() => {
     if (isEdit === "Edit" && initialData) {
       setFormData({
         ...initialData,
-        holidayDate: initialData.holidayDate
-          ? initialData.holidayDate.split("T")[0]
-          : "",
+        holidayDate: initialData.holidayDate?.split("T")[0] || "",
       });
     }
   }, [isEdit, initialData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // react-select value setter
-  const handleSelectChange = (name, selectedOption) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: selectedOption ? selectedOption.value : "",
-    }));
-  };
+  const handleSelectChange = (name, option) =>
+    setFormData((p) => ({ ...p, [name]: option ? option.value : "" }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    let payload;
-    if (isEdit === "Edit") {
-      payload = {
-        ...formData,
-        holidayId: formData.holidayId,
-        updatedBy: user?.userId,
-        updatedOn: new Date().toISOString(),
-      };
-    } else {
-      payload = {
-        ...formData,
-        createdBy: user?.userId,
-        updatedBy: 0,
-        createdOn: new Date().toISOString(),
-      };
-    }
+    const payload = {
+      ...formData,
+      ...(isEdit === "Edit"
+        ? { updatedBy: user?.userId, updatedOn: new Date().toISOString() }
+        : { createdBy: user?.userId, updatedBy: 0, createdOn: new Date().toISOString() }),
+    };
 
     try {
       await axiosInstance.post("/HolidayListMaster/create-or-update", payload);
       toast.success("Holiday Saved Successfully");
-      onSuccess && onSuccess();
+      onSuccess?.();
       onClose();
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Error saving Holiday");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Error saving Holiday");
     } finally {
       setLoading(false);
     }
   };
 
+  const clearForm = () =>
+    setFormData({
+      holidayName: "",
+      holidayDate: "",
+      holidayType: "",
+      isOptional: false,
+      isRecurring: false,
+      workLocationId: "",
+      isActive: true,
+      isRestricted: false,
+      description: "",
+    });
+
+  const inputClass =
+    "w-full border rounded-lg px-3 py-2 text-xs border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
+
+  const renderInput = (label, name, type = "text", required = false) => (
+    <div>
+      <label className="block text-gray-700 font-medium text-sm mb-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+        className={inputClass}
+        required={required}
+      />
+    </div>
+  );
+
+  const renderSelect = (label, name, options, required = false) => (
+    <div>
+      <label className="block text-gray-700 font-medium text-sm mb-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <Select
+        options={options}
+        value={
+          formData[name]
+            ? options.find((opt) => opt.value === String(formData[name])) || null
+            : null
+        }
+        onChange={(selected) => handleSelectChange(name, selected)}
+        placeholder={`Select ${label}`}
+        isClearable
+        styles={{
+          control: (base) => ({
+            ...base,
+            minHeight: "34px",
+            height: "34px",
+            borderColor: "#93c5fd",
+            fontSize: "0.75rem",
+          }),
+          valueContainer: (base) => ({
+            ...base,
+            padding: "0 6px",
+          }),
+          input: (base) => ({
+            ...base,
+            margin: 0,
+            padding: 0,
+          }),
+          indicatorsContainer: (base) => ({
+            ...base,
+            height: "30px",
+          }),
+        }}
+      />
+    </div>
+  );
+
   return (
-    <div
-      className="fixed inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4 "
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4">
       <div
-        className="bg-white p-6 rounded-lg shadow-lg max-w-2xl relative  overflow-y-scroll max-h-[75vh]"
+        className="bg-white p-6 rounded-lg shadow-lg max-w-2xl relative overflow-y-scroll max-h-[75vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
         <button
-          type="button"
-          className="absolute top-4 right-4 text-gray-600 hover:text-red-500 text-xl cursor-pointer"
+          className="absolute cursor-pointer top-4 right-4 text-gray-600 hover:text-red-500 text-xl"
           onClick={onClose}
         >
           &times;
         </button>
 
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-2">
           {isEdit === "Edit" ? "Edit Holiday" : "New Holiday"}
         </h2>
 
-        <form
-          className="space-y-4"
-          onSubmit={handleSubmit}
-        >
-          {/* Holiday Name */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Holiday Name<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="holidayName"
-              value={formData.holidayName}
-              onChange={handleChange}
-              placeholder="Holiday Name"
-              autoFocus
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
+        <form className="space-y-1" onSubmit={handleSubmit}>
+          {renderInput("Holiday Name", "holidayName", "text", true)}
+          {renderInput("Holiday Date", "holidayDate", "date", true)}
 
-          {/* Holiday Date */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Holiday Date<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              name="holidayDate"
-              value={formData.holidayDate}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
+          {renderSelect(
+            "Holiday Type",
+            "holidayType",
+            [
+              { value: "Festival", label: "Festival" },
+              { value: "National", label: "National" },
+              { value: "Public", label: "Public" },
+              { value: "Other", label: "Other" },
+            ],
+            true
+          )}
 
-          {/* Holiday Type (React Select) */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Holiday Type<span className="text-red-500">*</span>
-            </label>
-            <Select
-              options={[
-                { value: "Festival", label: "Festival" },
-                { value: "National", label: "National" },
-                { value: "Public", label: "Public" },
-                { value: "Other", label: "Other" },
-              ]}
-              value={
-                formData.holidayType
-                  ? {
-                      value: formData.holidayType,
-                      label: formData.holidayType,
-                    }
-                  : null
-              }
-              onChange={(selected) =>
-                handleSelectChange("holidayType", selected)
-              }
-              placeholder="Select Type"
-              isClearable
-            />
-          </div>
+          {renderSelect(
+            "Work Location",
+            "workLocationId",
+            workLocations.map((loc) => ({
+              value: String(loc.id),
+              label: `${loc.name} (${loc.city})`,
+            })),
+            true
+          )}
 
-          {/* Work Location (React Select) */}
           <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Work Location<span className="text-red-500">*</span>
-            </label>
-            <Select
-              options={workLocations.map((loc) => ({
-                value: String(loc.id),
-                label: `${loc.name} (${loc.city})`,
-              }))}
-              value={
-                formData.workLocationId
-                  ? workLocations
-                      .map((loc) => ({
-                        value: String(loc.id),
-                        label: `${loc.name} (${loc.city})`,
-                      }))
-                      .find(
-                        (opt) => opt.value === String(formData.workLocationId)
-                      )
-                  : null
-              }
-              onChange={(selected) =>
-                handleSelectChange("workLocationId", selected)
-              }
-              placeholder="Select Location"
-              isClearable
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
+            <label className="block text-gray-700 font-medium text-sm mb-1">
               Description
             </label>
             <textarea
@@ -223,37 +193,35 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
               value={formData.description}
               onChange={handleChange}
               placeholder="Write description here..."
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+              className={`${inputClass} resize-none`}
             />
           </div>
 
-          {/* Checkboxes */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { name: "isOptional", label: "Optional" },
               { name: "isRecurring", label: "Recurring" },
               { name: "isActive", label: "Active" },
               { name: "isRestricted", label: "Restricted" },
-            ].map((item) => (
-              <label key={item.name} className="flex items-center gap-2">
+            ].map(({ name, label }) => (
+              <label key={name} className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
-                  name={item.name}
-                  checked={formData[item.name]}
+                  name={name}
+                  checked={formData[name]}
                   onChange={handleChange}
-                  className="h-5 w-5 text-blue-600"
+                  className="h-4 w-4 text-blue-600"
                 />
-                <span className="text-gray-700">{item.label}</span>
+                <span className="text-gray-700">{label}</span>
               </label>
             ))}
           </div>
 
-          {/* Buttons */}
-          <div className="flex items-center justify-start gap-4 pt-4">
+          <div className="flex items-center gap-4">
             <button
               type="submit"
               disabled={loading}
-              className={`px-6 py-2 rounded-lg text-white cursor-pointer ${
+              className={`px-5 py-2 cursor-pointer rounded-lg text-white text-sm ${
                 loading
                   ? "bg-blue-300 cursor-not-allowed"
                   : "bg-primary hover:bg-secondary"
@@ -264,33 +232,14 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
 
             <button
               type="reset"
-              className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 cursor-pointer"
-              onClick={() =>
-                setFormData({
-                  holidayId: "",
-                  holidayName: "",
-                  holidayDate: "",
-                  holidayType: "",
-                  isOptional: false,
-                  isRecurring: false,
-                  workLocationId: "",
-                  isActive: true,
-                  isRestricted: false,
-                  description: "",
-                  createdBy: "",
-                  updatedBy: "",
-                  createdOn: "",
-                  updatedOn: null,
-                })
-              }
+              onClick={clearForm}
+              className="border cursor-pointer border-gray-300 text-gray-700 px-5 py-2 text-sm rounded-lg hover:bg-gray-100"
             >
               Clear
             </button>
           </div>
 
-          <p className="text-sm text-red-500 mt-1">
-            * Indicates mandatory fields
-          </p>
+          <p className="text-xs text-red-500 mt-1">* Indicates mandatory fields</p>
         </form>
       </div>
     </div>
