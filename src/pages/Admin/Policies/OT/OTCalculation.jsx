@@ -59,7 +59,7 @@ const OTCalculation = () => {
       </div>
 
       {/* OT List */}
-      <div className="overflow-x-auto bg-white rounded-xl shadow p-2">
+      <div className="overflow-x-auto bg-white rounded-xl shadow p-2 mx-3">
         {loading ? (
           <p>Loading...</p>
         ) : otList.length === 0 ? (

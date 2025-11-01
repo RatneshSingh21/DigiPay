@@ -33,7 +33,7 @@ const CreateSuperAdmin = () => {
         <h2 className="font-semibold text-xl">Admins</h2>
 
         <button
-          className="bg-primary hover:bg-secondary text-sm text-white px-4 py-2 rounded-lg font-medium"
+          className="bg-primary cursor-pointer hover:bg-secondary text-sm text-white px-4 py-2 rounded-lg font-medium"
           onClick={() => setShowForm(true)}
         >
           Add Admin
@@ -52,18 +52,18 @@ const CreateSuperAdmin = () => {
           </p>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <table className="min-w-full border-collapse">
-              <thead className="bg-gray-100 text-gray-700 text-sm uppercase text-center">
+            <table className="min-w-full border-collapse text-xs text-center">
+              <thead className="bg-gray-100 text-gray-700 uppercase">
                 <tr>
-                  <th className="px-6 py-3 text-left">#</th>
-                  <th className="px-6 py-3 text-left">Name</th>
+                  <th className="px-6 py-3">S.No</th>
+                  <th className="px-6 py-3">Name</th>
                   <th className="px-6 py-3">Email / Phone</th>
                   <th className="px-6 py-3">Role</th>
                   <th className="px-6 py-3">Verified</th>
                   <th className="px-6 py-3">Created At</th>
                 </tr>
               </thead>
-              <tbody className="text-gray-700 text-sm">
+              <tbody className="text-gray-700">
                 {users.map((user, index) => (
                   <tr
                     key={user.userId}
@@ -73,11 +73,9 @@ const CreateSuperAdmin = () => {
                   >
                     <td className="px-6 py-3 font-medium">{index + 1}</td>
                     <td className="px-6 py-3">{user.name}</td>
-                    <td className="px-6 py-3 text-center">
-                      {user.emailOrPhone}
-                    </td>
-                    <td className="px-6 py-3 text-center">{user.role}</td>
-                    <td className="px-6 py-3 text-center">
+                    <td className="px-6 py-3">{user.emailOrPhone}</td>
+                    <td className="px-6 py-3">{user.role}</td>
+                    <td className="px-6 py-3">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           user.isVerified
@@ -88,8 +86,8 @@ const CreateSuperAdmin = () => {
                         {user.isVerified ? "Yes" : "No"}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-center">
-                      {new Date(user.createdAt).toLocaleDateString()}{" "}
+                    <td className="px-6 py-3">
+                      {new Date(user.createdAt).toLocaleDateString("en-GB")}{" "}
                       {new Date(user.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",

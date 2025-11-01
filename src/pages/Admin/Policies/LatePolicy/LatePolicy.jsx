@@ -11,7 +11,7 @@ const LatePolicy = () => {
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState(null);
 
-  // ✅ Fetch all late policies
+  // Fetch all late policies
   const fetchPolicies = async () => {
     setLoading(true);
     try {
@@ -104,13 +104,13 @@ const LatePolicy = () => {
                     <p>
                       <span className="font-bold">Effective From:</span>{" "}
                       {p.effectiveFrom
-                        ? new Date(p.effectiveFrom).toLocaleDateString()
+                        ? new Date(p.effectiveFrom).toLocaleDateString("en-GB")
                         : "-"}
                     </p>
                     <p>
                       <span className="font-bold">Effective To:</span>{" "}
                       {p.effectiveTo
-                        ? new Date(p.effectiveTo).toLocaleDateString()
+                        ? new Date(p.effectiveTo).toLocaleDateString("en-GB")
                         : "-"}
                     </p>
                     <p>

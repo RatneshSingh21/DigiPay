@@ -140,7 +140,7 @@ const ShiftMapping = () => {
             <table className="min-w-full divide-y text-xs text-center divide-gray-200">
               <thead className="bg-gray-100 text-gray-600">
                 <tr>
-                  <th className="px-3 py-2">#</th>
+                  <th className="px-3 py-2">S.No</th>
                   <th className="px-3 py-2">Employee</th>
                   <th className="px-3 py-2">Shift</th>
                   <th className="px-3 py-2">Effective From</th>

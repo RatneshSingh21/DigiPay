@@ -124,83 +124,158 @@ const EmpMarkAttendance = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    const { inTime, outTime, status, workType, shift, punchType } = formData;
+  const { inTime, outTime, status, workType, shift, punchType } = formData;
 
-    if (!status || !workType || !punchType) {
-      toast.error("Please select Status, Work Type, and Punch Type.");
+  if (!status || !workType || !punchType) {
+    toast.error("Please select Status, Work Type, and Punch Type.");
+    setIsSubmitting(false);
+    return;
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const formatDateTime = (dateStr, timeStr) => {
+    if (!timeStr) return null;
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    const date = new Date(dateStr);
+    date.setHours(hours, minutes, 0, 0);
+    const localISO = date.toLocaleString("sv-SE").replace(" ", "T");
+    return localISO;
+  };
+
+  if (todayAttendance && Array.isArray(todayAttendance)) {
+    const hasIn = todayAttendance.some(
+      (rec) => rec.punchType?.toUpperCase() === "IN"
+    );
+    const hasOut = todayAttendance.some(
+      (rec) => rec.punchType?.toUpperCase() === "OUT"
+    );
+
+    if (punchType.value.includes("IN") && hasIn) {
+      toast.error("You have already punched in today.");
       setIsSubmitting(false);
       return;
     }
 
-    const today = new Date().toISOString().split("T")[0];
-    // Combine today's date with given time and convert to full ISO string
-    const formatDateTime = (dateStr, timeStr) => {
-      if (!timeStr) return null;
-      const [hours, minutes] = timeStr.split(":").map(Number);
-      const date = new Date(dateStr);
-      date.setHours(hours, minutes, 0, 0);
-      // Convert to local ISO format without timezone shift
-      const localISO = date.toLocaleString("sv-SE").replace(" ", "T"); // e.g. "2025-10-13T18:00:00"
-      return localISO;
-    };
-
-    if (todayAttendance && Array.isArray(todayAttendance)) {
-      const hasIn = todayAttendance.some(
-        (rec) => rec.punchType?.toUpperCase() === "IN"
-      );
-      const hasOut = todayAttendance.some(
-        (rec) => rec.punchType?.toUpperCase() === "OUT"
-      );
-
-      if (punchType.value.includes("IN") && hasIn) {
-        toast.error("You have already punched in today.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (punchType.value.includes("OUT") && hasOut) {
-        toast.error("You have already punched out today.");
-        setIsSubmitting(false);
-        return;
-      }
+    if (punchType.value.includes("OUT") && hasOut) {
+      toast.error("You have already punched out today.");
+      setIsSubmitting(false);
+      return;
     }
+  }
 
-    const payload = {
-      employeeId: User?.userId,
-      attendanceDate: new Date(today).toISOString(),
-      inTime: showInTime ? formatDateTime(today, inTime) : null,
-      outTime: showOutTime ? formatDateTime(today, outTime) : null,
-      status: status.value,
-      workType: workType.value,
-      shiftId: shift?.value || 0,
-      punchTypeCode: punchType.value,
+  try {
+    // ✅ Step 1: Get high-accuracy GPS location
+    const getPreciseLocation = () =>
+      new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject("Geolocation not supported");
+        } else {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve(pos.coords),
+            (err) => reject(err),
+            {
+              enableHighAccuracy: true, // force GPS accuracy
+              timeout: 15000, // wait up to 15s for precision
+              maximumAge: 0,
+            }
+          );
+        }
+      });
+
+    const coords = await getPreciseLocation();
+    const { latitude, longitude, accuracy } = coords;
+
+    console.log("📍 Precise GPS Location:", { latitude, longitude, accuracy });
+
+    // ✅ Step 2: Reverse geocode using OpenStreetMap for detailed address
+    let addressData = {
+      address: "",
+      city: "",
+      state: "",
+      country: "",
+      postalCode: "",
     };
-
-    console.log("Submitting attendance:", payload);
 
     try {
-      await axiosInstance.post("/Attendance/create", payload);
-      toast.success("Attendance submitted successfully!");
-      setTodayAttendance(payload);
-      setFormData((prev) => ({
-        ...prev,
-        outTime: "18:00",
-        status: null,
-        workType: null,
-        punchType: null,
-      }));
-    } catch (err) {
-      console.error("Submission error:", err);
-      toast.error(
-        err?.response?.data?.message || "Failed to submit attendance"
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
       );
-    } finally {
-      setIsSubmitting(false);
+      const data = await geoRes.json();
+
+      addressData = {
+        address: data.display_name || "",
+        city:
+          data.address?.city ||
+          data.address?.town ||
+          data.address?.village ||
+          data.address?.suburb ||
+          "",
+        state: data.address?.state || "",
+        country: data.address?.country || "",
+        postalCode: data.address?.postcode || "",
+      };
+
+      console.log("🏠 Detailed Address:", addressData);
+    } catch (err) {
+      console.warn("Reverse geocoding failed, proceeding with coordinates only.");
     }
-  };
+
+    // ✅ Step 3: Build final payload for backend
+    const payload = {
+      attendance: {
+        employeeId: User?.userId,
+        attendanceDate: new Date(today).toISOString(),
+        inTime: showInTime ? formatDateTime(today, inTime) : null,
+        outTime: showOutTime ? formatDateTime(today, outTime) : null,
+        status: status.value,
+        workType: workType.value,
+        shiftId: shift?.value || 0,
+        punchTypeCode: punchType.value,
+      },
+      latitude,
+      longitude,
+      accuracyMeters: accuracy || 0,
+      source: "Web App",
+      address: addressData.address,
+      city: addressData.city,
+      state: addressData.state,
+      country: addressData.country,
+      postalCode: addressData.postalCode,
+      locationType: accuracy <= 20 ? "GPS" : "Network",
+      deviceInfo: navigator.userAgent,
+      ipAddress: "",
+      capturedAt: new Date().toISOString(),
+      remarks: `Marked via ${accuracy <= 20 ? "precise" : "approximate"} GPS`,
+    };
+
+    console.log("✅ Final Payload:", payload);
+
+    // ✅ Step 4: Submit to Attendance API
+    await axiosInstance.post("/Attendance/create", payload);
+    toast.success("Attendance marked successfully with precise location!");
+
+    setTodayAttendance(payload);
+    setFormData((prev) => ({
+      ...prev,
+      outTime: "18:00",
+      status: null,
+      workType: null,
+      punchType: null,
+    }));
+  } catch (err) {
+    console.error("❌ Attendance submission error:", err);
+    toast.error(
+      err?.message || "Failed to submit attendance. Please allow location access."
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   // Determine whether to show InTime or OutTime based on PunchType
   const showInTime = formData.punchType?.value?.includes("IN");

@@ -6,6 +6,9 @@ import {
   FaHandHoldingUsd,
   FaCalendarAlt,
   FaUserCircle,
+  FaFileInvoiceDollar,
+  FaFileAlt,
+  FaTrain,
 } from "react-icons/fa";
 import { RiUserStarFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
@@ -26,7 +29,7 @@ const menuItems = [
   },
   {
     label: "Salary Slip",
-    icon: <FaMoneyCheckAlt />, // replaced RequestQuote
+    icon: <FaMoneyCheckAlt />, 
     to: "/employee-dashboard/salary-slip",
   },
   {
@@ -36,7 +39,7 @@ const menuItems = [
   },
   {
     label: "Advance Payment",
-    icon: <FaHandHoldingUsd />, // replaced Badge
+    icon: <FaHandHoldingUsd />, 
     to: "/employee-dashboard/advance-payment",
   },
   {
@@ -53,6 +56,21 @@ const menuItems = [
     label: "Mark Attendance",
     icon: <RiUserStarFill />,
     to: "/employee-dashboard/mark-attendance",
+  },
+  {
+    label: "My Expenses",
+    icon: <FaFileInvoiceDollar />,
+    to: "/employee-dashboard/my-expenses",
+  },
+  {
+    label: "My Documents",
+    icon: <FaFileAlt />,
+    to: "/employee-dashboard/my-documents",
+  },
+  {
+    label: "Travel Details",
+    icon: <FaTrain />,
+    to: "/employee-dashboard/travel-details",
   },
 ];
 

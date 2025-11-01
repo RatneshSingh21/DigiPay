@@ -34,8 +34,8 @@ const DepartmentList = ({
         <p className="text-gray-500 text-sm">No departments found.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border border-gray-200 rounded-md overflow-hidden">
-            <thead className="bg-gray-100 text-gray-700 text-sm uppercase text-center">
+          <table className="min-w-full table-auto border text-xs border-gray-200 rounded-md overflow-hidden">
+            <thead className="bg-gray-100 text-gray-700 uppercase text-center">
               <tr>
                 <th className="px-6 py-3 text-left">Id</th>
                 <th className="py-3">Department Name</th>
@@ -43,18 +43,18 @@ const DepartmentList = ({
                 <th className="px-6 py-3">Actions</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700 text-sm">
+            <tbody className="text-gray-700">
               {departments.map((dept, index) => (
                 <tr
                   key={dept.id}
                   className={index % 2 === 0 ? "bg-white text-center" : "bg-gray-50 text-center"}
                 >
-                  <td className="px-6 py-4 text-left">{dept.id}</td>
-                  <td className="px-6 py-4 font-medium">{dept.name}</td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="px-6 py-2 text-left">{dept.id}</td>
+                  <td className="px-6 py-2 font-medium">{dept.name}</td>
+                  <td className="px-6 py-2 text-gray-600">
                     {dept.description || "No description"}
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-6 py-2 text-center">
                     <div className="flex justify-center gap-3">
                       <button
                         onClick={() => {

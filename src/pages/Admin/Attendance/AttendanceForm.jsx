@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Select from "react-select";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
-import ImportExportAttendance from "./ImportExportAttendance";
+import ImportExportAttendance from "./ImportExportAttendance"; // Import modal
 
 const statusOptions = [
   { value: "Present", label: "Present" },
@@ -25,7 +25,7 @@ const AttendanceForm = () => {
   const [punchTypeOptions, setPunchTypeOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false); // ✅ Modal toggle state
 
   const [formData, setFormData] = useState({
     employee: null,
@@ -38,38 +38,38 @@ const AttendanceForm = () => {
     punchType: null,
   });
 
+  // ✅ Fetch initial dropdown data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [empRes, shiftRes, punchRes] = await Promise.all([
+        setLoading(true);
+        const [empRes, shiftRes, punchRes, mappingRes] = await Promise.all([
           axiosInstance.get("/Employee"),
           axiosInstance.get("/Shift"),
           axiosInstance.get("/PunchType"),
+          axiosInstance.get("/ShiftMapping/all"),
         ]);
 
-        setEmployeeOptions(
-          empRes.data.map((emp) => ({
-            label: emp.fullName,
-            value: emp.id,
-          }))
-        );
+        const employees = empRes.data.map((emp) => ({
+          label: emp.fullName,
+          value: emp.id,
+        }));
+        setEmployeeOptions(employees);
 
-        setShiftOptions(
-          shiftRes.data.map((shift) => ({
-            label: shift.shiftName,
-            value: shift.id,
-          }))
-        );
-
-        setPunchTypeOptions(
+        const punches =
           punchRes.data.data?.map((p) => ({
             label: p.name,
             value: p.code,
-          })) || []
-        );
+          })) || [];
+        setPunchTypeOptions(punches);
+
+        setShiftOptions({
+          allShifts: shiftRes.data,
+          allMappings: mappingRes.data?.data || [],
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Failed to load initial data");
+        toast.error("Failed to load data.");
       } finally {
         setLoading(false);
       }
@@ -78,21 +78,45 @@ const AttendanceForm = () => {
     fetchData();
   }, []);
 
+  // ✅ Dynamic shift list update
+  useEffect(() => {
+    if (!formData.employee || !shiftOptions.allShifts) return;
+
+    const empMappings = shiftOptions.allMappings?.filter(
+      (m) => m.employeeId === formData.employee.value
+    );
+    const mappedIds = empMappings.map((m) => m.shiftId);
+
+    const filteredShifts = shiftOptions.allShifts
+      .filter((s) => mappedIds.includes(s.id))
+      .map((s) => ({
+        value: s.id,
+        label: `${s.shiftName} (${s.shiftStart} - ${s.shiftEnd})`,
+      }));
+
+    setFormData((prev) => ({ ...prev, shift: null }));
+    setShiftOptions((prev) => ({ ...prev, filtered: filteredShifts }));
+  }, [formData.employee]);
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const showInTime = formData.punchType?.value?.includes("IN");
+  const showOutTime = formData.punchType?.value?.includes("OUT");
+
+  // ✅ Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     const {
       employee,
-      status,
-      workType,
+      attendanceDate,
       inTime,
       outTime,
-      attendanceDate,
+      status,
+      workType,
       shift,
       punchType,
     } = formData;
@@ -103,30 +127,30 @@ const AttendanceForm = () => {
       return;
     }
 
-    const [inHour, inMin] = inTime.split(":").map(Number);
-    const [outHour, outMin] = outTime.split(":").map(Number);
-    const inTotal = inHour * 60 + inMin;
-    const outTotal = outHour * 60 + outMin;
-
-    if (inTotal >= outTotal) {
-      toast.error("In Time must be earlier than Out Time.");
-      setIsSubmitting(false);
-      return;
-    }
-
     const formatLocalDateTime = (dateStr, timeStr) => {
-      return `${dateStr}T${timeStr}:00`;
+      return timeStr ? `${dateStr}T${timeStr}:00` : null;
     };
 
     const payload = {
-      employeeId: employee.value,
-      attendanceDate: new Date(attendanceDate).toISOString(),
-      inTime: formatLocalDateTime(attendanceDate, inTime),
-      outTime: formatLocalDateTime(attendanceDate, outTime),
-      status: status.value,
-      workType: workType.value,
-      shiftId: shift?.value || 0,
-      punchTypeCode: punchType.value,
+      attendance: {
+        employeeId: employee.value,
+        attendanceDate: new Date(attendanceDate).toISOString(),
+        inTime: showInTime ? formatLocalDateTime(attendanceDate, inTime) : null,
+        outTime: showOutTime
+          ? formatLocalDateTime(attendanceDate, outTime)
+          : null,
+        status: status.value,
+        workType: workType.value,
+        shiftId: shift?.value || 0,
+        punchTypeCode: punchType.value,
+      },
+      latitude: 0,
+      longitude: 0,
+      accuracyMeters: 0,
+      source: "Admin Panel",
+      deviceInfo: navigator.userAgent,
+      capturedAt: new Date().toISOString(),
+      remarks: "Marked manually by Admin",
     };
 
     try {
@@ -153,20 +177,25 @@ const AttendanceForm = () => {
     }
   };
 
+  // ✅ Dummy function to refresh attendance list (optional)
+  const fetchAttendance = async () => {
+    console.log("Refreshing attendance list after import...");
+  };
+
   return (
     <div className="bg-white">
+      {/* HEADER */}
       <div className="px-4 py-3 shadow sticky top-14 bg-white flex items-center justify-between z-10">
         <h2 className="font-semibold text-xl">Attendance</h2>
-
         <button
-          type="button"
-          className="bg-primary cursor-pointer hover:bg-secondary text-white px-4 py-2 rounded-md text-sm font-medium"
           onClick={() => setShowImportModal(true)}
+          className="bg-primary text-white px-4 py-2 rounded-md hover:bg-secondary transition duration-200"
         >
           Import / Export
         </button>
       </div>
 
+      {/* FORM */}
       <div className="p-8">
         <form
           onSubmit={handleSubmit}
@@ -200,29 +229,61 @@ const AttendanceForm = () => {
             />
           </div>
 
-          {/* In Time */}
+          {/* Punch Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              In Time
+              Punch Type
             </label>
-            <input
-              type="time"
-              value={formData.inTime}
-              onChange={(e) => handleChange("inTime", e.target.value)}
-              className="w-full rounded-md border-gray-300 p-2"
+            <Select
+              options={punchTypeOptions}
+              value={formData.punchType}
+              onChange={(option) => handleChange("punchType", option)}
+              placeholder="Select Punch Type"
+              classNamePrefix="react-select"
             />
           </div>
 
-          {/* Out Time */}
+          {/* In/Out Time */}
+          {showInTime && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                In Time
+              </label>
+              <input
+                type="time"
+                value={formData.inTime}
+                onChange={(e) => handleChange("inTime", e.target.value)}
+                className="w-full rounded-md border-gray-300 p-2"
+              />
+            </div>
+          )}
+
+          {showOutTime && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Out Time
+              </label>
+              <input
+                type="time"
+                value={formData.outTime}
+                onChange={(e) => handleChange("outTime", e.target.value)}
+                className="w-full rounded-md border-gray-300 p-2"
+              />
+            </div>
+          )}
+
+          {/* Shift */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Out Time
+              Shift
             </label>
-            <input
-              type="time"
-              value={formData.outTime}
-              onChange={(e) => handleChange("outTime", e.target.value)}
-              className="w-full rounded-md border-gray-300 p-2"
+            <Select
+              options={shiftOptions.filtered || []}
+              value={formData.shift}
+              onChange={(option) => handleChange("shift", option)}
+              placeholder="Select Shift"
+              classNamePrefix="react-select"
+              isLoading={loading}
             />
           </div>
 
@@ -254,39 +315,11 @@ const AttendanceForm = () => {
             />
           </div>
 
-          {/* Shift */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Shift
-            </label>
-            <Select
-              options={shiftOptions}
-              value={formData.shift}
-              onChange={(option) => handleChange("shift", option)}
-              placeholder="Select Shift"
-              classNamePrefix="react-select"
-            />
-          </div>
-
-          {/* Punch Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Punch Type
-            </label>
-            <Select
-              options={punchTypeOptions}
-              value={formData.punchType}
-              onChange={(option) => handleChange("punchType", option)}
-              placeholder="Select Punch Type"
-              classNamePrefix="react-select"
-            />
-          </div>
-
           {/* Submit */}
           <div className="md:col-span-2 flex justify-end">
             <button
               type="submit"
-              className="bg-primary cursor-pointer hover:bg-secondary text-white px-6 py-2 rounded-md flex items-center justify-center min-w-[120px]"
+              className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-md flex items-center justify-center min-w-[120px]"
               disabled={isSubmitting}
             >
               {isSubmitting ? <Spinner /> : "Submit"}
@@ -295,11 +328,11 @@ const AttendanceForm = () => {
         </form>
       </div>
 
-      {/* 🔹 Import / Export Modal */}
+      {/* Import/Export Modal */}
       {showImportModal && (
         <ImportExportAttendance
           onClose={() => setShowImportModal(false)}
-          fetchAttendance={() => {}} // optional refresh function
+          fetchAttendance={fetchAttendance}
         />
       )}
     </div>

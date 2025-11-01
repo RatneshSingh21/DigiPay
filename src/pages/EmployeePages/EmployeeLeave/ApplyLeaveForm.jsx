@@ -13,8 +13,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
   const [leaveOptions, setLeaveOptions] = useState([]);
   const [employeeOptions, setEmployeeOptions] = useState([]);
   const [leaveHistory, setLeaveHistory] = useState([]);
-  const [statusOptions, setStatusOptions] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState(null);
   const [formData, setFormData] = useState({
     type: null,
     from: "",
@@ -86,32 +84,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
       .catch(() => toast.error("Unable to fetch leave history."));
   }, [showModal, user?.userId]);
 
-  // -------- Fetch Status --------
-  useEffect(() => {
-    if (!showModal) return;
-    axiosInstance
-      .get("/StatusMaster")
-      .then((res) => {
-        const formatted =
-          res.data?.data?.map((s) => ({
-            value: s.statusId,
-            label: s.statusName,
-          })) || [];
-
-        // Always pick "Pending" (case-insensitive)
-        const pending = formatted.find(
-          (s) => s.label?.trim().toLowerCase() === "pending"
-        );
-
-        if (pending) {
-          setSelectedStatus(pending);
-        } else {
-          toast.error("Pending status not found. Please check StatusMaster.");
-        }
-      })
-      .catch(() => toast.error("Unable to load statuses."));
-  }, [showModal]);
-
   // -------- Check Overlap --------
   const checkOverlap = (newFrom, newTo) =>
     leaveHistory.some((leave) => {
@@ -165,10 +137,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
         fromDate: new Date(from).toISOString(),
         toDate: new Date(to).toISOString(),
         reason,
-        status: selectedStatus?.value || null, // send selected statusId
-        approvedBy: approvers?.[0]?.value || null,
-        createdOn: new Date().toISOString(),
-        updatedOn: new Date().toISOString(),
         customApproverIds: approvers?.map((a) => a.value) || [],
       });
 

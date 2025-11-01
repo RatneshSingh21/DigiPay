@@ -10,8 +10,8 @@ const EmployeeSidebarItem = ({ icon, label, to, collapsed }) => {
         }`
       }
     >
-      <span className="text-lg">{icon}</span>
-      {!collapsed && <span className="text-sm">{label}</span>}
+      <span className="text-md">{icon}</span>
+      {!collapsed && <span className="text-xs">{label}</span>}
 
       {collapsed && (
         <div className="absolute left-full top-1/2 z-50 -translate-y-1/2 ml-3 hidden group-hover:block">

@@ -60,7 +60,7 @@ const AttendanceCalculationResult = () => {
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto bg-white shadow rounded-2xl p-4">
+      <div className="max-w-6xl mx-3 bg-white shadow rounded-2xl p-4">
         {loading ? <Spinner /> : <AttendanceResultTable results={results} />}
       </div>
     </>
