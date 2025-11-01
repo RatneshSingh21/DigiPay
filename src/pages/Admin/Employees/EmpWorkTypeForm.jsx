@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import { toast } from "react-toastify";
 import Select from "react-select";
+import { fetchAllHROptions } from "../../../services/workTypeService";
+import Spinner from "../../../components/Spinner";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 
-const EmpWorkTypeForm = ({ user, dropdowns, onClose, onSuccess }) => {
+const EmpWorkTypeForm = ({ user, onClose, onSuccess }) => {
   const [form, setForm] = useState({
     workTypeName: "",
     description: "",
@@ -34,6 +36,24 @@ const EmpWorkTypeForm = ({ user, dropdowns, onClose, onSuccess }) => {
     updatedDate: new Date().toISOString(),
   });
 
+  const [dropdowns, setDropdowns] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDropdowns = async () => {
+      try {
+        const data = await fetchAllHROptions();
+        setDropdowns(data);
+      } catch (err) {
+        toast.error("Failed to load dropdowns");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadDropdowns();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -62,25 +82,14 @@ const EmpWorkTypeForm = ({ user, dropdowns, onClose, onSuccess }) => {
     }
   };
 
-  const {
-    categories,
-    employmentTypes,
-    workNatures,
-    shifts,
-    otRateSlabs,
-    weekendPolicies,
-    paySchedules,
-    pieceRateFormulas,
-    complianceGroups,
-    leavePolicies,
-  } = dropdowns;
-
   const inputClass =
     "w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none";
 
+  if (loading) return <Spinner />; // show spinner while loading
+
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative overflow-y-auto max-h-[90vh]">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-xl p-6 relative overflow-y-auto max-h-[75vh]">
         <button
           onClick={onClose}
           className="absolute cursor-pointer top-3 right-3 text-gray-500 hover:text-gray-800"
@@ -112,83 +121,45 @@ const EmpWorkTypeForm = ({ user, dropdowns, onClose, onSuccess }) => {
           <div className="grid grid-cols-2 gap-2">
             <SelectField
               label="Category"
-              options={categories}
-              valueKey="categoryId"
-              labelKey="categoryName"
+              options={dropdowns.categoryIds}
               value={form.categoryId}
               onChange={(v) => handleSelectChange("categoryId", v)}
             />
             <SelectField
               label="Employment Type"
-              options={employmentTypes}
-              valueKey="employmentTypeId"
-              labelKey="employmentTypeName"
+              options={dropdowns.employmentTypeIds}
               value={form.employmentTypeId}
               onChange={(v) => handleSelectChange("employmentTypeId", v)}
             />
             <SelectField
               label="Work Nature"
-              options={workNatures}
-              valueKey="workNatureId"
-              labelKey="workNatureName"
+              options={dropdowns.workNatureIds}
               value={form.workNatureId}
               onChange={(v) => handleSelectChange("workNatureId", v)}
             />
             <SelectField
               label="Shift"
-              options={shifts}
-              valueKey="shiftId"
-              labelKey="shiftName"
+              options={dropdowns.shiftIds}
               value={form.shiftId}
               onChange={(v) => handleSelectChange("shiftId", v)}
             />
             <SelectField
               label="OT Rate Slab"
-              options={otRateSlabs}
-              valueKey="otRateSlabId"
-              labelKey="name"
+              options={dropdowns.otRateSlabIds}
               value={form.otRateSlabId}
               onChange={(v) => handleSelectChange("otRateSlabId", v)}
             />
             <SelectField
               label="Weekend Policy"
-              options={weekendPolicies}
-              valueKey="weekendPolicyId"
-              labelKey="policyName"
+              options={dropdowns.weekendPolicyIds}
               value={form.weekendPolicyId}
               onChange={(v) => handleSelectChange("weekendPolicyId", v)}
             />
             <SelectField
               label="Pay Schedule"
-              options={paySchedules}
-              valueKey="payScheduleId"
-              labelKey="payScheduleName"
+              options={dropdowns.payScheduleIds}
               value={form.payScheduleId}
               onChange={(v) => handleSelectChange("payScheduleId", v)}
-            />
-            <SelectField
-              label="Piece Rate Formula"
-              options={pieceRateFormulas}
-              valueKey="pieceRateFormulaId"
-              labelKey="formulaName"
-              value={form.pieceRateFormulaId}
-              onChange={(v) => handleSelectChange("pieceRateFormulaId", v)}
-            />
-            <SelectField
-              label="Compliance Group"
-              options={complianceGroups}
-              valueKey="complianceGroupId"
-              labelKey="groupName"
-              value={form.complianceGroupId}
-              onChange={(v) => handleSelectChange("complianceGroupId", v)}
-            />
-            <SelectField
-              label="Leave Policy"
-              options={leavePolicies}
-              valueKey="leavePolicyId"
-              labelKey="policyName"
-              value={form.leavePolicyId}
-              onChange={(v) => handleSelectChange("leavePolicyId", v)}
             />
           </div>
 
@@ -262,6 +233,7 @@ const EmpWorkTypeForm = ({ user, dropdowns, onClose, onSuccess }) => {
   );
 };
 
+// --- Reusable Inputs ---
 const Input = ({ label, ...props }) => (
   <div>
     <label>{label}</label>
@@ -283,29 +255,12 @@ const Textarea = ({ label, ...props }) => (
   </div>
 );
 
-const SelectField = ({
-  label,
-  options,
-  valueKey,
-  labelKey,
-  value,
-  onChange,
-}) => (
+const SelectField = ({ label, options, value, onChange }) => (
   <div>
     <label>{label}</label>
     <Select
-      options={options.map((opt) => ({
-        value: opt[valueKey],
-        label: opt[labelKey],
-      }))}
-      value={
-        value
-          ? {
-              value,
-              label: options.find((o) => o[valueKey] === value)?.[labelKey],
-            }
-          : null
-      }
+      options={options}
+      value={value ? options.find((o) => o.value === value) : null}
       onChange={onChange}
       styles={{
         menu: (base) => ({ ...base, fontSize: "12px" }),
@@ -321,7 +276,7 @@ const CheckboxField = ({ label, checked, onChange }) => (
       type="checkbox"
       checked={checked}
       onChange={onChange}
-      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+      className="h-4 w-4 accent-primary border-gray-300 rounded"
     />
     <span className="text-xs">{label}</span>
   </div>

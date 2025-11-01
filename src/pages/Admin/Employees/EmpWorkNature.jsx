@@ -100,11 +100,11 @@ const EmpWorkNature = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto shadow rounded-lg border border-gray-200">
+      <div className="overflow-x-auto p-4 shadow rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200 text-xs">
           <thead className="bg-gray-100 text-gray-600 text-center">
             <tr>
-              <th className="px-4 py-2">ID</th>
+              <th className="px-4 py-2">S.No</th>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Description</th>
               <th className="px-4 py-2">Active</th>
@@ -120,9 +120,9 @@ const EmpWorkNature = () => {
                 </td>
               </tr>
             ) : workNatures.length > 0 ? (
-              workNatures.map((item) => (
+              workNatures.map((item,index) => (
                 <tr key={item.workNatureId} className="hover:bg-gray-50">
-                  <td className="px-4 py-2">{item.workNatureId}</td>
+                  <td className="px-4 py-2">{index + 1}</td>
                   <td className="px-4 py-2">{item.workNatureName}</td>
                   <td className="px-4 py-2">{item.description}</td>
                   <td className="px-4 py-2">{item.isActive ? "Yes" : "No"}</td>

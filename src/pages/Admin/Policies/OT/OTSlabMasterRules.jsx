@@ -69,7 +69,7 @@ export default function OTSlabMasterRules() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto mt-3 rounded-lg shadow bg-white">
+      <div className="overflow-x-auto mt-3 rounded-lg shadow bg-white mx-3">
         {rules.length === 0 ? (
           <div className="text-center py-8 text-gray-500 text-sm">
             No rules found.
@@ -106,10 +106,10 @@ export default function OTSlabMasterRules() {
                 >
                   <td className="px-3 py-1.5 text-center">{rule.ruleCode}</td>
                   <td className="px-3 py-1.5 text-center">{rule.entityName}</td>
-                  <td className="px-3 py-1.5 text-center max-w-[250px] truncate">
+                  <td className="px-3 py-1.5 text-center">
                     {rule.conditionExpression}
                   </td>
-                  <td className="px-3 py-1.5 text-center max-w-[220px] truncate">
+                  <td className="px-3 py-1.5 text-center">
                     {rule.errorMessage}
                   </td>
                   <td className="px-3 py-1.5 text-center">

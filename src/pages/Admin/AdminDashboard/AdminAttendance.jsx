@@ -21,114 +21,174 @@ const AdminAttendance = () => {
   const [perPageData, setPerPageData] = useState(3);
   const [pageGroup, setPageGroup] = useState(0);
 
- useEffect(() => {
-  const fetchAttendance = async () => {
+  // Convert latitude & longitude to a readable location name
+  const getLocationName = async (lat, lon) => {
     try {
-      setLoading(true);
-
-      // 🔹 Fetch processed attendance records
-      const recordRes = await axiosInstance.get(
-        "/AttendanceRecord/getAttendancerecord/all"
+      if (!lat || !lon) return "-";
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`
       );
-      const records = recordRes.data.data;
-
-      // 🔹 Fetch raw attendance punches
-      const basicRes = await axiosInstance.get("/Attendance/all");
-      const basic = basicRes.data;
-
-      // 🔹 Group raw punches by employee + date
-      const groupedBasic = {};
-      basic.forEach((b) => {
-        const dateKey = new Date(b.attendanceDate).toDateString();
-        const key = `${b.employeeId}-${dateKey}`;
-
-        if (!groupedBasic[key]) {
-          groupedBasic[key] = {
-            attendanceId: b.attendanceId,
-            employeeId: b.employeeId,
-            inTime: null,
-            outTime: null,
-            latitude: b.latitude,
-            longitude: b.longitude,
-          };
-        }
-
-        if (b.punchType === "IN" && b.inTime) {
-          if (!groupedBasic[key].inTime || new Date(b.attendanceDate) < new Date(groupedBasic[key].inTime)) {
-            groupedBasic[key].inTime = b.attendanceDate;
-          }
-        }
-
-        if (b.punchType === "OUT" && b.outTime) {
-          if (!groupedBasic[key].outTime || new Date(b.attendanceDate) > new Date(groupedBasic[key].outTime)) {
-            groupedBasic[key].outTime = b.attendanceDate;
-          }
-        }
-      });
-
-      // 🔹 Merge grouped raw punches with processed records
-      const mergedData = Object.values(groupedBasic).map((b) => {
-        const match = records.find(
-          (r) =>
-            r.employeeId === b.employeeId &&
-            new Date(r.attendanceDate).toDateString() ===
-              new Date(b.inTime || b.outTime).toDateString()
-        );
-
-        if (match) {
-          return {
-            attendanceId: match.attendanceRecordId,
-            employeeId: b.employeeId,
-            inTime: match.inTime,
-            outTime: match.outTime,
-            totalHours: match.totalHoursWorked,
-            status: match.isAbsent ? "Absent" : "Present",
-            latitude: b.latitude,
-            longitude: b.longitude,
-          };
-        } else {
-          return {
-            attendanceId: b.attendanceId,
-            employeeId: b.employeeId,
-            inTime: b.inTime,
-            outTime: b.outTime,
-            totalHours:
-              b.inTime && b.outTime
-                ? (new Date(b.outTime) - new Date(b.inTime)) / 3600000
-                : null,
-            status: b.inTime || b.outTime ? "Present" : "Absent",
-            latitude: b.latitude,
-            longitude: b.longitude,
-          };
-        }
-      });
-
-      setAttendanceData(mergedData);
-
-      // 🔹 Fetch employee names
-      const employeeIds = [...new Set(mergedData.map((a) => a.employeeId))];
-      const employeeResponses = await Promise.all(
-        employeeIds.map((id) =>
-          axiosInstance.get(`/Employee/${id}`).then((r) => r.data)
-        )
-      );
-
-      const map = {};
-      employeeResponses.forEach((emp) => {
-        map[emp.id] = emp.fullName;
-      });
-      setEmployeeMap(map);
-
-    } catch (error) {
-      console.error("Error fetching attendance:", error);
-    } finally {
-      setLoading(false);
+      const data = await res.json();
+      return data.display_name || "-";
+    } catch (err) {
+      console.error("Location fetch error:", err);
+      return "-";
     }
   };
 
-  fetchAttendance();
-}, []);
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      try {
+        setLoading(true);
 
+        // Safely fetch processed attendance records (handle null or 500)
+        let records = [];
+        try {
+          const recordRes = await axiosInstance.get(
+            "/AttendanceRecord/getAttendancerecord/all"
+          );
+          records = recordRes.data?.data || [];
+          console.log("🔹 Processed Attendance Records:", records);
+        } catch (err) {
+          console.warn(
+            "⚠️ Failed to fetch processed attendance records:",
+            err.message
+          );
+        }
+
+        // Always fetch raw attendance punches
+        let basic = [];
+        try {
+          const basicRes = await axiosInstance.get("/Attendance/all");
+          basic = basicRes.data || [];
+          console.log("🔹 Raw Attendance Punches:", basic);
+        } catch (err) {
+          console.error(
+            "❌ Failed to fetch raw attendance punches:",
+            err.message
+          );
+        }
+
+        // 🔹 Group raw punches by employee + date
+        const groupedBasic = {};
+
+        basic.forEach((b) => {
+          const dateKey = new Date(b.attendanceDate).toDateString();
+          const key = `${b.employeeId}-${dateKey}`;
+
+          if (!groupedBasic[key]) {
+            groupedBasic[key] = {
+              attendanceId: b.attendanceId,
+              employeeId: b.employeeId,
+              attendanceDate: b.attendanceDate,
+              inTime: null,
+              outTime: null,
+              latitude: b.latitude,
+              longitude: b.longitude,
+            };
+          }
+
+          // For IN punches
+          if (b.punchType === "IN") {
+            if (
+              !groupedBasic[key].inTime ||
+              new Date(b.inTime) < new Date(groupedBasic[key].inTime)
+            ) {
+              groupedBasic[key].inTime = b.inTime || b.attendanceDate;
+            }
+          }
+
+          // For OUT punches
+          if (b.punchType === "OUT") {
+            if (
+              !groupedBasic[key].outTime ||
+              new Date(b.outTime) > new Date(groupedBasic[key].outTime)
+            ) {
+              groupedBasic[key].outTime = b.outTime || b.attendanceDate;
+            }
+          }
+        });
+
+        // 🔹 Merge grouped raw punches with processed records
+        // Always keep attendanceDate
+        const mergedData = Object.values(groupedBasic).map((b) => {
+          const match = records.find(
+            (r) =>
+              r.employeeId === b.employeeId &&
+              new Date(r.attendanceDate).toDateString() ===
+                new Date(
+                  b.inTime || b.outTime || b.attendanceDate
+                ).toDateString()
+          );
+
+          if (match) {
+            return {
+              attendanceId: match.attendanceRecordId,
+              employeeId: b.employeeId,
+              attendanceDate: match.attendanceDate,
+              inTime: match.inTime,
+              outTime: match.outTime,
+              totalHours: match.totalHoursWorked,
+              status: match.isAbsent ? "Absent" : "Present",
+              latitude: b.latitude,
+              longitude: b.longitude,
+            };
+          } else {
+            return {
+              attendanceId: b.attendanceId,
+              employeeId: b.employeeId,
+              attendanceDate: b.inTime || b.outTime || b.attendanceDate,
+              inTime: b.inTime,
+              outTime: b.outTime,
+              totalHours:
+                b.inTime && b.outTime
+                  ? (new Date(b.outTime) - new Date(b.inTime)) / 3600000
+                  : null,
+              status: b.inTime || b.outTime ? "Present" : "Absent",
+              latitude: b.latitude,
+              longitude: b.longitude,
+            };
+          }
+        });
+
+        // Fetch readable locations for all records
+        const updatedData = await Promise.all(
+          mergedData.map(async (item) => {
+            if (item.latitude && item.longitude) {
+              const location = await getLocationName(
+                item.latitude,
+                item.longitude
+              );
+              return { ...item, location };
+            }
+            return { ...item, location: "-" };
+          })
+        );
+
+        setAttendanceData(updatedData);
+
+        // 🔹 Fetch employee names
+        const employeeIds = [...new Set(mergedData.map((a) => a.employeeId))];
+        const employeeResponses = await Promise.all(
+          employeeIds.map((id) =>
+            axiosInstance.get(`/Employee/${id}`).then((r) => r.data)
+          )
+        );
+
+        const map = {};
+        employeeResponses.forEach((emp) => {
+          map[emp.id] = emp.fullName;
+        });
+        setEmployeeMap(map);
+      } catch (error) {
+        console.error("Error fetching attendance:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttendance();
+  }, []);
 
   const formatTime = (time) => {
     if (!time) return "-";
@@ -155,6 +215,7 @@ const AdminAttendance = () => {
         (att) => att.inTime && isSameMonth(new Date(att.inTime), today)
       );
     }
+    console.log(data);
     return data;
   };
 
@@ -207,16 +268,16 @@ const AdminAttendance = () => {
           <p className="text-center text-gray-500 py-4">Loading...</p>
         ) : (
           <>
-            <table className="w-full text-sm border-collapse">
+            <table className="w-full text-sm border-collapse text-center">
               <thead>
-                <tr className="text-left text-gray-500 border-b">
-                  <th className="py-3 font-medium">Employee Name</th>
+                <tr className="text-gray-500 border-b">
+                  <th className="py-3 font-medium">E.Name</th>
+                  <th className="font-medium">Date</th>
                   <th className="font-medium">Status</th>
                   <th className="font-medium">In Time</th>
                   <th className="font-medium">Out Time</th>
                   <th className="font-medium">T. Hours</th>
-                  <th className="font-medium">Lat.</th>
-                  <th className="font-medium">Long.</th>
+                  <th className="font-medium">Location</th>
                 </tr>
               </thead>
               <tbody>
@@ -228,6 +289,11 @@ const AdminAttendance = () => {
                     >
                       <td className="py-3 text-gray-800">
                         {employeeMap[att.employeeId] || `ID: ${att.employeeId}`}
+                      </td>
+                      <td className="py-3 text-gray-800">
+                        {new Date(att.attendanceDate).toLocaleDateString(
+                          "en-GB"
+                        )}
                       </td>
                       <td>
                         <span
@@ -250,11 +316,11 @@ const AdminAttendance = () => {
                           ? att.totalHours.toFixed(2)
                           : "-"}
                       </td>
-                      <td className="text-gray-700">
-                        {att.latitude != null ? att.latitude.toFixed(4) : "-"}
-                      </td>
-                      <td className="text-gray-700">
-                        {att.longitude != null ? att.longitude.toFixed(4) : "-"}
+                      <td
+                        className="text-gray-600 text-xs max-w-[100px] truncate cursor-help"
+                        title={att.location}
+                      >
+                        {att.location || "-"}
                       </td>
                     </tr>
                   ))

@@ -5,7 +5,9 @@ const submenuMap = {
   Employees: [
     "Add Employee",
     "Employee List",
+    "Basic Salary",
     "Employee Salary",
+    "Salary Calculation",
     "Emp Category",
     "Employment Type",
     "Work Nature",
@@ -39,6 +41,7 @@ const submenuMap = {
   Compliance: [
     "Compliance Details",
     "Compliance Rules",
+    "Payment Adjustment Policy",
     "OT Master",
     "OT Rule",
     "OT Calculation",
@@ -63,8 +66,16 @@ const submenuMap = {
     "Letter of Intent",
     "Increment Letter",
     "Experience Cert.",
+    "Full & Final Statement"
     // "Nomination-Declaration",
     // "Job Posting",
+  ],
+
+  Documents: [
+    "Expense Header",
+    "Expense Documents",
+    "Uploaded Documents",
+    "Travel Details",
   ],
 
   Shifts: ["Add Shift", "Shift Mapping"],
@@ -89,6 +100,7 @@ const getMenuFromPath = (pathname) => {
   if (pathname.includes("/employees")) return "Employees";
   if (pathname.includes("/settings")) return "Settings";
   if (pathname.includes("/reports")) return "Reports";
+  if (pathname.includes("/documents")) return "Documents";
   if (pathname.includes("/role")) return "Role";
   if (pathname.includes("/shifts")) return "Shifts";
   if (pathname.includes("/reports")) return "Reports";

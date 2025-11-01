@@ -52,7 +52,9 @@ const labelToPath = {
   // Employee
   "Add Employee": "add",
   "Employee List": "list",
+  "Basic Salary": "employee-salary-basic",
   "Employee Salary": "employee-salary-details",
+  "Salary Calculation": "employee-salary-calculation",
   "Emp Category": "emp-category",
   "Employment Type": "emp-employmenttype",
   "Work Type": "emp-worktype",
@@ -102,6 +104,7 @@ const labelToPath = {
   "Experience Cert.": "experience-certi",
   "Nomination-Declaration": "nomination-declaration",
   "Job Posting": "job-posting",
+  "Full & Final Statement": "full-&-final-statement",
 
   // Leave
   "Leave Types": "leave-types",
@@ -120,9 +123,16 @@ const labelToPath = {
   "Weekend Policy": "weekend-policy",
   "Policy Details": "policy-details",
 
+  // Documents
+  "Expense Header": "expense-header",
+  "Uploaded Documents": "uploaded-documents",
+  "Expense Documents": "expense-documents",
+  "Travel Details": "travel-details",
+
   // Compliance
   "Compliance Details": "compliance-details",
   "Compliance Rules": "compliance-rules",
+  "Payment Adjustment Policy": "payment-adjustment",
   "OT Master": "otrate",
   "OT Rule": "otrate-rules",
   "OT Calculation": "otrate-calculation",
@@ -133,7 +143,9 @@ const labelToIcon = {
   // Employee
   "Add Employee": <FaUserPlus className="mr-2" />,
   "Employee List": <FaList className="mr-2" />,
+  "Basic Salary": <BsCashStack className="mr-2" />,
   "Employee Salary": <BsCashStack className="mr-2" />,
+  "Salary Calculation": <TbCurrencyRupee className="mr-2" />,
   "Emp Category": <BsPeople className="mr-2" />,
   "Employment Type": <BsBriefcase className="mr-2" />,
   "Work Type": <MdWorkOutline className="mr-2" />,
@@ -152,6 +164,12 @@ const labelToIcon = {
   "Attendance Policy": <MdPunchClock className="mr-2" />,
   "Attendance Record": <FaCalendarCheck className="mr-2" />,
   "Attendance Calculation": <FaCalculator className="mr-2" />,
+
+  // Documents
+  "Expense Header": <FaFileAlt className="mr-2" />,
+  "Uploaded Documents": <FaFileAlt className="mr-2" />,
+  "Expense Documents": <FaFileAlt className="mr-2" />,
+  "Travel Details": <FaFileAlt className="mr-2" />,
 
   // Settings
   "Organisation Profile": <FaBuilding className="mr-2" />,
@@ -183,6 +201,7 @@ const labelToIcon = {
   "Experience Cert.": <FaFileInvoiceDollar className="mr-2" />,
   "Nomination-Declaration": <FaFileAlt className="mr-2" />,
   "Job Posting": <MdGavel className="mr-2" />,
+  "Full & Final Statement": <FaFileAlt className="mr-2" />,
 
   // Leave
   "Leave Types": <FaUmbrellaBeach className="mr-2" />,
@@ -204,6 +223,7 @@ const labelToIcon = {
   // Compliance
   "Compliance Details": <FaFileAlt className="mr-2" />,
   "Compliance Rules": <FaBalanceScale className="mr-2" />,
+  "Payment Adjustment Policy": <TbReportMoney className="mr-2" />,
   "OT Master": <FaClock className="mr-2" />,
   "OT Rule": <FaRegClock className="mr-2" />,
   "OT Calculation": <FaCalculator className="mr-2" />,

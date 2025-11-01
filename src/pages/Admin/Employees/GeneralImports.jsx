@@ -13,8 +13,8 @@ const data = [
   {
     id: 2,
     name: "Salary Details",
-    importApi: "/Salary/ImportSalary",
-    exportApi: "/Salary/ExportAllSalaries",
+    importApi: "/EmployeeSalary/import",
+    exportApi: "/EmployeeSalary/export",
   },
   {
     id: 3,

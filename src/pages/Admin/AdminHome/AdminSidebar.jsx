@@ -1,6 +1,7 @@
 import { AiFillDashboard, AiFillSetting } from "react-icons/ai";
 import { RiArticleFill, RiFolderOpenFill } from "react-icons/ri";
 import { FaClipboardCheck, FaBusinessTime, FaUsers } from "react-icons/fa";
+import { IoDocuments } from "react-icons/io5";
 import {
   MdAdminPanelSettings,
   MdChecklistRtl,
@@ -10,6 +11,7 @@ import {
 import AdminSidebarItem from "./AdminSidebarItem";
 import assets from "../../../assets/assets";
 import { Link } from "react-router-dom";
+
 
 const menuItems = [
   {
@@ -70,6 +72,12 @@ const menuItems = [
     label: "Reports",
     icon: <RiFolderOpenFill />,
     to: "/admin-dashboard/reports",
+    collapseOnClick: true,
+  },
+  {
+    label: "Documents",
+    icon: <IoDocuments />,
+    to: "/admin-dashboard/documents",
     collapseOnClick: true,
   },
   {

@@ -80,6 +80,8 @@ export default function OTSlabMasterRulesForm({
             onChange={handleChange}
             required
             className={inputClass}
+            autoFocus
+            placeholder="Enter Rule Code eg. OTR001,OTR002,.."
           />
         </div>
 

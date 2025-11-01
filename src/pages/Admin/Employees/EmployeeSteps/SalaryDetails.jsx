@@ -28,6 +28,7 @@ const SalaryDetails = () => {
   const employeeCode = basicDetails.employeeId || "N/A";
   const email = basicDetails.workEmail || "N/A";
   const departmentName = basicDetails.department?.label || "N/A";
+console.log(salaryDetails);
 
   useEffect(() => {
     if (!user?.userId) return;
@@ -191,21 +192,14 @@ const SalaryDetails = () => {
       const allComponents = [...earnings, ...deductions];
       const salaryPayload = {
         employeeId,
-        orgId: user.userId,
-        month: new Date().getMonth() + 1,
-        year: new Date().getFullYear(),
-        employeeCategory: 0,
-        absentDays: 0,
-        totalWorkingDays: 0,
-        status: 1,
-        paymentDate: new Date().toISOString(),
+        employeeCode,
+        employeeName: fullName,
         basicSalary,
         hra: findMonthly("hra"),
         conveyanceAllowance: findMonthly("conveyanceAllowance"),
         fixedAllowance: findMonthly("fixedAllowance"),
         bonus: findMonthly("bonus"),
         arrears: findMonthly("arrears"),
-        overtimeHours: findMonthly("overtimeHours"),
         overtimeRate: findMonthly("overtimeRate"),
         leaveEncashment: findMonthly("leaveEncashment"),
         specialAllowance: findMonthly("specialAllowance"),
@@ -216,7 +210,7 @@ const SalaryDetails = () => {
         loanRepayment: findMonthly("loanRepayment"),
         otherDeductions: findMonthly("otherDeductions"),
       };
-
+ 
       function findMonthly(name) {
         const comp = allComponents.find((c) => c.componentName === name);
         return comp ? comp.monthly : 0;
@@ -224,11 +218,11 @@ const SalaryDetails = () => {
 
       console.log(salaryPayload);
 
-      if (salaryDetails?.id) {
-        await axiosInstance.put("/Salary/update", salaryPayload);
+      if (salaryDetails?.employeeId) {
+        await axiosInstance.put("/EmployeeSalary/update", salaryPayload);
         toast.success("Salary updated successfully");
       } else {
-        await axiosInstance.post("/Salary/create", salaryPayload);
+        await axiosInstance.post("/EmployeeSalary/create", salaryPayload);
         toast.success("Salary created successfully");
       }
 

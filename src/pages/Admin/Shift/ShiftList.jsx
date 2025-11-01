@@ -35,11 +35,11 @@ const ShiftList = ({
         <p className="text-gray-500 text-sm">No shift found.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border border-gray-200 rounded-md overflow-hidden">
-            <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+          <table className="min-w-full table-auto text-xs border border-gray-200 rounded-md overflow-hidden">
+            <thead className="bg-gray-100 text-gray-700 text-center uppercase">
               <tr className="text-center">
-                {/* <th className="px-6 py-3 text-left">ID</th> */}
-                <th className="px-6 py-3 text-left">Shift Name</th>
+                <th className="px-6 py-3">S.No</th>
+                <th className="px-6 py-3">Shift Name</th>
                 <th className="px-6 py-3">Start</th>
                 <th className="px-6 py-3">End</th>
                 {/* <th className="px-6 py-3 text-left">Margin Enabled</th> */}
@@ -54,16 +54,16 @@ const ShiftList = ({
                 <th className="px-6 py-3">Actions</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700 text-sm">
+            <tbody className="text-gray-700">
               {shifts.map((shift, index) => (
                 <tr
                   key={shift.id}
                   className={index % 2 === 0 ? "bg-white text-center" : "bg-gray-50 text-center"}
                 >
-                  {/* <td className="px-6 py-4">{shift.id}</td> */}
-                  <td className="px-6 py-4 font-medium text-left">{shift.shiftName}</td>
-                  <td className="px-6 py-4">{shift.shiftStart}</td>
-                  <td className="px-6 py-4">{shift.shiftEnd}</td>
+                  <td className="px-6 py-2">{index+1}</td>
+                  <td className="px-6 py-2 font-medium">{shift.shiftName}</td>
+                  <td className="px-6 py-2">{shift.shiftStart}</td>
+                  <td className="px-6 py-2">{shift.shiftEnd}</td>
                   {/* <td className="px-6 py-4">{shift.isShiftMarginEnabled ? "Yes" : "No"}</td> */}
                   {/* <td className="px-6 py-4">{shift.marginBeforeShift}</td>
                   <td className="px-6 py-4">{shift.marginAfterShift}</td> */}

@@ -82,7 +82,7 @@ const AddESITransactionsForm = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
   const inputClass =
-    "w-full px-3 py-1.5 cursor-pointer border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";
+    "w-full px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-opacity-50 z-50">

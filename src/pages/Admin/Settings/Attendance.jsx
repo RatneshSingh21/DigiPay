@@ -63,7 +63,7 @@ const Attendance = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto shadow rounded-lg bg-white">
+      <div className="overflow-x-auto shadow rounded-lg bg-white mx-3">
         <table className="min-w-full divide-y text-sm divide-gray-200">
           <thead className="bg-gray-100 text-gray-600 text-center">
             <tr>

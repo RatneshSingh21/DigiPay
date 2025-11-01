@@ -108,35 +108,35 @@ const EmpWorkType = () => {
             <Spinner />
           </div>
         ) : workTypes.length > 0 ? (
-          <table className="w-full text-sm border-collapse">
-            <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
+          <table className="w-full text-xs border-collapse text-center">
+            <thead className="bg-gray-100 text-gray-700 uppercase">
               <tr>
-                <th className="px-4 py-2 text-left">Id</th>
-                <th className="px-4 py-2 text-left">Work Type Name</th>
-                <th className="px-4 py-2 text-left">Description</th>
-                <th className="px-4 py-2 text-left">Work Hours</th>
-                <th className="px-4 py-2 text-left">Break Hours</th>
-                <th className="px-4 py-2 text-left">Overtime</th>
-                <th className="px-4 py-2 text-left">Active</th>
+                <th className="px-2 py-2">S.No</th>
+                <th className="px-2 py-2">Work Type Name</th>
+                <th className="px-2 py-2">Description</th>
+                <th className="px-2 py-2">Work Hours</th>
+                <th className="px-2 py-2">Break Hours</th>
+                <th className="px-2 py-2">Overtime</th>
+                <th className="px-2 py-2">Active</th>
               </tr>
             </thead>
             <tbody>
-              {workTypes.map((item) => (
+              {workTypes.map((item, index) => (
                 <tr
                   key={item.workTypeId}
-                  className={`border-b hover:bg-gray-50 ${
+                  className={`hover:bg-gray-50 ${
                     !item.isActive ? "opacity-70" : ""
                   }`}
                 >
-                  <td className="px-4 py-2">{item.workTypeId}</td>
-                  <td className="px-4 py-2">{item.workTypeName}</td>
-                  <td className="px-4 py-2">{item.description}</td>
-                  <td className="px-4 py-2">{item.workHoursPerDay || "-"}</td>
-                  <td className="px-4 py-2">{item.breakHours || "-"}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-2 py-2">{index + 1}</td>
+                  <td className="px-2 py-2">{item.workTypeName}</td>
+                  <td className="px-2 py-2">{item.description}</td>
+                  <td className="px-2 py-2">{item.workHoursPerDay || "-"}</td>
+                  <td className="px-2 py-2">{item.breakHours || "-"}</td>
+                  <td className="px-2 py-2">
                     {item.overtimeApplicable ? "Yes" : "No"}
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-2 py-2">
                     {item.isActive ? (
                       <span className="text-green-600 font-medium">Active</span>
                     ) : (

@@ -35,8 +35,8 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
     label: `${i + 1}`,
   }));
   const orgWorkingDayOptions = Array.from({ length: 11 }, (_, i) => ({
-    value: i + 20,
-    label: `${i + 20}`,
+    value: i + 21,
+    label: `${i + 21}`,
   }));
 
   const getNext12Months = () => {
@@ -258,10 +258,10 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
   }, [schedule]);
 
   return (
-    <div className="max-h-[80vh] overflow-y-auto">
-      <div className="mx-auto p-4 bg-white rounded-md shadow">
+    <div className="max-h-[70vh] overflow-y-auto">
+      <div className="mx-auto p-4 bg-white rounded-md text-sm shadow">
         {/* Name Input */}
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block font-medium mb-1">
             Schedule Name <span className="text-red-500">*</span>
           </label>
@@ -276,7 +276,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
         </div>
 
         {/* Work Week */}
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block font-medium mb-1">
             Select your work week <span className="text-red-500">*</span>
           </label>
@@ -303,7 +303,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
         </div>
 
         {/* Salary Basis */}
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block font-medium mb-2">
             Calculate monthly salary based on{" "}
             <span className="text-red-500">*</span>
@@ -343,7 +343,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
         </div>
 
         {/* Pay On */}
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block font-medium mb-2">
             Pay on <span className="text-red-500">*</span>
           </label>
@@ -393,7 +393,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
 
         {/* Start Payroll From */}
         {payOptionSelected && (
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block font-medium mb-2">
               Start your first payroll from{" "}
               <span className="text-red-500">*</span>
@@ -409,7 +409,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
 
         {/* Calendar and Pay Date Picker */}
         {startMonth && (
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <div>
               <label className="block font-medium mb-1">
                 Select a pay date for your first payroll{" "}

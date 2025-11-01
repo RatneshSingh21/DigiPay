@@ -72,6 +72,7 @@ const AttendancePolicyList = () => {
                     {policy.isActive ? "Active" : "Inactive"}
                   </span>
                 </div>
+                <hr className="border-t my-2" />
                 <p className="text-xs text-gray-600 mb-2">
                   {policy.description}
                 </p>
@@ -79,8 +80,15 @@ const AttendancePolicyList = () => {
                 <div className="text-xs space-y-1">
                   <div>
                     <strong>Effective:</strong>{" "}
-                    {policy.effectiveFrom?.split("T")[0]} →{" "}
-                    {policy.effectiveTo?.split("T")[0]}
+                    {policy.effectiveFrom
+                      ? new Date(policy.effectiveFrom).toLocaleDateString(
+                          "en-GB"
+                        )
+                      : "-"}{" "}
+                    →{" "}
+                    {policy.effectiveTo
+                      ? new Date(policy.effectiveTo).toLocaleDateString("en-GB")
+                      : "-"}
                   </div>
                   <div>
                     <strong>Shifts Ids:</strong> {policy.shiftIds.join(", ")}
@@ -118,11 +126,15 @@ const AttendancePolicyList = () => {
                   </div>
                   <div>
                     <strong>Created On:</strong>{" "}
-                    {policy.createdOn?.split("T")[0]}
+                    {policy.createdOn
+                      ? new Date(policy.createdOn).toLocaleDateString("en-GB")
+                      : "-"}
                   </div>
                   <div>
                     <strong>Updated On:</strong>{" "}
-                    {policy.updatedOn?.split("T")[0]}
+                    {policy.updatedOn
+                      ? new Date(policy.updatedOn).toLocaleDateString("en-GB")
+                      : "-"}
                   </div>
                 </div>
               </div>

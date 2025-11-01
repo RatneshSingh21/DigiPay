@@ -57,7 +57,7 @@ const ESIRulesForm = ({ editData, onClose, onSuccess }) => {
   };
 
   const inputClass =
-    "w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";
+    "w-full px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400";
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">

@@ -2,14 +2,24 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
+import Select from "react-select";
+import { Eye, EyeOff } from "lucide-react";
 
 const CreateAdminForm = ({ onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     emailOrPhone: "",
     password: "",
+    role: "SuperAdmin",
   });
+
+  const roleOptions = [
+    { value: "SuperAdmin", label: "SuperAdmin" },
+    { value: "Admin", label: "Admin" },
+    { value: "User", label: "User" },
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,14 +29,18 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
     }));
   };
 
+  const handleRoleChange = (selectedOption) => {
+    setFormData((prev) => ({
+      ...prev,
+      role: selectedOption ? selectedOption.value : "",
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axiosInstance.post(
-        "/user-auth/superadmin-create-user",
-        formData
-      );
+      await axiosInstance.post("/user-auth/superadmin-create-user", formData);
       toast.success("Superadmin User Created Successfully");
       onSuccess && onSuccess();
       onClose();
@@ -42,16 +56,31 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
       name: "",
       emailOrPhone: "",
       password: "",
+      role: "",
     });
   };
 
-   // input class css
   const inputClass =
     "w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";
 
+  const customSelectStyles = {
+    control: (provided) => ({
+      ...provided,
+      borderColor: "#93c5fd",
+      minHeight: "36px",
+      fontSize: "0.875rem",
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? "#3b82f6" : "white",
+      color: state.isSelected ? "white" : "black",
+      fontSize: "0.875rem",
+    }),
+  };
+
   return (
     <div
-      className="fixed inset-0  backdrop-blur-sm z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center px-4"
       onClick={onClose}
     >
       <div
@@ -60,7 +89,7 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
       >
         <button
           type="button"
-          className="absolute top-4 right-4 text-gray-600 hover:text-red-500 text-xl"
+          className="absolute cursor-pointer top-4 right-4 text-gray-600 hover:text-red-500 text-xl"
           onClick={onClose}
         >
           &times;
@@ -71,6 +100,7 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
         </h2>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {/* Name */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">
               Name<span className="text-red-500">*</span>
@@ -87,6 +117,7 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
             />
           </div>
 
+          {/* Email or Phone */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">
               Email or Phone<span className="text-red-500">*</span>
@@ -102,26 +133,51 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
             />
           </div>
 
-          <div>
+          {/* Password */}
+          <div className="relative">
             <label className="block text-gray-700 font-medium mb-1">
               Password<span className="text-red-500">*</span>
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter Password"
               required
-              className={inputClass}
+              className={`${inputClass} pr-10`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute cursor-pointer right-3 top-9 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          {/* Role */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Role<span className="text-red-500">*</span>
+            </label>
+            <Select
+              options={roleOptions}
+              value={roleOptions.find((opt) => opt.value === formData.role)}
+              onChange={handleRoleChange}
+              placeholder="Select Role"
+              styles={customSelectStyles}
+              isClearable
+              required
             />
           </div>
 
+          {/* Buttons */}
           <div className="flex items-center justify-start gap-4 mt-4">
             <button
               type="submit"
               disabled={loading}
-              className={`px-6 py-2 rounded-lg text-sm text-white ${
+              className={`px-6 py-2 cursor-pointer rounded-lg text-sm text-white ${
                 loading
                   ? "bg-blue-300 cursor-not-allowed"
                   : "bg-primary hover:bg-secondary"
@@ -133,7 +189,7 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
             <button
               type="reset"
               onClick={handleReset}
-              className="border  text-sm border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100"
+              className="border text-sm cursor-pointer border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100"
             >
               Clear
             </button>

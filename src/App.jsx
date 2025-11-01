@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import useAuthStore from "./store/authStore";
-import useThemeStore from "./store/themeStore";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -35,7 +34,9 @@ import AdminContentBox from "./pages/Admin/AdminHome/AdminContentBox";
 // Admin Employee Pages
 import EmployeeList from "./pages/Admin/Employees/EmployeeList";
 import AddEmployee from "./pages/Admin/Employees/AddEmployee";
+import EmpBasicSalary from "./pages/Admin/Employees/EmpBasicSalary";
 import EmpSalaryDetails from "./pages/Admin/Employees/EmpSalaryDetails";
+import SalaryCalculate from "./pages/Admin/Employees/SalaryCalculate";
 import EmpCategory from "./pages/Admin/Employees/EmpCategory";
 import EmpEmploymentType from "./pages/Admin/Employees/EmpEmploymentType";
 import EmpWorkType from "./pages/Admin/Employees/EmpWorkType";
@@ -54,7 +55,6 @@ import Designation from "./pages/Admin/Settings/Designation";
 import StatusMaster from "./pages/Admin/Settings/StatusMaster";
 import Salary from "./pages/Admin/Settings/Salary";
 
-
 //Admin Role Pages
 import RoleMaster from "./pages/Admin/Role/RoleMaster";
 import RoleApproval from "./pages/Admin/Role/RoleApproval/RoleApproval";
@@ -72,7 +72,6 @@ import AttendancePolicy from "./pages/Admin/Attendance/AttendancePolicy";
 import AttendanceRecord from "./pages/Admin/Attendance/AttendanceRecord";
 import AttendanceCalculationResult from "./pages/Admin/Attendance/AttendanceCalculationResult/AttendanceCalculationResult";
 
-
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
 import SalaryRegister from "./pages/Admin/Reports/SalaryRegister";
@@ -85,6 +84,7 @@ import OfferLetter from "./pages/Admin/Reports/PayrollReport/OfferLetter";
 import LetterOfIntent from "./pages/Admin/Reports/PayrollReport/LetterOfIntent";
 import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/NominationDeclaration";
 import LetterFieldMaster from "./pages/Admin/Settings/LetterFieldMaster";
+import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalStatement";
 import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificateEditor";
 
 //Admin Leave Pages
@@ -104,9 +104,16 @@ import ESITransactions from "./pages/Admin/Policies/ESI/ESITransaction/ESITransa
 import LatePolicy from "./pages/Admin/Policies/LatePolicy/LatePolicy";
 import WeekendPolicy from "./pages/Admin/Policies/WeekendPolicy/WeekendPolicy";
 
+//Admin Documents Pages
+import UploadedDocuments from "./pages/Admin/Documents/UploadedDocuments";
+import ExpenseDocuments from "./pages/Admin/Documents/Expense/ExpenseDocuments";
+import ExpenseHeader from "./pages/Admin/Documents/Expense/ExpenseHeader/ExpenseHeader";
+import TravelDetails from "./pages/Admin/Documents/TravelDetails";
+
 //Admin Compliance Pages
 import ComplianceDetails from "./pages/Admin/Compliance/ComplianceDetails";
 import ComplianceRules from "./pages/Admin/Compliance/ComplianceRules";
+import PaymentAdjustment from "./pages/Admin/Policies/PaymentAdjustment/PaymentAdjustment";
 import OTSlabMaster from "./pages/Admin/Policies/OT/OTSlabMaster";
 import OTSlabMasterRules from "./pages/Admin/Policies/OT/OTSlabMasterRules";
 import OTCalculation from "./pages/Admin/Policies/OT/OTCalculation";
@@ -119,18 +126,9 @@ import EmpMarkAttendance from "./pages/EmployeePages/EmployeeComponents/EmpMarkA
 import EmpAdvancePayment from "./pages/EmployeePages/EmployeeComponents/EmpAdvancePayment";
 import EmpOutDuty from "./pages/EmployeePages/EmployeeComponents/EmpOutDuty";
 import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySlip";
-
-
-
-
-
-
-
-
-
-
-
-
+import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
+import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
+import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -197,11 +195,22 @@ const App = () => {
                   <Route path="list" element={<EmployeeList />} />
                   <Route path="add" element={<AddEmployee />} />
                   <Route
+                    path="employee-salary-basic"
+                    element={<EmpBasicSalary />}
+                  />
+                  <Route
                     path="employee-salary-details"
                     element={<EmpSalaryDetails />}
                   />
+                  <Route
+                    path="employee-salary-calculation"
+                    element={<SalaryCalculate />}
+                  />
                   <Route path="emp-category" element={<EmpCategory />} />
-                  <Route path="emp-employmenttype" element={<EmpEmploymentType />} />
+                  <Route
+                    path="emp-employmenttype"
+                    element={<EmpEmploymentType />}
+                  />
                   <Route path="emp-worktype" element={<EmpWorkType />} />
                   <Route path="emp-worknature" element={<EmpWorkNature />} />
                   <Route path="general-imports" element={<GeneralImports />} />
@@ -242,7 +251,7 @@ const App = () => {
 
                 {/* Role SubRoutes */}
                 <Route path="role/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="role-master" />} /> 
+                  <Route index element={<Navigate to="role-master" />} />
                   <Route path="role-master" element={<RoleMaster />} />
                   <Route path="role-approval" element={<RoleApproval />} />
                   <Route path="emp-role-mapping" element={<EmpRoleMapping />} />
@@ -263,7 +272,10 @@ const App = () => {
                   <Route path="punch" element={<AttendancePunch />} />
                   <Route path="atten-policy" element={<AttendancePolicy />} />
                   <Route path="atten-record" element={<AttendanceRecord />} />
-                  <Route path="atten-calculation" element={<AttendanceCalculationResult />} />
+                  <Route
+                    path="atten-calculation"
+                    element={<AttendanceCalculationResult />}
+                  />
                 </Route>
 
                 {/* Reports SubRoutes */}
@@ -301,6 +313,25 @@ const App = () => {
                     element={<NominationDeclaration />}
                   />
                   <Route path="job-posting" element={<JobPosting />} />
+                  <Route
+                    path="full-&-final-statement"
+                    element={<FullFinalStatement />}
+                  />
+                </Route>
+
+                {/* Documents SubRoutes */}
+                <Route path="documents/*" element={<AdminContentBox />}>
+                  <Route index element={<Navigate to="expense-documents" />} />
+                  <Route path="expense-header" element={<ExpenseHeader />} />
+                  <Route
+                    path="uploaded-documents"
+                    element={<UploadedDocuments />}
+                  />
+                  <Route
+                    path="expense-documents"
+                    element={<ExpenseDocuments />}
+                  />
+                  <Route path="travel-details" element={<TravelDetails />} />
                 </Route>
 
                 {/* Leave SubRoutes */}
@@ -342,13 +373,11 @@ const App = () => {
                     element={<ComplianceRules />}
                   />
                   <Route
-                    path="otrate"
-                    element={<OTSlabMaster />}
+                    path="payment-adjustment"
+                    element={<PaymentAdjustment />}
                   />
-                  <Route
-                    path="otrate-rules"
-                    element={<OTSlabMasterRules />}
-                  />
+                  <Route path="otrate" element={<OTSlabMaster />} />
+                  <Route path="otrate-rules" element={<OTSlabMasterRules />} />
                   <Route
                     path="otrate-calculation"
                     element={<OTCalculation />}
@@ -375,6 +404,9 @@ const App = () => {
                 <Route path="leave" element={<EmpLeaveRequest />} />
                 <Route path="salary-slip" element={<EmpSalarySlip />} />
                 <Route path="mark-attendance" element={<EmpMarkAttendance />} />
+                <Route path="my-expenses" element={<EmpExpenses />} />
+                <Route path="my-documents" element={<EmpDocuments />} />
+                <Route path="travel-details" element={<EmpTravel />} />
                 <Route path="advance-payment" element={<EmpAdvancePayment />} />
                 <Route path="on-duty" element={<EmpOutDuty />} />
                 <Route path="*" element={<NotFound />} />

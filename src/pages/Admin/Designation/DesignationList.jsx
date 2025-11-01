@@ -34,8 +34,8 @@ const DesignationList = ({
         <p className="text-gray-500 text-sm">No designation found.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border border-gray-200 rounded-md overflow-hidden">
-            <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+          <table className="min-w-full text-xs table-auto border border-gray-200 rounded-md overflow-hidden">
+            <thead className="bg-gray-100 text-gray-700 uppercase">
               <tr className="text-center">
                 <th className="px-6 py-3 text-left">Id</th>
                 <th className="px-6 py-3">Designation Name</th>
@@ -43,18 +43,18 @@ const DesignationList = ({
                 <th className="px-6 py-3">Actions</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700 text-sm">
+            <tbody className="text-gray-700">
               {designations.map((desig, index) => (
                 <tr
                   key={desig.id}
                   className={index % 2 === 0 ? "bg-white text-center" : "bg-gray-50 text-center"}
                 >
-                  <td className="px-6 py-4 text-left">{desig.id}</td>
-                  <td className="px-6 py-4 font-medium">{desig.title}</td>
-                  <td className="px-6 py-4 text-gray-600">
+                  <td className="px-6 py-2 text-left">{desig.id}</td>
+                  <td className="px-6 py-2 font-medium">{desig.title}</td>
+                  <td className="px-6 py-2 text-gray-600">
                     {desig.level || "No Level"}
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-6 py-2 text-center">
                     <div className="flex justify-center gap-3">
                       <button
                         onClick={() => {
