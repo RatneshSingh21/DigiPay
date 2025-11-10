@@ -14,7 +14,7 @@ const statusOptions = [
 
 const workTypeOptions = [
   { value: "Remote", label: "Remote" },
-  { value: "Onsite", label: "Onsite" },
+  { value: "Office", label: "Office" },
   { value: "Hybrid", label: "Hybrid" },
   { value: "Work From Home", label: "Work From Home" },
 ];
@@ -25,7 +25,7 @@ const AttendanceForm = () => {
   const [punchTypeOptions, setPunchTypeOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false); // ✅ Modal toggle state
+  const [showImportModal, setShowImportModal] = useState(false); // Modal toggle state
 
   const [formData, setFormData] = useState({
     employee: null,
@@ -38,7 +38,7 @@ const AttendanceForm = () => {
     punchType: null,
   });
 
-  // ✅ Fetch initial dropdown data
+  // Fetch initial dropdown data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -78,7 +78,7 @@ const AttendanceForm = () => {
     fetchData();
   }, []);
 
-  // ✅ Dynamic shift list update
+  // Dynamic shift list update
   useEffect(() => {
     if (!formData.employee || !shiftOptions.allShifts) return;
 
@@ -105,7 +105,7 @@ const AttendanceForm = () => {
   const showInTime = formData.punchType?.value?.includes("IN");
   const showOutTime = formData.punchType?.value?.includes("OUT");
 
-  // ✅ Handle form submit
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -127,17 +127,19 @@ const AttendanceForm = () => {
       return;
     }
 
-    const formatLocalDateTime = (dateStr, timeStr) => {
-      return timeStr ? `${dateStr}T${timeStr}:00` : null;
+    // ✅ Build local ISO-like strings without timezone conversion
+    const buildLocalDateTime = (dateStr, timeStr) => {
+      if (!timeStr) return null;
+      return `${dateStr}T${timeStr}:00`; // e.g., "2025-11-06T09:00:00"
     };
 
     const payload = {
       attendance: {
         employeeId: employee.value,
         attendanceDate: new Date(attendanceDate).toISOString(),
-        inTime: showInTime ? formatLocalDateTime(attendanceDate, inTime) : null,
+        inTime: showInTime ? buildLocalDateTime(attendanceDate, inTime) : null,
         outTime: showOutTime
-          ? formatLocalDateTime(attendanceDate, outTime)
+          ? buildLocalDateTime(attendanceDate, outTime)
           : null,
         status: status.value,
         workType: workType.value,
@@ -149,11 +151,14 @@ const AttendanceForm = () => {
       accuracyMeters: 0,
       source: "Admin Panel",
       deviceInfo: navigator.userAgent,
-      capturedAt: new Date().toISOString(),
+      capturedAt: `${attendanceDate}T${
+        new Date().toTimeString().split(" ")[0]
+      }`,
       remarks: "Marked manually by Admin",
     };
 
     try {
+      console.log("Submitting payload:", payload);
       await axiosInstance.post("/Attendance/create", payload);
       toast.success("Attendance submitted successfully!");
 
@@ -177,7 +182,7 @@ const AttendanceForm = () => {
     }
   };
 
-  // ✅ Dummy function to refresh attendance list (optional)
+  // Dummy function to refresh attendance list (optional)
   const fetchAttendance = async () => {
     console.log("Refreshing attendance list after import...");
   };
@@ -189,7 +194,7 @@ const AttendanceForm = () => {
         <h2 className="font-semibold text-xl">Attendance</h2>
         <button
           onClick={() => setShowImportModal(true)}
-          className="bg-primary text-white px-4 py-2 rounded-md hover:bg-secondary transition duration-200"
+          className="bg-primary text-white px-4 py-2 text-sm rounded-md hover:bg-secondary transition duration-200"
         >
           Import / Export
         </button>

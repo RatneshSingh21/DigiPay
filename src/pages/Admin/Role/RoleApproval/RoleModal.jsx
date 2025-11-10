@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import React, { useRef } from "react";
 import Select from "react-select";
 
@@ -34,16 +35,24 @@ const RoleModal = ({
 
   return (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-50"
+      className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={handleBackdropClick}
     >
       <div
         ref={modalRef}
         className="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg"
       >
-        <h3 className="text-lg font-semibold mb-4 text-gray-800">
-          Assign Role to Rule
-        </h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-gray-800">
+            Assign Role to Rule
+          </h3>
+          <button
+            onClick={onClose}
+            className="cursor-pointer text-gray-400 hover:text-gray-600 transition"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
         <div className="grid gap-5 mb-6">
           {/* Rule Dropdown */}
@@ -55,8 +64,9 @@ const RoleModal = ({
               options={ruleOptions}
               placeholder="Choose a rule"
               value={
-                ruleOptions.find((opt) => opt.value === roleAssignment.ruleId) ||
-                null
+                ruleOptions.find(
+                  (opt) => opt.value === roleAssignment.ruleId
+                ) || null
               }
               onChange={(selected) =>
                 setRoleAssignment({
@@ -79,8 +89,9 @@ const RoleModal = ({
               options={roleOptions}
               placeholder="Choose a role"
               value={
-                roleOptions.find((opt) => opt.value === roleAssignment.roleId) ||
-                null
+                roleOptions.find(
+                  (opt) => opt.value === roleAssignment.roleId
+                ) || null
               }
               onChange={(selected) =>
                 setRoleAssignment({

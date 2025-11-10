@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   FaHome,
   FaCalendarCheck,
@@ -14,67 +15,98 @@ import { RiUserStarFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import assets from "../../../assets/assets";
 import EmployeeSidebarItem from "./EmployeeSidebarItem";
-
-
-const menuItems = [
-  {
-    label: "Home",
-    icon: <FaHome />,
-    to: "/employee-dashboard/home",
-  },
-  {
-    label: "My Attendance",
-    icon: <FaCalendarCheck />,
-    to: "/employee-dashboard/attendance",
-  },
-  {
-    label: "Salary Slip",
-    icon: <FaMoneyCheckAlt />, 
-    to: "/employee-dashboard/salary-slip",
-  },
-  {
-    label: "Leave Balance",
-    icon: <FaClipboardList />,
-    to: "/employee-dashboard/leave",
-  },
-  {
-    label: "Advance Payment",
-    icon: <FaHandHoldingUsd />, 
-    to: "/employee-dashboard/advance-payment",
-  },
-  {
-    label: "On Duty (OD)",
-    icon: <FaCalendarAlt />,
-    to: "/employee-dashboard/on-duty",
-  },
-  {
-    label: "My Profile",
-    icon: <FaUserCircle />,
-    to: "/employee-dashboard/profile",
-  },
-  {
-    label: "Mark Attendance",
-    icon: <RiUserStarFill />,
-    to: "/employee-dashboard/mark-attendance",
-  },
-  {
-    label: "My Expenses",
-    icon: <FaFileInvoiceDollar />,
-    to: "/employee-dashboard/my-expenses",
-  },
-  {
-    label: "My Documents",
-    icon: <FaFileAlt />,
-    to: "/employee-dashboard/my-documents",
-  },
-  {
-    label: "Travel Details",
-    icon: <FaTrain />,
-    to: "/employee-dashboard/travel-details",
-  },
-];
+import axiosInstance from "../../../axiosInstance/axiosInstance";
+import useAuthStore from "../../../store/authStore";
 
 const EmployeeSidebar = ({ collapsed, setCollapsed }) => {
+  const { user } = useAuthStore();
+  const [hasApprovalAccess, setHasApprovalAccess] = useState(false);
+
+  const menuItems = [
+    { label: "Home", icon: <FaHome />, to: "/employee-dashboard/home" },
+    {
+      label: "My Attendance",
+      icon: <FaCalendarCheck />,
+      to: "/employee-dashboard/attendance",
+    },
+    {
+      label: "Salary Slip",
+      icon: <FaMoneyCheckAlt />,
+      to: "/employee-dashboard/salary-slip",
+    },
+    {
+      label: "Leave Balance",
+      icon: <FaClipboardList />,
+      to: "/employee-dashboard/leave",
+    },
+    {
+      label: "Advance Payment",
+      icon: <FaHandHoldingUsd />,
+      to: "/employee-dashboard/advance-payment",
+    },
+    {
+      label: "On Duty (OD)",
+      icon: <FaCalendarAlt />,
+      to: "/employee-dashboard/on-duty",
+    },
+    {
+      label: "My Profile",
+      icon: <FaUserCircle />,
+      to: "/employee-dashboard/profile",
+    },
+    {
+      label: "Mark Attendance",
+      icon: <RiUserStarFill />,
+      to: "/employee-dashboard/mark-attendance",
+    },
+    {
+      label: "My Expenses",
+      icon: <FaFileInvoiceDollar />,
+      to: "/employee-dashboard/my-expenses",
+    },
+    {
+      label: "My Documents",
+      icon: <FaFileAlt />,
+      to: "/employee-dashboard/my-documents",
+    },
+    {
+      label: "Travel Details",
+      icon: <FaTrain />,
+      to: "/employee-dashboard/travel-details",
+    },
+  ];
+
+  // Conditionally add Approvals tab if user has mapping
+  if (hasApprovalAccess) {
+    menuItems.push({
+      label: "Approvals",
+      icon: <FaClipboardList />,
+      to: "/employee-dashboard/approvals",
+    });
+  }
+
+  useEffect(() => {
+    const fetchRoleMapping = async () => {
+      try {
+        const res = await axiosInstance.get("/EmployeeRoleMapping");
+        const mappings = res.data;
+
+        // Check if logged-in employeeId exists in mapping list
+        const found = mappings.some(
+          (m) => m.employeeId === Number(user?.userId)
+        );
+
+        setHasApprovalAccess(found);
+      } catch (error) {
+        console.error("Error fetching employee role mapping:", error);
+      }
+    };
+
+    if (user?.userId) {
+      fetchRoleMapping();
+    }
+  }, [user]);
+
   return (
     <aside
       className={`text-white fixed top-0 left-0 h-screen z-30 shadow-md transition-all duration-300 ${

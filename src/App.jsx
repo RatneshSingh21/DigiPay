@@ -86,6 +86,8 @@ import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/Nominatio
 import LetterFieldMaster from "./pages/Admin/Settings/LetterFieldMaster";
 import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalStatement";
 import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificateEditor";
+import AdminReports from "./pages/Admin/AdminReports/AdminReports";
+
 
 //Admin Leave Pages
 import Leave from "./pages/Admin/Leave/Leave";
@@ -103,6 +105,9 @@ import ESIRules from "./pages/Admin/Policies/ESI/ESIRule/ESIRules";
 import ESITransactions from "./pages/Admin/Policies/ESI/ESITransaction/ESITransactions";
 import LatePolicy from "./pages/Admin/Policies/LatePolicy/LatePolicy";
 import WeekendPolicy from "./pages/Admin/Policies/WeekendPolicy/WeekendPolicy";
+
+//Admin Approvals Pages
+import Approvals from "./pages/Admin/Approvals/Approvals";
 
 //Admin Documents Pages
 import UploadedDocuments from "./pages/Admin/Documents/UploadedDocuments";
@@ -129,6 +134,9 @@ import EmpSalarySlip from "./pages/EmployeePages/EmployeeComponents/EmpSalarySli
 import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
+import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
+
+
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -317,10 +325,11 @@ const App = () => {
                     path="full-&-final-statement"
                     element={<FullFinalStatement />}
                   />
+                  <Route path="all-reports" element={<AdminReports />} />
                 </Route>
 
                 {/* Documents SubRoutes */}
-                <Route path="documents/*" element={<AdminContentBox />}>
+                <Route path="expenses/*" element={<AdminContentBox />}>
                   <Route index element={<Navigate to="expense-documents" />} />
                   <Route path="expense-header" element={<ExpenseHeader />} />
                   <Route
@@ -360,6 +369,9 @@ const App = () => {
                   <Route path="atten-policy" element={<AttendancePolicy />} />
                   <Route path="policy-details" element={<PolicyDetails />} />
                 </Route>
+
+                  {/* Approvals Main Page */}
+                <Route path="approvals" element={<Approvals />} />
 
                 {/* Compliance SubRoutes */}
                 <Route path="compliance/*" element={<AdminContentBox />}>
@@ -409,6 +421,7 @@ const App = () => {
                 <Route path="travel-details" element={<EmpTravel />} />
                 <Route path="advance-payment" element={<EmpAdvancePayment />} />
                 <Route path="on-duty" element={<EmpOutDuty />} />
+                <Route path="approvals" element={<EmpApprovals />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Route>

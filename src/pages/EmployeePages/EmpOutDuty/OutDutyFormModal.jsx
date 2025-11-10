@@ -1,31 +1,17 @@
-import React, { useState, useEffect } from "react";
-import Select from "react-select";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 
-const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
+const OutDutyFormModal = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     inDateTime: "",
     outDateTime: "",
     reason: "",
-    statusId: null,
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // ---------------- Preselect "Pending" status ----------------
-  useEffect(() => {
-    if (statuses?.length > 0) {
-      const pending = statuses.find(
-        (s) => s.label?.toLowerCase() === "pending"
-      );
-      if (pending) {
-        setFormData((prev) => ({ ...prev, statusId: pending.value }));
-      }
-    }
-  }, [statuses]);
 
   // ---------------- Handle Input ----------------
   const handleChange = (e) => {
@@ -33,15 +19,11 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleStatusChange = (selected) => {
-    setFormData((prev) => ({ ...prev, statusId: selected?.value }));
-  };
-
   // ---------------- Validation ----------------
   const validateForm = () => {
-    const { inDateTime, outDateTime, reason, statusId } = formData;
+    const { inDateTime, outDateTime, reason } = formData;
 
-    if (!inDateTime || !outDateTime || !reason || !statusId) {
+    if (!inDateTime || !outDateTime || !reason) {
       return "Please complete all fields.";
     }
 
@@ -49,11 +31,11 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
     const inDate = new Date(inDateTime);
     const outDate = new Date(outDateTime);
 
-    if (inDate < now.setSeconds(0, 0)) {
+    if (inDate < now) {
       return "In Date & Time cannot be in the past.";
     }
 
-    if (outDate < inDate) {
+    if (outDate <= inDate) {
       return "Out Date & Time must be later than In Date & Time.";
     }
 
@@ -77,23 +59,28 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
 
     try {
       setLoading(true);
+
+      // ⚡ Keep exact local datetime string (no timezone conversion)
       const payload = {
-        inDateTime: new Date(formData.inDateTime).toISOString(),
-        outDateTime: new Date(formData.outDateTime).toISOString(),
+        inDateTime: formData.inDateTime,
+        outDateTime: formData.outDateTime,
         reason: formData.reason.trim(),
         isActive: true,
-        statusId: formData.statusId,
       };
 
       await axiosInstance.post("/OnDuty", payload);
-      toast.success("Out Duty request submitted successfully");
-      onSuccess();
-      onClose();
+
+      toast.success("Out Duty request submitted successfully!");
+      onSuccess?.();
+      onClose?.();
     } catch (err) {
-      console.error(err?.response?.data.error);
-      setError(err?.response?.data.error || "Failed to submit request. Please try again.");
+      console.error(err);
+      setError(
+        err?.response?.data?.error ||
+          "Failed to submit request. Please try again."
+      );
     } finally {
-      setLoading(false);a
+      setLoading(false);
     }
   };
 
@@ -113,14 +100,14 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-          {/* 🔹 Show error message inline */}
+          {/* 🔹 Error Message */}
           {error && (
             <div className="bg-red-100 text-red-700 px-3 py-2 rounded text-sm">
               {error}
             </div>
           )}
 
-          {/* In Date */}
+          {/* In Date & Time */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               In Date & Time
@@ -135,7 +122,7 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
             />
           </div>
 
-          {/* Out Date */}
+          {/* Out Date & Time */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Out Date & Time
@@ -170,7 +157,7 @@ const OutDutyFormModal = ({ onClose, onSuccess, statuses }) => {
           <button
             type="submit"
             disabled={loading}
-            className={`bg-primary flex items-center cursor-pointer justify-center text-white px-4 sm:px-6 py-2 rounded transition w-full sm:w-auto ${
+            className={`bg-primary flex items-center justify-center text-white px-4 sm:px-6 py-2 rounded transition w-full sm:w-auto ${
               loading
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-secondary cursor-pointer"

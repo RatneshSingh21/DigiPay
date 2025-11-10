@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
-
 const ExpenseDocuments = () => {
   const [groupedExpenses, setGroupedExpenses] = useState([]);
   const [search, setSearch] = useState("");
@@ -19,62 +18,78 @@ const ExpenseDocuments = () => {
     "w-full px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm";
 
   useEffect(() => {
-    const fetchExpenses = async () => {
-      try {
-        const res = await axiosInstance("/ExpenseDetails/all");
-        const data = res.data.data || [];
+  const fetchExpenses = async () => {
+    try {
+      const res = await axiosInstance("/ExpenseDetails/all");
+      const data = res.data.data || [];
 
-        // Group by createdBy (employee)
-        const grouped = data.reduce((acc, item) => {
-          if (!acc[item.createdBy]) acc[item.createdBy] = [];
-          acc[item.createdBy].push(item);
-          return acc;
-        }, {});
+      // Collect all unique employee IDs (for creator + approvers)
+      const allEmployeeIds = new Set();
+      data.forEach((item) => {
+        if (item.createdBy) allEmployeeIds.add(item.createdBy);
+        if (Array.isArray(item.customApproverIds)) {
+          item.customApproverIds.forEach((id) => allEmployeeIds.add(id));
+        }
+      });
 
-        const uniqueIds = Object.keys(grouped);
-
-        // Fetch employee info (name + code)
-        const employeePromises = uniqueIds.map(async (id) => {
-          try {
-            const empRes = await axiosInstance(`/Employee/${id}`);
-            return {
-              id,
-              name: empRes.data.fullName || "Unknown",
-              employeeCode: empRes.data.employeeCode || "",
-            };
-          } catch {
-            return { id, name: "Unknown", employeeCode: "" };
-          }
-        });
-
-        const employeeData = await Promise.all(employeePromises);
-        const employeeMap = employeeData.reduce((acc, emp) => {
-          acc[emp.id] = emp;
-          return acc;
-        }, {});
-
-        // Prepare grouped data
-        const result = Object.entries(grouped).map(([empId, expenses]) => {
-          const emp = employeeMap[empId] || {};
+      // Fetch employee details for all unique IDs
+      const employeePromises = Array.from(allEmployeeIds).map(async (id) => {
+        try {
+          const empRes = await axiosInstance(`/Employee/${id}`);
           return {
-            empId,
-            employeeName: emp.name,
-            employeeCode: emp.employeeCode,
-            totalAmount: expenses.reduce((sum, e) => sum + (e.amount || 0), 0),
-            expenses,
+            id,
+            name: empRes.data.fullName || "Unknown",
+            employeeCode: empRes.data.employeeCode || "",
           };
-        });
+        } catch {
+          return { id, name: "Unknown", employeeCode: "" };
+        }
+      });
 
-        setGroupedExpenses(result);
-      } catch (error) {
-        console.error("Error fetching expenses:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const employeeData = await Promise.all(employeePromises);
+      const employeeMap = employeeData.reduce((acc, emp) => {
+        acc[emp.id] = emp;
+        return acc;
+      }, {});
 
-    fetchExpenses();
-  }, []);
+      // Group by createdBy (employee)
+      const grouped = data.reduce((acc, item) => {
+        if (!acc[item.createdBy]) acc[item.createdBy] = [];
+        acc[item.createdBy].push(item);
+        return acc;
+      }, {});
+
+      // Prepare final grouped data with approver names
+      const result = Object.entries(grouped).map(([empId, expenses]) => {
+        const emp = employeeMap[empId] || {};
+        const enrichedExpenses = expenses.map((e) => ({
+          ...e,
+          approverNames: Array.isArray(e.customApproverIds)
+            ? e.customApproverIds.map(
+                (id) => employeeMap[id]?.name || "Unknown"
+              )
+            : [],
+        }));
+
+        return {
+          empId,
+          employeeName: emp.name,
+          employeeCode: emp.employeeCode,
+          totalAmount: expenses.reduce((sum, e) => sum + (e.amount || 0), 0),
+          expenses: enrichedExpenses,
+        };
+      });
+
+      setGroupedExpenses(result);
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchExpenses();
+}, []);
 
   const filtered = groupedExpenses.filter(
     (e) =>
@@ -184,6 +199,7 @@ const ExpenseDocuments = () => {
                             <th className="py-2 px-3">Amount</th>
                             <th className="py-2 px-3">Description</th>
                             <th className="py-2 px-3">Attachment</th>
+                            <th className="py-2 px-3">Approved By</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -283,6 +299,11 @@ const ExpenseDocuments = () => {
                                     No file
                                   </span>
                                 )}
+                              </td>
+                              <td className="py-2 px-3 text-gray-600">
+                                {item.approverNames?.length > 0
+                                  ? item.approverNames.join(", ")
+                                  : "—"}
                               </td>
                             </tr>
                           ))}

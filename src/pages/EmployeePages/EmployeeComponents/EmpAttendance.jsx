@@ -1,6 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Select from "react-select";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from "date-fns";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  getDay,
+} from "date-fns";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 import Tippy from "@tippyjs/react";
@@ -24,7 +30,10 @@ const statusOptions = ["All", ...Object.keys(attendanceColors)].map((item) => ({
 const EmpAttendance = () => {
   const { user } = useAuthStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [statusFilter, setStatusFilter] = useState({ label: "All", value: "All" });
+  const [statusFilter, setStatusFilter] = useState({
+    label: "All",
+    value: "All",
+  });
   const [attendanceData, setAttendanceData] = useState({}); // yyyy-MM-dd -> perDayDetails object
   const [loading, setLoading] = useState(true);
 
@@ -73,7 +82,10 @@ const EmpAttendance = () => {
   }, [user]);
 
   const daysInMonth = useMemo(() => {
-    const days = eachDayOfInterval({ start: firstDayOfMonth, end: lastDayOfMonth });
+    const days = eachDayOfInterval({
+      start: firstDayOfMonth,
+      end: lastDayOfMonth,
+    });
     const startWeekday = getDay(firstDayOfMonth);
     const padding = Array.from({ length: startWeekday }, () => null);
     return [...padding, ...days];
@@ -99,7 +111,9 @@ const EmpAttendance = () => {
     <div className="p-5 bg-white rounded-xl shadow-md">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Attendance Calendar</h2>
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+          Attendance Calendar
+        </h2>
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <input
             type="month"
@@ -127,7 +141,9 @@ const EmpAttendance = () => {
           {/* Weekday Headers */}
           <div className="grid grid-cols-7 text-xs font-semibold text-gray-600 mb-1">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <div key={day} className="text-center">{day}</div>
+              <div key={day} className="text-center">
+                {day}
+              </div>
             ))}
           </div>
 
@@ -135,13 +151,16 @@ const EmpAttendance = () => {
           <div className="grid grid-cols-7 gap-1">
             {filteredDays.map((day, index) => {
               if (!day)
-                return <div key={`blank-${index}`} className="h-16 bg-transparent" />;
+                return (
+                  <div key={`blank-${index}`} className="h-16 bg-transparent" />
+                );
 
               const key = format(day, "yyyy-MM-dd");
               const dayData = attendanceData[key] || {};
               const status = dayData.status || "Unknown";
               const color = attendanceColors[status] || "bg-gray-100";
-              const textColor = status === "Unknown" ? "text-gray-400" : "text-white";
+              const textColor =
+                status === "Unknown" ? "text-gray-400" : "text-white";
 
               return (
                 <Tippy
@@ -149,19 +168,43 @@ const EmpAttendance = () => {
                   content={
                     dayData.inTime || dayData.outTime ? (
                       <div className="text-xs text-white space-y-1">
-                        <div><strong>In:</strong> {dayData.inTime ? format(new Date(dayData.inTime), "HH:mm") : "-"}</div>
-                        <div><strong>Out:</strong> {dayData.outTime ? format(new Date(dayData.outTime), "HH:mm") : "-"}</div>
-                        <div><strong>Total Hours:</strong> {dayData.totalHoursWorked || 0}</div>
-                        <div><strong>Late:</strong> {dayData.lateMinutes || 0} min</div>
-                        <div><strong>Early Leave:</strong> {dayData.earlyLeaveMinutes || 0} min</div>
-                        <div><strong>OT:</strong> {dayData.otMinutes || 0} min</div>
+                        <div>
+                          <strong>In:</strong>{" "}
+                          {dayData.inTime
+                            ? format(new Date(dayData.inTime), "HH:mm")
+                            : "-"}
+                        </div>
+                        <div>
+                          <strong>Out:</strong>{" "}
+                          {dayData.outTime
+                            ? format(new Date(dayData.outTime), "HH:mm")
+                            : "-"}
+                        </div>
+                        <div>
+                          <strong>Total Hours:</strong>{" "}
+                          {dayData.totalHoursWorked.toFixed(4) || 0}
+                        </div>
+                        <div>
+                          <strong>Late:</strong> {dayData.lateMinutes || 0} min
+                        </div>
+                        <div>
+                          <strong>Early Leave:</strong>{" "}
+                          {dayData.earlyLeaveMinutes || 0} min
+                        </div>
+                        <div>
+                          <strong>OT:</strong> {dayData.otMinutes || 0} min
+                        </div>
                       </div>
-                    ) : "No data"
+                    ) : (
+                      "No data"
+                    )
                   }
                   placement="top"
                   animation="scale"
                 >
-                  <div className={`rounded-md px-1 py-1 cursor-pointer text-center flex flex-col justify-center items-center h-16 ${color} ${textColor}`}>
+                  <div
+                    className={`rounded-md px-1 py-1 cursor-pointer text-center flex flex-col justify-center items-center h-16 ${color} ${textColor}`}
+                  >
                     <div className="font-bold text-sm">{format(day, "d")}</div>
                     <div className="text-[9px] mt-0.5">{status}</div>
                   </div>

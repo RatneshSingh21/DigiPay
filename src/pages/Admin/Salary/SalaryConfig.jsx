@@ -58,73 +58,77 @@ const SalaryConfig = () => {
       {/* List */}
       <div className="mt-8">
         <h3 className="font-semibold mb-2">Current Configs</h3>
-        <table className="min-w-full border border-gray-200 rounded-lg text-sm text-center">
-          <thead className="bg-gray-100 text-gray-700">
-            <tr>
-              <th className="px-4 py-2 text-left">S NO.</th>
-              <th className="px-4 py-2">Component Name</th>
-              <th className="px-4 py-2">Calculation Type</th>
-              <th className="px-4 py-2">Value</th>
-              <th className="px-4 py-2">Status</th>
-              <th className="px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="capitalize">
-            {componentConfigs.length === 0 ? (
+        <div className="overflow-x-auto shadow h-[150px] overflow-y-scroll">
+          <table className="min-w-full divide-y text-center text-xs divide-gray-200">
+            <thead className="bg-gray-100 text-gray-600">
               <tr>
-                <td colSpan={6} className="text-center p-4">
-                  No components found.
-                </td>
+                <th className="px-4 py-2">S.No</th>
+                <th className="px-4 py-2">Component Name</th>
+                <th className="px-4 py-2">Calculation Type</th>
+                <th className="px-4 py-2">Value</th>
+                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Actions</th>
               </tr>
-            ) : (
-              componentConfigs.map((item, idx) => (
-                <tr
-                  key={item.componentConfigId}
-                  className="border-t hover:bg-gray-50"
-                >
-                  <td className="px-4 py-2 text-left">{idx + 1}.</td>
-                  <td className="px-4 py-2">{item.componentName}</td>
-                  <td className="px-4 py-2">
-                    {item.calculationType === 1 ? "Percentage" : "Fixed Amount"}
-                  </td>
-                  <td className="px-4 py-2">
-                    {item.calculationType === 1
-                      ? `${item.percentageValue}%`
-                      : `₹${item.fixedAmount}`}
-                  </td>
-                  <td className="px-4 py-2">
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full font-semibold ${
-                        item.isEnabled
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {item.isEnabled ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 flex gap-2 justify-center">
-                    <button
-                      className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
-                      onClick={() => setEditData(item)}
-                    >
-                      <FiEdit size={14} />
-                      <span>Edit</span>
-                    </button>
-
-                    <button
-                      className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition"
-                      onClick={() => setConfirmDeleteId(item)}
-                    >
-                      <FiTrash2 size={14} />
-                      <span>Delete</span>
-                    </button>
+            </thead>
+            <tbody className="capitalize">
+              {componentConfigs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center p-4">
+                    No components found.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                componentConfigs.map((item, idx) => (
+                  <tr
+                    key={item.componentConfigId}
+                    className="hover:bg-gray-50"
+                  >
+                    <td className="px-4 py-2">{idx + 1}.</td>
+                    <td className="px-4 py-2">{item.componentName}</td>
+                    <td className="px-4 py-2">
+                      {item.calculationType === 1
+                        ? "Percentage"
+                        : "Fixed Amount"}
+                    </td>
+                    <td className="px-4 py-2">
+                      {item.calculationType === 1
+                        ? `${item.percentageValue}%`
+                        : `₹${item.fixedAmount}`}
+                    </td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full font-semibold ${
+                          item.isEnabled
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {item.isEnabled ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 flex gap-2 justify-center">
+                      <button
+                        className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                        onClick={() => setEditData(item)}
+                      >
+                        <FiEdit size={14} />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition"
+                        onClick={() => setConfirmDeleteId(item)}
+                      >
+                        <FiTrash2 size={14} />
+                        <span>Delete</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Confirm Delete Modal */}

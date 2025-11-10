@@ -13,7 +13,7 @@ const RuleModal = ({ isOpen, onClose, formData, setFormData, createRule }) => {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative animate-slideUp">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">

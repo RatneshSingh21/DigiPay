@@ -54,44 +54,52 @@ const EmployeePFMappingForm = ({ initialData, onClose, refreshList }) => {
     fetchData();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const payload = formData.isOptedOut
-        ? {
-            employeeId: formData.employeeId,
-            isOptedOut: true,
-          }
-        : {
-            employeeId: formData.employeeId,
-            pfNumber: formData.pfNumber,
-            isOptedOut: false,
-            pfSettingsId: formData.pfSettingsId,
-            overrideCalculationType: formData.overrideCalculationType,
-            overridePercentage: formData.overridePercentage,
-            overrideFixedAmount: formData.overrideFixedAmount,
-            effectiveFrom: formData.effectiveFrom,
-            effectiveTo: formData.effectiveTo,
-            appliesOnComponents: formData.appliesOnComponents,
-          };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Prepare payload considering opt-out
+    const payload = formData.isOptedOut
+      ? {
+          employeeId: formData.employeeId,
+          isOptedOut: true,
+        }
+      : {
+          employeeId: formData.employeeId,
+          pfNumber: formData.pfNumber || null,
+          isOptedOut: false,
+          pfSettingsId: formData.pfSettingsId || null,
+          overrideCalculationType: formData.overrideCalculationType || null,
+          overridePercentage:
+            formData.overridePercentage !== "" && formData.overridePercentage != null
+              ? Number(formData.overridePercentage)
+              : null,
+          overrideFixedAmount:
+            formData.overrideFixedAmount !== "" && formData.overrideFixedAmount != null
+              ? Number(formData.overrideFixedAmount)
+              : null,
+          effectiveFrom: formData.effectiveFrom || null,
+          effectiveTo: formData.effectiveTo || null,
+          appliesOnComponents: formData.appliesOnComponents || [],
+        };
 
-      if (initialData) {
-        await axiosInstance.put(
-          `/PFEmployeeMapping/${initialData.pfEmployeeMappingId}`,
-          payload
-        );
-        toast.success("Mapping updated!");
-      } else {
-        await axiosInstance.post("/PFEmployeeMapping", payload);
-        toast.success("Mapping created!");
-      }
-      refreshList();
-      onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error("Error saving mapping");
+    if (initialData) {
+      await axiosInstance.put(
+        `/PFEmployeeMapping/${initialData.pfEmployeeMappingId}`,
+        payload
+      );
+      toast.success("Mapping updated!");
+    } else {
+      await axiosInstance.post("/PFEmployeeMapping", payload);
+      toast.success("Mapping created!");
     }
-  };
+    refreshList();
+    onClose();
+  } catch (err) {
+    console.error(err);
+    toast.error("Error saving mapping");
+  }
+};
+
 
   const inputClass =
     "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";

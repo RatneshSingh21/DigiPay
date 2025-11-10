@@ -26,6 +26,7 @@ const TravelDetails = () => {
       try {
         const res = await axiosInstance.get("/EmployeeTravelLocation/all");
         const data = res.data?.data || [];
+        console.log("📦 Raw API Response:", res.data);
 
         // Group by employeeId
         const grouped = data.reduce((acc, item) => {

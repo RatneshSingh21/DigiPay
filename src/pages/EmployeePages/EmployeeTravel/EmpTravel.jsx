@@ -13,25 +13,65 @@ const EmpTravel = () => {
   const [travelList, setTravelList] = useState([]);
   const [listLoading, setListLoading] = useState(false);
 
-  // 🔹 Get current geolocation
+  // 🔹 Get current geolocation (with permission check)
   const getLocation = async () => {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        toast.error("Geolocation not supported");
-        reject("Geolocation not supported");
-      }
-      navigator.geolocation.getCurrentPosition(
-        (pos) =>
-          resolve({
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-          }),
-        (err) => {
-          toast.error("Failed to get location");
-          reject(err);
+    try {
+      // Check permission first (modern browsers)
+      if (navigator.permissions) {
+        const status = await navigator.permissions.query({
+          name: "geolocation",
+        });
+        if (status.state === "denied") {
+          toast.error(
+            "❌ Location access denied. Please enable it in your browser settings."
+          );
+          throw new Error("Location permission denied");
         }
-      );
-    });
+      }
+
+      // Try to get current position
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          toast.error("Geolocation not supported on this device.");
+          reject("Geolocation not supported");
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            resolve({
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+            });
+          },
+          (err) => {
+            console.error("❌ Geolocation error:", err);
+            if (err.code === 1)
+              toast.error("Location permission denied by user.");
+            else if (err.code === 2)
+              toast.error("Position unavailable. Try again.");
+            else if (err.code === 3)
+              toast.error("Location request timed out. Please retry.");
+            reject(err);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          }
+        );
+      });
+    } catch (err) {
+      console.error("⚠️ getLocation permission error:", err);
+      throw err;
+    }
+  };
+
+  // 🔧 Helper to get local ISO string (IST accurate)
+  const getLocalISOString = () => {
+    const now = new Date();
+    const tzOffset = now.getTimezoneOffset() * 60000; // offset in ms
+    const localISOTime = new Date(now - tzOffset).toISOString().slice(0, -1);
+    return localISOTime; // e.g. 2025-11-03T10:33:12.123
   };
 
   // 🔹 Convert coordinates → readable address
@@ -60,7 +100,7 @@ const EmpTravel = () => {
         startLatitude: latitude,
         startLongitude: longitude,
         startAddress: address,
-        startDate: new Date().toISOString(),
+        startDate: getLocalISOString(),
         endLatitude: 0,
         endLongitude: 0,
         endAddress: "",
@@ -70,10 +110,17 @@ const EmpTravel = () => {
         ipAddress: "Fetching...",
       };
 
+      // 🔹 Log the payload before sending
+      console.log("🚀 Sending Payload to API:", payload);
+
       const res = await axiosInstance.post(
         "/EmployeeTravelLocation/create",
         payload
       );
+
+      // 🔹 Log the raw API response
+      console.log(" POST /EmployeeTravelLocation/create Response:", res.data);
+
       if (res.data?.success) {
         toast.success("Journey started successfully!");
         setIsJourneyStarted(true);
@@ -81,6 +128,7 @@ const EmpTravel = () => {
         fetchTravelList();
       }
     } catch (err) {
+      console.error("❌ Error starting journey:", err);
       toast.error("Error starting journey");
     } finally {
       setLoading(false);
@@ -88,8 +136,8 @@ const EmpTravel = () => {
   };
 
   // 🔴 End Journey
-  const handleEndJourney = async () => {
-    if (!travelId) return toast.error("No active journey found");
+  const handleEndJourney = async (id, purpose) => {
+    if (!id) return toast.warning("No active journey found!");
 
     try {
       setLoading(true);
@@ -100,24 +148,34 @@ const EmpTravel = () => {
         endLatitude: latitude,
         endLongitude: longitude,
         endAddress: address,
-        endDate: new Date().toISOString(),
-        purpose: `${purpose.trim()} (Completed)`,
+        endDate: getLocalISOString(),
+        purpose: purpose?.trim() + " (Completed)" || "",
         deviceInfo: navigator.userAgent,
         ipAddress: "Fetching...",
       };
 
+      console.log(`🚦 Sending PUT Payload for travelId ${id}:`, payload);
+
       const res = await axiosInstance.put(
-        `/EmployeeTravelLocation/update/${travelId}`,
+        `/EmployeeTravelLocation/update/${id}`,
         payload
       );
+
+      console.log(" PUT /EmployeeTravelLocation Response:", res.data);
+
       if (res.data?.success) {
         toast.success("Journey ended successfully!");
+
+        // Reset state after successful end
         setIsJourneyStarted(false);
-        setPurpose("");
         setTravelId(null);
+        setPurpose("");
+
+        // Refresh travel list to show completed status
         fetchTravelList();
       }
     } catch (err) {
+      console.error("❌ Error ending journey:", err);
       toast.error("Error ending journey");
     } finally {
       setLoading(false);
@@ -189,8 +247,8 @@ const EmpTravel = () => {
             </button>
           ) : (
             <button
-              onClick={handleEndJourney}
-              disabled={loading}
+              onClick={() => handleEndJourney(travelId, purpose)}
+              disabled={loading || !travelId}
               className="bg-red-600 hover:bg-red-700 cursor-pointer text-white px-6 py-2 rounded-lg font-medium transition-all disabled:opacity-60"
             >
               {loading ? "Ending..." : "End Journey"}
@@ -219,6 +277,8 @@ const EmpTravel = () => {
                   <th className="px-2 py-3">Start</th>
                   <th className="px-2 py-3">End</th>
                   <th className="px-2 py-3">Status</th>
+                  {/*  Added Action column */}
+                  <th className="px-2 py-3">Action</th>
                 </tr>
               </thead>
               <tbody className="text-gray-700">
@@ -233,9 +293,6 @@ const EmpTravel = () => {
 
                     <td className="px-2 py-3 font-medium text-gray-800">
                       {item.purpose}
-                      {/* <div className="text-xs text-gray-500 mt-1">
-                        Device: {item.deviceInfo?.split(",")[0] || "N/A"}
-                      </div> */}
                     </td>
 
                     <td className="px-2 py-3">
@@ -271,12 +328,27 @@ const EmpTravel = () => {
                     <td className="px-2 py-3 text-center">
                       {item.endDate ? (
                         <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-                          ✅Completed
+                          Completed
                         </span>
                       ) : (
                         <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold animate-pulse">
-                          🕒 Active
+                          Active
                         </span>
+                      )}
+                    </td>
+
+                    {/*  Added End Button */}
+                    <td className="px-2 py-3">
+                      {!item.endDate && (
+                        <button
+                          onClick={() =>
+                            handleEndJourney(item.id, item.purpose)
+                          }
+                          disabled={loading}
+                          className="bg-red-600 cursor-pointer hover:bg-red-700 text-white px-3 py-1 rounded-md text-xs font-semibold disabled:opacity-60"
+                        >
+                          {loading ? "Ending..." : "End"}
+                        </button>
                       )}
                     </td>
                   </tr>

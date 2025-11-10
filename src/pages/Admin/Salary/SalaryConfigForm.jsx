@@ -106,7 +106,7 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 rounded shadow"
+      className="grid grid-cols-1 md:grid-cols-2 text-sm gap-4 bg-white p-4 rounded shadow"
     >
       <div>
         <label className="block mb-1">Component Name</label>

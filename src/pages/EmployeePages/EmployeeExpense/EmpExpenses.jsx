@@ -1,13 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { FaPlus, FaFileInvoiceDollar, FaDownload } from "react-icons/fa";
+import {
+  FaPlus,
+  FaFileInvoiceDollar,
+  FaDownload,
+  FaCalendarAlt,
+  FaRupeeSign,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
-
 import EmpExpensesForm from "./EmpExpensesForm";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 
+// Map statusId to readable status + color
+const getStatusBadge = (statusId) => {
+  switch (statusId) {
+    case 1:
+      return { text: "Pending", color: "bg-yellow-100 text-yellow-700" };
+    case 2:
+      return { text: "Rejected", color: "bg-red-100 text-red-700" };
+    case 3:
+      return { text: "Approved", color: "bg-green-100 text-green-700" };
+    default:
+      return { text: "Unknown", color: "bg-gray-100 text-gray-700" };
+  }
+};
+
 const EmpExpenses = () => {
-  
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -21,10 +39,9 @@ const EmpExpenses = () => {
       if (res.data?.data) {
         setExpenses(res.data.data || []);
       }
-      console.log(res.data.data);
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message ||"Failed to fetch expenses");
+      toast.error(err?.response?.data?.message || "Failed to fetch expenses");
     } finally {
       setLoading(false);
     }
@@ -35,15 +52,15 @@ const EmpExpenses = () => {
   }, []);
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 pb-10">
       {/* Header */}
-      <div className="px-4 py-2 shadow mb-2 sticky top-14 bg-white z-10 flex justify-between items-center">
-        <h2 className="font-semibold text-lg sm:text-xl text-gray-800">
+      <div className="px-6 py-3 shadow mb-4 sticky top-14 bg-white z-10 flex justify-between items-center">
+        <h2 className="font-bold text-xl text-gray-800 flex items-center gap-2">
           Expense Details
         </h2>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary cursor-pointer text-sm flex items-center gap-2"
+          className="bg-primary hover:bg-secondary transition text-white px-4 py-2 rounded-md text-sm flex items-center gap-2 shadow"
         >
           <FaPlus /> Add Expense
         </button>
@@ -51,57 +68,75 @@ const EmpExpenses = () => {
 
       {/* List */}
       {loading ? (
-        <div className="text-center py-10 text-gray-500">Loading...</div>
+        <div className="text-center py-20 text-gray-500">Loading...</div>
       ) : expenses.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {expenses.map((exp, i) => (
-            <div
-              key={exp.expenseDetailsId || i}
-              className="m-4 rounded-lg shadow-sm bg-white hover:shadow-md transition p-4 flex flex-col justify-between"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <FaFileInvoiceDollar className="text-primary text-2xl" />
-                <h3 className="font-semibold text-gray-800 truncate">
-                  {exp.expenseDetailsName || "Unnamed Expense"}
-                </h3>
+        <div className="grid gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3">
+          {expenses.map((exp) => {
+            const status = getStatusBadge(exp.statusId);
+            return (
+              <div
+                key={exp.expenseDetailsId}
+                className="rounded-xl bg-white shadow-md hover:shadow-lg hover:cursor-pointer hover:border-blue-200 transition-all duration-300 overflow-hidden border border-gray-100"
+              >
+                <div className="p-5 flex flex-col h-full">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-gray-800 text-lg truncate flex items-center gap-2">
+                      <FaFileInvoiceDollar className="text-primary" />
+                      {exp.expenseDetailsName || "Unnamed Expense"}
+                    </h3>
+                    <span
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${status.color}`}
+                    >
+                      {status.text}
+                    </span>
+                  </div>
+
+                  {/* Details */}
+                  <div className="text-sm text-gray-600 space-y-1 mb-3">
+                    <p className="flex items-center gap-2">
+                      <FaRupeeSign className="text-primary" />
+                      <strong>Amount:</strong> ₹{exp.amount || 0}
+                    </p>
+                    <p className="flex items-center gap-2 text-xs text-gray-500">
+                      <FaCalendarAlt className="text-secondary" />
+                      <strong>Date:</strong>{" "}
+                      {exp.expenseDate
+                        ? new Date(exp.expenseDate).toLocaleDateString("en-GB")
+                        : "N/A"}
+                    </p>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+                    {exp.description || "No description provided."}
+                  </p>
+
+                  {/* File + Footer */}
+                  <div className="mt-auto flex justify-between items-center pt-3 border-t border-gray-100">
+                    {exp.filePath ? (
+                      <a
+                        href={exp.filePath}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-primary text-sm hover:text-secondary transition"
+                      >
+                        <FaDownload /> View File
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 text-sm">No File</span>
+                    )}
+                    <span className="text-xs text-gray-400">
+                      ID: #{exp.expenseDetailsId}
+                    </span>
+                  </div>
+                </div>
               </div>
-
-              <p className="text-sm text-gray-600 mb-2">
-                <strong>Amount:</strong> ₹{exp.amount || 0}
-              </p>
-              <p className="text-xs text-gray-500 mb-2">
-                <strong>Date:</strong>{" "}
-                {exp.expenseDate
-                  ? new Date(exp.expenseDate).toLocaleDateString()
-                  : "N/A"}
-              </p>
-
-              <p className="text-gray-600 text-sm mb-3 line-clamp-3">
-                {exp.description || "No description."}
-              </p>
-
-              <div className="flex justify-between items-center mt-auto">
-                {exp.filePath && (
-                  <a
-                    href={exp.filePath}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-primary text-sm hover:text-secondary"
-                  >
-                    <FaDownload /> View File
-                  </a>
-                )}
-                <span className="text-xs text-gray-500">
-                  DOC ID: {exp.expenseDetailsId}
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
-        <div className="text-center text-gray-500 py-10">
-          No expenses found.
-        </div>
+        <div className="text-center text-gray-500 py-20">No expenses found.</div>
       )}
 
       {/* Modal */}

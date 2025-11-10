@@ -105,6 +105,7 @@ const labelToPath = {
   "Nomination-Declaration": "nomination-declaration",
   "Job Posting": "job-posting",
   "Full & Final Statement": "full-&-final-statement",
+  "All Reports": "all-reports",
 
   // Leave
   "Leave Types": "leave-types",
@@ -202,6 +203,7 @@ const labelToIcon = {
   "Nomination-Declaration": <FaFileAlt className="mr-2" />,
   "Job Posting": <MdGavel className="mr-2" />,
   "Full & Final Statement": <FaFileAlt className="mr-2" />,
+  "All Reports": <FaFileAlt className="mr-2" />,
 
   // Leave
   "Leave Types": <FaUmbrellaBeach className="mr-2" />,

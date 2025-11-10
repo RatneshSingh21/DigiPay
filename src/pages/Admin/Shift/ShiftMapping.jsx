@@ -4,6 +4,11 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import { FiPlus, FiRefreshCw, FiX } from "react-icons/fi";
 
+// Simple inline spinner
+const Spinner = () => (
+  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+);
+
 const ShiftMapping = () => {
   const [shiftMappings, setShiftMappings] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -14,7 +19,9 @@ const ShiftMapping = () => {
     effectiveFrom: "",
     effectiveTo: "",
   });
-  const [loading, setLoading] = useState(false);
+
+  const [loadingData, setLoadingData] = useState(false); // for initial data loading
+  const [submitting, setSubmitting] = useState(false); // for form submission
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -22,9 +29,9 @@ const ShiftMapping = () => {
   }, []);
 
   const fetchAllData = async () => {
-    setLoading(true);
+    setLoadingData(true);
     await Promise.all([fetchShiftMappings(), fetchEmployees(), fetchShifts()]);
-    setLoading(false);
+    setLoadingData(false);
   };
 
   const fetchShiftMappings = async () => {
@@ -56,14 +63,17 @@ const ShiftMapping = () => {
 
   const handleAssignShift = async (e) => {
     e.preventDefault();
-    const { employeeId, shiftId, effectiveFrom, effectiveTo } = form;
 
+    if (submitting) return; // ✅ Prevent multiple clicks
+
+    const { employeeId, shiftId, effectiveFrom, effectiveTo } = form;
     if (!employeeId || !shiftId || !effectiveFrom || !effectiveTo) {
       toast.warn("Please fill all fields");
       return;
     }
 
     try {
+      setSubmitting(true);
       await axiosInstance.post("/ShiftMapping/assign", {
         employeeId: parseInt(employeeId),
         shiftId: parseInt(shiftId),
@@ -81,6 +91,8 @@ const ShiftMapping = () => {
       fetchShiftMappings();
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to assign shift");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -94,7 +106,6 @@ const ShiftMapping = () => {
     return s ? s.shiftName : `Shift#${id}`;
   };
 
-  // React-select options
   const employeeOptions = employees.map((emp) => ({
     value: emp.id,
     label: `${emp.fullName} (${emp.employeeCode})`,
@@ -107,15 +118,26 @@ const ShiftMapping = () => {
 
   return (
     <div className="space-y-2">
+      {/* Header */}
       <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Shift Mapping</h2>
         <div className="flex items-center text-sm gap-3">
           <button
             onClick={fetchAllData}
-            className="flex items-center cursor-pointer gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg"
+            disabled={loadingData}
+            className="flex items-center cursor-pointer gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg disabled:opacity-60"
           >
-            <FiRefreshCw /> Refresh
+            {loadingData ? (
+              <>
+                <Spinner /> <span>Refreshing...</span>
+              </>
+            ) : (
+              <>
+                <FiRefreshCw /> Refresh
+              </>
+            )}
           </button>
+
           <button
             onClick={() => setShowModal(true)}
             className="flex items-center cursor-pointer gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
@@ -125,13 +147,13 @@ const ShiftMapping = () => {
         </div>
       </div>
 
-      {/* Shift Mapping List */}
+      {/* Table */}
       <div className="bg-white rounded-xl shadow p-4">
         <h3 className="font-semibold text-gray-700 mb-3">
           Existing Shift Mappings
         </h3>
 
-        {loading ? (
+        {loadingData ? (
           <p>Loading...</p>
         ) : shiftMappings.length === 0 ? (
           <p className="text-gray-500 text-sm">No shift mappings found.</p>
@@ -176,7 +198,6 @@ const ShiftMapping = () => {
       {showModal && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-xl relative">
-            {/* Close Button */}
             <button
               onClick={() => setShowModal(false)}
               className="absolute cursor-pointer top-3 right-3 text-gray-500 hover:text-gray-700"
@@ -277,9 +298,14 @@ const ShiftMapping = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg cursor-pointer bg-primary text-white hover:bg-secondary"
+                  disabled={submitting}
+                  className={`px-6 py-2 cursor-pointer rounded-lg text-white flex items-center justify-center gap-2 ${
+                    submitting
+                      ? "bg-blue-300 cursor-not-allowed"
+                      : "bg-primary hover:bg-secondary"
+                  }`}
                 >
-                  Assign Shift
+                  {submitting ? <Spinner /> : "Assign Shift"}
                 </button>
               </div>
             </form>

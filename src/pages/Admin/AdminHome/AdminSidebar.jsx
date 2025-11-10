@@ -1,6 +1,6 @@
 import { AiFillDashboard, AiFillSetting } from "react-icons/ai";
 import { RiArticleFill, RiFolderOpenFill } from "react-icons/ri";
-import { FaClipboardCheck, FaBusinessTime, FaUsers } from "react-icons/fa";
+import { FaClipboardCheck, FaBusinessTime, FaUsers, FaUserFriends } from "react-icons/fa";
 import { IoDocuments } from "react-icons/io5";
 import {
   MdAdminPanelSettings,
@@ -75,9 +75,15 @@ const menuItems = [
     collapseOnClick: true,
   },
   {
-    label: "Documents",
+    label: "Expenses",
     icon: <IoDocuments />,
-    to: "/admin-dashboard/documents",
+    to: "/admin-dashboard/expenses",
+    collapseOnClick: true,
+  },
+  {
+    label: "Approvals",
+    icon: <FaUserFriends />,
+    to: "/admin-dashboard/approvals",
     collapseOnClick: true,
   },
   {

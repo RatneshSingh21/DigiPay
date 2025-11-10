@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 //baseURL: "https://marigoldapi.digicodesoftware.com/api",
 //baseURL: "https://digipaydevops.digicodesoftware.com/api",
 //baseURL: "https://digipaystaggingapi.digicodesoftware.com/api",
-//baseURL: "https://starpayapi.digicodesoftware.com/api",
+//baseURL: "https://starpayapi.digicodesoftware.cam/api",
 
 const axiosInstance = axios.create({
   baseURL: "https://digipaydevops.digicodesoftware.com/api",

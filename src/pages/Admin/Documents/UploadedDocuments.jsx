@@ -17,7 +17,7 @@ const UploadedDocuments = () => {
         const res = await axiosInstance.get("/Document");
         const data = res.data.data || [];
 
-        // ✅ Group by uploadedBy (employee)
+        // Group by uploadedBy (employee)
         const grouped = data.reduce((acc, item) => {
           if (!acc[item.updlodedBy]) acc[item.updlodedBy] = [];
           acc[item.updlodedBy].push(item);
@@ -26,7 +26,7 @@ const UploadedDocuments = () => {
 
         const uniqueIds = Object.keys(grouped);
 
-        // ✅ Fetch employee info (name + code)
+        // Fetch employee info (name + code)
         const employeePromises = uniqueIds.map(async (id) => {
           try {
             const empRes = await axiosInstance.get(`/Employee/${id}`);
@@ -46,7 +46,7 @@ const UploadedDocuments = () => {
           return acc;
         }, {});
 
-        // ✅ Combine employee info + grouped docs
+        // Combine employee info + grouped docs
         const result = Object.entries(grouped).map(([empId, docs]) => {
           const emp = employeeMap[empId] || {};
           return {

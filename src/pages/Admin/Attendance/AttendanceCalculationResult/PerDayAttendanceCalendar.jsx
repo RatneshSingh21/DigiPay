@@ -96,7 +96,7 @@ const PerDayAttendanceCalendar = ({ perDayDetails = [] }) => {
                         : "-"}
                     </div>
                     <div>
-                      <strong>Total Hours:</strong> {day.totalHoursWorked || 0}
+                      <strong>Total Hours:</strong> {day.totalHoursWorked.toFixed(4) || 0}
                     </div>
                     <div>
                       <strong>Late:</strong> {day.lateMinutes || 0} min
@@ -130,7 +130,7 @@ const PerDayAttendanceCalendar = ({ perDayDetails = [] }) => {
 
                 {/* Hours */}
                 {day.totalHoursWorked && (
-                  <div className="text-xs text-gray-700 mt-1">{day.totalHoursWorked} hrs</div>
+                  <div className="text-xs text-gray-700 mt-1">{day.totalHoursWorked.toFixed(4)} hrs</div>
                 )}
 
                 {/* Late/Early label */}

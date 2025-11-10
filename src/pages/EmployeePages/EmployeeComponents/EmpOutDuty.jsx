@@ -17,7 +17,7 @@ const EmpOutDuty = () => {
 
   // 🔹 Pagination States
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPageData, setPerPageData] = useState(7);
+  const [perPageData, setPerPageData] = useState(8);
 
   // Derived data
   const totalDataLength = requests.length;
@@ -43,16 +43,23 @@ const EmpOutDuty = () => {
     }
   };
 
-  const statusColor = {
-    Approved: "bg-green-100 text-green-700",
-    Pending: "bg-yellow-100 text-yellow-700",
-    Rejected: "bg-red-100 text-red-700",
-  };
-
+  // 🔹 Dynamically get Status Name + Color
   const getStatusInfo = (statusId) => {
     const statusObj = statuses.find((s) => s.value === statusId);
-    const name = statusObj?.label || "Pending";
-    const color = statusColor[name] || "bg-gray-200 text-gray-700";
+
+    // If status is found, use its label from the API
+    const name = statusObj?.label || "Unknown";
+
+    // Set colors dynamically based on keywords in status name
+    let color = "bg-gray-200 text-gray-700"; // default
+
+    if (/pending/i.test(name)) color = "bg-yellow-100 text-yellow-700";
+    else if (/approve/i.test(name)) color = "bg-green-100 text-green-700";
+    else if (/reject/i.test(name)) color = "bg-red-100 text-red-700";
+    else if (/process/i.test(name)) color = "bg-blue-100 text-blue-700";
+    else if (/paid/i.test(name)) color = "bg-green-100 text-green-800";
+    else if (/partial/i.test(name)) color = "bg-purple-100 text-purple-700";
+
     return { name, color };
   };
 
@@ -124,20 +131,20 @@ const EmpOutDuty = () => {
 
       {/* Table */}
       <div className="overflow-x-auto bg-white rounded-xl shadow">
-        <table className="min-w-full text-sm sm:text-base text-center table-auto">
+        <table className="min-w-full text-xs text-center table-auto">
           <thead className="bg-gray-100 text-gray-700">
             <tr className="border-b">
-              <th className="px-2 sm:px-4 py-3">#</th>
+              <th className="px-2 sm:px-4 py-3">S.No</th>
               <th className="px-2 sm:px-4 py-3">In Date & Time</th>
               <th className="px-2 sm:px-4 py-3">Out Date & Time</th>
               <th className="px-2 sm:px-4 py-3">Reason</th>
-              <th className="px-2 sm:px-4 py-3">Approvers</th>
               <th className="px-2 sm:px-4 py-3">Time(hrs)</th>
               <th className="px-2 sm:px-4 py-3">Applied On</th>
               <th className="px-2 sm:px-4 py-3">Status</th>
+              <th className="px-2 sm:px-4 py-3">Approvers</th>
             </tr>
           </thead>
-          <tbody className="text-sm">
+          <tbody className="text-xs">
             {loading ? (
               <tr>
                 <td colSpan="8" className="text-center py-4 text-gray-500">
@@ -168,15 +175,6 @@ const EmpOutDuty = () => {
                   {/* Reason */}
                   <td className="px-2 sm:px-4 py-3">{req.reason}</td>
 
-                  {/* Approvers */}
-                  <td className="px-2 sm:px-4 py-3">
-                    {req.approvers && req.approvers.length > 0
-                      ? req.approvers
-                          .map((id) => approverMapping?.onDuty?.[id] || "N/A")
-                          .join(", ")
-                      : "N/A"}
-                  </td>
-
                   {/* Total Time (hrs) */}
                   <td className="px-2 sm:px-4 py-3">
                     {(req.totalTime / 60).toFixed(1)} hrs
@@ -201,6 +199,15 @@ const EmpOutDuty = () => {
                         </span>
                       );
                     })()}
+                  </td>
+
+                  {/* Approvers */}
+                  <td className="px-2 sm:px-4 py-3">
+                    {req.approvers && req.approvers.length > 0
+                      ? req.approvers
+                          .map((id) => approverMapping?.onDuty?.[id] || "N/A")
+                          .join(", ")
+                      : "N/A"}
                   </td>
                 </tr>
               ))

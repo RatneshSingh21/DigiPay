@@ -16,7 +16,7 @@ const WorkLocationList = ({
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [employeeCounts, setEmployeeCounts] = useState({}); // { locationId: count }
 
-  // ✅ Fetch employees and calculate how many are in each work location
+  // Fetch employees and calculate how many are in each work location
   const fetchEmployeeCounts = async () => {
     try {
       const response = await axiosInstance.get("/Employee");
@@ -74,24 +74,26 @@ const WorkLocationList = ({
           {locations.map((location) => (
             <div
               key={location.id}
-              className="bg-white border-t-4 border-teal-500 cursor-pointer rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.01] transition-all duration-200 p-6 flex flex-col justify-between h-full"
+              className="bg-white border-t-4 border-primary cursor-pointer rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.01] transition-all duration-200 p-6 flex flex-col justify-between h-full"
             >
               {/* Header */}
               <div className="flex justify-between items-start">
                 <div>
                   <div className="flex items-center gap-2">
-                    <FaBuilding className="text-teal-600" />
+                    <FaBuilding className="text-primary" />
                     <h2 className="text-lg font-semibold text-gray-900">
                       {location.name}
                     </h2>
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">Work Location</p>
+                  <p className="text-sm text-gray-500 mt-1 ml-4">
+                    Work Location
+                  </p>
                 </div>
 
                 <div className="flex gap-2 items-center">
                   {/* Edit */}
                   <button
-                    className="p-2 cursor-pointer bg-gray-100 rounded-full hover:bg-teal-100 transition"
+                    className="p-2 cursor-pointer bg-gray-100 rounded-full transition"
                     onClick={() => {
                       setIsEdit("Edit");
                       setSelectedLocation(location);
@@ -99,7 +101,7 @@ const WorkLocationList = ({
                     }}
                     title="Edit Location"
                   >
-                    <FiEdit2 size={16} className="text-teal-700" />
+                    <FiEdit2 size={16} className="text-primary " />
                   </button>
 
                   {/* Delete */}
@@ -114,9 +116,9 @@ const WorkLocationList = ({
               </div>
 
               {/* Address */}
-              <div className="mt-4 text-gray-700 text-sm">
+              <div className="mt-2 text-gray-700 text-sm">
                 <p className="flex items-center gap-2">
-                  <FaMapMarkerAlt className="text-teal-500" />
+                  <FaMapMarkerAlt className="text-primary" />
                   <span>{location.addressLine1}</span>
                 </p>
                 <p className="ml-6">
@@ -125,7 +127,7 @@ const WorkLocationList = ({
               </div>
 
               {/* Footer */}
-              <div className="flex justify-between items-center mt-6">
+              <div className="flex justify-between items-center mt-4">
                 <div className="flex items-center gap-2 text-gray-600 text-sm">
                   <FaUsers className="text-gray-500" />
                   <span>
@@ -135,7 +137,7 @@ const WorkLocationList = ({
                       : "Employees"}
                   </span>
                 </div>
-                <span className="bg-teal-100 text-teal-700 text-xs font-medium px-3 py-1 rounded-full shadow-sm">
+                <span className="bg-primary text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
                   Filing Address
                 </span>
               </div>

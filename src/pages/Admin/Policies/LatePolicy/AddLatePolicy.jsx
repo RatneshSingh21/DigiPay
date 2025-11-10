@@ -49,25 +49,46 @@ export default function AddLatePolicy({
   const [shiftOptions, setShiftOptions] = useState([]);
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
+  const [workTypeOptions, setWorkTypeOptions] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const shiftRes = await axiosInstance.get("/shift");
+        const [shiftRes, deptRes, locRes, workTypeRes] = await Promise.all([
+          axiosInstance.get("/shift"),
+          axiosInstance.get("/Department"),
+          axiosInstance.get("/WorkLocation"),
+          axiosInstance.get("/WorkTypeMaster/all"),
+        ]);
+
         setShiftOptions(
-          shiftRes.data.map((s) => ({ value: s.id, label: s.shiftName }))
+          shiftRes.data.map((s) => ({
+            value: s.id || s.shiftId,
+            label: s.shiftName,
+          }))
         );
 
-        const deptRes = await axiosInstance.get("/Department");
         setDepartmentOptions(
-          deptRes.data.map((d) => ({ value: d.id, label: d.name }))
+          deptRes.data.map((d) => ({
+            value: d.id || d.departmentId,
+            label: d.name,
+          }))
         );
 
-        const locRes = await axiosInstance.get("/WorkLocation");
         setLocationOptions(
-          locRes.data.map((l) => ({ value: l.id, label: l.name }))
+          locRes.data.map((l) => ({
+            value: l.id || l.locationId,
+            label: l.name,
+          }))
         );
-      } catch {
+
+        setWorkTypeOptions(
+          workTypeRes.data.data.map((w) => ({
+            value: w.workTypeId,
+            label: w.workTypeName,
+          }))
+        );
+      } catch (error) {
         toast.error("Failed to fetch options");
       }
     };
@@ -160,7 +181,7 @@ export default function AddLatePolicy({
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center px-4"
       onClick={onClose}
     >
       <div
@@ -196,6 +217,7 @@ export default function AddLatePolicy({
                     : "border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 }`}
                 autoFocus
+                placeholder="Enter Policy Name"
               />
               {errors.policyName && (
                 <p className="text-xs text-red-500 mt-1">{errors.policyName}</p>
@@ -212,6 +234,7 @@ export default function AddLatePolicy({
                 value={form.description}
                 onChange={(e) => handleChange("description", e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-xs border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Enter Description"  
               />
             </div>
 
@@ -289,6 +312,7 @@ export default function AddLatePolicy({
                     ? "border-red-500"
                     : "border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 }`}
+                placeholder="Enter Deduction Amount"
               />
               {errors.deductionAmount && (
                 <p className="text-xs text-red-500 mt-1">
@@ -325,28 +349,27 @@ export default function AddLatePolicy({
                 )}
               </div>
             ))}
-
-            {/* Work Type IDs */}
-            <div>
-              <label className="block text-xs font-medium mb-1">
-                Work Type IDs (comma separated)
-              </label>
-              <input
-                type="text"
-                value={form.workTypeIds.join(",")}
-                onChange={(e) =>
-                  handleChange(
-                    "workTypeIds",
-                    e.target.value.split(",").map((v) => v.trim())
-                  )
-                }
-                placeholder="e.g., 1,2,3"
-                className="w-full border rounded-lg px-3 py-2 text-xs border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
           </div>
 
-          {/* Shift, Department, Location Selects */}
+          {/* Work Type , Shift, Department, Location Selects */}
+          <div>
+            <label className="block text-xs font-medium mb-1">Work Types</label>
+            <Select
+              isMulti
+              options={workTypeOptions}
+              value={workTypeOptions.filter((o) =>
+                form.workTypeIds.includes(o.value)
+              )}
+              onChange={(selected) =>
+                setForm((prev) => ({
+                  ...prev,
+                  workTypeIds: selected.map((s) => s.value),
+                }))
+              }
+              className="text-xs"
+            />
+          </div>
+
           <div>
             <label className="block text-xs font-medium mb-1">Shifts</label>
             <Select
@@ -434,7 +457,7 @@ export default function AddLatePolicy({
           </div>
 
           {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 text-sm">
             <button
               type="button"
               onClick={onClose}

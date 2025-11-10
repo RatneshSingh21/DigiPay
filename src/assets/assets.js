@@ -46,6 +46,8 @@ import UserDummy from "./UserDummy.png";
 import Header from "./Header.png";
 import Footer from "./Footer.png";
 import Landscape from "./Landscape.jpg";
+import NotificationGif from "./NotificationGif.gif";
+import MagnifyGif from "./MagnifyGif.gif";
 
 const assets = {
   bg: bg,
@@ -96,6 +98,8 @@ const assets = {
   Header: Header,
   Footer: Footer,
   Landscape: Landscape,
+  MagnifyGif: MagnifyGif,
+  NotificationGif: NotificationGif,
 };
 
 export default assets;

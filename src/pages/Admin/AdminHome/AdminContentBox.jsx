@@ -66,12 +66,13 @@ const submenuMap = {
     "Letter of Intent",
     "Increment Letter",
     "Experience Cert.",
-    "Full & Final Statement"
+    "Full & Final Statement",
+    "All Reports",
     // "Nomination-Declaration",
     // "Job Posting",
   ],
 
-  Documents: [
+  Expenses: [
     "Expense Header",
     "Expense Documents",
     "Uploaded Documents",
@@ -100,12 +101,13 @@ const getMenuFromPath = (pathname) => {
   if (pathname.includes("/employees")) return "Employees";
   if (pathname.includes("/settings")) return "Settings";
   if (pathname.includes("/reports")) return "Reports";
-  if (pathname.includes("/documents")) return "Documents";
+  if (pathname.includes("/expenses")) return "Expenses";
   if (pathname.includes("/role")) return "Role";
   if (pathname.includes("/shifts")) return "Shifts";
   if (pathname.includes("/reports")) return "Reports";
   if (pathname.includes("/attendance")) return "Attendance";
   if (pathname.includes("/payschedule")) return "Payschedule";
+  if (pathname.includes("/approvals")) return "Approvals";
   if (pathname.includes("/leave")) return "Leave";
   if (pathname.includes("/policy")) return "Policy";
   if (pathname.includes("/compliance")) return "Compliance";

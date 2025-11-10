@@ -49,7 +49,7 @@ const AuthLayout = () => {
                     <SignInForm switchToSignUp={() => setIsSignIn(false)} />
                   </div>
                   <div className="w-1/2 bg-[#fff6ef] flex flex-col justify-center items-center p-8">
-                    <h1 className="text-3xl font-bold mb-4">Welcome</h1>
+                    <h1 className="text-3xl font-bold mb-4">Welcome {role === "SuperAdmin" ? "Admin" : "Employee"}</h1>
                     <img
                       src={assets.LoginImage}
                       alt="Login"
@@ -80,7 +80,7 @@ const AuthLayout = () => {
         <div className="flex flex-col md:hidden w-full space-y-6 p-6">
           {isSignIn ? (
             <>
-              <h1 className="text-center text-2xl font-bold">Welcome</h1>
+              <h1 className="text-center text-2xl font-bold">Welcome {role === "SuperAdmin" ? "Admin" : "Employee"}</h1>
               {role === "SuperAdmin" ? (
                 <SignInForm switchToSignUp={() => setIsSignIn(false)} />
               ) : (

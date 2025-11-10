@@ -56,6 +56,8 @@ const AdminNavbar = () => {
       try {
         const response = await axiosInstance.get(`/ApprovalMaster`);
         setNotifications(response.data.data || []);
+        // console.log("Fetched Notifications" + JSON.stringify(response.data.data || []));
+        
       } catch (error) {
         console.error("Failed to fetch notifications:", error);
       }

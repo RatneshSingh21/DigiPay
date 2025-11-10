@@ -110,11 +110,11 @@ const StatusMaster = () => {
         {loading ? (
           <p className="text-gray-600">Loading...</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-200 rounded-lg text-sm text-center">
-              <thead className="bg-gray-100 text-gray-700">
+          <div className="overflow-x-auto shadow h-[150px] overflow-y-scroll">
+            <table className="min-w-full divide-y text-center text-xs divide-gray-200">
+              <thead className="bg-gray-100 text-gray-600">
                 <tr>
-                  <th className="px-4 py-2 text-left">S NO.</th>
+                  <th className="px-4 py-2">S.No</th>
                   <th className="px-4 py-2">Status Name</th>
                   <th className="px-4 py-2">Code</th>
                   <th className="px-4 py-2">Created By</th>
@@ -124,11 +124,8 @@ const StatusMaster = () => {
               </thead>
               <tbody>
                 {statuses.map((status, idx) => (
-                  <tr
-                    key={status.statusId}
-                    className="border-t hover:bg-gray-50"
-                  >
-                    <td className="px-4 py-2 text-left">{idx + 1}.</td>
+                  <tr key={status.statusId} className="hover:bg-gray-50">
+                    <td className="px-4 py-2">{idx + 1}.</td>
                     <td className="px-4 py-2">{status.statusName}</td>
                     <td className="px-4 py-2">{status.statusCode}</td>
                     <td className="px-4 py-2">{status.createdBy || "-"}</td>

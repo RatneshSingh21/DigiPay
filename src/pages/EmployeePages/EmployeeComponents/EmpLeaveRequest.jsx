@@ -17,7 +17,7 @@ const StatusPill = ({ status }) => {
   };
 
   const pillClass =
-    colors[status] || "bg-blue-100 text-blue-700 border border-blue-300"; // fallback
+    colors[status] || "bg-blue-100 text-blue-700 border border-blue-300";
 
   return (
     <span className={`px-3 py-1 rounded-full text-xs font-medium ${pillClass}`}>
@@ -125,7 +125,7 @@ const EmpLeaveRequest = () => {
         <h2 className="font-semibold text-xl text-gray-800">Leave Requests</h2>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded hover:bg-secondary transition"
+          className="flex items-center gap-2 bg-primary cursor-pointer text-white text-sm px-4 py-2 rounded hover:bg-secondary transition"
         >
           <FaPlus /> Apply Leave
         </button>
@@ -133,27 +133,28 @@ const EmpLeaveRequest = () => {
 
       {/* Leave History */}
       <div className="bg-white shadow rounded p-6">
-        <h3 className="text-xl font-semibold mb-4 text-gray-700">
+        <h3 className="text-xl font-semibold mb-2 text-gray-700">
           Leave History
         </h3>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-center border rounded overflow-hidden">
+          <table className="w-full text-xs text-center border rounded overflow-hidden">
             <thead className="text-gray-600 bg-gray-100">
               <tr>
+                <th className="px-4 py-3">S.No</th>
                 <th className="px-4 py-3">Type</th>
                 <th className="px-4 py-3">Code</th>
                 <th className="px-4 py-3">From</th>
                 <th className="px-4 py-3">To</th>
                 <th className="px-4 py-3">Days</th>
                 <th className="px-4 py-3">Reason</th>
-                <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Applied On</th>
+                <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Approved By</th>
               </tr>
             </thead>
             <tbody>
               {currentLeaves.length ? (
-                currentLeaves.map((leave) => {
+                currentLeaves.map((leave, index) => {
                   const from = new Date(leave.fromDate);
                   const to = new Date(leave.toDate);
                   const diffDays =
@@ -164,6 +165,7 @@ const EmpLeaveRequest = () => {
                       key={leave.applyLeaveId}
                       className="border-t hover:bg-gray-50 transition"
                     >
+                      <td className="px-4 py-3">{index + 1}</td>
                       <td className="px-4 py-3">{leave.leaveName}</td>
                       <td className="px-4 py-3">{leave.leaveCode}</td>
                       <td className="px-4 py-3">
@@ -173,12 +175,12 @@ const EmpLeaveRequest = () => {
                       <td className="px-4 py-3">{diffDays} Days</td>
                       <td className="px-4 py-3">{leave.reason || "—"}</td>
                       <td className="px-4 py-3">
+                        {renderDate(leave.createdOn)}
+                      </td>
+                      <td className="px-4 py-3">
                         <StatusPill
                           status={statusMap[leave.status] || "Unknown"}
                         />
-                      </td>
-                      <td className="px-4 py-3">
-                        {renderDate(leave.createdOn)}
                       </td>
                       <td className="px-4 py-3">
                         {leave.approvedBy && leave.approvedBy.length > 0

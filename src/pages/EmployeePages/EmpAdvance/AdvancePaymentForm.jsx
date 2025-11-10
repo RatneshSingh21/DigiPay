@@ -12,9 +12,14 @@ const paymentTypeOptions = [
   { value: "UPI", label: "UPI" },
 ];
 
+const repaymentModeOptions = [
+  { value: "SalaryDeduction", label: "Salary Deduction" },
+  { value: "ManualPayment", label: "Manual Payment" },
+];
+
 const AdvancePaymentForm = ({ onSuccess, onClose }) => {
   const User = useAuthStore((state) => state.user);
-  const [approverOptions, setApproverOptions] = useState([]); // options for approvers dropdown
+  const [approverOptions, setApproverOptions] = useState([]);
   const [loadingApprovers, setLoadingApprovers] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -24,6 +29,7 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
     repaymentDate: "",
     installments: "",
     advancePaymentType: null,
+    repaymentMode: null,
     comments: "",
     approvers: [],
   });
@@ -38,17 +44,25 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
         );
 
         if (Array.isArray(res.data)) {
-          // find AdvancePayment approvers only
           const advancePaymentRule = res.data.find(
-            (rule) => rule.requestType === "AdvancePayment"
+            (rule) => rule.requestType?.toLowerCase() === "advancepayment"
           );
 
-          if (advancePaymentRule && advancePaymentRule.approvers) {
-            const options = advancePaymentRule.approvers.map((a) => ({
+          if (advancePaymentRule?.approvers?.length) {
+            const formatted = advancePaymentRule.approvers.map((a) => ({
               value: a.employeeId,
               label: `${a.employeeName} (${a.roleName})`,
+              role: a.roleName,
             }));
-            setApproverOptions(options);
+            setApproverOptions(formatted);
+
+            // Auto-select Admin(s)
+            const adminApprovers = formatted.filter(
+              (emp) => emp.role?.toLowerCase() === "admin"
+            );
+            if (adminApprovers.length > 0) {
+              setFormData((prev) => ({ ...prev, approvers: adminApprovers }));
+            }
           }
         }
       } catch (error) {
@@ -58,6 +72,7 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
         setLoadingApprovers(false);
       }
     };
+
     fetchApprovers();
   }, []);
 
@@ -70,15 +85,22 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { amount, reason, repaymentDate, installments, advancePaymentType } =
-      formData;
+    const {
+      amount,
+      reason,
+      repaymentDate,
+      installments,
+      advancePaymentType,
+      repaymentMode,
+    } = formData;
 
     if (
       !amount ||
       !reason ||
       !repaymentDate ||
       !installments ||
-      !advancePaymentType
+      !advancePaymentType ||
+      !repaymentMode
     ) {
       toast.error("Please fill all required fields");
       return;
@@ -98,8 +120,9 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
         installmentAmount,
         repaymentStartDate: new Date(repaymentDate).toISOString(),
         reason: formData.reason,
-        comments: formData.comments,
+        comments: "",
         customApproverIds: formData.approvers?.map((a) => a.value) || [],
+        repaymentMode: repaymentMode.value,
       };
 
       await axiosInstance.post("/AdvancePayment", payload);
@@ -108,7 +131,7 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
       onClose?.();
     } catch (error) {
       console.error("Error submitting advance payment:", error);
-      toast.error(error.response?.data?.message || "Failed to submit request");
+      toast.error(error.response?.data?.error || "Failed to submit request");
     } finally {
       setSubmitting(false);
     }
@@ -117,11 +140,11 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-3 p-6 h-[75vh] overflow-y-auto bg-white rounded-xl shadow-lg"
+      className="space-y-3 p-6 h-[75vh] text-sm overflow-y-auto bg-white rounded-xl shadow-lg"
     >
       {/* Amount */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block font-medium text-gray-700 mb-1">
           Requested Amount (₹) <span className="text-red-500">*</span>
         </label>
         <input
@@ -136,7 +159,7 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
 
       {/* Reason */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block font-medium text-gray-700 mb-1">
           Reason for Advance <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -151,7 +174,7 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
 
       {/* Repayment Date */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block font-medium text-gray-700 mb-1">
           Preferred Repayment Date <span className="text-red-500">*</span>
         </label>
         <input
@@ -165,7 +188,7 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
 
       {/* Payment Type */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block font-medium text-gray-700 mb-1">
           Advance Payment Type <span className="text-red-500">*</span>
         </label>
         <Select
@@ -177,9 +200,23 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
         />
       </div>
 
+      {/* Repayment Mode */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">
+          Repayment Mode <span className="text-red-500">*</span>
+        </label>
+        <Select
+          options={repaymentModeOptions}
+          value={formData.repaymentMode}
+          onChange={(val) => handleChange("repaymentMode", val)}
+          placeholder="Select repayment mode"
+          className="text-sm"
+        />
+      </div>
+
       {/* Installments */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block font-medium text-gray-700 mb-1">
           Number of Installments <span className="text-red-500">*</span>
         </label>
         <input
@@ -193,23 +230,9 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
         />
       </div>
 
-      {/* Comments */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Comments
-        </label>
-        <textarea
-          value={formData.comments}
-          onChange={(e) => handleChange("comments", e.target.value)}
-          placeholder="Any additional notes..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows={2}
-        />
-      </div>
-
       {/* Approvers */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block font-medium text-gray-700 mb-1">
           Approvers
         </label>
         <Select
@@ -224,7 +247,7 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
       </div>
 
       {/* Buttons */}
-      <div className="pt-4 flex gap-3">
+      <div className="pt-4 flex gap-3 text-sm">
         <button
           type="button"
           onClick={onClose}
@@ -232,7 +255,7 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
         >
           Cancel
         </button>
-        <button 
+        <button
           type="submit"
           disabled={submitting}
           className="w-1/2 bg-primary flex items-center cursor-pointer justify-center text-white py-2 rounded-lg font-semibold shadow hover:bg-secondary transition disabled:opacity-50"

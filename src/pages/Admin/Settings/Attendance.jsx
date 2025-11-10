@@ -113,7 +113,7 @@ const Attendance = () => {
                         })
                       : "-"}
                   </td>
-                  <td className="py-2 px-3">{item.totalHoursWorked || "-"}</td>
+                  <td className="py-2 px-3">{item.totalHoursWorked.toFixed(2) || "-"}</td>
                   <td className="py-2 px-3">
                     {item.shiftSegments?.reduce(
                       (sum, seg) => sum + (seg.lateMinutes || 0),

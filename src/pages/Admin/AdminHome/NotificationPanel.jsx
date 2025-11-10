@@ -1,12 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { format } from "date-fns";
+import React, { useEffect, useState, useMemo } from "react";
+import { formatDistanceToNow, parseISO } from "date-fns";
 import { X, Bell, Clock } from "lucide-react";
 import { toast } from "react-toastify";
+import Select from "react-select";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
+import useAuthStore from "../../../store/authStore";
 
 const NotificationPanel = ({ notifications, onClose }) => {
   const [statusMap, setStatusMap] = useState({});
   const [statusColorMap, setStatusColorMap] = useState({});
+  const [employeesMap, setEmployeesMap] = useState({});
+  const [filterStatus, setFilterStatus] = useState(null);
+  const [filterType, setFilterType] = useState(null);
+  const companyId = useAuthStore((state) => state.companyId);
 
   // Fetch Status Master
   const fetchStatuses = async () => {
@@ -14,27 +20,25 @@ const NotificationPanel = ({ notifications, onClose }) => {
       const res = await axiosInstance.get("/StatusMaster");
       const map = {};
       const colorMap = {};
-
-      // Define badge colors for each status
       res.data.data.forEach((s) => {
         map[s.statusId] = s.statusName;
-
         switch (s.statusName.toLowerCase()) {
           case "pending":
-            colorMap[s.statusId] = "bg-yellow-100 text-yellow-700";
+            colorMap[s.statusId] = "bg-yellow-100 text-yellow-800";
             break;
           case "approved":
-            colorMap[s.statusId] = "bg-green-100 text-green-700";
+            colorMap[s.statusId] = "bg-green-100 text-green-800";
             break;
           case "rejected":
-            colorMap[s.statusId] = "bg-red-100 text-red-700";
+            colorMap[s.statusId] = "bg-red-100 text-red-800";
+            break;
+          case "paid":
+            colorMap[s.statusId] = "bg-blue-100 text-blue-800";
             break;
           default:
-            colorMap[s.statusId] = "bg-gray-100 text-gray-700";
-            break;
+            colorMap[s.statusId] = "bg-gray-100 text-gray-800";
         }
       });
-
       setStatusMap(map);
       setStatusColorMap(colorMap);
     } catch (error) {
@@ -43,12 +47,58 @@ const NotificationPanel = ({ notifications, onClose }) => {
     }
   };
 
+  // Fetch Employees for the company
+  const fetchEmployees = async () => {
+    try {
+      const res = await axiosInstance.get(
+        `/user-auth/getEmployee/companyId/${companyId}`
+      );
+      const map = {};
+      res.data.data.forEach((emp) => {
+        map[emp.id] = `${emp.fullName} (${emp.employeeCode})`;
+      });
+      setEmployeesMap(map);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      toast.error("Failed to load employees");
+    }
+  };
+
   useEffect(() => {
     fetchStatuses();
-  }, []);
+    fetchEmployees();
+  }, [companyId]);
+
+  // Filtered notifications
+  const filteredNotifications = useMemo(() => {
+    return notifications.filter((n) => {
+      return (
+        (filterStatus ? n.statusId === filterStatus.value : true) &&
+        (filterType ? n.requestTypeId === filterType.value : true)
+      );
+    });
+  }, [notifications, filterStatus, filterType]);
+
+  // Prepare react-select options
+  const statusOptions = useMemo(() => {
+    return Object.entries(statusMap)
+      .filter(([id, name]) => !["Paid", "Partial"].includes(name))
+      .map(([id, name]) => ({ value: parseInt(id), label: name }));
+  }, [statusMap]);
+
+  const requestTypeOptions = useMemo(() => {
+    const types = Array.from(
+      new Set(notifications.map((n) => n.requestTypeId))
+    );
+    return types.map((typeId) => ({
+      value: typeId,
+      label: notifications.find((n) => n.requestTypeId === typeId)
+        ?.requestTypeName,
+    }));
+  }, [notifications]);
 
   return (
-    <div className="absolute right-0 mt-2 w-96 bg-white shadow-xl rounded-xl border z-30 max-h-96 overflow-y-auto">
+    <div className="absolute right-0 mt-2 w-96 bg-white shadow-2xl rounded-xl z-30 max-h-[400px] overflow-y-auto">
       {/* Header */}
       <div className="flex justify-between items-center px-4 py-3 border-b bg-gray-50 rounded-t-xl">
         <div className="flex items-center gap-2">
@@ -61,51 +111,81 @@ const NotificationPanel = ({ notifications, onClose }) => {
           )}
         </div>
         <button
-          className="p-1 rounded-full cursor-pointer hover:bg-red-600 hover:text-white"
+          className="p-1 rounded-full hover:bg-red-600 cursor-pointer hover:text-white transition-colors"
           onClick={onClose}
         >
-          <X className="w-5 h-5 text-gray-600 hover:text-white" />
+          <X className="w-5 h-5 text-gray-600" />
         </button>
       </div>
 
-      {/* Body */}
-      {notifications.length === 0 ? (
+      {/* Filters */}
+      <div className="flex flex-col gap-2 p-3 border-b bg-gray-50">
+        <Select
+          value={filterStatus}
+          onChange={setFilterStatus}
+          options={statusOptions}
+          placeholder="All Statuses"
+          isClearable
+        />
+        <Select
+          value={filterType}
+          onChange={setFilterType}
+          options={requestTypeOptions}
+          placeholder="All Request Types"
+          isClearable
+        />
+      </div>
+
+      {/* Notification List */}
+      {filteredNotifications.length === 0 ? (
         <div className="p-6 text-center text-gray-500 text-sm">
           No new notifications.
         </div>
       ) : (
         <ul className="divide-y">
-          {notifications.map((item) => (
+          {filteredNotifications.map((item) => (
             <li
               key={item.approvalId}
-              className="p-4 hover:bg-gray-50 transition-colors"
+              className="p-4 hover:bg-gray-50 transition-colors cursor-pointer rounded-lg m-2 border shadow-sm flex flex-col gap-2"
             >
-              <div className="flex justify-between items-center">
-                <p className="text-sm text-gray-800">
-                  Request{" "}
-                  <span className="font-semibold">
-                    #{item.genericRequestId}
-                  </span>{" "}
-                  is{" "}
-                  <span
-                    className={`font-medium px-2 py-0.5 rounded-md text-xs ${
-                      statusColorMap[item.statusId] || "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {statusMap[item.statusId] || "Unknown"}
-                  </span>
-                </p>
+              <div className="flex justify-between items-start">
+                {/* Request Info */}
+                <div>
+                  <p className="text-sm text-gray-800 font-semibold">
+                    {item.requestTypeName} Request
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    <span className="font-medium">Applied by:</span>{" "}
+                    {employeesMap[item.employeeId] ||
+                      item.employeeId}
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    <span className="font-medium">Approved by:</span>{" "}
+                    {employeesMap[item.approverId] || item.approverId}
+                  </p>
+                  {item.comments && (
+                    <p className="text-xs text-gray-500 mt-1 italic border-l-2 border-gray-200 pl-2">
+                      Comments : “{item.comments}”
+                    </p>
+                  )}
+                </div>
+
+                {/* Status */}
+                <div
+                  className={`font-medium px-3 py-1 rounded-full text-sm ${
+                    statusColorMap[item.statusId]
+                  }`}
+                >
+                  {statusMap[item.statusId] || "Unknown"}
+                </div>
               </div>
 
-              {item.comments && (
-                <p className="text-xs text-gray-600 mt-2 italic border-l-2 border-gray-200 pl-2">
-                  “{item.comments}”
-                </p>
-              )}
-
+              {/* Time */}
               <div className="flex items-center gap-1 text-xs text-gray-400 mt-2">
                 <Clock className="w-3 h-3" />
-                {format(new Date(item.createdOn), "dd MMM yyyy, hh:mm a")}
+                {formatDistanceToNow(parseISO(item.createdOn), {
+                  addSuffix: true,
+                })}
               </div>
             </li>
           ))}
@@ -113,7 +193,7 @@ const NotificationPanel = ({ notifications, onClose }) => {
       )}
 
       {/* Custom scrollbar */}
-      <style jsx>{`
+      <style>{`
         div::-webkit-scrollbar {
           width: 6px;
         }
