@@ -1,132 +1,91 @@
 import React, { useEffect, useState } from "react";
-import Select from "react-select";
 import { toast } from "react-toastify";
+import { Plus } from "lucide-react";
+import Spinner from "../../../../../../components/Spinner";
 import axiosInstance from "../../../../../../axiosInstance/axiosInstance";
+import EmployeeAttendancePolicyForm from "./EmployeeAttendancePolicyForm";
 
 const EmployeeAttendancePolicyMapping = () => {
-  const [employees, setEmployees] = useState([]);
-  const [policies, setPolicies] = useState([]);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [selectedPolicy, setSelectedPolicy] = useState(null);
-  const [effectiveFrom, setEffectiveFrom] = useState("");
-  const [effectiveTo, setEffectiveTo] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  // Fetch employees
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const res = await axiosInstance.get("/Employee");
-        const empOptions = res.data.map(emp => ({
-          value: emp.id,
-          label: `${emp.fullName} (${emp.employeeCode})`
-        }));
-        setEmployees(empOptions);
-      } catch (error) {
-        toast.error("Failed to fetch employees");
-      }
-    };
-    fetchEmployees();
-  }, []);
-
-  // Fetch policies
-  useEffect(() => {
-    const fetchPolicies = async () => {
-      try {
-        const res = await axiosInstance.get("/AttendancePolicy/GetAll");
-        const policyOptions = res.data.data.map(policy => ({
-          value: policy.attendancePolicyId,
-          label: `ID ${policy.attendancePolicyId} || ${policy.policyName}`
-        }));
-        setPolicies(policyOptions);
-      } catch (error) {
-        toast.error("Failed to fetch attendance policies");
-      }
-    };
-    fetchPolicies();
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!selectedEmployee || !selectedPolicy || !effectiveFrom || !effectiveTo) {
-      toast.error("Please fill all fields");
-      return;
-    }
-
+  const fetchData = async () => {
     setLoading(true);
     try {
-      await axiosInstance.post("/EmployeeAttendancePolicyMapping/assign-policy", {
-        employeeId: selectedEmployee.value,
-        policyId: selectedPolicy.value,
-        effectiveFrom,
-        effectiveTo
-      });
-      toast.success("Policy assigned successfully");
-      // Reset form
-      setSelectedEmployee(null);
-      setSelectedPolicy(null);
-      setEffectiveFrom("");
-      setEffectiveTo("");
-    } catch (error) {
-      toast.error("Failed to assign policy");
+      const res = await axiosInstance.get(
+        "/AttendancePolicy/GetEmployeePolicyList"
+      );
+      setData(res.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch data", err);                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+      toast.error("Failed to fetch employee-policy mappings");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  if (loading) return <Spinner />;
+
   return (
-    <div className="p-4 bg-white rounded shadow-md max-w-md mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Assign Attendance Policy</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1 font-medium">Employee</label>
-          <Select
-            options={employees}
-            value={selectedEmployee}
-            onChange={setSelectedEmployee}
-            placeholder="Select Employee"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Attendance Policy</label>
-          <Select
-            options={policies}
-            value={selectedPolicy}
-            onChange={setSelectedPolicy}
-            placeholder="Select Policy"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Effective From</label>
-          <input
-            type="date"
-            className="w-full border rounded px-3 py-2"
-            value={effectiveFrom}
-            onChange={(e) => setEffectiveFrom(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Effective To</label>
-          <input
-            type="date"
-            className="w-full border rounded px-3 py-2"
-            value={effectiveTo}
-            onChange={(e) => setEffectiveTo(e.target.value)}
-          />
-        </div>
-
+    <div className="space-y-2">
+      {/* Header */}
+      <div className="sticky top-14 bg-white z-10 flex justify-between items-center p-2 shadow rounded-md">
+        <h2 className="text-sm font-bold text-gray-800">
+          Employee Attendance Policy Mapping
+        </h2>
         <button
-          type="submit"
-          className="bg-primary text-white px-4 py-2 rounded hover:bg-secondary"
-          disabled={loading}
+          onClick={() => setModalOpen(true)}
+          className="bg-primary cursor-pointer hover:bg-secondary text-white text-sm px-4 py-2 rounded flex items-center gap-2 font-medium transition"
         >
-          {loading ? "Assigning..." : "Assign Policy"}
+          <Plus size={16} /> Assign Policy
         </button>
-      </form>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
+        <table className="w-full text-sm border-collapse">
+          <thead className="bg-gray-100 text-gray-700 text-center">
+            <tr>
+              <th className="px-3 py-2 border">S.No</th>
+              <th className="px-3 py-2 border">Employee Name</th>
+              <th className="px-3 py-2 border">Policy Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="3"
+                  className="text-center text-gray-500 py-4 border"
+                >
+                  No mappings found
+                </td>
+              </tr>
+            ) : (
+              data.map((item, index) => (
+                <tr key={index}>
+                  <td className="px-3 py-2 border text-center">{index + 1}</td>
+                  <td className="px-3 py-2 border text-center">{item.employeeName}</td>
+                  <td className="px-3 py-2 border text-center">{item.policyName}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <EmployeeAttendancePolicyForm
+          onClose={() => setModalOpen(false)}
+          onSuccess={fetchData}
+        />
+      )}
     </div>
   );
 };

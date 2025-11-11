@@ -8,10 +8,21 @@ import {
   FaSyncAlt,
   FaUser,
   FaUserTie,
-  FaIdBadge,
 } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import useAuthStore from "../../../store/authStore";
+import UpdateStatusModal from "./UpdateStatusModal";
+import { toast } from "react-toastify";
+import Select from "react-select";
+
+const DASHBOARD_STATUSES = ["Pending", "Approved", "Rejected"]; // Only these show in dashboard
+const FILTER_STATUSES = ["Pending", "Approved", "Rejected"]; // For react-select filter
+
+const STATUS_STYLES = {
+  Pending: { bg: "bg-yellow-100", text: "text-yellow-800" },
+  Rejected: { bg: "bg-red-100", text: "text-red-800" },
+  Approved: { bg: "bg-green-100", text: "text-green-800" },
+};
 
 const Approvals = () => {
   const [approvals, setApprovals] = useState([]);
@@ -19,9 +30,19 @@ const Approvals = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedApproval, setSelectedApproval] = useState(null);
+  const [selectedAction, setSelectedAction] = useState(null);
+
+  const [filters, setFilters] = useState({
+    requestType: null,
+    status: null,
+    requestedBy: null,
+    approver: null,
+  });
+
   const companyId = useAuthStore((state) => state.companyId);
-  console.log("Company Id : " , companyId);
-  
+  // console.log("Company Id : ", companyId);
 
   const fetchApprovals = async () => {
     try {
@@ -52,6 +73,10 @@ const Approvals = () => {
     fetchStatuses();
   }, []);
 
+  const dashboardStatuses = statuses.filter((s) =>
+    DASHBOARD_STATUSES.includes(s.statusName)
+  );
+
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -66,9 +91,22 @@ const Approvals = () => {
     fetchEmployees();
   }, []);
 
-  const updateStatus = async (approvalId, statusId) => {
+  // Open modal
+  const openModal = (approval, action) => {
+    setSelectedApproval(approval);
+    setSelectedAction(action);
+    setModalOpen(true);
+  };
+
+  // Handle modal submit
+  const handleModalSubmit = async (comments) => {
+    if (!selectedApproval || !selectedAction) return;
+    await updateStatus(selectedApproval.approvalId, selectedAction, comments);
+    setModalOpen(false);
+  };
+
+  const updateStatus = async (approvalId, statusId, comments = "") => {
     try {
-      const comments = prompt("Enter comments (optional):", "");
       await axiosInstance.put(`/ApprovalMaster/update-status/${approvalId}`, {
         statusId,
         comments,
@@ -85,10 +123,10 @@ const Approvals = () => {
             : item
         )
       );
-      alert("Status updated successfully!");
+      toast.success("Status updated successfully!");
     } catch (err) {
       console.error("Failed to update status", err);
-      alert("Failed to update status");
+      toast.error("Failed to update status");
     }
   };
 
@@ -107,6 +145,43 @@ const Approvals = () => {
     (s) => s.statusName.toLowerCase() === "rejected"
   )?.statusId;
 
+  // Filtered approvals
+  const filteredApprovals = approvals.filter((a) => {
+    const employee = employees.find((e) => e.id === a.employeeId) || {};
+    const approver = employees.find((e) => e.id === a.approverId) || {};
+    const statusName =
+      statuses.find((s) => s.statusId === a.statusId)?.statusName || "";
+
+    return (
+      (!filters.requestType ||
+        a.requestTypeName === filters.requestType.value) &&
+      (!filters.status || statusName === filters.status.value) &&
+      (!filters.requestedBy || employee.id === filters.requestedBy.value) &&
+      (!filters.approver || approver.id === filters.approver.value)
+    );
+  });
+
+  const handleDashboardFilterClick = (statusName) => {
+    setFilters((prev) => ({
+      ...prev,
+      status: { label: statusName, value: statusName }, // set status filter
+    }));
+  };
+
+  // --- Dashboard counts ---
+  const statusCounts = {};
+  FILTER_STATUSES.forEach((status) => {
+    statusCounts[status] = filteredApprovals.filter(
+      (a) =>
+        statuses.find((s) => s.statusId === a.statusId)?.statusName === status
+    ).length;
+  });
+
+  const requestTypeCounts = {};
+  if (filters.requestType) {
+    requestTypeCounts[filters.requestType.value] = filteredApprovals.length;
+  }
+
   return (
     <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen">
       {/* Header */}{" "}
@@ -121,12 +196,85 @@ const Approvals = () => {
           <FiRefreshCw /> Refresh{" "}
         </button>{" "}
       </div>
+      {/* Filters */}
+      <div className="px-6 mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Select
+          placeholder="Request Type"
+          options={[...new Set(approvals.map((a) => a.requestTypeName))].map(
+            (rt) => ({
+              label: rt,
+              value: rt,
+            })
+          )}
+          value={filters.requestType}
+          onChange={(val) => setFilters({ ...filters, requestType: val })}
+          isClearable
+        />
+
+        <Select
+          placeholder="Status"
+          options={statuses
+            .filter((s) => FILTER_STATUSES.includes(s.statusName))
+            .map((s) => ({ label: s.statusName, value: s.statusName }))}
+          value={filters.status}
+          onChange={(val) => setFilters({ ...filters, status: val })}
+          isClearable
+        />
+
+        <Select
+          placeholder="Requested By"
+          options={employees.map((e) => ({ label: e.fullName, value: e.id }))}
+          value={filters.requestedBy}
+          onChange={(val) => setFilters({ ...filters, requestedBy: val })}
+          isClearable
+        />
+
+        <Select
+          placeholder="Approver"
+          options={employees.map((e) => ({ label: e.fullName, value: e.id }))}
+          value={filters.approver}
+          onChange={(val) => setFilters({ ...filters, approver: val })}
+          isClearable
+        />
+      </div>
+      {/* Dashboard Cards: Status + RequestType */}
+      <div className="px-6 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        {dashboardStatuses.map((status) => (
+          <div
+            key={status.statusId}
+            className={`rounded-lg p-4 shadow text-center border ${
+              STATUS_STYLES[status.statusName]?.bg
+            } ${
+              STATUS_STYLES[status.statusName]?.text
+            } cursor-pointer hover:scale-105 transition-all duration-200`}
+            onClick={() => handleDashboardFilterClick(status.statusName)} // ✅ attach handler
+          >
+            <h3 className="text-sm font-medium">{status.statusName}</h3>
+            <p className="text-2xl font-bold mt-2">
+              {
+                filteredApprovals.filter((a) => a.statusId === status.statusId)
+                  .length
+              }
+            </p>
+          </div>
+        ))}
+
+        {filters.requestType && (
+          <div className="rounded-lg p-4 shadow text-center border bg-indigo-100 text-indigo-800 cursor-pointer hover:scale-105 transition-all duration-200">
+            <h3 className="text-sm font-medium">{filters.requestType.label}</h3>
+            <p className="text-2xl font-bold mt-2">
+              {filteredApprovals.length}
+            </p>
+          </div>
+        )}
+      </div>
+      {/* Center Part */}
       <div className="p-6 space-y-6">
-        {approvals.length === 0 ? (
+        {filteredApprovals.length === 0 ? (
           <p className="text-gray-500 text-center">No approvals available.</p>
         ) : (
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {approvals.map((approval) => {
+            {filteredApprovals.map((approval) => {
               const currentStatus =
                 statuses.find((s) => s.statusId === approval.statusId)
                   ?.statusName || "Unknown";
@@ -225,9 +373,7 @@ const Approvals = () => {
                     <div className="flex gap-3 mt-4">
                       {approveStatusId && (
                         <button
-                          onClick={() =>
-                            updateStatus(approval.approvalId, approveStatusId)
-                          }
+                          onClick={() => openModal(approval, approveStatusId)}
                           className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-sm font-semibold py-2 rounded-lg shadow-md hover:shadow-lg cursor-pointer transition-all duration-300"
                         >
                           <TiTick className="text-lg" /> Approve
@@ -235,9 +381,7 @@ const Approvals = () => {
                       )}
                       {rejectStatusId && (
                         <button
-                          onClick={() =>
-                            updateStatus(approval.approvalId, rejectStatusId)
-                          }
+                          onClick={() => openModal(approval, rejectStatusId)}
                           className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white text-sm font-semibold py-2 rounded-lg shadow-md hover:shadow-lg cursor-pointer transition-all duration-300"
                         >
                           <MdClose className="text-lg" /> Reject
@@ -251,6 +395,16 @@ const Approvals = () => {
           </div>
         )}
       </div>
+      {/* Status Update Modal */}
+      <UpdateStatusModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleModalSubmit}
+        currentStatus={
+          statuses.find((s) => s.statusId === selectedApproval?.statusId)
+            ?.statusName || "Unknown"
+        }
+      />
     </div>
   );
 };

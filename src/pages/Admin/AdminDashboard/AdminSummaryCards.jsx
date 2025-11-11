@@ -32,7 +32,7 @@ const AdminSummaryCards = () => {
   // 💰 Fetch salary summary for current month
   const fetchSalarySummary = async () => {
     try {
-      const response = await axiosInstance.get(`/Salary/month/${currentMonth}`);
+      const response = await axiosInstance.get(`/Salary/month/${currentMonth-1}`);
       const salaries = response.data?.data || [];
 
       // 🔢 Calculate totals (OT calculated as rate × hours if amount missing)

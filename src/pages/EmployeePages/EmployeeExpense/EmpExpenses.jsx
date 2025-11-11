@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import EmpExpensesForm from "./EmpExpensesForm";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
+import Select from "react-select";
 
 // Map statusId to readable status + color
 const getStatusBadge = (statusId) => {
@@ -30,15 +31,24 @@ const EmpExpenses = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const employeeId = useAuthStore((state) => state.user?.userId);
+  const [headerOptions, setHeaderOptions] = useState([]);
+const [selectedHeader, setSelectedHeader] = useState(null);
+
 
   // Fetch all expenses
   const fetchExpenses = async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(`/ExpenseDetails/by-employee/${employeeId}`);
-      if (res.data?.data) {
-        setExpenses(res.data.data || []);
-      }
+    if (res.data?.data) {
+  setExpenses(res.data.data || []);
+  const uniqueHeaders = [
+    ...new Set(res.data.data.map((e) => e.expenseDetailsName)),
+  ];
+  const formatted = uniqueHeaders.map((h) => ({ value: h, label: h }));
+  setHeaderOptions(formatted);
+}
+
     } catch (err) {
       console.error(err);
       toast.error(err?.response?.data?.message || "Failed to fetch expenses");
@@ -66,12 +76,31 @@ const EmpExpenses = () => {
         </button>
       </div>
 
+      {/* Search by Header */}
+<div className="px-6 mb-4 flex justify-end">
+  <div className="w-full sm:w-64">
+    <Select
+      options={headerOptions}
+      value={selectedHeader}
+      onChange={(selected) => setSelectedHeader(selected)}
+      isClearable
+      placeholder="Search by Header..."
+    />
+  </div>
+</div>
+
+
       {/* List */}
       {loading ? (
         <div className="text-center py-20 text-gray-500">Loading...</div>
       ) : expenses.length > 0 ? (
         <div className="grid gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3">
-          {expenses.map((exp) => {
+          {expenses
+  .filter((exp) =>
+    selectedHeader ? exp.expenseDetailsName === selectedHeader.value : true
+  )
+  .map((exp) => {
+
             const status = getStatusBadge(exp.statusId);
             return (
               <div

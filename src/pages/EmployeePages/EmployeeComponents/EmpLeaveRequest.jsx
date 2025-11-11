@@ -196,7 +196,7 @@ const EmpLeaveRequest = () => {
                 })
               ) : (
                 <tr>
-                  <td colSpan={9} className="text-center py-4 text-gray-400">
+                  <td colSpan={10} className="text-center py-4 text-gray-400">
                     No leave records found.
                   </td>
                 </tr>
