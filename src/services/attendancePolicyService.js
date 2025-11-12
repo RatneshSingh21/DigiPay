@@ -71,9 +71,15 @@ const mapOTRateSlabOptions = (data) => {
 };
 
 // ---------- Bonus Policy (No API yet) ----------
-export const getAllBonusPolicies = async () => {
-  return []; // return empty array placeholder
-};
+export const getAllBonusPolicies =  () => axiosInstance.get("/PaymentAdjustment/getAll"); 
+const mapBonusPolicyOptions = (data) => {
+  if (!Array.isArray(data)) return [];
+  return data.map((item) => ({
+    value: item.paymentAdjustmentId,
+    label: item.paymentType,
+  }));
+}
+
 
 // ---------- Special Allowance Policy (No API yet) ----------
 export const getAllSpecialAllowancePolicies = async () => {
@@ -169,7 +175,7 @@ export const fetchAllAttendancePolicyOptions = async () => {
       getAllLatePolicies(),
       getAllOTPolicies(),
       getAllOTRateSlabs(),
-      getAllBonusPolicies(), // returns []
+      getAllBonusPolicies(),
       getAllSpecialAllowancePolicies(), // returns []
       getAllHolidayLists(),
       getAllLeaveTypes(),
@@ -187,7 +193,7 @@ export const fetchAllAttendancePolicyOptions = async () => {
       latePolicyIds: mapLatePolicyOptions(latePolicies),
       otPolicyIds: mapOTAssignmentRuleOptions(otPolicies.data),
       otRateSlabIds: mapOTRateSlabOptions(otRateSlabs.data),
-      bonusPolicyIds: [], // No API yet
+      bonusPolicyIds: mapBonusPolicyOptions(bonusPolicies.data),
       specialAllowancePolicyIds: [], // No API yet
       holidayListIds: mapHolidayListOptions(holidayLists.data),
       leaveTypeIds: mapLeaveTypeOptions(leaveTypes.data),

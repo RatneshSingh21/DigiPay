@@ -9,7 +9,7 @@ import { fetchAllAttendancePolicyOptions } from "../../../services/attendancePol
 const customSelectStyles = {
   control: (provided) => ({
     ...provided,
-    minHeight: "36px",   // increased from 28px
+    minHeight: "36px", // increased from 28px
     height: "36px",
     fontSize: "12px",
     padding: "0 4px",
@@ -21,12 +21,12 @@ const customSelectStyles = {
     display: "flex",
     flexWrap: "wrap",
     gap: "2px",
-    maxHeight: "80px",   // increased max height
+    maxHeight: "80px", // increased max height
     overflowY: "auto",
   }),
   indicatorsContainer: (provided) => ({
     ...provided,
-    height: "36px",      // match control height
+    height: "36px", // match control height
   }),
   option: (provided) => ({
     ...provided,
@@ -64,7 +64,6 @@ const customSelectStyles = {
   }),
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
-
 
 const AttendancePolicyForm = ({ onClose, onSuccess }) => {
   const User = useAuthStore((state) => state.user);
@@ -284,7 +283,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
           </div>
 
           {/* Multi-select fields */}
-          
+
           {[
             "shiftIds",
             "workTypeIds",
@@ -294,30 +293,77 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
             "otPolicyIds",
             "otRateSlabIds",
             "bonusPolicyIds",
-            "specialAllowancePolicyIds",
+            // "specialAllowancePolicyIds", 
             "holidayListIds",
             "leaveTypeIds",
             "complianceIds",
             "complianceRuleIds",
             "weekendPolicyIds",
             "weekendPolicyMappingIds",
-          ].map((field) => (
-            <div key={field}>
-              <label className="block text-xs font-medium capitalize text-gray-700 mb-1">
-                {field}
-              </label>
-              <Select
-                isMulti
-                options={options[field] || []}
-                onChange={(val) => handleSelectChange(field, val)}
-                placeholder={`Select ${field}`}
-                styles={customSelectStyles}
-                className="text-xs"
-                menuPortalTarget={document.body} // renders dropdown at body level
-                menuPosition="fixed" // keeps menu fixed above other elements
-              />
-            </div>
-          ))}
+          ].map((field) => {
+            const fieldOptions = options[field] || [];
+            const allSelected =
+              form[field].length === fieldOptions.length &&
+              fieldOptions.length > 0;
+
+            const selectOptions = [
+              {
+                value: "__all__",
+                label: allSelected ? "Deselect All" : "Select All",
+              },
+              ...fieldOptions,
+            ];
+
+            const selectedValues = selectOptions.filter((opt) =>
+              form[field].includes(opt.value)
+            );
+
+            return (
+              <div key={field}>
+                <label className="block text-xs font-medium capitalize text-gray-700 mb-1">
+                  {field}
+                </label>
+                <Select
+                  isMulti
+                  options={selectOptions}
+                  value={selectedValues}
+                  onChange={(selected) => {
+                    if (!selected) {
+                      setForm((prev) => ({ ...prev, [field]: [] }));
+                      return;
+                    }
+
+                    const hasSelectAll = selected.some(
+                      (s) => s.value === "__all__"
+                    );
+
+                    if (hasSelectAll) {
+                      if (allSelected) {
+                        // Deselect all
+                        setForm((prev) => ({ ...prev, [field]: [] }));
+                      } else {
+                        // Select all
+                        setForm((prev) => ({
+                          ...prev,
+                          [field]: fieldOptions.map((o) => o.value),
+                        }));
+                      }
+                    } else {
+                      setForm((prev) => ({
+                        ...prev,
+                        [field]: selected.map((s) => s.value),
+                      }));
+                    }
+                  }}
+                  placeholder={`Select ${field}`}
+                  styles={customSelectStyles}
+                  className="text-xs"
+                  menuPortalTarget={document.body}
+                  menuPosition="fixed"
+                />
+              </div>
+            );
+          })}
 
           {/* Checkbox groups for configs */}
           {[

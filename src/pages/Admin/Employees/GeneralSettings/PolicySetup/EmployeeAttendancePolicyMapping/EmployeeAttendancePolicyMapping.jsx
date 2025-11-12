@@ -43,7 +43,7 @@ const EmployeeAttendancePolicyMapping = () => {
           className="bg-primary cursor-pointer hover:bg-secondary text-white text-sm px-4 py-2 rounded flex items-center gap-2 font-medium transition"
         >
           <Plus size={16} /> Assign Policy
-        </button>
+        </button> 
       </div>
 
       {/* Table */}

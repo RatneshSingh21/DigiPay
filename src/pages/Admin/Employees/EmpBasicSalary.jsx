@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import Spinner from "../../../components/Spinner";
+import assets from "../../../assets/assets";
 
 const EmpBasicSalary = () => {
   const [salaries, setSalaries] = useState([]);
@@ -18,7 +19,7 @@ const EmpBasicSalary = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Error fetching salary data");
+      // toast.error("Error fetching salary data");
     } finally {
       setLoading(false);
     }
@@ -29,17 +30,18 @@ const EmpBasicSalary = () => {
   }, []);
 
   return (
-    <div className="bg-white shadow rounded-xl p-4">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
-        Employee Basic Salary Details
-      </h2>
+    <div className="bg-white shadow rounded-xl">
+       {/* Header */}
+      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex flex-wrap justify-between items-center gap-4">
+        <h2 className="font-semibold text-xl">Employee Salary Details</h2>
+      </div>
 
       {loading ? (
         <div className="flex justify-center py-20">
           <Spinner />
         </div>
       ) : salaries.length > 0 ? (
-        <div className="mt-4 mx-4 border max-w-xl md:max-w-5xl 2xl:max-w-full overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh]">
+        <div className="mt-4 mx-4 p-4 border max-w-xl md:max-w-5xl 2xl:max-w-full overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh]">
           <table className="min-w-full divide-y divide-gray-200 text-xs">
             <thead className="bg-gray-100 text-gray-600 text-center">
               <tr>
@@ -111,9 +113,16 @@ const EmpBasicSalary = () => {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-gray-600">
-          <p className="text-lg font-medium">No Salary Data Found</p>
-          <p className="text-sm">
-            There are no employee salary records available.
+          <img
+            src={assets.SalaryIllustration}
+            alt="No Salary Data"
+            className="w-64 h-auto mb-6"
+          />
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2 text-center">
+            No Salary Data Found
+          </h1>
+          <p className="text-center text-gray-600 pb-6">
+            Salary records for the selected period are not available.
           </p>
         </div>
       )}
