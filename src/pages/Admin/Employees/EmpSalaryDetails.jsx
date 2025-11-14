@@ -101,10 +101,14 @@ const EmpSalaryDetails = () => {
   }, []);
 
   const filteredSalaries = useMemo(() => {
-    return salaries.filter((s) =>
-      (s.employeeName || "").toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [salaries, searchTerm]);
+    if (!searchTerm) return salaries;
+
+    return salaries.filter((s) => {
+      const emp = employeeMap[s.employeeId];
+      const empName = emp?.name?.toLowerCase() || "";
+      return empName.includes(searchTerm.toLowerCase());
+    });
+  }, [salaries, searchTerm, employeeMap]);
 
   // 🔹 Pagination calc
   const totalDataLength = filteredSalaries.length;
@@ -129,6 +133,15 @@ const EmpSalaryDetails = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="px-3 py-2 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm min-w-[200px]"
           />
+
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="px-3 py-2 border cursor-pointer border-gray-300 bg-gray-50 rounded hover:bg-gray-100 text-sm"
+            >
+              Clear
+            </button>
+          )}
 
           {/* 🔹 ViewType Selector */}
           <div className="min-w-[100px]">

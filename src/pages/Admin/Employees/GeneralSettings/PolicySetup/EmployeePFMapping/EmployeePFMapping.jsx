@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Plus, Edit, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import axiosInstance from "../../../../../../axiosInstance/axiosInstance";
 import EmployeePFMappingForm from "./EmployeePFMappingForm";
 import { FiEdit } from "react-icons/fi";
@@ -10,6 +10,7 @@ const EmployeePFMapping = () => {
   const [selectedMapping, setSelectedMapping] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [employeeMap, setEmployeeMap] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchMappings = async () => {
     try {
@@ -17,7 +18,7 @@ const EmployeePFMapping = () => {
       const mappingData = res.data.response || [];
       setMappings(mappingData);
 
-      // For each mapping, fetch employee name (like PFTransaction)
+      // Fetch employee name for each mapping
       mappingData.forEach((m) => fetchEmployeeName(m.employeeId));
     } catch (err) {
       toast.error("Error fetching mappings");
@@ -25,12 +26,11 @@ const EmployeePFMapping = () => {
     }
   };
 
-  // Fetch Employee by Id and cache (same as PFTransaction)
   const fetchEmployeeName = async (id) => {
     if (employeeMap[id]) return;
     try {
       const res = await axiosInstance.get(`/Employee/${id}`);
-      const emp = res.data?.response || res.data; // some APIs return .response
+      const emp = res.data?.response || res.data;
       if (emp) {
         setEmployeeMap((prev) => ({
           ...prev,
@@ -50,20 +50,39 @@ const EmployeePFMapping = () => {
     fetchMappings();
   }, []);
 
+  // Filter mappings based on search query
+  const filteredMappings = mappings.filter((m) => {
+    const empNameCode = employeeMap[m.employeeId] || "";
+    return empNameCode.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
   return (
     <div className="space-y-2">
       {/* Header */}
-      <div className="sticky top-14 bg-white z-10 flex justify-between items-center p-2 shadow rounded-md">
+      <div className="sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center p-2 shadow rounded-md gap-2 md:gap-0">
         <h2 className="text-sm font-bold text-gray-800">PF Employee Mapping</h2>
-        <button
-          onClick={() => {
-            setSelectedMapping(null);
-            setIsModalOpen(true);
-          }}
-          className="bg-primary cursor-pointer hover:bg-secondary text-white text-sm px-4 py-2 rounded flex items-center gap-2 font-medium transition"
-        >
-          <Plus size={16} /> Add Mapping
-        </button>
+
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search by employee name or code"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+
+          {/* Add Mapping Button */}
+          <button
+            onClick={() => {
+              setSelectedMapping(null);
+              setIsModalOpen(true);
+            }}
+            className="bg-primary cursor-pointer hover:bg-secondary text-white text-sm px-4 py-2 rounded flex items-center gap-2 font-medium transition"
+          >
+            <Plus size={16} /> Add Mapping
+          </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -80,8 +99,8 @@ const EmployeePFMapping = () => {
             </tr>
           </thead>
           <tbody>
-            {mappings.length > 0 ? (
-              mappings.map((m) => (
+            {filteredMappings.length > 0 ? (
+              filteredMappings.map((m) => (
                 <tr
                   key={m.pfEmployeeMappingId}
                   className="hover:bg-gray-50 transition"

@@ -7,6 +7,15 @@ const SalaryCalculate = () => {
   const [salaries, setSalaries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filteredSalaries = salaries.filter((s) => {
+    const term = search.toLowerCase();
+    return (
+      s.employeeName?.toLowerCase().includes(term) ||
+      s.employeeCode?.toLowerCase().includes(term)
+    );
+  });
 
   const fetchSalaries = async () => {
     try {
@@ -30,7 +39,16 @@ const SalaryCalculate = () => {
       {/* Header */}
       <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Calculated Salaries</h2>
-        <div className="flex gap-2">
+
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by Name or Code..."
+            className="border border-blue-300 rounded-md px-3 py-1 text-sm w-64"
+          />
+
           <button
             onClick={() => setShowForm(true)}
             className="flex items-center cursor-pointer gap-2 bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-md text-sm"
@@ -45,21 +63,20 @@ const SalaryCalculate = () => {
           <thead className="bg-gray-100 text-gray-600">
             <tr>
               <th className="px-2 py-2">S.No</th>
-              <th className="px-2 py-2">EmpCode</th>
-              <th className="px-2 py-2">Name</th>
+              <th className="px-2 py-2">EmpName</th>
               <th className="px-2 py-2">Month</th>
               <th className="px-2 py-2">Year</th>
               <th className="px-2 py-2">Basic</th>
               <th className="px-2 py-2">HRA</th>
               <th className="px-2 py-2">Conveyance</th>
-              <th className="px-2 py-2">Fixed Allowance</th>
+              <th className="px-2 py-2">Fixed Allow.</th>
               <th className="px-2 py-2">Bonus</th>
               <th className="px-2 py-2">Arrears</th>
               <th className="px-2 py-2">OT Hrs</th>
               <th className="px-2 py-2">OT Rate</th>
               <th className="px-2 py-2">OT Amount</th>
               <th className="px-2 py-2">Leave Encash</th>
-              <th className="px-2 py-2">Special Allow</th>
+              <th className="px-2 py-2">Special Allow.</th>
               <th className="px-2 py-2">PF</th>
               <th className="px-2 py-2">ESIC</th>
               <th className="px-2 py-2">PT</th>
@@ -79,12 +96,13 @@ const SalaryCalculate = () => {
                   Loading...
                 </td>
               </tr>
-            ) : salaries.length > 0 ? (
-              salaries.map((s, i) => (
+            ) : filteredSalaries.length > 0 ? (
+              filteredSalaries.map((s, i) => (
                 <tr key={s.calculatedSalaryId}>
                   <td className="px-2 py-2">{i + 1}</td>
-                  <td className="px-2 py-2">{s.employeeCode}</td>
-                  <td className="px-2 py-2">{s.employeeName}</td>
+                  <td className="px-2 py-2">
+                    {s.employeeName}({s.employeeCode})
+                  </td>
                   <td className="px-2 py-2">{s.month}</td>
                   <td className="px-2 py-2">{s.year}</td>
                   <td className="px-2 py-2">{s.basicSalary.toFixed(2)}</td>
@@ -112,6 +130,12 @@ const SalaryCalculate = () => {
                   <td className="px-2 py-2">{s.ctc.toFixed(2)}</td>
                 </tr>
               ))
+            ) : search !== "" ? (
+              <tr>
+                <td colSpan={26} className="text-center py-4">
+                  No matching employees found
+                </td>
+              </tr>
             ) : (
               <tr>
                 <td colSpan={26} className="text-center py-4">

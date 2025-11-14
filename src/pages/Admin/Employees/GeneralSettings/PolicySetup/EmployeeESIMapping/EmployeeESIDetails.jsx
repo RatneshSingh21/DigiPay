@@ -13,6 +13,7 @@ const EmployeeESIDetails = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [employeeMap, setEmployeeMap] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -21,7 +22,6 @@ const EmployeeESIDetails = () => {
       if (res.data?.data) setData(res.data.data);
 
       const mappingData = res.data.data || [];
-      // For each mapping, fetch employee name (like PFTransaction)
       mappingData.forEach((m) => fetchEmployeeName(m.employeeId));
     } catch (err) {
       console.error("Failed to fetch Employee ESI details", err);
@@ -31,12 +31,11 @@ const EmployeeESIDetails = () => {
     }
   };
 
-  // Fetch Employee by Id and cache (same as PFTransaction)
   const fetchEmployeeName = async (id) => {
     if (employeeMap[id]) return;
     try {
       const res = await axiosInstance.get(`/Employee/${id}`);
-      const emp = res.data?.response || res.data; // some APIs return .response
+      const emp = res.data?.response || res.data;
       if (emp) {
         setEmployeeMap((prev) => ({
           ...prev,
@@ -69,21 +68,40 @@ const EmployeeESIDetails = () => {
     setModalOpen(true);
   };
 
+  // Filtered data based on employee name/code
+  const filteredData = data.filter((item) => {
+    const empNameCode = employeeMap[item.employeeId] || "";
+    return empNameCode.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
   if (loading) return <Spinner />;
 
   return (
     <div className="space-y-2">
       {/* Header */}
-      <div className="sticky top-14 bg-white z-10 flex justify-between items-center p-2 shadow rounded-md">
+      <div className="sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center p-2 shadow rounded-md gap-2 md:gap-0">
         <h2 className="text-sm font-bold text-gray-800">
           Employee ESI Details
         </h2>
-        <button
-          onClick={handleAdd}
-          className="bg-primary cursor-pointer hover:bg-secondary text-white text-sm px-4 py-2 rounded flex items-center gap-2 font-medium transition"
-        >
-          <Plus size={16} /> Add Employee ESI
-        </button>
+
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search by employee name or code"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+
+          {/* Add Button */}
+          <button
+            onClick={handleAdd}
+            className="bg-primary cursor-pointer hover:bg-secondary text-white text-sm px-4 py-2 rounded flex items-center gap-2 font-medium transition"
+          >
+            <Plus size={16} /> Add Employee ESI
+          </button>
+        </div>
       </div>
 
       <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
@@ -101,7 +119,7 @@ const EmployeeESIDetails = () => {
             </tr>
           </thead>
           <tbody>
-            {data.length === 0 ? (
+            {filteredData.length === 0 ? (
               <tr>
                 <td
                   colSpan="8"
@@ -111,7 +129,7 @@ const EmployeeESIDetails = () => {
                 </td>
               </tr>
             ) : (
-              data.map((item) => (
+              filteredData.map((item) => (
                 <tr key={item.employeeESIId}>
                   <td className="px-3 py-2 border">{item.employeeESIId}</td>
                   <td className="px-3 py-2 border">

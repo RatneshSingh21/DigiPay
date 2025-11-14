@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 import {
@@ -12,40 +12,92 @@ import {
 import useAuthStore from "../../../../../store/authStore";
 
 const UPDATE_SALARY_ENDPOINT = "/Salary/update";
+const GET_SALARY_ENDPOINT = (id) => `/EmployeeSalary/employee/${id}`;
 
 const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
-  const { user } = useAuthStore(); // move hook inside component
+  const { user } = useAuthStore();
+
+  const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
-    employeeId: employeeId, // stays in payload, not in UI
-    orgId: user.userId,     // stays in payload, not in UI
-    month: data?.month || new Date().getMonth() + 1,
-    year: data?.year || new Date().getFullYear(),
-    employeeCategory: data?.employeeCategory || 0,
-    basicSalary: data?.basicSalary || 0,
-    hra: data?.hra || 0,
-    conveyanceAllowance: data?.conveyanceAllowance || 0,
-    fixedAllowance: data?.fixedAllowance || 0,
-    bonus: data?.bonus || 0,
-    arrears: data?.arrears || 0,
-    overtimeHours: data?.overtimeHours || 0,
-    overtimeRate: data?.overtimeRate || 0,
-    leaveEncashment: data?.leaveEncashment || 0,
-    specialAllowance: data?.specialAllowance || 0,
-    pfEmployee: data?.pfEmployee || 0,
-    esicEmployee: data?.esicEmployee || 0,
-    professionalTax: data?.professionalTax || 0,
-    tds: data?.tds || 0,
-    loanRepayment: data?.loanRepayment || 0,
-    otherDeductions: data?.otherDeductions || 0,
-    absentDays: data?.absentDays || 0,
-    totalWorkingDays: data?.totalWorkingDays || 0,
-    status: data?.status || 0,
-    paymentDate: data?.paymentDate || new Date().toISOString(),
+    employeeId: employeeId,
+    orgId: user.userId,
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
+
+    employeeCategory: 0,
+    basicSalary: 0,
+    hra: 0,
+    conveyanceAllowance: 0,
+    fixedAllowance: 0,
+    bonus: 0,
+    arrears: 0,
+    overtimeHours: 0,
+    overtimeRate: 0,
+    leaveEncashment: 0,
+    specialAllowance: 0,
+
+    pfEmployee: 0,
+    esicEmployee: 0,
+    professionalTax: 0,
+    tds: 0,
+    loanRepayment: 0,
+    otherDeductions: 0,
+
+    absentDays: 0,
+    totalWorkingDays: 0,
+
+    status: 0,
+    paymentDate: new Date().toISOString(),
   });
 
-  const [saving, setSaving] = useState(false);
+  // -------------------------------
+  // 🚀 Fetch Salary on Component Mount
+  // -------------------------------
+  useEffect(() => {
+    fetchEmployeeSalary();
+  }, []);
 
+  const fetchEmployeeSalary = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get(GET_SALARY_ENDPOINT(employeeId));
+
+      if (res.data?.success && res.data?.data) {
+        const s = res.data.data;
+
+        setForm((prev) => ({
+          ...prev,
+          basicSalary: s.basicSalary ?? 0,
+          hra: s.hra ?? 0,
+          conveyanceAllowance: s.conveyanceAllowance ?? 0,
+          fixedAllowance: s.fixedAllowance ?? 0,
+          bonus: s.bonus ?? 0,
+          arrears: s.arrears ?? 0,
+          overtimeRate: s.overtimeRate ?? 0,
+          leaveEncashment: s.leaveEncashment ?? 0,
+          specialAllowance: s.specialAllowance ?? 0,
+          pfEmployee: s.pfEmployee ?? 0,
+          esicEmployee: s.esicEmployee ?? 0,
+          professionalTax: s.professionalTax ?? 0,
+          tds: s.tds ?? 0,
+          loanRepayment: s.loanRepayment ?? 0,
+          otherDeductions: s.otherDeductions ?? 0,
+        }));
+
+        // toast.success("Salary loaded");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load salary details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ---------------------------------
+  // Handling input change
+  // ---------------------------------
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({
@@ -54,10 +106,16 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
     }));
   };
 
+  // ---------------------------------
+  // Save Handler
+  // ---------------------------------
+  const [saving, setSaving] = useState(false);
+
   const onSave = async () => {
     try {
       setSaving(true);
       await axiosInstance.put(UPDATE_SALARY_ENDPOINT, form);
+
       toast.success("Salary details updated");
       onLocalUpdate?.(form);
     } catch (err) {
@@ -68,6 +126,17 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <Paper sx={{ p: 3, borderRadius: 2 }}>
+        <Typography>Loading salary...</Typography>
+      </Paper>
+    );
+  }
+
+  // ---------------------------------
+  // UI
+  // ---------------------------------
   return (
     <Paper sx={{ p: 3, borderRadius: 2 }}>
       {/* Header */}
@@ -75,6 +144,7 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
         <Typography variant="h6" fontWeight="bold">
           Update Salary Details
         </Typography>
+
         <Button
           variant="contained"
           onClick={onSave}
@@ -93,6 +163,7 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
       <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
         General Info
       </Typography>
+
       <Grid container spacing={2} mb={2}>
         <Grid item xs={6} md={3}>
           <TextField
@@ -105,6 +176,7 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
             size="small"
           />
         </Grid>
+
         <Grid item xs={6} md={3}>
           <TextField
             label="Year"
@@ -124,6 +196,7 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
       <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
         Earnings
       </Typography>
+
       <Grid container spacing={2} mb={2}>
         {[
           "basicSalary",
@@ -157,6 +230,7 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
       <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
         Deductions
       </Typography>
+
       <Grid container spacing={2} mb={2}>
         {[
           "pfEmployee",
@@ -178,37 +252,6 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
             />
           </Grid>
         ))}
-      </Grid>
-
-      <Divider sx={{ my: 2 }} />
-
-      {/* Attendance */}
-      <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-        Attendance
-      </Typography>
-      <Grid container spacing={2} mb={2}>
-        <Grid item xs={6} md={3}>
-          <TextField
-            label="Absent Days"
-            name="absentDays"
-            type="number"
-            value={form.absentDays}
-            onChange={onChange}
-            fullWidth
-            size="small"
-          />
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <TextField
-            label="Total Working Days"
-            name="totalWorkingDays"
-            type="number"
-            value={form.totalWorkingDays}
-            onChange={onChange}
-            fullWidth
-            size="small"
-          />
-        </Grid>
       </Grid>
     </Paper>
   );

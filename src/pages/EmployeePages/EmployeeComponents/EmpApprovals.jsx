@@ -252,7 +252,7 @@ const EmpApprovals = () => {
             } ${
               STATUS_STYLES[status.statusName]?.text
             } cursor-pointer hover:scale-105 transition-all duration-200`}
-            onClick={() => handleDashboardFilterClick(status.statusName)} // ✅ attach handler
+            onClick={() => handleDashboardFilterClick(status.statusName)} 
           >
             <h3 className="text-sm font-medium">{status.statusName}</h3>
             <p className="text-2xl font-bold mt-2">

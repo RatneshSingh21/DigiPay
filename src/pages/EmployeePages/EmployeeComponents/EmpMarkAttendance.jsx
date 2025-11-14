@@ -165,7 +165,7 @@ const EmpMarkAttendance = () => {
     }
 
     try {
-      // ✅ Step 1: Get high-accuracy GPS location
+      // Step 1: Get high-accuracy GPS location
       const getPreciseLocation = () =>
         new Promise((resolve, reject) => {
           if (!navigator.geolocation) {
@@ -192,7 +192,7 @@ const EmpMarkAttendance = () => {
         accuracy,
       });
 
-      // ✅ Step 2: Reverse geocode using OpenStreetMap for detailed address
+      // Step 2: Reverse geocode using OpenStreetMap for detailed address
       let addressData = {
         address: "",
         city: "",
@@ -227,7 +227,7 @@ const EmpMarkAttendance = () => {
         );
       }
 
-      // ✅ Step 3: Build final payload for backend
+      // Step 3: Build final payload for backend
       const payload = {
         attendance: {
           employeeId: User?.userId,
@@ -255,9 +255,9 @@ const EmpMarkAttendance = () => {
         remarks: `Marked via ${accuracy <= 20 ? "precise" : "approximate"} GPS`,
       };
 
-      console.log("✅ Final Payload:", payload);
+      console.log("Final Payload:", payload);
 
-      // ✅ Step 4: Submit to Attendance API
+      // Step 4: Submit to Attendance API
       await axiosInstance.post("/Attendance/create", payload);
       toast.success("Attendance marked successfully with precise location!");
 
@@ -270,7 +270,7 @@ const EmpMarkAttendance = () => {
         punchType: null,
       }));
     } catch (err) {
-      console.error("❌ Attendance submission error:", err);
+      console.error("Attendance submission error:", err);
       toast.error(
         err?.message ||
           "Failed to submit attendance. Please allow location access."

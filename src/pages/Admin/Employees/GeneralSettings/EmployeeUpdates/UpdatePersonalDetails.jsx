@@ -6,18 +6,67 @@ import {
   Grid,
   Paper,
   Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   CircularProgress,
+  MenuItem,
 } from "@mui/material";
 
 const GET_PERSONAL_ENDPOINT = (id) => `/PersonalDetails/${id}`;
 const UPDATE_PERSONAL_ENDPOINT = `/PersonalDetails/update`;
 
+// -----------------------------
+// OPTIONS
+// -----------------------------
+const differentlyAbledOptions = [
+  "None",
+  "Visually Impaired",
+  "Hearing Impaired",
+  "Locomotor Disability",
+  "Other",
+];
+
+const indianStates = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Lakshadweep",
+  "Puducherry",
+];
+
+// ------------------------------------------------
+// COMPONENT
+// ------------------------------------------------
 const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
   const [form, setForm] = useState({
+    employeePersonalDetailsId: 0,
     employeeId,
     dateOfBirth: "",
     fatherName: "",
@@ -34,20 +83,22 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Fetch personal details on mount
+  // ===============================
+  // FETCH PERSONAL DETAILS
+  // ===============================
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axiosInstance.get(GET_PERSONAL_ENDPOINT(employeeId));
+
         if (res.data) {
-          setForm((prev) => ({
-            ...prev,
+          setForm({
             ...res.data,
-            employeeId, // always ensure employeeId is present
+            employeeId,
             dateOfBirth: res.data.dateOfBirth
               ? res.data.dateOfBirth.slice(0, 10)
               : "",
-          }));
+          });
         }
       } catch (err) {
         console.error(err);
@@ -56,12 +107,19 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [employeeId]);
 
+  // ------------------------------
+  // INPUT CHANGE HANDLER
+  // ------------------------------
   const onChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
+  // ------------------------------
+  // SAVE API CALL
+  // ------------------------------
   const onSave = async () => {
     try {
       setSaving(true);
@@ -70,8 +128,7 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
       onLocalUpdate?.(form);
     } catch (err) {
       console.error(err);
-      // toast.error("Failed to update personal details");
-      console.log("Failed to update personal details");
+      toast.error("Failed to update personal details");
     } finally {
       setSaving(false);
     }
@@ -92,16 +149,16 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
         <Typography variant="h6" fontWeight="bold">
           Personal Details
         </Typography>
+
         <button
           onClick={onSave}
           disabled={saving}
           className={`px-4 py-1.5 rounded-lg font-medium text-white transition-all duration-200
-        ${
-          saving
-            ? "bg-gray-400 cursor-not-allowed shadow-none"
-            : "bg-primary hover:bg-secondary shadow-md hover:shadow-lg"
-        } 
-        normal-case`}
+            ${
+              saving
+                ? "bg-gray-400 cursor-not-allowed shadow-none"
+                : "bg-primary hover:bg-secondary shadow-md hover:shadow-lg"
+            }`}
         >
           {saving ? "Saving…" : "Save"}
         </button>
@@ -130,26 +187,29 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
             fullWidth
             size="small"
             margin="dense"
+            inputProps={{ style: { textTransform: "uppercase" } }}
           />
         </Grid>
 
+        {/* Differently Abled Type - MUI SELECT */}
         <Grid item xs={12} md={4}>
-          <FormControl fullWidth size="small" margin="dense">
-            <InputLabel>Differently Abled Type</InputLabel>
-            <Select
-              name="differentlyAbledType"
-              value={form.differentlyAbledType}
-              onChange={onChange}
-              label="Differently Abled Type"
-            >
-              <MenuItem value="">Select</MenuItem>
-              <MenuItem value="None">None</MenuItem>
-              <MenuItem value="Visually Impaired">Visually Impaired</MenuItem>
-              <MenuItem value="Hearing Impaired">Hearing Impaired</MenuItem>
-              <MenuItem value="Locomotor Disability">Locomotor Disability</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
-            </Select>
-          </FormControl>
+          <TextField
+            select
+            label="Differently Abled Type"
+            name="differentlyAbledType"
+            value={form.differentlyAbledType}
+            onChange={onChange}
+            fullWidth
+            size="small"
+            margin="dense"
+          >
+            <MenuItem value="">Select</MenuItem>
+            {differentlyAbledOptions.map((opt) => (
+              <MenuItem key={opt} value={opt}>
+                {opt}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
 
         <Grid item xs={12} md={4}>
@@ -178,6 +238,7 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
           />
         </Grid>
 
+        {/* Address Line 1 */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Address Line 1"
@@ -190,6 +251,7 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
           />
         </Grid>
 
+        {/* Address Line 2 */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Address Line 2"
@@ -202,6 +264,7 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
           />
         </Grid>
 
+        {/* City */}
         <Grid item xs={12} md={4}>
           <TextField
             label="City"
@@ -214,8 +277,10 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
           />
         </Grid>
 
+        {/* State - MUI SELECT */}
         <Grid item xs={12} md={4}>
           <TextField
+            select
             label="State"
             name="state"
             value={form.state}
@@ -223,9 +288,17 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
             fullWidth
             size="small"
             margin="dense"
-          />
+          >
+            <MenuItem value="">Select</MenuItem>
+            {indianStates.map((state) => (
+              <MenuItem key={state} value={state}>
+                {state}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
 
+        {/* Pin Code */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Pin Code"

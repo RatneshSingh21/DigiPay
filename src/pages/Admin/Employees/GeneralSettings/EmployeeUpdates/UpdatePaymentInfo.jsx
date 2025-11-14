@@ -7,10 +7,26 @@ import {
   Paper,
   Typography,
   CircularProgress,
+  MenuItem,
 } from "@mui/material";
 
 const GET_BANK_DETAILS = (id) => `/BankDetails/employee/${id}`;
-const UPDATE_BANK_DETAILS = (bankDetailId) => `/BankDetails/${bankDetailId}`;
+const UPDATE_BANK_DETAILS = (bankDetailId) =>
+  `/BankDetails/update/${bankDetailId}`;
+
+const paymentModes = [
+  { label: "Bank Transfer", value: "Bank Transfer" },
+  { label: "Cash", value: "Cash" },
+  { label: "Cheque", value: "Cheque" },
+  { label: "NEFT", value: "NEFT" },
+];
+
+const accountTypeOptions = [
+  { value: "Savings", label: "Savings" },
+  { value: "Current", label: "Current" },
+  { value: "Salary", label: "Salary" },
+  { value: "Fixed Deposit", label: "Fixed Deposit" },
+];
 
 const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
   const [form, setForm] = useState({
@@ -29,22 +45,21 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Fetch bank details on mount
+  // Fetch bank details
   useEffect(() => {
     const fetchBankDetails = async () => {
       try {
         const res = await axiosInstance.get(GET_BANK_DETAILS(employeeId));
-        if (res.data?.statusCode === 200 && res.data.data?.length > 0) {
-          const bankDetails = res.data.data[0]; // extract the first bank detail
+
+        if (res.data?.length > 0) {
+          const latestBank = res.data[res.data.length - 1];
           setForm((prev) => ({
             ...prev,
-            ...bankDetails,
-            employeeId, // keep employeeId
+            ...latestBank,
+            employeeId,
           }));
         } else {
-          // toast.info("No bank details found for this employee");
-          console.log("No bank details found for this employee");
-          
+          console.log("No bank details found for employee");
         }
       } catch (err) {
         console.error(err);
@@ -53,17 +68,19 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
         setLoading(false);
       }
     };
+
     fetchBankDetails();
   }, [employeeId]);
 
   const onChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const onSave = async () => {
     if (!form.bankDetailId) {
       toast.error("Bank detail ID missing — cannot update");
       return;
     }
+
     try {
       setSaving(true);
       await axiosInstance.put(UPDATE_BANK_DETAILS(form.bankDetailId), form);
@@ -100,7 +117,7 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
           saving
             ? "bg-gray-400 cursor-not-allowed shadow-none"
             : "bg-primary hover:bg-secondary shadow-md hover:shadow-lg"
-        } 
+        }
         normal-case`}
         >
           {saving ? "Saving…" : "Save"}
@@ -145,6 +162,7 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
           />
         </Grid>
 
+        {/* Account Type Dropdown */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Account Type"
@@ -154,8 +172,14 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
             fullWidth
             size="small"
             margin="dense"
-            placeholder="Savings / Current"
-          />
+            select
+          >
+            {accountTypeOptions.map((opt) => (
+              <MenuItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
 
         <Grid item xs={12} md={4}>
@@ -194,6 +218,7 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
           />
         </Grid>
 
+        {/* Payment Mode Dropdown */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Payment Mode"
@@ -203,8 +228,14 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
             fullWidth
             size="small"
             margin="dense"
-            placeholder="e.g. Bank Transfer, UPI"
-          />
+            select
+          >
+            {paymentModes.map((opt) => (
+              <MenuItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
       </Grid>
     </Paper>

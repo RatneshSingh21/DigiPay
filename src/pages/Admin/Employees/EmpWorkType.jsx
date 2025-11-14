@@ -102,7 +102,7 @@ const EmpWorkType = () => {
       </div>
 
       {/* Table Section */}
-      <div className="bg-white rounded-xl shadow-md mx-4 overflow-hidden">
+      <div className="overflow-x-auto p-4 shadow rounded-lg border border-gray-200">
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <Spinner />

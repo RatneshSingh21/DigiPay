@@ -25,6 +25,7 @@ import {
   MdCelebration,
   MdChecklistRtl,
   MdGavel,
+  MdOutlineChecklistRtl,
   MdOutlineCorporateFare,
   MdOutlineMap,
   MdOutlineRequestPage,
@@ -113,6 +114,8 @@ const labelToPath = {
   "Leave Requests": "leave-requests",
   "Leave Balance": "leave-balance",
   "Holiday List": "holiday-list",
+  "Employee Leave": "employee-leave",
+  "Employee Advance Payments": "employee-advance-payments",
 
   // Policies
   "PF Settings": "pf-settings",
@@ -211,6 +214,8 @@ const labelToIcon = {
   "Leave Requests": <MdOutlineRequestPage className="mr-2" />,
   "Leave Balance": <FaBalanceScale className="mr-2" />,
   "Holiday List": <MdCelebration className="mr-2" />,
+  "Employee Leave": <MdOutlineChecklistRtl className="mr-2" />,
+  "Employee Advance Payments": <MdOutlineChecklistRtl className="mr-2" />,
 
   // Policies
   "PF Settings": <FaCogs className="mr-2" />,

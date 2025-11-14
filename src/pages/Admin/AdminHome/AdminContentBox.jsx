@@ -24,12 +24,14 @@ const submenuMap = {
     // "Leave Requests",
     // "Leave Balance",
     "Holiday List",
+    "Employee Leave",
+    "Employee Advance Payments",
   ],
 
   Policy: [
     "PF Settings",
-    "PF Transaction",
     "PF Contribution Rule",
+    "PF Transaction",
     "ESI Rules",
     "ESI Transactions",
     "Late Policy",

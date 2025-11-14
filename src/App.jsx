@@ -95,6 +95,8 @@ import LeaveRequests from "./pages/Admin/Leave/LeaveRequests";
 import LeaveBalance from "./pages/Admin/Leave/LeaveBalance";
 import LeaveMapping from "./pages/Admin/Leave/LeaveMapping";
 import HolidayList from "./pages/Admin/Leave/HolidayList";
+import EmployeeLeave from "./pages/Admin/Leave/EmployeeLeave/EmployeeLeave";
+import EmployeeAdvancePayments from "./pages/Admin/Leave/EmployeeAdvancePayments/EmployeeAdvancePayments";
 
 //Admin Policy Pages
 import PolicyDetails from "./pages/Admin/Policies/PolicyDetails";
@@ -135,6 +137,7 @@ import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
+
 
 
 
@@ -351,6 +354,8 @@ const App = () => {
                   <Route path="leave-requests" element={<LeaveRequests />} />
                   <Route path="leave-balance" element={<LeaveBalance />} />
                   <Route path="holiday-list" element={<HolidayList />} />
+                  <Route path="employee-leave" element={<EmployeeLeave />} />
+                  <Route path="employee-advance-payments" element={<EmployeeAdvancePayments />} />
                 </Route>
 
                 {/* Policy SubRoutes */}

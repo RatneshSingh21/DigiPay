@@ -35,6 +35,7 @@ const EmployeeList = () => {
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   // 🔹 Pagination state
@@ -90,13 +91,23 @@ const EmployeeList = () => {
   }, []);
   const filteredEmployees = employees.filter((emp) => {
     const { location, department, designation } = filters;
+    const matchesLocation =
+      !location || emp.workLocationId === Number(location);
+    const matchesDepartment =
+      !department || emp.departmentId === Number(department);
+    const matchesDesignation =
+      !designation || emp.designationId === Number(designation);
+    const matchesSearch =
+      !searchQuery ||
+      emp.fullName?.toLowerCase().includes(searchQuery.toLowerCase());
+
     return (
-      (!location || emp.workLocationId === Number(location)) &&
-      (!department || emp.departmentId === Number(department)) &&
-      (!designation || emp.designationId === Number(designation))
+      matchesLocation &&
+      matchesDepartment &&
+      matchesDesignation &&
+      matchesSearch
     );
   });
-
   // 🔹 Pagination calculation
   const totalDataLength = filteredEmployees.length;
   const totalPages = Math.ceil(totalDataLength / perPageData);
@@ -140,6 +151,18 @@ const EmployeeList = () => {
         <div className="px-4 mt-4">
           {/* Filters */}
           <div className="flex flex-wrap gap-4 mb-4">
+            <div className="min-w-[250px]">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Search by Name
+              </label>
+              <input
+                type="text"
+                placeholder="Enter employee name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary text-sm"
+              />
+            </div>
             <div className="min-w-[200px]">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Work Location
@@ -228,13 +251,14 @@ const EmployeeList = () => {
             {Object.values(filters).some((val) => val) && (
               <div className="flex items-end">
                 <button
-                  onClick={() =>
+                  onClick={() => {
                     setFilters({
                       location: "",
                       department: "",
                       designation: "",
-                    })
-                  }
+                    });
+                    setSearchQuery("");
+                  }}
                   className="text-sm px-4 py-2 rounded-md border border-gray-300 bg-gray-50 hover:bg-gray-100 text-gray-700 transition"
                 >
                   Clear Filters
@@ -297,7 +321,7 @@ const EmployeeList = () => {
                           index % 2 === 0 ? "bg-white" : "bg-gray-50"
                         } hover:bg-gray-100 transition-all`}
                       >
-                        <td className="px-2 py-2">{index+1}</td>
+                        <td className="px-2 py-2">{index + 1}</td>
                         <td className="px-2 py-2">{emp.employeeCode}</td>
                         <td className="py-2 px-2 flex items-center gap-1">
                           <img

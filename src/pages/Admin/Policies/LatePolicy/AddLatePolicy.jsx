@@ -50,6 +50,7 @@ export default function AddLatePolicy({
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
   const [workTypeOptions, setWorkTypeOptions] = useState([]);
+  const selectAllOption = { value: "*", label: "Select All" };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -130,6 +131,38 @@ export default function AddLatePolicy({
     setErrors(e);
     return Object.keys(e).length === 0;
   };
+
+  const handleMultiSelect = (key, selected, options) => {
+  // If user clears selection
+  if (!selected || selected.length === 0) {
+    handleChange(key, []);
+    return;
+  }
+
+  const lastSelected = selected[selected.length - 1];
+
+  // If "Select All" clicked
+  if (lastSelected?.value === "*") {
+    handleChange(
+      key,
+      options.map((o) => o.value)
+    );
+    return;
+  }
+
+  // If user manually deselects after selecting all
+  const selectedValues = selected.map((s) => s.value);
+  const allValues = options.map((o) => o.value);
+
+  // If previously everything was selected and now user unselected something
+  if (allValues.every((v) => selectedValues.includes(v)) === false) {
+    handleChange(key, selectedValues);
+    return;
+  }
+
+  handleChange(key, selectedValues);
+};
+
 
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -234,7 +267,7 @@ export default function AddLatePolicy({
                 value={form.description}
                 onChange={(e) => handleChange("description", e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-xs border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Enter Description"  
+                placeholder="Enter Description"
               />
             </div>
 
@@ -356,15 +389,12 @@ export default function AddLatePolicy({
             <label className="block text-xs font-medium mb-1">Work Types</label>
             <Select
               isMulti
-              options={workTypeOptions}
+              options={[selectAllOption, ...workTypeOptions]}
               value={workTypeOptions.filter((o) =>
                 form.workTypeIds.includes(o.value)
               )}
               onChange={(selected) =>
-                setForm((prev) => ({
-                  ...prev,
-                  workTypeIds: selected.map((s) => s.value),
-                }))
+                handleMultiSelect("workTypeIds", selected, workTypeOptions)
               }
               className="text-xs"
             />
@@ -374,15 +404,12 @@ export default function AddLatePolicy({
             <label className="block text-xs font-medium mb-1">Shifts</label>
             <Select
               isMulti
-              options={shiftOptions}
+              options={[selectAllOption, ...shiftOptions]}
               value={shiftOptions.filter((o) =>
                 form.shiftIds.includes(o.value)
               )}
               onChange={(selected) =>
-                handleChange(
-                  "shiftIds",
-                  selected.map((s) => s.value)
-                )
+                handleMultiSelect("shiftIds", selected, shiftOptions)
               }
               className="text-xs"
             />
@@ -394,15 +421,12 @@ export default function AddLatePolicy({
             </label>
             <Select
               isMulti
-              options={departmentOptions}
+              options={[selectAllOption, ...departmentOptions]}
               value={departmentOptions.filter((o) =>
                 form.departmentIds.includes(o.value)
               )}
               onChange={(selected) =>
-                handleChange(
-                  "departmentIds",
-                  selected.map((s) => s.value)
-                )
+                handleMultiSelect("departmentIds", selected, departmentOptions)
               }
               className="text-xs"
             />
@@ -412,15 +436,12 @@ export default function AddLatePolicy({
             <label className="block text-xs font-medium mb-1">Locations</label>
             <Select
               isMulti
-              options={locationOptions}
+              options={[selectAllOption, ...locationOptions]}
               value={locationOptions.filter((o) =>
                 form.locationIds.includes(o.value)
               )}
               onChange={(selected) =>
-                handleChange(
-                  "locationIds",
-                  selected.map((s) => s.value)
-                )
+                handleMultiSelect("locationIds", selected, locationOptions)
               }
               className="text-xs"
             />

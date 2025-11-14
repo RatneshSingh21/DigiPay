@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
-import { X } from "lucide-react"; // ✅ lightweight close icon
+import { X } from "lucide-react"; 
 import {
   createESITransaction,
   getAllEmployees,

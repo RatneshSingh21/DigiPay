@@ -20,9 +20,10 @@ const ShiftMapping = () => {
     effectiveTo: "",
   });
 
-  const [loadingData, setLoadingData] = useState(false); // for initial data loading
-  const [submitting, setSubmitting] = useState(false); // for form submission
+  const [loadingData, setLoadingData] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchAllData();
@@ -63,8 +64,7 @@ const ShiftMapping = () => {
 
   const handleAssignShift = async (e) => {
     e.preventDefault();
-
-    if (submitting) return; // ✅ Prevent multiple clicks
+    if (submitting) return;
 
     const { employeeId, shiftId, effectiveFrom, effectiveTo } = form;
     if (!employeeId || !shiftId || !effectiveFrom || !effectiveTo) {
@@ -116,34 +116,69 @@ const ShiftMapping = () => {
     label: s.shiftName,
   }));
 
+  // Filter shift mappings based on search query
+  const filteredMappings = shiftMappings.filter((m) =>
+    getEmployeeName(m.employeeId)
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
+  // Highlight matched text
+  const highlightText = (text) => {
+    if (!searchQuery) return text;
+    const regex = new RegExp(`(${searchQuery})`, "gi");
+    const parts = text.toString().split(regex);
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <span key={i} className="bg-yellow-200">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <div className="space-y-2">
       {/* Header */}
-      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
         <h2 className="font-semibold text-xl">Shift Mapping</h2>
-        <div className="flex items-center text-sm gap-3">
-          <button
-            onClick={fetchAllData}
-            disabled={loadingData}
-            className="flex items-center cursor-pointer gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg disabled:opacity-60"
-          >
-            {loadingData ? (
-              <>
-                <Spinner /> <span>Refreshing...</span>
-              </>
-            ) : (
-              <>
-                <FiRefreshCw /> Refresh
-              </>
-            )}
-          </button>
+        <div className="flex flex-col md:flex-row md:items-center gap-2">
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search by employee name or code"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
+          />
 
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center cursor-pointer gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
-          >
-            <FiPlus /> Assign Shift
-          </button>
+          {/* Refresh & Add Buttons */}
+          <div className="flex items-center text-sm gap-3">
+            <button
+              onClick={fetchAllData}
+              disabled={loadingData}
+              className="flex items-center cursor-pointer gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg disabled:opacity-60"
+            >
+              {loadingData ? (
+                <>
+                  <Spinner /> Refreshing...
+                </>
+              ) : (
+                <>
+                  <FiRefreshCw /> Refresh
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center cursor-pointer gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
+            >
+              <FiPlus /> Assign Shift
+            </button>
+          </div>
         </div>
       </div>
 
@@ -155,7 +190,7 @@ const ShiftMapping = () => {
 
         {loadingData ? (
           <p>Loading...</p>
-        ) : shiftMappings.length === 0 ? (
+        ) : filteredMappings.length === 0 ? (
           <p className="text-gray-500 text-sm">No shift mappings found.</p>
         ) : (
           <div className="overflow-x-auto shadow">
@@ -170,14 +205,14 @@ const ShiftMapping = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {shiftMappings.map((m, i) => (
+                {filteredMappings.map((m, i) => (
                   <tr
                     key={m.employeeShiftMappingId}
                     className="hover:bg-gray-50"
                   >
                     <td className="px-3 py-2">{i + 1}</td>
                     <td className="px-3 py-2">
-                      {getEmployeeName(m.employeeId)}
+                      {highlightText(getEmployeeName(m.employeeId))}
                     </td>
                     <td className="px-3 py-2">{getShiftName(m.shiftId)}</td>
                     <td className="px-3 py-2">

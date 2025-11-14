@@ -7,8 +7,9 @@ const Attendance = () => {
   const [attendanceData, setAttendanceData] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); 
 
-  // Fetch attendance records (using correct API)
+  // Fetch attendance records
   const fetchAttendance = async () => {
     setLoading(true);
     try {
@@ -22,13 +23,12 @@ const Attendance = () => {
       }
     } catch (error) {
       console.error("Error fetching attendance:", error);
-      // toast.error("Failed to fetch attendance data");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch all employees for name mapping
+  // Fetch employees
   const fetchEmployees = async () => {
     try {
       const res = await axiosInstance.get("/Employee");
@@ -38,10 +38,27 @@ const Attendance = () => {
     }
   };
 
-  // Get Employee Name by ID
+  // Get employee name by ID
   const getEmployeeName = (id) => {
     const emp = employees.find((e) => e.employeeId === id || e.id === id);
     return emp ? `${emp.fullName} (${emp.employeeCode})` : `Emp#${id}`;
+  };
+
+  // Filtered attendance based on search
+  const filteredAttendance = attendanceData.filter((item) =>
+    getEmployeeName(item.employeeId)
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
+  // Highlight search matches
+  const highlightText = (text) => {
+    if (!searchQuery) return text;
+    const regex = new RegExp(`(${searchQuery})`, "gi");
+    const parts = text.toString().split(regex);
+    return parts.map((part, i) =>
+      regex.test(part) ? <span key={i} className="bg-yellow-200">{part}</span> : part
+    );
   };
 
   useEffect(() => {
@@ -52,20 +69,29 @@ const Attendance = () => {
   return (
     <>
       {/* Header */}
-      <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
         <h2 className="font-semibold text-xl">Attendance Record</h2>
-        <button
-          onClick={fetchAttendance}
-          className="flex cursor-pointer items-center text-sm gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
-        >
-          <FiRefreshCw /> Refresh
-        </button>
+        <div className="flex items-center gap-2 flex-col md:flex-row w-full md:w-auto">
+          <input
+            type="text"
+            placeholder="Search by employee name or code"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <button
+            onClick={fetchAttendance}
+            className="flex cursor-pointer items-center text-sm gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
+          >
+            <FiRefreshCw /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto shadow rounded-lg bg-white mx-3">
-        <table className="min-w-full divide-y text-sm divide-gray-200">
-          <thead className="bg-gray-100 text-gray-600 text-center">
+        <table className="min-w-full divide-y text-sm divide-gray-200 text-center">
+          <thead className="bg-gray-100 text-gray-600">
             <tr>
               <th className="py-2 px-3">Employee</th>
               <th className="py-2 px-3">Date</th>
@@ -85,15 +111,13 @@ const Attendance = () => {
                   Loading attendance data...
                 </td>
               </tr>
-            ) : attendanceData.length > 0 ? (
-              attendanceData.map((item) => (
+            ) : filteredAttendance.length > 0 ? (
+              filteredAttendance.map((item) => (
                 <tr
                   key={item.attendanceRecordId}
-                  className="hover:bg-gray-50 text-center"
+                  className="hover:bg-gray-50"
                 >
-                  <td className="py-2 px-3">
-                    {getEmployeeName(item.employeeId)}
-                  </td>
+                  <td className="py-2 px-3">{highlightText(getEmployeeName(item.employeeId))}</td>
                   <td className="py-2 px-3">
                     {new Date(item.attendanceDate).toLocaleDateString("en-GB")}
                   </td>
@@ -113,7 +137,7 @@ const Attendance = () => {
                         })
                       : "-"}
                   </td>
-                  <td className="py-2 px-3">{item.totalHoursWorked.toFixed(2) || "-"}</td>
+                  <td className="py-2 px-3">{item.totalHoursWorked?.toFixed(2) || "-"}</td>
                   <td className="py-2 px-3">
                     {item.shiftSegments?.reduce(
                       (sum, seg) => sum + (seg.lateMinutes || 0),
@@ -132,9 +156,7 @@ const Attendance = () => {
                       0
                     ) || 0}
                   </td>
-                  <td className="py-2 px-3 text-gray-600">
-                    {item.remarks || "-"}
-                  </td>
+                  <td className="py-2 px-3 text-gray-600">{item.remarks || "-"}</td>
                 </tr>
               ))
             ) : (

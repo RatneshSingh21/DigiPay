@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 import {
@@ -17,6 +17,12 @@ const UPDATE_BASIC_ENDPOINT = (id) => `/Employee/${id}`;
 const genderOptions = ["Male", "Female", "Other"];
 
 const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
+  // Dropdown data states
+  const [departments, setDepartments] = useState([]);
+  const [designations, setDesignations] = useState([]);
+  const [workLocations, setWorkLocations] = useState([]);
+  const [paySchedules, setPaySchedules] = useState([]);
+
   const [form, setForm] = useState({
     fullName: data?.fullName || "",
     employeeCode: data?.employeeCode || "",
@@ -29,11 +35,34 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
     gender: data?.gender || "",
     isDirector: data?.isDirector ?? false,
     portalAccessEnabled: data?.portalAccessEnabled ?? true,
-    dateOfJoining: data?.dateOfJoining
-      ? data.dateOfJoining.slice(0, 10)
-      : "",
+    dateOfJoining: data?.dateOfJoining ? data.dateOfJoining.slice(0, 10) : "",
   });
+
   const [saving, setSaving] = useState(false);
+
+  // Fetch dropdown data
+  useEffect(() => {
+    fetchDropdowns();
+  }, []);
+
+  const fetchDropdowns = async () => {
+    try {
+      const [depRes, desRes, locRes, payRes] = await Promise.all([
+        axiosInstance.get("/Department"),
+        axiosInstance.get("/Designation"),
+        axiosInstance.get("/WorkLocation"),
+        axiosInstance.get("/PaySchedule/all"),
+      ]);
+
+      setDepartments(depRes.data || []);
+      setDesignations(desRes.data || []);
+      setWorkLocations(locRes.data || []);
+      setPaySchedules(payRes.data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load dropdown data");
+    }
+  };
 
   const onChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -66,10 +95,7 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
           variant="contained"
           onClick={onSave}
           disabled={saving}
-          sx={{
-            borderRadius: 2,
-            textTransform: "none",
-          }}
+          sx={{ borderRadius: 2, textTransform: "none" }}
         >
           {saving ? "Saving…" : "Save"}
         </Button>
@@ -87,6 +113,7 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             fullWidth
           />
         </Grid>
+
         <Grid item xs={12} md={4}>
           <TextField
             label="Employee Code"
@@ -97,17 +124,19 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             fullWidth
           />
         </Grid>
+
         <Grid item xs={12} md={4}>
           <TextField
             label="Work Email"
-            type="email"
             name="workEmail"
             value={form.workEmail}
             onChange={onChange}
             size="small"
             fullWidth
+            type="email"
           />
         </Grid>
+
         <Grid item xs={12} md={4}>
           <TextField
             label="Mobile Number"
@@ -119,6 +148,8 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             inputProps={{ maxLength: 10 }}
           />
         </Grid>
+
+        {/* Gender */}
         <Grid item xs={12} md={4}>
           <TextField
             select
@@ -126,8 +157,8 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             name="gender"
             value={form.gender}
             onChange={onChange}
-            size="small"
             fullWidth
+            size="small"
           >
             {genderOptions.map((g) => (
               <MenuItem key={g} value={g}>
@@ -136,50 +167,84 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             ))}
           </TextField>
         </Grid>
+
+        {/* Department */}
         <Grid item xs={12} md={4}>
           <TextField
-            label="Department ID"
+            select
+            label="Department"
             name="departmentId"
             value={form.departmentId}
             onChange={onChange}
-            size="small"
             fullWidth
-            type="number"
-          />
+            size="small"
+          >
+            {departments.map((d) => (
+              <MenuItem key={d.id} value={d.id}>
+                {d.name}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
+
+        {/* Designation */}
         <Grid item xs={12} md={4}>
           <TextField
-            label="Designation ID"
+            select
+            label="Designation"
             name="designationId"
             value={form.designationId}
             onChange={onChange}
-            size="small"
             fullWidth
-            type="number"
-          />
+            size="small"
+          >
+            {designations.map((d) => (
+              <MenuItem key={d.id} value={d.id}>
+                {d.title}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
+
+        {/* Work Location */}
         <Grid item xs={12} md={4}>
           <TextField
-            label="Work Location ID"
+            select
+            label="Work Location"
             name="workLocationId"
             value={form.workLocationId}
             onChange={onChange}
-            size="small"
             fullWidth
-            type="number"
-          />
+            size="small"
+          >
+            {workLocations.map((w) => (
+              <MenuItem key={w.id} value={w.id}>
+                {w.name}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
+
+        {/* Pay Schedule */}
         <Grid item xs={12} md={4}>
           <TextField
-            label="Pay Schedule ID"
+            select
+            label="Pay Schedule"
             name="payScheduleId"
             value={form.payScheduleId}
             onChange={onChange}
-            size="small"
             fullWidth
-            type="number"
-          />
+            size="small"
+          >
+            {paySchedules.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.name}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
+
+        {/* Date of Joining */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Date of Joining"
@@ -189,11 +254,11 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             onChange={onChange}
             size="small"
             fullWidth
-            InputLabelProps={{
-              shrink: true,
-            }}
+            InputLabelProps={{ shrink: true }}
           />
         </Grid>
+
+        {/* Checkboxes */}
         <Grid item xs={12} md={4} display="flex" alignItems="center">
           <FormControlLabel
             control={
@@ -206,6 +271,7 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             label="Is Director"
           />
         </Grid>
+
         <Grid item xs={12} md={4} display="flex" alignItems="center">
           <FormControlLabel
             control={

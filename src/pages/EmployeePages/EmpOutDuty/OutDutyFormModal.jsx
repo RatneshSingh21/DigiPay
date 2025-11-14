@@ -1,23 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
+import Select from "react-select";
 
 const OutDutyFormModal = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     inDateTime: "",
     outDateTime: "",
     reason: "",
+    approvers: [],
   });
 
   const [loading, setLoading] = useState(false);
+  const [loadingApprovers, setLoadingApprovers] = useState(false);
   const [error, setError] = useState("");
+  const [approverOptions, setApproverOptions] = useState([]);
 
   // ---------------- Handle Input ----------------
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  // ---------------- Fetch Approvers ----------------
+  useEffect(() => {
+    const fetchApprovers = async () => {
+      try {
+        setLoadingApprovers(true);
+        const res = await axiosInstance.get(
+          "/EmployeeRoleMapping/approvers/all"
+        );
+
+        if (Array.isArray(res.data)) {
+          const outDutyRule = res.data.find(
+            (rule) => rule.requestType?.toLowerCase() === "onduty"
+          );
+
+          if (outDutyRule?.approvers?.length) {
+            const formatted = outDutyRule.approvers.map((a) => ({
+              value: a.employeeId,
+              label: `${a.employeeName} (${a.roleName})`,
+              role: a.roleName,
+            }));
+            setApproverOptions(formatted);
+
+            // Auto-select Admin(s)
+            const adminApprovers = formatted.filter(
+              (emp) => emp.role?.toLowerCase() === "admin"
+            );
+            if (adminApprovers.length > 0) {
+              setFormData((prev) => ({ ...prev, approvers: adminApprovers }));
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load approvers");
+      } finally {
+        setLoadingApprovers(false);
+      }
+    };
+
+    fetchApprovers();
+  }, []);
 
   // ---------------- Validation ----------------
   const validateForm = () => {
@@ -60,12 +106,12 @@ const OutDutyFormModal = ({ onClose, onSuccess }) => {
     try {
       setLoading(true);
 
-      // ⚡ Keep exact local datetime string (no timezone conversion)
       const payload = {
         inDateTime: formData.inDateTime,
         outDateTime: formData.outDateTime,
         reason: formData.reason.trim(),
         isActive: true,
+        customApproverIds: formData.approvers?.map((a) => a.value) || [],
       };
 
       await axiosInstance.post("/OnDuty", payload);
@@ -150,6 +196,23 @@ const OutDutyFormModal = ({ onClose, onSuccess }) => {
               value={formData.reason}
               onChange={handleChange}
               required
+            />
+          </div>
+
+          {/* Approvers */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Approvers
+            </label>
+            <Select
+              options={approverOptions}
+              value={formData.approvers}
+              onChange={(val) =>
+                setFormData((prev) => ({ ...prev, approvers: val || [] }))
+              }
+              isMulti
+              isLoading={loadingApprovers}
+              placeholder="Select approvers"
             />
           </div>
 

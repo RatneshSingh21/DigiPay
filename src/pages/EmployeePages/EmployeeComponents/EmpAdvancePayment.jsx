@@ -64,7 +64,7 @@ const EmpAdvancePayment = () => {
       setAdvanceRequests(res.data?.data || []);
     } catch (error) {
       console.error("Error fetching advance payments:", error);
-      toast.error("Failed to load advance payments");
+      // toast.error("Failed to load advance payments");
     }
   };
 

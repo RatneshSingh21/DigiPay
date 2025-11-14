@@ -2,29 +2,14 @@ import React, { useState, useEffect } from "react";
 import { FiChevronDown } from "react-icons/fi";
 import PerDayAttendanceCalendar from "./PerDayAttendanceCalendar";
 import ModalOverlay from "../../../../components/ModalOverlay";
-import axiosInstance from "../../../../axiosInstance/axiosInstance"; // your axios setup
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
-const AttendanceResultTable = ({ results }) => {
+const AttendanceResultTable = ({
+  results,
+  highlightText,     
+  getEmployeeName,     
+}) => {
   const [selectedDetails, setSelectedDetails] = useState(null);
-  const [employeeMap, setEmployeeMap] = useState({}); 
-
-  // Fetch employee details by Id
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      const map = {};
-      for (const item of results) {
-        try {
-          const res = await axiosInstance.get(`/Employee/${item.employeeId}`);
-          map[item.employeeId] = res.data; 
-        } catch (err) {
-          console.error("Failed to fetch employee", item.employeeId, err);
-        }
-      }
-      setEmployeeMap(map);
-    };
-
-    if (results.length) fetchEmployees();
-  }, [results]);
 
   if (results.length === 0)
     return <p className="text-center text-gray-500">No data available.</p>;
@@ -44,16 +29,17 @@ const AttendanceResultTable = ({ results }) => {
         </thead>
         <tbody>
           {results.map((item) => {
-            const employee = employeeMap[item.employeeId];
+            const employeeName = getEmployeeName
+              ? getEmployeeName(item.employeeId)
+              : item.employeeId;
+
             return (
               <tr
                 key={item.attendanceCalculationResultID}
                 className="border-t hover:bg-gray-50"
               >
-                <td className="p-2">
-                  {employee
-                    ? `${employee.fullName} (${employee.employeeCode})`
-                    : item.employeeId}
+                <td className="p-2 text-center">
+                  {highlightText ? highlightText(employeeName) : employeeName}
                 </td>
                 <td className="p-2">{item.companyId}</td>
                 <td className="p-2">{item.totalLateMinutes}</td>
@@ -80,7 +66,7 @@ const AttendanceResultTable = ({ results }) => {
         onClose={() => setSelectedDetails(null)}
         title={
           selectedDetails
-            ? `Attendance Details - Employee ${selectedDetails.employeeId}`
+            ? `Attendance Details - ${getEmployeeName(selectedDetails.employeeId)}`
             : ""
         }
       >

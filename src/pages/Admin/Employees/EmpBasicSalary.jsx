@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import Spinner from "../../../components/Spinner";
@@ -7,6 +7,7 @@ import assets from "../../../assets/assets";
 const EmpBasicSalary = () => {
   const [salaries, setSalaries] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 new
 
   const fetchSalaries = async () => {
     try {
@@ -29,18 +30,48 @@ const EmpBasicSalary = () => {
     fetchSalaries();
   }, []);
 
+  // 🔍 Filter logic (by employee name or code)
+  const filteredSalaries = useMemo(() => {
+    if (!searchTerm) return salaries;
+    const lower = searchTerm.toLowerCase();
+    return salaries.filter(
+      (emp) =>
+        emp.employeeName?.toLowerCase().includes(lower) ||
+        emp.employeeCode?.toLowerCase().includes(lower)
+    );
+  }, [salaries, searchTerm]);
+
   return (
     <div className="bg-white shadow rounded-xl">
-       {/* Header */}
+      {/* Header */}
       <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex flex-wrap justify-between items-center gap-4">
         <h2 className="font-semibold text-xl">Employee Salary Details</h2>
+
+        {/* 🔍 Search Box */}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="Search by Name or Code"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-3 py-2 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm min-w-[220px]"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="px-3 py-2 border cursor-pointer border-gray-300 bg-gray-50 rounded hover:bg-gray-100 text-sm"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-20">
           <Spinner />
         </div>
-      ) : salaries.length > 0 ? (
+      ) : filteredSalaries.length > 0 ? (
         <div className="mt-4 mx-4 p-4 border max-w-xl md:max-w-5xl 2xl:max-w-full overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh]">
           <table className="min-w-full divide-y divide-gray-200 text-xs">
             <thead className="bg-gray-100 text-gray-600 text-center">
@@ -65,7 +96,7 @@ const EmpBasicSalary = () => {
             </thead>
 
             <tbody className="divide-y divide-gray-100 text-center">
-              {salaries.map((emp, index) => (
+              {filteredSalaries.map((emp, index) => (
                 <tr
                   key={emp.employeeSalaryEntityID}
                   className={`hover:bg-gray-50 transition-all ${

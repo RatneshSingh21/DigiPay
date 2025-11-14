@@ -19,14 +19,14 @@ const data = [
   {
     id: 3,
     name: "Personal Details",
-    importApi: "/Employee/import-personal",
-    exportApi: "/Employee/export-personal",
+    importApi: "/PersonalDetails/import",
+    exportApi: "/PersonalDetails/export",
   },
   {
     id: 4,
     name: "Payment Info",
-    importApi: "/Employee/import-payment",
-    exportApi: "/Employee/export-payment",
+    importApi: "/BankDetails/import",
+    exportApi: "/BankDetails/export",
   },
 ];
 

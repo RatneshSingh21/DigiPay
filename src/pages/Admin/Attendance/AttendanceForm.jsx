@@ -127,7 +127,7 @@ const AttendanceForm = () => {
       return;
     }
 
-    // ✅ Build local ISO-like strings without timezone conversion
+    // Build local ISO-like strings without timezone conversion
     const buildLocalDateTime = (dateStr, timeStr) => {
       if (!timeStr) return null;
       return `${dateStr}T${timeStr}:00`; // e.g., "2025-11-06T09:00:00"
