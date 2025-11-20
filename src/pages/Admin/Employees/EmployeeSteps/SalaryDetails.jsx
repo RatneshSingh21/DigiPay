@@ -28,7 +28,7 @@ const SalaryDetails = () => {
   const employeeCode = basicDetails.employeeId || "N/A";
   const email = basicDetails.workEmail || "N/A";
   const departmentName = basicDetails.department?.label || "N/A";
-console.log(salaryDetails);
+  console.log(salaryDetails);
 
   useEffect(() => {
     if (!user?.userId) return;
@@ -185,11 +185,48 @@ console.log(salaryDetails);
   const totalDeductions = deductions.reduce((sum, d) => sum + d.monthly, 0);
   const netPay = totalEarnings - totalDeductions;
 
+  useEffect(() => {
+    if (!employeeId) return;
+
+    axiosInstance
+      .get(`/EmployeeSalary/employee/${employeeId}`)
+      .then((res) => {
+        if (res.data) {
+          // Salary Exists → Pre-fill store
+          setStepData("salaryDetails", res.data);
+
+          // Prefill Basic Salary
+          if (res.data.basicSalary) {
+            setBasicSalary(res.data.basicSalary);
+          }
+
+          // Prefill Earnings & Deductions
+          setEarnings((prev) =>
+            prev.map((e) => ({
+              ...e,
+              monthly: res.data[e.componentName] ?? e.monthly,
+              annual: (res.data[e.componentName] ?? e.monthly) * 12,
+            }))
+          );
+
+          setDeductions((prev) =>
+            prev.map((d) => ({
+              ...d,
+              monthly: res.data[d.componentName] ?? d.monthly,
+              annual: (res.data[d.componentName] ?? d.monthly) * 12,
+            }))
+          );
+        }
+      })
+      .catch(() => console.log("Salary not found → will create new"));
+  }, [employeeId]);
+
   const handleSave = async () => {
     try {
       setLoading(true);
 
       const allComponents = [...earnings, ...deductions];
+
       const salaryPayload = {
         employeeId,
         employeeCode,
@@ -203,6 +240,7 @@ console.log(salaryDetails);
         overtimeRate: findMonthly("overtimeRate"),
         leaveEncashment: findMonthly("leaveEncashment"),
         specialAllowance: findMonthly("specialAllowance"),
+
         pfEmployee: findMonthly("pfEmployee"),
         esicEmployee: findMonthly("esicEmployee"),
         professionalTax: findMonthly("professionalTax"),
@@ -210,26 +248,28 @@ console.log(salaryDetails);
         loanRepayment: findMonthly("loanRepayment"),
         otherDeductions: findMonthly("otherDeductions"),
       };
- 
+
       function findMonthly(name) {
         const comp = allComponents.find((c) => c.componentName === name);
         return comp ? comp.monthly : 0;
       }
 
-      console.log(salaryPayload);
+      console.log("Final Payload:", salaryPayload);
 
       if (salaryDetails?.employeeId) {
-        await axiosInstance.put("/EmployeeSalary/update", salaryPayload);
+        // 🔥 SALARY EXISTS → PATCH
+        await axiosInstance.patch(
+          "/EmployeeSalary/employee/update-salary",
+          salaryPayload
+        );
         toast.success("Salary updated successfully");
       } else {
+        // 🆕 CREATE NEW
         await axiosInstance.post("/EmployeeSalary/create", salaryPayload);
         toast.success("Salary created successfully");
       }
 
-      // Store data in step state
       setStepData("salaryDetails", salaryPayload);
-
-      // Move to next step reactively
       setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
     } catch (err) {
       console.error(err);
@@ -369,7 +409,7 @@ console.log(salaryDetails);
           disabled={loading}
           className="flex items-center cursor-pointer justify-center gap-2 px-4 py-2 bg-primary text-white rounded-full hover:bg-secondary"
         >
-         {loading && <Spinner />} Save and Continue
+          {loading && <Spinner />} Save and Continue
         </button>
       </div>
     </div>

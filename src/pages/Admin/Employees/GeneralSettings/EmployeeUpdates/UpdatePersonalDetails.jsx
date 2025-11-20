@@ -12,6 +12,7 @@ import {
 
 const GET_PERSONAL_ENDPOINT = (id) => `/PersonalDetails/${id}`;
 const UPDATE_PERSONAL_ENDPOINT = `/PersonalDetails/update`;
+const SAVE_PERSONAL_ENDPOINT = `/PersonalDetails/save`;
 
 // -----------------------------
 // OPTIONS
@@ -101,8 +102,17 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
           });
         }
       } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch personal details");
+        if (err.response?.status === 404) {
+          // No personal details found → leave form as default for new entry
+          console.warn("No personal details found. Creating new entry.");
+          setForm((prev) => ({
+            ...prev,
+            employeeId,
+          }));
+        } else {
+          console.error(err);
+          toast.error("Failed to fetch personal details");
+        }
       } finally {
         setLoading(false);
       }
@@ -123,12 +133,33 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
   const onSave = async () => {
     try {
       setSaving(true);
-      await axiosInstance.put(UPDATE_PERSONAL_ENDPOINT, form);
-      toast.success("Personal details updated");
-      onLocalUpdate?.(form);
+
+      if (
+        form.employeePersonalDetailsId === 0 ||
+        !form.employeePersonalDetailsId
+      ) {
+        // CREATE NEW
+        const res = await axiosInstance.post(SAVE_PERSONAL_ENDPOINT, form);
+
+        toast.success("Personal details saved");
+        onLocalUpdate?.(res.data);
+
+        // Update form with created ID if API returns it
+        if (res.data?.employeePersonalDetailsId) {
+          setForm((prev) => ({
+            ...prev,
+            employeePersonalDetailsId: res.data.employeePersonalDetailsId,
+          }));
+        }
+      } else {
+        // UPDATE EXISTING
+        await axiosInstance.put(UPDATE_PERSONAL_ENDPOINT, form);
+        toast.success("Personal details updated");
+        onLocalUpdate?.(form);
+      }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update personal details");
+      toast.error("Failed to save personal details");
     } finally {
       setSaving(false);
     }

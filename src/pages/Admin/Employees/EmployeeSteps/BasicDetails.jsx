@@ -106,6 +106,7 @@ const BasicDetails = () => {
       workLocationId: form.workLocation?.value || 0,
       payScheduleId: form.payschedule?.value || 0,
       portalAccessEnabled: portalAccess,
+      aadhaarCardNumber:form.aadhaarCardNumber
     };
 
     try {
@@ -296,7 +297,23 @@ const BasicDetails = () => {
             // allowAddOption
             // onAddNewOption={() => setOpenModalField("payschedule")}
           />
+          <div>
+            <label className="block font-medium mb-1">
+              Aadhar Number <span className="text-red-500">*</span>
+            </label>
+            <input
+              required
+              placeholder="Aadhar Number"
+              name="aadhaarCardNumber"
+              value={form.aadhaarCardNumber || ""}
+              onChange={handleChange}
+              type="text"
+              maxLength={12}
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
         </div>
+        
 
         <div className="mb-4">
           <label className="inline-flex items-start">

@@ -36,6 +36,7 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
     isDirector: data?.isDirector ?? false,
     portalAccessEnabled: data?.portalAccessEnabled ?? true,
     dateOfJoining: data?.dateOfJoining ? data.dateOfJoining.slice(0, 10) : "",
+    aadhaarCardNumber: data?.aadhaarCardNumber || "",
   });
 
   const [saving, setSaving] = useState(false);
@@ -142,6 +143,18 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             label="Mobile Number"
             name="mobileNumber"
             value={form.mobileNumber}
+            onChange={onChange}
+            size="small"
+            fullWidth
+            inputProps={{ maxLength: 10 }}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Aadhar Number"
+            name="aadhaarCardNumber"
+            value={form.aadhaarCardNumber}
             onChange={onChange}
             size="small"
             fullWidth

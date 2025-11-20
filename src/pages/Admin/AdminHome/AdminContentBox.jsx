@@ -25,7 +25,8 @@ const submenuMap = {
     // "Leave Balance",
     "Holiday List",
     "Employee Leave",
-    "Employee Advance Payments",
+    "Leave Allocation",
+    "Advance Payments",
   ],
 
   Policy: [
@@ -47,6 +48,7 @@ const submenuMap = {
     "OT Master",
     "OT Rule",
     "OT Calculation",
+    "OT Permission"
   ],
 
   Attendance: [

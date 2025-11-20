@@ -32,23 +32,23 @@ const EmpExpenses = () => {
   const [showModal, setShowModal] = useState(false);
   const employeeId = useAuthStore((state) => state.user?.userId);
   const [headerOptions, setHeaderOptions] = useState([]);
-const [selectedHeader, setSelectedHeader] = useState(null);
-
+  const [selectedHeader, setSelectedHeader] = useState(null);
 
   // Fetch all expenses
   const fetchExpenses = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get(`/ExpenseDetails/by-employee/${employeeId}`);
-    if (res.data?.data) {
-  setExpenses(res.data.data || []);
-  const uniqueHeaders = [
-    ...new Set(res.data.data.map((e) => e.expenseDetailsName)),
-  ];
-  const formatted = uniqueHeaders.map((h) => ({ value: h, label: h }));
-  setHeaderOptions(formatted);
-}
-
+      const res = await axiosInstance.get(
+        `/ExpenseDetails/by-employee/${employeeId}`
+      );
+      if (res.data?.data) {
+        setExpenses(res.data.data || []);
+        const uniqueHeaders = [
+          ...new Set(res.data.data.map((e) => e.expenseDetailsName)),
+        ];
+        const formatted = uniqueHeaders.map((h) => ({ value: h, label: h }));
+        setHeaderOptions(formatted);
+      }
     } catch (err) {
       console.error(err);
       toast.error(err?.response?.data?.message || "Failed to fetch expenses");
@@ -70,25 +70,24 @@ const [selectedHeader, setSelectedHeader] = useState(null);
         </h2>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-primary hover:bg-secondary transition text-white px-4 py-2 rounded-md text-sm flex items-center gap-2 shadow"
+          className="bg-primary hover:bg-secondary cursor-pointer transition text-white px-4 py-2 rounded-md text-sm flex items-center gap-2 shadow"
         >
           <FaPlus /> Add Expense
         </button>
       </div>
 
       {/* Search by Header */}
-<div className="px-6 mb-4 flex justify-end">
-  <div className="w-full sm:w-64">
-    <Select
-      options={headerOptions}
-      value={selectedHeader}
-      onChange={(selected) => setSelectedHeader(selected)}
-      isClearable
-      placeholder="Search by Header..."
-    />
-  </div>
-</div>
-
+      <div className="px-6 mb-4 flex justify-end">
+        <div className="w-full sm:w-64">
+          <Select
+            options={headerOptions}
+            value={selectedHeader}
+            onChange={(selected) => setSelectedHeader(selected)}
+            isClearable
+            placeholder="Search by Header..."
+          />
+        </div>
+      </div>
 
       {/* List */}
       {loading ? (
@@ -96,76 +95,81 @@ const [selectedHeader, setSelectedHeader] = useState(null);
       ) : expenses.length > 0 ? (
         <div className="grid gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3">
           {expenses
-  .filter((exp) =>
-    selectedHeader ? exp.expenseDetailsName === selectedHeader.value : true
-  )
-  .map((exp) => {
-
-            const status = getStatusBadge(exp.statusId);
-            return (
-              <div
-                key={exp.expenseDetailsId}
-                className="rounded-xl bg-white shadow-md hover:shadow-lg hover:cursor-pointer hover:border-blue-200 transition-all duration-300 overflow-hidden border border-gray-100"
-              >
-                <div className="p-5 flex flex-col h-full">
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-gray-800 text-lg truncate flex items-center gap-2">
-                      <FaFileInvoiceDollar className="text-primary" />
-                      {exp.expenseDetailsName || "Unnamed Expense"}
-                    </h3>
-                    <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${status.color}`}
-                    >
-                      {status.text}
-                    </span>
-                  </div>
-
-                  {/* Details */}
-                  <div className="text-sm text-gray-600 space-y-1 mb-3">
-                    <p className="flex items-center gap-2">
-                      <FaRupeeSign className="text-primary" />
-                      <strong>Amount:</strong> ₹{exp.amount || 0}
-                    </p>
-                    <p className="flex items-center gap-2 text-xs text-gray-500">
-                      <FaCalendarAlt className="text-secondary" />
-                      <strong>Date:</strong>{" "}
-                      {exp.expenseDate
-                        ? new Date(exp.expenseDate).toLocaleDateString("en-GB")
-                        : "N/A"}
-                    </p>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                    {exp.description || "No description provided."}
-                  </p>
-
-                  {/* File + Footer */}
-                  <div className="mt-auto flex justify-between items-center pt-3 border-t border-gray-100">
-                    {exp.filePath ? (
-                      <a
-                        href={exp.filePath}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-primary text-sm hover:text-secondary transition"
+            .filter((exp) =>
+              selectedHeader
+                ? exp.expenseDetailsName === selectedHeader.value
+                : true
+            )
+            .map((exp) => {
+              const status = getStatusBadge(exp.statusId);
+              return (
+                <div
+                  key={exp.expenseDetailsId}
+                  className="rounded-xl bg-white shadow-md hover:shadow-lg hover:cursor-pointer hover:border-blue-200 transition-all duration-300 overflow-hidden border border-gray-100"
+                >
+                  <div className="p-5 flex flex-col h-full">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-800 text-lg truncate flex items-center gap-2">
+                        <FaFileInvoiceDollar className="text-primary" />
+                        {exp.expenseDetailsName || "Unnamed Expense"}
+                      </h3>
+                      <span
+                        className={`text-xs font-medium px-2 py-1 rounded-full ${status.color}`}
                       >
-                        <FaDownload /> View File
-                      </a>
-                    ) : (
-                      <span className="text-gray-400 text-sm">No File</span>
-                    )}
-                    <span className="text-xs text-gray-400">
-                      ID: #{exp.expenseDetailsId}
-                    </span>
+                        {status.text}
+                      </span>
+                    </div>
+
+                    {/* Details */}
+                    <div className="text-sm text-gray-600 space-y-1 mb-3">
+                      <p className="flex items-center gap-2">
+                        <FaRupeeSign className="text-primary" />
+                        <strong>Amount:</strong> ₹{exp.amount || 0}
+                      </p>
+                      <p className="flex items-center gap-2 text-xs text-gray-500">
+                        <FaCalendarAlt className="text-secondary" />
+                        <strong>Date:</strong>{" "}
+                        {exp.expenseDate
+                          ? new Date(exp.expenseDate).toLocaleDateString(
+                              "en-GB"
+                            )
+                          : "N/A"}
+                      </p>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+                      {exp.description || "No description provided."}
+                    </p>
+
+                    {/* File + Footer */}
+                    <div className="mt-auto flex justify-between items-center pt-3 border-t border-gray-100">
+                      {exp.filePath ? (
+                        <a
+                          href={exp.filePath}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-primary text-sm hover:text-secondary transition"
+                        >
+                          <FaDownload /> View File
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 text-sm">No File</span>
+                      )}
+                      <span className="text-xs text-gray-400">
+                        ID: #{exp.expenseDetailsId}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       ) : (
-        <div className="text-center text-gray-500 py-20">No expenses found.</div>
+        <div className="text-center text-gray-500 py-20">
+          No expenses found.
+        </div>
       )}
 
       {/* Modal */}

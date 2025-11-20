@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import AttendancePolicyForm from "./AttendancePolicyForm";
-import { FiPlus } from "react-icons/fi";
+import { FiEdit2, FiPlus } from "react-icons/fi";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Pagination from "../../../components/Pagination";
 
@@ -9,6 +9,7 @@ const AttendancePolicyList = () => {
   const [policies, setPolicies] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [editData, setEditData] = useState(null);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,7 +61,7 @@ const AttendancePolicyList = () => {
                 key={policy.attendancePolicyId}
                 className="border rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-200"
               >
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-between items-center mb-2 gap-2">
                   <h3 className="font-semibold text-sm">{policy.policyName}</h3>
                   <span
                     className={`text-xs px-2 py-1 rounded ${
@@ -71,8 +72,20 @@ const AttendancePolicyList = () => {
                   >
                     {policy.isActive ? "Active" : "Inactive"}
                   </span>
+                  <button
+                    onClick={() => {
+                      setEditData(policy);
+                      setShowModal(true);
+                    }}
+                    className="flex items-center text-xs cursor-pointer gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600  font-medium rounded-md transition duration-200"
+                    title="Edit"
+                  >
+                    <FiEdit2 size={10} />
+                    Edit
+                  </button>
                 </div>
                 <hr className="border-t my-2" />
+
                 <p className="text-xs text-gray-600 mb-2">
                   {policy.description}
                 </p>
@@ -89,6 +102,12 @@ const AttendancePolicyList = () => {
                     {policy.effectiveTo
                       ? new Date(policy.effectiveTo).toLocaleDateString("en-GB")
                       : "-"}
+                  </div>
+                  <div>
+                    <strong>Full Day Hours:</strong> {policy.fullDayHours}
+                  </div>
+                  <div>
+                    <strong>Half Day Hours:</strong> {policy.halfDayHours}
                   </div>
                   <div>
                     <strong>Shifts Ids:</strong> {policy.shiftIds.join(", ")}
@@ -165,8 +184,12 @@ const AttendancePolicyList = () => {
       {/* Modal Form */}
       {showModal && (
         <AttendancePolicyForm
-          onClose={() => setShowModal(false)}
+          onClose={() => {
+            setShowModal(false);
+            setEditData(null);
+          }}
           onSuccess={fetchPolicies}
+          initialData={editData}
         />
       )}
     </div>

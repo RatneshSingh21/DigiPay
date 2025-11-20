@@ -110,25 +110,19 @@ const PreviewPage = () => {
 
         {/* Payment Info */}
         <Section title="Payment Info">
-          {paymentInfo?.data ? (
+          {paymentInfo ? (
             <>
               <Row
                 label="Account Holder Name"
-                value={paymentInfo.data.accountHolderName}
+                value={paymentInfo.accountHolderName}
               />
-              <Row label="Bank Name" value={paymentInfo.data.bankName} />
-              <Row label="Branch Name" value={paymentInfo.data.branchName} />
-              <Row
-                label="Branch Address"
-                value={paymentInfo.data.branchAddress}
-              />
-              <Row
-                label="Account Number"
-                value={paymentInfo.data.accountNumber}
-              />
-              <Row label="Account Type" value={paymentInfo.data.accountType} />
-              <Row label="IFSC Code" value={paymentInfo.data.ifscCode} />
-              <Row label="Payment Mode" value={paymentInfo.data.paymentMode} />
+              <Row label="Bank Name" value={paymentInfo.bankName} />
+              <Row label="Branch Name" value={paymentInfo.branchName} />
+              <Row label="Branch Address" value={paymentInfo.branchAddress} />
+              <Row label="Account Number" value={paymentInfo.accountNumber} />
+              <Row label="Account Type" value={paymentInfo.accountType} />
+              <Row label="IFSC Code" value={paymentInfo.ifscCode} />
+              <Row label="Payment Mode" value={paymentInfo.paymentMode} />
             </>
           ) : (
             <p className="text-gray-500 italic py-2">

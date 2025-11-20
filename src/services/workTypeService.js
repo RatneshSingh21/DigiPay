@@ -1,8 +1,7 @@
 import axiosInstance from "../axiosInstance/axiosInstance";
 
-
 // ---------- Category ----------
-export const getAllCategories = () => axiosInstance   .get("/Category/all");
+export const getAllCategories = () => axiosInstance.get("/Category/all");
 const mapCategoryOptions = (response) => {
   const data = response?.data?.data || [];
   return data.map((item) => ({
@@ -12,7 +11,8 @@ const mapCategoryOptions = (response) => {
 };
 
 // ---------- Employment Type ----------
-export const getAllEmploymentTypes = () => axiosInstance.get("/EmploymentType/all");
+export const getAllEmploymentTypes = () =>
+  axiosInstance.get("/EmploymentType/all");
 const mapEmploymentTypeOptions = (response) => {
   const data = response?.data?.data || [];
   return data.map((item) => ({
@@ -22,7 +22,8 @@ const mapEmploymentTypeOptions = (response) => {
 };
 
 // ---------- Work Nature ----------
-export const getAllWorkNatures = () => axiosInstance.get("/WorkNatureMaster/all");
+export const getAllWorkNatures = () =>
+  axiosInstance.get("/WorkNatureMaster/all");
 const mapWorkNatureOptions = (response) => {
   const data = response?.data?.data || [];
   return data.map((item) => ({
@@ -52,7 +53,8 @@ const mapOTRateSlabOptions = (data) => {
 };
 
 // ---------- Weekend Policy ----------
-export const getWeekendPolicies = () => axiosInstance.get("/WeekendPolicy/get-all");
+export const getWeekendPolicies = () =>
+  axiosInstance.get("/WeekendPolicy/get-all");
 const mapWeekendPolicyOptions = (data) => {
   if (!Array.isArray(data)) return [];
   return data.map((item) => ({

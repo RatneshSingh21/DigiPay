@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 
 const GET_BANK_DETAILS = (id) => `/BankDetails/employee/${id}`;
+const CREATE_BANK_DETAILS = `/BankDetails/create`;
 const UPDATE_BANK_DETAILS = (bankDetailId) =>
   `/BankDetails/update/${bankDetailId}`;
 
@@ -45,7 +46,9 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Fetch bank details
+  // =========================
+  // FETCH BANK DETAILS
+  // =========================
   useEffect(() => {
     const fetchBankDetails = async () => {
       try {
@@ -53,13 +56,12 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
 
         if (res.data?.length > 0) {
           const latestBank = res.data[res.data.length - 1];
-          setForm((prev) => ({
-            ...prev,
+          setForm({
             ...latestBank,
             employeeId,
-          }));
+          });
         } else {
-          console.log("No bank details found for employee");
+          console.log("No bank details found → will call POST on save.");
         }
       } catch (err) {
         console.error(err);
@@ -75,20 +77,38 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
+  // =========================
+  // SAVE (CREATE or UPDATE)
+  // =========================
   const onSave = async () => {
-    if (!form.bankDetailId) {
-      toast.error("Bank detail ID missing — cannot update");
-      return;
-    }
-
     try {
       setSaving(true);
+
+      // 🌟 No Bank Detail → CREATE
+      if (!form.bankDetailId) {
+        const res = await axiosInstance.post(CREATE_BANK_DETAILS, form);
+        toast.success("Bank details created successfully!");
+
+        // API returns new ID, so update local state
+        if (res.data?.bankDetailId) {
+          setForm((prev) => ({
+            ...prev,
+            bankDetailId: res.data.bankDetailId,
+          }));
+        }
+
+        onLocalUpdate?.(form);
+        return;
+      }
+
+      // 🌟 Bank Detail Exists → UPDATE
       await axiosInstance.put(UPDATE_BANK_DETAILS(form.bankDetailId), form);
-      toast.success("Bank details updated successfully");
+      toast.success("Bank details updated successfully!");
+
       onLocalUpdate?.(form);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update bank details");
+      toast.error("Failed to save bank details");
     } finally {
       setSaving(false);
     }
@@ -109,15 +129,16 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
         <Typography variant="h6" fontWeight="bold">
           Payment Info
         </Typography>
+
         <button
           onClick={onSave}
           disabled={saving}
           className={`px-4 py-1.5 rounded-lg font-medium text-white transition-all duration-200
-        ${
-          saving
-            ? "bg-gray-400 cursor-not-allowed shadow-none"
-            : "bg-primary hover:bg-secondary shadow-md hover:shadow-lg"
-        }
+            ${
+              saving
+                ? "bg-gray-400 cursor-not-allowed shadow-none"
+                : "bg-primary hover:bg-secondary shadow-md hover:shadow-lg"
+            }
         normal-case`}
         >
           {saving ? "Saving…" : "Save"}
@@ -162,7 +183,6 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
           />
         </Grid>
 
-        {/* Account Type Dropdown */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Account Type"
@@ -218,7 +238,6 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
           />
         </Grid>
 
-        {/* Payment Mode Dropdown */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Payment Mode"

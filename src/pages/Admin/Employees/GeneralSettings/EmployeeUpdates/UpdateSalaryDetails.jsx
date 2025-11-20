@@ -11,28 +11,28 @@ import {
 } from "@mui/material";
 import useAuthStore from "../../../../../store/authStore";
 
-const UPDATE_SALARY_ENDPOINT = "/Salary/update";
+// API Endpoints
+const CREATE_SALARY_ENDPOINT = "/EmployeeSalary/create";
+const UPDATE_SALARY_ENDPOINT = "/EmployeeSalary/employee/update-salary";
 const GET_SALARY_ENDPOINT = (id) => `/EmployeeSalary/employee/${id}`;
 
 const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
   const { user } = useAuthStore();
 
   const [loading, setLoading] = useState(true);
+  const [salaryExists, setSalaryExists] = useState(false);
 
   const [form, setForm] = useState({
-    employeeId: employeeId,
-    orgId: user.userId,
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
+    employeeId,
+    employeeCode: data.employeeCode,
+    employeeName: data.employeeName,
 
-    employeeCategory: 0,
     basicSalary: 0,
     hra: 0,
     conveyanceAllowance: 0,
     fixedAllowance: 0,
     bonus: 0,
     arrears: 0,
-    overtimeHours: 0,
     overtimeRate: 0,
     leaveEncashment: 0,
     specialAllowance: 0,
@@ -43,12 +43,6 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
     tds: 0,
     loanRepayment: 0,
     otherDeductions: 0,
-
-    absentDays: 0,
-    totalWorkingDays: 0,
-
-    status: 0,
-    paymentDate: new Date().toISOString(),
   });
 
   // -------------------------------
@@ -61,10 +55,12 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
   const fetchEmployeeSalary = async () => {
     try {
       setLoading(true);
+
       const res = await axiosInstance.get(GET_SALARY_ENDPOINT(employeeId));
 
       if (res.data?.success && res.data?.data) {
         const s = res.data.data;
+        setSalaryExists(true); // ← Salary exists
 
         setForm((prev) => ({
           ...prev,
@@ -77,6 +73,7 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
           overtimeRate: s.overtimeRate ?? 0,
           leaveEncashment: s.leaveEncashment ?? 0,
           specialAllowance: s.specialAllowance ?? 0,
+
           pfEmployee: s.pfEmployee ?? 0,
           esicEmployee: s.esicEmployee ?? 0,
           professionalTax: s.professionalTax ?? 0,
@@ -84,43 +81,51 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
           loanRepayment: s.loanRepayment ?? 0,
           otherDeductions: s.otherDeductions ?? 0,
         }));
-
-        // toast.success("Salary loaded");
+      } else {
+        setSalaryExists(false); // ← Salary does NOT exist
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load salary details");
+      setSalaryExists(false);
     } finally {
       setLoading(false);
     }
   };
 
   // ---------------------------------
-  // Handling input change
+  // Input change handler
   // ---------------------------------
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({
       ...f,
-      [name]: value === "" ? "" : isNaN(value) ? value : Number(value),
+      [name]: value === "" ? "" : Number(value),
     }));
   };
 
   // ---------------------------------
-  // Save Handler
+  // Save Handler → POST or PATCH
   // ---------------------------------
   const [saving, setSaving] = useState(false);
 
   const onSave = async () => {
     try {
       setSaving(true);
-      await axiosInstance.put(UPDATE_SALARY_ENDPOINT, form);
 
-      toast.success("Salary details updated");
+      if (!salaryExists) {
+        // ➤ CREATE salary
+        await axiosInstance.post(CREATE_SALARY_ENDPOINT, form);
+        toast.success("Salary created successfully");
+      } else {
+        // ➤ UPDATE salary
+        await axiosInstance.patch(UPDATE_SALARY_ENDPOINT, form);
+        toast.success("Salary updated successfully");
+      }
+
       onLocalUpdate?.(form);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update salary details");
+      toast.error("Failed to save salary details");
     } finally {
       setSaving(false);
     }
@@ -134,65 +139,19 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
     );
   }
 
-  // ---------------------------------
-  // UI
-  // ---------------------------------
   return (
     <Paper sx={{ p: 3, borderRadius: 2 }}>
-      {/* Header */}
       <Grid container justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h6" fontWeight="bold">
-          Update Salary Details
+          {salaryExists ? "Update Salary Details" : "Create Salary Details"}
         </Typography>
 
-        <Button
-          variant="contained"
-          onClick={onSave}
-          disabled={saving}
-          sx={{
-            textTransform: "none",
-            bgcolor: saving ? "grey.400" : "primary.main",
-            "&:hover": { bgcolor: saving ? "grey.400" : "secondary.main" },
-          }}
-        >
-          {saving ? "Saving…" : "Save"}
+        <Button variant="contained" onClick={onSave} disabled={saving}>
+          {saving ? "Saving…" : salaryExists ? "Update" : "Create"}
         </Button>
       </Grid>
 
-      {/* General Info */}
-      <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-        General Info
-      </Typography>
-
-      <Grid container spacing={2} mb={2}>
-        <Grid item xs={6} md={3}>
-          <TextField
-            label="Month"
-            name="month"
-            type="number"
-            value={form.month}
-            onChange={onChange}
-            fullWidth
-            size="small"
-          />
-        </Grid>
-
-        <Grid item xs={6} md={3}>
-          <TextField
-            label="Year"
-            name="year"
-            type="number"
-            value={form.year}
-            onChange={onChange}
-            fullWidth
-            size="small"
-          />
-        </Grid>
-      </Grid>
-
-      <Divider sx={{ my: 2 }} />
-
-      {/* Earnings */}
+      {/* Earnings Section */}
       <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
         Earnings
       </Typography>
@@ -205,7 +164,6 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
           "fixedAllowance",
           "bonus",
           "arrears",
-          "overtimeHours",
           "overtimeRate",
           "leaveEncashment",
           "specialAllowance",

@@ -48,7 +48,7 @@ const OTCalculation = () => {
   return (
     <div>
       {/* Header */}
-      <div className="sticky top-14 bg-white shadow-sm rounded-xl px-4 py-2 mb-2 flex justify-between items-center z-10">
+      <div className="sticky top-14 bg-white shadow-sm px-4 py-2 mb-2 flex justify-between items-center z-10">
         <h2 className="text-xl font-semibold text-gray-800">OT Calculation</h2>
         <button
           className="flex items-center gap-2 text-sm cursor-pointer bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-md"

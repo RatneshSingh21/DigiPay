@@ -169,7 +169,7 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
         <label className="text-sm font-medium">Status</label>
         <button
           type="button"
-          className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-300 ${
+          className={`relative inline-flex items-center cursor-pointer h-6 rounded-full w-11 transition-colors duration-300 ${
             formData.isEnabled ? "bg-green-500" : "bg-gray-300"
           }`}
           onClick={() =>

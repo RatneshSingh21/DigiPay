@@ -139,7 +139,7 @@ const PFTransaction = () => {
           <input
             type="month"
             value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
+            onChange={(e) => setSelectedMonth(e.target  .value)}
             className="border px-2 py-1 text-sm rounded-md"
           />
 

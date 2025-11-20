@@ -53,7 +53,7 @@ const OTSlabMaster = () => {
   return (
     <>
       {/* Header */}
-      <div className="sticky top-14 bg-white shadow-sm rounded-xl px-4 py-2 mb-6 flex justify-between items-center">
+      <div className="sticky top-14 bg-white shadow-sm px-4 py-2 mb-6 flex justify-between items-center">
         <h2 className="text-xl font-semibold text-gray-800">
           OT Rate Slab Master
         </h2>

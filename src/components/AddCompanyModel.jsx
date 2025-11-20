@@ -14,9 +14,9 @@ const AddCompanyModal = ({ isOpen, onClose }) => {
 
   const [loading, setLoading] = useState(false);
 
-  // Auto-close modal if companyId exists and is not the default (1)
+  // Auto-close modal if companyId exists
   useEffect(() => {
-    if (companyId && companyId !== 1) {
+    if (companyId) {
       onClose();
     }
   }, [companyId, onClose]);
@@ -61,7 +61,7 @@ const AddCompanyModal = ({ isOpen, onClose }) => {
   };
 
   // 🚫 Don't render if user already has a valid companyId
-  if (companyId && companyId !== 1) return null;
+  if (companyId) return null;
 
   return (
     <Dialog

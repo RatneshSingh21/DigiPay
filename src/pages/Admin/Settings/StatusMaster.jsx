@@ -1,6 +1,7 @@
 // src/pages/StatusMaster.jsx
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
+import Select from "react-select"
 
 const StatusMaster = () => {
   const [statuses, setStatuses] = useState([]);
@@ -12,6 +13,15 @@ const StatusMaster = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const STATUS_OPTIONS = [
+    { value: "Pending", label: "Pending" },
+    { value: "Processed", label: "Processed" },
+    { value: "Approved", label: "Approved" },
+    { value: "Paid", label: "Paid" },
+    { value: "Partial", label: "Partial" },
+    { value: "Rejected", label: "Rejected" },
+  ];
 
   //  Fetch statuses
   const fetchStatuses = async () => {
@@ -68,16 +78,23 @@ const StatusMaster = () => {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-1 gap-3 "
         >
-          <input
-            type="text"
-            placeholder="Status Name"
-            value={formData.statusName}
-            onChange={(e) =>
-              setFormData({ ...formData, statusName: e.target.value })
+          <Select
+            options={STATUS_OPTIONS}
+            placeholder="Select Status Name"
+            value={
+              formData.statusName
+                ? { value: formData.statusName, label: formData.statusName }
+                : null
             }
+            onChange={(selectedOption) =>
+              setFormData({
+                ...formData,
+                statusName: selectedOption?.value || "",
+              })
+            }
+            className="w-72"
+            isClearable
             required
-            autoFocus
-            className="w-72 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <input
             type="text"

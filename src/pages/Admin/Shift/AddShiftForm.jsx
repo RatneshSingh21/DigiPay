@@ -42,13 +42,32 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
           value: dept.id,
           label: dept.name,
         }));
-        setDepartmentOptions(options);
+        const selectAllOption = { value: "ALL", label: "Select All" };
+        setDepartmentOptions([selectAllOption, ...options]);
       } catch (error) {
         console.error("Failed to fetch departments:", error);
       }
     };
     fetchDepartments();
   }, []);
+
+  const handleDepartmentChange = (selected) => {
+    if (!selected) {
+      setForm({ ...form, department: [] });
+      return;
+    }
+
+    const isSelectAll = selected.some((opt) => opt.value === "ALL");
+
+    if (isSelectAll) {
+      setForm({
+        ...form,
+        department: departmentOptions.filter((opt) => opt.value !== "ALL"),
+      });
+    } else {
+      setForm({ ...form, department: selected });
+    }
+  };
 
   useEffect(() => {
     if (isEdit === "Edit" && initialData) {
@@ -400,9 +419,7 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
                   <Select
                     options={departmentOptions}
                     value={form.department}
-                    onChange={(selected) =>
-                      setForm({ ...form, department: selected })
-                    }
+                    onChange={handleDepartmentChange}
                     placeholder="Departments"
                     className="w-full"
                     isMulti

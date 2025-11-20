@@ -65,7 +65,7 @@ const customSelectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const AttendancePolicyForm = ({ onClose, onSuccess }) => {
+const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
   const User = useAuthStore((state) => state.user);
 
   const [options, setOptions] = useState({
@@ -87,6 +87,17 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
   });
 
   useEffect(() => {
+    if (initialData) {
+      setForm({
+        ...initialData,
+        effectiveFrom: initialData.effectiveFrom?.split("T")[0],
+        effectiveTo: initialData.effectiveTo?.split("T")[0],
+        additionalMetadataJson: initialData.additionalMetadataJson || "{}",
+      });
+    }
+  }, [initialData]);
+
+  useEffect(() => {
     const loadOptions = async () => {
       try {
         const data = await fetchAllAttendancePolicyOptions();
@@ -105,6 +116,8 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
     effectiveFrom: new Date().toISOString().split("T")[0],
     effectiveTo: new Date().toISOString().split("T")[0],
     isActive: true,
+    fullDayHours: 0,
+    halfDayHours: 0,
     shiftIds: [],
     workTypeIds: [],
     departmentIds: [],
@@ -152,7 +165,6 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
       auditRequired: true,
     },
     additionalMetadataJson: "{}",
-    createdBy: User.userId,
   });
 
   const handleChange = (e) => {
@@ -174,27 +186,28 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
     }
   };
 
-  const handleSelectChange = (name, selectedOptions) => {
-    setForm((prev) => ({
-      ...prev,
-      [name]: selectedOptions ? selectedOptions.map((o) => o.value) : [],
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await axiosInstance.post("/AttendancePolicy", form);
-      toast.success(
-        res.data.message || "Attendance policy created successfully"
-      );
-      onSuccess(); // refresh list in parent
+      let res;
+
+      if (initialData) {
+        // Update API (PUT)
+        res = await axiosInstance.put(
+          `/AttendancePolicy/${initialData.attendancePolicyId}`,
+          form
+        );
+      } else {
+        // Create API (POST)
+        res = await axiosInstance.post("/AttendancePolicy", form);
+      }
+
+      toast.success(res.data.message || "Saved successfully");
+      onSuccess();
       onClose();
     } catch (err) {
-      toast.error(
-        err?.response?.data?.message || "Failed to create Attendance Policy"
-      );
-      console.error(err);
+      toast.error(err?.response?.data?.message || "Failed");
     }
   };
 
@@ -281,6 +294,37 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
             />
             <label className="text-xs text-gray-700">Active</label>
           </div>
+          <div className="flex gap-5">
+            {/* Full Day Hours */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Full Day Hours *
+              </label>
+              <input
+                type="number"
+                name="fullDayHours"
+                value={form.fullDayHours}
+                onChange={handleChange}
+                className={inputClass}
+                required
+              />
+            </div>
+
+            {/* Half Day Hours */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Half Day Hours *
+              </label>
+              <input
+                type="number"
+                name="halfDayHours"
+                value={form.halfDayHours}
+                onChange={handleChange}
+                className={inputClass}
+                required
+              />
+            </div>
+          </div>
 
           {/* Multi-select fields */}
 
@@ -293,7 +337,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
             "otPolicyIds",
             "otRateSlabIds",
             "bonusPolicyIds",
-            // "specialAllowancePolicyIds", 
+            // "specialAllowancePolicyIds",
             "holidayListIds",
             "leaveTypeIds",
             "complianceIds",
@@ -302,8 +346,14 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
             "weekendPolicyMappingIds",
           ].map((field) => {
             const fieldOptions = options[field] || [];
+
+            // FIXED ↓↓↓ prevents crash
+            const selectedValuesArray = Array.isArray(form[field])
+              ? form[field]
+              : [];
+
             const allSelected =
-              form[field].length === fieldOptions.length &&
+              selectedValuesArray.length === fieldOptions.length &&
               fieldOptions.length > 0;
 
             const selectOptions = [
@@ -315,7 +365,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess }) => {
             ];
 
             const selectedValues = selectOptions.filter((opt) =>
-              form[field].includes(opt.value)
+              selectedValuesArray.includes(opt.value)
             );
 
             return (

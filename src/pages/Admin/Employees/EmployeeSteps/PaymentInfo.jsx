@@ -36,13 +36,14 @@ const PaymentInfo = () => {
 
   if (!basicDetails) return null;
 
-  const fullName = `${basicDetails.firstName || ""} ${basicDetails.lastName || ""
-    }`.trim();
+  const fullName = `${basicDetails.firstName || ""} ${
+    basicDetails.lastName || ""
+  }`.trim();
   const employeeCode = basicDetails.employeeId || "N/A";
   const email = basicDetails.workEmail || "N/A";
   const departmentName = basicDetails.department?.label || "N/A";
 
-  // Prefill account holder name initially
+  // Prefill Account Holder Name
   useEffect(() => {
     setForm((prev) => ({
       ...prev,
@@ -50,27 +51,33 @@ const PaymentInfo = () => {
     }));
   }, [fullName]);
 
-  // Fetch existing bank details if employeeId exists
+  // Fetch Bank Info
   useEffect(() => {
     const fetchBankDetails = async () => {
       if (!employeeId) return;
+
       setLoading(true);
+
       try {
         const response = await axiosInstance.get(
           `/BankDetails/employee/${employeeId}`
         );
-        if (
-          response.data &&
-          response.data.data &&
-          response.data.data.length > 0
-        ) {
-          const existing = response.data.data[0];
+
+        const data = response.data?.data || [];
+
+        if (data.length > 0) {
+          const existing = data[0];
           setForm(existing);
           setBankDetailId(existing.bankDetailId);
         }
       } catch (error) {
-        console.error("Error fetching bank details:", error);
-        // toast.error("Failed to fetch bank details.");
+        if (error.response?.status === 404) {
+          // No bank details → allow POST
+          console.warn("No bank details found. Creating new entry.");
+        } else {
+          toast.error("Failed to fetch bank details.");
+          console.error(error);
+        }
       } finally {
         setLoading(false);
       }
@@ -80,8 +87,10 @@ const PaymentInfo = () => {
   }, [employeeId]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handlePaymentModeSelect = (mode) => {
@@ -92,13 +101,11 @@ const PaymentInfo = () => {
     e.preventDefault();
 
     if (!employeeId) {
-      toast.error("No employee selected. Please add basic details first.");
-      return;
+      return toast.error("Employee not found.");
     }
 
     if (!form.paymentMode) {
-      toast.error("Please select a payment mode.");
-      return;
+      return toast.error("Please select a payment mode.");
     }
 
     setLoading(true);
@@ -118,26 +125,31 @@ const PaymentInfo = () => {
       };
 
       let response;
+
       if (bankDetailId) {
-        // Update existing bank details
+        // UPDATE
         response = await axiosInstance.put(
           `/BankDetails/${bankDetailId}`,
           payload
         );
-        toast.success("Payment info updated successfully!");
+        toast.success("Payment info updated!");
       } else {
-        // Create new bank details
-        response = await axiosInstance.post("/BankDetails", payload);
-        toast.success("Payment info added successfully!");
-        if (response.data?.data?.bankDetailId) {
-          setBankDetailId(response.data.data.bankDetailId);
-        }
+        // CREATE
+        response = await axiosInstance.post("/BankDetails/create", payload);
+
+        const newId = response.data?.data?.bankDetailId;
+        if (newId) setBankDetailId(newId);
+
+        toast.success("Payment info added!");
       }
 
-      setStepData("paymentInfo", response.data);
+      // Store in global state
+      setStepData("paymentInfo", response.data?.data || response.data);
+
+      // Move to next step
       setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
-    } catch (error) {
-      console.error("Error saving payment info:", error);
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to save payment info.");
     } finally {
       setLoading(false);
@@ -146,6 +158,7 @@ const PaymentInfo = () => {
 
   return (
     <>
+      {/* Employee Summary */}
       <div className="p-4 bg-white rounded-xl shadow mb-4">
         <h2 className="text-lg font-semibold text-green-600 mb-2">
           Employee Summary :
@@ -166,6 +179,7 @@ const PaymentInfo = () => {
         </div>
       </div>
 
+      {/* Form */}
       <form
         onSubmit={handleSubmit}
         className="space-y-6 px-10 py-7 bg-white rounded-xl shadow"
@@ -175,21 +189,19 @@ const PaymentInfo = () => {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Employee Code (readonly) */}
+          {/* Employee Code */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Employee Code
-            </label>
+            <label className="block text-sm font-medium">Employee Code</label>
             <input
               value={employeeCode}
               disabled
-              className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+              className="w-full px-4 py-2 border rounded-md bg-gray-100"
             />
           </div>
 
-          {/* Account Holder Name (editable) */}
+          {/* Account Holder Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium">
               Account Holder Name
             </label>
             <input
@@ -197,87 +209,75 @@ const PaymentInfo = () => {
               name="accountHolderName"
               value={form.accountHolderName || ""}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border rounded-md"
             />
           </div>
 
+          {/* Bank Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Bank Name
-            </label>
+            <label className="block text-sm font-medium">Bank Name</label>
             <input
               required
               name="bankName"
               value={form.bankName || ""}
               onChange={handleChange}
-              placeholder="e.g., HDFC Bank"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border rounded-md"
             />
           </div>
 
+          {/* Branch */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Bank Branch
-            </label>
+            <label className="block text-sm font-medium">Bank Branch</label>
             <input
               required
               name="branchName"
               value={form.branchName || ""}
               onChange={handleChange}
-              placeholder="e.g., Connaught Place Branch"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border rounded-md"
             />
           </div>
 
+          {/* Branch Address */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Branch Address
-            </label>
+            <label className="block text-sm font-medium">Branch Address</label>
             <input
               required
               name="branchAddress"
               value={form.branchAddress || ""}
               onChange={handleChange}
-              placeholder="e.g., 12 MG Road, Delhi"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border rounded-md"
             />
           </div>
 
+          {/* Account Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Account Number
-            </label>
+            <label className="block text-sm font-medium">Account Number</label>
             <input
               required
               name="accountNumber"
               value={form.accountNumber || ""}
               onChange={handleChange}
-              placeholder="e.g., 123456789012"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border rounded-md"
             />
           </div>
 
+          {/* IFSC */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              IFSC Code
-            </label>
+            <label className="block text-sm font-medium">IFSC Code</label>
             <input
               required
               name="ifscCode"
               value={form.ifscCode || ""}
               onChange={handleChange}
-              placeholder="e.g., HDFC0001234"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border rounded-md"
             />
           </div>
 
+          {/* Account Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Account Type
-            </label>
+            <label className="block text-sm font-medium">Account Type</label>
             <Select
               required
-              name="accountType"
               value={
                 accountTypeOptions.find(
                   (opt) => opt.value === form.accountType
@@ -286,56 +286,47 @@ const PaymentInfo = () => {
               onChange={(selected) =>
                 setForm((prev) => ({
                   ...prev,
-                  accountType: selected?.value || "",
+                  accountType: selected?.value,
                 }))
               }
               options={accountTypeOptions}
-              placeholder="Select account type"
-              className="w-full"
             />
           </div>
         </div>
 
         {/* Payment Mode */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium mb-2">
             Select Payment Mode
           </label>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {paymentModes.map((mode) => (
               <div
                 key={mode.value}
                 onClick={() => handlePaymentModeSelect(mode.value)}
-                className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center shadow-sm transition-all duration-200 ${form.paymentMode === mode.value
+                className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center shadow-sm transition-all ${
+                  form.paymentMode === mode.value
                     ? "border-blue-500 ring-2 ring-blue-400 bg-green-50"
-                    : "hover:border-blue-300 bg-white"
-                  }`}
+                    : "hover:border-blue-300"
+                }`}
               >
                 <img
                   src={mode.image}
-                  alt={mode.label}
-                  className="w-12 h-12 object-contain mb-2"
+                  className="w-12 h-12 mb-2"
                 />
-                <span className="text-sm font-medium text-center">
-                  {mode.label}
-                </span>
+                <span className="text-sm font-medium">{mode.label}</span>
               </div>
             ))}
           </div>
-          {!form.paymentMode && (
-            <p className="text-red-500 text-sm mt-1">
-              Please select a payment mode
-            </p>
-          )}
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="flex justify-between mt-6">
           <button
             type="submit"
             disabled={loading}
-            className={`bg-primary text-white cursor-pointer px-6 py-2 rounded-full flex items-center gap-2 ${loading ? "opacity-50 cursor-not-allowed" : "hover:bg-secondary"
-              }`}
+            className="bg-primary text-white px-6 py-2 rounded-full flex items-center gap-2"
           >
             {loading && <Spinner />}
             Save and Continue

@@ -13,7 +13,7 @@ const mapShiftOptions = (data) => {
 // ---------- Work Type ----------
 export const getAllWorkTypes = () => axiosInstance.get("/WorkTypeMaster/all");
 const mapWorkTypeOptions = (response) => {
-  const data = response?.data || []; 
+  const data = response?.data || [];
   return data.map((item) => ({
     value: item.workTypeId,
     label: item.workTypeName,
@@ -51,7 +51,8 @@ const mapLatePolicyOptions = (response) => {
 };
 
 // ---------- OT Policy ----------
-export const getAllOTPolicies = () => axiosInstance.get("/OTRateSlabAssignmentRule");
+export const getAllOTPolicies = () =>
+  axiosInstance.get("/OTRateSlabAssignmentRule");
 const mapOTAssignmentRuleOptions = (data) => {
   if (!Array.isArray(data)) return [];
   return data.map((item) => ({
@@ -61,7 +62,8 @@ const mapOTAssignmentRuleOptions = (data) => {
 };
 
 // ---------- OT Rate Slab ----------
-export const getAllOTRateSlabs = () => axiosInstance.get("/OTRateSlabMaster/all");
+export const getAllOTRateSlabs = () =>
+  axiosInstance.get("/OTRateSlabMaster/all");
 const mapOTRateSlabOptions = (data) => {
   if (!Array.isArray(data)) return [];
   return data.map((item) => ({
@@ -71,15 +73,15 @@ const mapOTRateSlabOptions = (data) => {
 };
 
 // ---------- Bonus Policy (No API yet) ----------
-export const getAllBonusPolicies =  () => axiosInstance.get("/PaymentAdjustment/getAll"); 
+export const getAllBonusPolicies = () =>
+  axiosInstance.get("/PaymentAdjustment/getAll");
 const mapBonusPolicyOptions = (data) => {
   if (!Array.isArray(data)) return [];
   return data.map((item) => ({
     value: item.paymentAdjustmentId,
     label: item.paymentType,
   }));
-}
-
+};
 
 // ---------- Special Allowance Policy (No API yet) ----------
 export const getAllSpecialAllowancePolicies = async () => {
@@ -87,7 +89,8 @@ export const getAllSpecialAllowancePolicies = async () => {
 };
 
 // ---------- Holiday List ----------
-export const getAllHolidayLists = () => axiosInstance.get("/HolidayListMaster/get-all");
+export const getAllHolidayLists = () =>
+  axiosInstance.get("/HolidayListMaster/get-all");
 const mapHolidayListOptions = (data) => {
   if (!Array.isArray(data)) return [];
   return data.map((item) => ({
@@ -119,7 +122,8 @@ const mapComplianceOptions = (data) => {
 };
 
 // ---------- Compliance Rule ----------
-export const getAllComplianceRules = () => axiosInstance.get("/ComplianceRule/get-all");
+export const getAllComplianceRules = () =>
+  axiosInstance.get("/ComplianceRule/get-all");
 const mapComplianceRuleOptions = (data) => {
   if (!Array.isArray(data)) return [];
   return data.map((item) => ({
@@ -129,7 +133,8 @@ const mapComplianceRuleOptions = (data) => {
 };
 
 // ---------- Weekend Policy ----------
-export const getAllWeekendPolicies = () => axiosInstance.get("/WeekendPolicy/get-all");
+export const getAllWeekendPolicies = () =>
+  axiosInstance.get("/WeekendPolicy/get-all");
 const mapWeekendPolicyOptions = (data) => {
   if (!Array.isArray(data)) return [];
   return data.map((item) => ({
@@ -139,7 +144,8 @@ const mapWeekendPolicyOptions = (data) => {
 };
 
 // ---------- Weekend Policy Mapping ----------
-export const getAllWeekendPolicyMappings = () => axiosInstance.get("/WeekendPolicyMapping/get");
+export const getAllWeekendPolicyMappings = () =>
+  axiosInstance.get("/WeekendPolicyMapping/get");
 const mapWeekendPolicyMappingOptions = (data) => {
   if (!Array.isArray(data)) return [];
   return data.map((item) => ({
@@ -200,7 +206,9 @@ export const fetchAllAttendancePolicyOptions = async () => {
       complianceIds: mapComplianceOptions(compliances.data),
       complianceRuleIds: mapComplianceRuleOptions(complianceRules.data),
       weekendPolicyIds: mapWeekendPolicyOptions(weekendPolicies.data),
-      weekendPolicyMappingIds: mapWeekendPolicyMappingOptions(weekendMappings.data),
+      weekendPolicyMappingIds: mapWeekendPolicyMappingOptions(
+        weekendMappings.data
+      ),
     };
   } catch (error) {
     console.error("Error fetching attendance policy options:", error);

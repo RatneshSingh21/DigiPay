@@ -118,15 +118,11 @@ const LatePolicy = () => {
                       {p.graceMinutesPerDay ?? "-"}
                     </p>
                     <p>
-                      <span className="font-bold">
-                        Max Grace Occurrences:
-                      </span>{" "}
+                      <span className="font-bold">Max Grace Occurrences:</span>{" "}
                       {p.maxGraceOccurrences ?? "-"}
                     </p>
                     <p>
-                      <span className="font-bold">
-                        Late Threshold (mins):
-                      </span>{" "}
+                      <span className="font-bold">Late Threshold (mins):</span>{" "}
                       {p.lateThresholdMinutes ?? "-"}
                     </p>
                     <p>

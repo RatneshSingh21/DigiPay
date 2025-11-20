@@ -10,10 +10,15 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: 'web.config', // your web.config file at project root
-          dest: ''           // copy into dist/ root
+          src: 'web.config',
+          dest: ''
         }
       ]
     })
   ],
+
+  server: {
+    port: 5174,
+    strictPort: true, // optional: prevents switching to another port
+  },
 })

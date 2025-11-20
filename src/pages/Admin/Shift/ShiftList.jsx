@@ -20,14 +20,11 @@ const ShiftList = ({
       fetchShifts();
     } catch (error) {
       console.error("Error deleting shift:", error);
-      toast.error(
-        error?.response?.data?.message || "Failed to delete shift"
-      );
+      toast.error(error?.response?.data?.message || "Failed to delete shift");
     } finally {
       setConfirmDeleteId(null);
     }
   };
-  
 
   return (
     <div className="bg-white">
@@ -58,9 +55,13 @@ const ShiftList = ({
               {shifts.map((shift, index) => (
                 <tr
                   key={shift.id}
-                  className={index % 2 === 0 ? "bg-white text-center" : "bg-gray-50 text-center"}
+                  className={
+                    index % 2 === 0
+                      ? "bg-white text-center"
+                      : "bg-gray-50 text-center"
+                  }
                 >
-                  <td className="px-6 py-2">{index+1}</td>
+                  <td className="px-6 py-2">{index + 1}</td>
                   <td className="px-6 py-2 font-medium">{shift.shiftName}</td>
                   <td className="px-6 py-2">{shift.shiftStart}</td>
                   <td className="px-6 py-2">{shift.shiftEnd}</td>

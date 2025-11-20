@@ -40,7 +40,7 @@ const EmpDocuments = () => {
         </h2>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-primary hover:bg-secondary transition text-white px-4 py-2 rounded-md text-sm flex items-center gap-2 shadow"
+          className="bg-primary hover:bg-secondary transition cursor-pointer text-white px-4 py-2 rounded-md text-sm flex items-center gap-2 shadow"
         >
           <FaPlus /> Upload Document
         </button>

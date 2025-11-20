@@ -115,7 +115,8 @@ const labelToPath = {
   "Leave Balance": "leave-balance",
   "Holiday List": "holiday-list",
   "Employee Leave": "employee-leave",
-  "Employee Advance Payments": "employee-advance-payments",
+  "Leave Allocation": "employee-leave-allocation",
+  "Advance Payments": "employee-advance-payments",
 
   // Policies
   "PF Settings": "pf-settings",
@@ -140,6 +141,7 @@ const labelToPath = {
   "OT Master": "otrate",
   "OT Rule": "otrate-rules",
   "OT Calculation": "otrate-calculation",
+  "OT Permission" : "ot-permission"
 };
 
 // Label to icon mapping
@@ -215,7 +217,8 @@ const labelToIcon = {
   "Leave Balance": <FaBalanceScale className="mr-2" />,
   "Holiday List": <MdCelebration className="mr-2" />,
   "Employee Leave": <MdOutlineChecklistRtl className="mr-2" />,
-  "Employee Advance Payments": <MdOutlineChecklistRtl className="mr-2" />,
+  "Leave Allocation": <FaBalanceScale className="mr-2" />,
+  "Advance Payments": <MdOutlineChecklistRtl className="mr-2" />,
 
   // Policies
   "PF Settings": <FaCogs className="mr-2" />,
@@ -234,6 +237,7 @@ const labelToIcon = {
   "OT Master": <FaClock className="mr-2" />,
   "OT Rule": <FaRegClock className="mr-2" />,
   "OT Calculation": <FaCalculator className="mr-2" />,
+  "OT Permission" : <TbReportMoney className="mr-2" />,
 };
 
 const AdminSubmenuBox = ({ items, selectedMenu }) => {

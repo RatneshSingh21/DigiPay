@@ -88,7 +88,6 @@ import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalSta
 import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificateEditor";
 import AdminReports from "./pages/Admin/AdminReports/AdminReports";
 
-
 //Admin Leave Pages
 import Leave from "./pages/Admin/Leave/Leave";
 import LeaveRequests from "./pages/Admin/Leave/LeaveRequests";
@@ -96,6 +95,7 @@ import LeaveBalance from "./pages/Admin/Leave/LeaveBalance";
 import LeaveMapping from "./pages/Admin/Leave/LeaveMapping";
 import HolidayList from "./pages/Admin/Leave/HolidayList";
 import EmployeeLeave from "./pages/Admin/Leave/EmployeeLeave/EmployeeLeave";
+import EmployeeLeaveAllocation from "./pages/Admin/Leave/EmployeeLeaveAllocation/EmployeeLeaveAllocation";
 import EmployeeAdvancePayments from "./pages/Admin/Leave/EmployeeAdvancePayments/EmployeeAdvancePayments";
 
 //Admin Policy Pages
@@ -124,6 +124,7 @@ import PaymentAdjustment from "./pages/Admin/Policies/PaymentAdjustment/PaymentA
 import OTSlabMaster from "./pages/Admin/Policies/OT/OTSlabMaster";
 import OTSlabMasterRules from "./pages/Admin/Policies/OT/OTSlabMasterRules";
 import OTCalculation from "./pages/Admin/Policies/OT/OTCalculation";
+import EmployeeOtPermission from "./pages/Admin/Policies/OT/EmployeeOtPermission";
 
 // Employee Pages
 import EmployeeProfile from "./pages/EmployeePages/EmployeeComponents/EmployeeProfile";
@@ -138,9 +139,6 @@ import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
 
-
-
-
 const App = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
@@ -154,7 +152,7 @@ const App = () => {
     if (
       isAuthReady &&
       (user?.role === "Admin" || user?.role === "SuperAdmin") &&
-      (!companyId || companyId === 1)
+      !companyId
     ) {
       setShowCompanyModal(true);
     } else {
@@ -355,7 +353,14 @@ const App = () => {
                   <Route path="leave-balance" element={<LeaveBalance />} />
                   <Route path="holiday-list" element={<HolidayList />} />
                   <Route path="employee-leave" element={<EmployeeLeave />} />
-                  <Route path="employee-advance-payments" element={<EmployeeAdvancePayments />} />
+                  <Route
+                    path="employee-advance-payments"
+                    element={<EmployeeAdvancePayments />}
+                  />
+                  <Route
+                    path="employee-leave-allocation"
+                    element={<EmployeeLeaveAllocation />}
+                  />
                 </Route>
 
                 {/* Policy SubRoutes */}
@@ -375,7 +380,7 @@ const App = () => {
                   <Route path="policy-details" element={<PolicyDetails />} />
                 </Route>
 
-                  {/* Approvals Main Page */}
+                {/* Approvals Main Page */}
                 <Route path="approvals" element={<Approvals />} />
 
                 {/* Compliance SubRoutes */}
@@ -398,6 +403,10 @@ const App = () => {
                   <Route
                     path="otrate-calculation"
                     element={<OTCalculation />}
+                  />
+                  <Route
+                    path="ot-permission"
+                    element={<EmployeeOtPermission />}
                   />
                 </Route>
 
