@@ -109,7 +109,7 @@ import LatePolicy from "./pages/Admin/Policies/LatePolicy/LatePolicy";
 import WeekendPolicy from "./pages/Admin/Policies/WeekendPolicy/WeekendPolicy";
 
 //Admin Approvals Pages
-import Approvals from "./pages/Admin/Approvals/Approvals";
+import ApprovalWrapper from "./pages/Admin/Approvals/ApprovalWrapper";
 
 //Admin Documents Pages
 import UploadedDocuments from "./pages/Admin/Documents/UploadedDocuments";
@@ -381,7 +381,7 @@ const App = () => {
                 </Route>
 
                 {/* Approvals Main Page */}
-                <Route path="approvals" element={<Approvals />} />
+                <Route path="approvals" element={<ApprovalWrapper />} />
 
                 {/* Compliance SubRoutes */}
                 <Route path="compliance/*" element={<AdminContentBox />}>

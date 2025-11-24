@@ -96,7 +96,7 @@ const handleSubmit = async (e) => {
     onClose();
   } catch (err) {
     console.error(err);
-    toast.error("Error saving mapping");
+    toast.error(err?.response?.data?.message || "Error saving mapping");
   }
 };
 

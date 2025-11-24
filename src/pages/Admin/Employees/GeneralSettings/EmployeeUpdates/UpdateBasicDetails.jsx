@@ -12,40 +12,40 @@ import {
   MenuItem,
 } from "@mui/material";
 
-const UPDATE_BASIC_ENDPOINT = (id) => `/Employee/${id}`;
-
+const EMPLOYEE_API = (id) => `/Employee/${id}`;
 const genderOptions = ["Male", "Female", "Other"];
 
-const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
-  // Dropdown data states
+export default function UpdateBasicDetails({ employeeId, onLocalUpdate }) {
+  // Dropdown data
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [workLocations, setWorkLocations] = useState([]);
   const [paySchedules, setPaySchedules] = useState([]);
 
+  // Form
   const [form, setForm] = useState({
-    fullName: data?.fullName || "",
-    employeeCode: data?.employeeCode || "",
-    workEmail: data?.workEmail || "",
-    mobileNumber: data?.mobileNumber || "",
-    departmentId: data?.departmentId || "",
-    designationId: data?.designationId || "",
-    workLocationId: data?.workLocationId || "",
-    payScheduleId: data?.payScheduleId || "",
-    gender: data?.gender || "",
-    isDirector: data?.isDirector ?? false,
-    portalAccessEnabled: data?.portalAccessEnabled ?? true,
-    dateOfJoining: data?.dateOfJoining ? data.dateOfJoining.slice(0, 10) : "",
-    aadhaarCardNumber: data?.aadhaarCardNumber || "",
+    employeeCode: "",
+    fullName: "",
+    dateOfJoining: "",
+    workEmail: "",
+    mobileNumber: "",
+    isDirector: false,
+    gender: "",
+    departmentId: "",
+    designationId: "",
+    workLocationId: "",
+    payScheduleId: "",
+    portalAccessEnabled: true,
+    aadhaarCardNumber: "",
   });
 
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [basicDetailsExists, setBasicDetailsExists] = useState(false);
 
-  // Fetch dropdown data
-  useEffect(() => {
-    fetchDropdowns();
-  }, []);
-
+  // ---------------------------
+  //  FETCH DROPDOWNS
+  // ---------------------------
   const fetchDropdowns = async () => {
     try {
       const [depRes, desRes, locRes, payRes] = await Promise.all([
@@ -60,50 +60,91 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
       setWorkLocations(locRes.data || []);
       setPaySchedules(payRes.data || []);
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to load dropdown data");
+      toast.error("Failed loading dropdown data");
     }
   };
 
+  // ---------------------------
+  //  GET EMPLOYEE DATA
+  // ---------------------------
+  const fetchEmployee = async () => {
+    try {
+      const res = await axiosInstance.get(EMPLOYEE_API(employeeId));
+      const emp = res.data.data;
+
+      setForm({
+        employeeCode: emp.employeeCode || "",
+        fullName: emp.fullName || "",
+        dateOfJoining: emp.dateOfJoining ? emp.dateOfJoining.slice(0, 10) : "",
+        workEmail: emp.workEmail || "",
+        mobileNumber: emp.mobileNumber || "",
+        isDirector: emp.isDirector ?? false,
+        gender: emp.gender || "",
+        departmentId: emp.departmentId || "",
+        designationId: emp.designationId || "",
+        workLocationId: emp.workLocationId || "",
+        payScheduleId: emp.payScheduleId || "",
+        portalAccessEnabled: emp.portalAccessEnabled ?? true,
+        aadhaarCardNumber: emp.aadhaarCardNumber || "",
+      });
+      setBasicDetailsExists(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch employee");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ---------------------------
+  //  ON MOUNT → LOAD DROPDOWNS + EMPLOYEE
+  // ---------------------------
+  useEffect(() => {
+    fetchDropdowns();
+    fetchEmployee();
+  }, [employeeId]);
+
+  // ---------------------------
+  //  FORM EVENTS
+  // ---------------------------
   const onChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const onCheckboxChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.checked }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.checked }));
 
+  // ---------------------------
+  //  UPDATE API
+  // ---------------------------
   const onSave = async () => {
     try {
       setSaving(true);
-      await axiosInstance.put(UPDATE_BASIC_ENDPOINT(employeeId), form);
-      toast.success("Employee details updated");
+      await axiosInstance.put(EMPLOYEE_API(employeeId), form);
+      toast.success("Employee updated successfully!");
+
+      // Update parent if needed
       onLocalUpdate?.(form);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update employee details");
+      toast.error(err?.response?.data?.message || "Failed to update employee");
     } finally {
       setSaving(false);
     }
   };
 
+  if (loading) return <Typography>Loading…</Typography>;
+
   return (
     <Paper sx={{ p: 2, borderRadius: 2 }} elevation={3}>
-      {/* Header */}
-      <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6" fontWeight="bold">
-          Employee Details
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={onSave}
-          disabled={saving}
-          sx={{ borderRadius: 2, textTransform: "none" }}
-        >
-          {saving ? "Saving…" : "Save"}
+      <Grid container justifyContent="space-between" mb={2}>
+        <Typography variant="h6">Employee Details</Typography>
+        <Button variant="contained" onClick={onSave} disabled={saving}>
+          {saving ? "Saving…" : basicDetailsExists ? "Update" : "Save"}
         </Button>
       </Grid>
 
-      {/* Form */}
       <Grid container spacing={2}>
+        {/* Full Name */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Full Name"
@@ -115,6 +156,7 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
           />
         </Grid>
 
+        {/* Employee Code */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Employee Code"
@@ -126,6 +168,7 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
           />
         </Grid>
 
+        {/* Work Email */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Work Email"
@@ -133,11 +176,12 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             value={form.workEmail}
             onChange={onChange}
             size="small"
-            fullWidth
             type="email"
+            fullWidth
           />
         </Grid>
 
+        {/* Mobile */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Mobile Number"
@@ -150,15 +194,16 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
           />
         </Grid>
 
+        {/* Aadhaar */}
         <Grid item xs={12} md={4}>
           <TextField
-            label="Aadhar Number"
+            label="Aadhaar Number"
             name="aadhaarCardNumber"
             value={form.aadhaarCardNumber}
             onChange={onChange}
             size="small"
             fullWidth
-            inputProps={{ maxLength: 10 }}
+            inputProps={{ maxLength: 12 }}
           />
         </Grid>
 
@@ -170,8 +215,8 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             name="gender"
             value={form.gender}
             onChange={onChange}
-            fullWidth
             size="small"
+            fullWidth
           >
             {genderOptions.map((g) => (
               <MenuItem key={g} value={g}>
@@ -189,8 +234,8 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             name="departmentId"
             value={form.departmentId}
             onChange={onChange}
-            fullWidth
             size="small"
+            fullWidth
           >
             {departments.map((d) => (
               <MenuItem key={d.id} value={d.id}>
@@ -208,8 +253,8 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             name="designationId"
             value={form.designationId}
             onChange={onChange}
-            fullWidth
             size="small"
+            fullWidth
           >
             {designations.map((d) => (
               <MenuItem key={d.id} value={d.id}>
@@ -227,8 +272,8 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             name="workLocationId"
             value={form.workLocationId}
             onChange={onChange}
-            fullWidth
             size="small"
+            fullWidth
           >
             {workLocations.map((w) => (
               <MenuItem key={w.id} value={w.id}>
@@ -246,8 +291,8 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
             name="payScheduleId"
             value={form.payScheduleId}
             onChange={onChange}
-            fullWidth
             size="small"
+            fullWidth
           >
             {paySchedules.map((p) => (
               <MenuItem key={p.id} value={p.id}>
@@ -272,7 +317,7 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
         </Grid>
 
         {/* Checkboxes */}
-        <Grid item xs={12} md={4} display="flex" alignItems="center">
+        <Grid item xs={12} md={4}>
           <FormControlLabel
             control={
               <Checkbox
@@ -285,7 +330,7 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
           />
         </Grid>
 
-        <Grid item xs={12} md={4} display="flex" alignItems="center">
+        <Grid item xs={12} md={4}>
           <FormControlLabel
             control={
               <Checkbox
@@ -300,6 +345,4 @@ const UpdateBasicDetails = ({ employeeId, data, onLocalUpdate }) => {
       </Grid>
     </Paper>
   );
-};
-
-export default UpdateBasicDetails;
+}

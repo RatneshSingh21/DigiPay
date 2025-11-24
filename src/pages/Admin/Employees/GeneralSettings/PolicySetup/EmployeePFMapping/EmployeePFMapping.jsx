@@ -21,7 +21,7 @@ const EmployeePFMapping = () => {
       // Fetch employee name for each mapping
       mappingData.forEach((m) => fetchEmployeeName(m.employeeId));
     } catch (err) {
-      toast.error("Error fetching mappings");
+      toast.error(err?.response?.data?.message || "Error fetching mappings");
       console.error(err);
     }
   };

@@ -41,7 +41,7 @@ export default function SignInForm({ switchToSignUp }) {
         password,
       });
 
-      const { user, token, refreshToken } = response.data;
+      const { user, token, refreshToken } = response.data.data;
       useAuthStore.getState().login(user, token, refreshToken);
 
       toast.success("Login successful!");

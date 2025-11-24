@@ -147,7 +147,7 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
         </Typography>
 
         <Button variant="contained" onClick={onSave} disabled={saving}>
-          {saving ? "Saving…" : salaryExists ? "Update" : "Create"}
+          {saving ? "Saving…" : salaryExists ? "Update" : "Save"}
         </Button>
       </Grid>
 

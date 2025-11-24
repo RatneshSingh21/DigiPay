@@ -60,7 +60,7 @@ const EmployeeAttendancePolicyForm = ({ onClose, onSuccess }) => {
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to assign attendance policy");
+      toast.error(err?.response?.data?.message || "Failed to assign attendance policy");
     }
   };
 

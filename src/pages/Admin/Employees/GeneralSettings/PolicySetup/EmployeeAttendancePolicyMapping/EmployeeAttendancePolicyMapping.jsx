@@ -20,7 +20,7 @@ const EmployeeAttendancePolicyMapping = () => {
       setData(res.data.data || []);
     } catch (err) {
       console.error("Failed to fetch data", err);
-      toast.error("Failed to fetch employee-policy mappings");
+      toast.error(err?.response?.data?.message ||"Failed to fetch employee-policy mappings");
     } finally {
       setLoading(false);
     }

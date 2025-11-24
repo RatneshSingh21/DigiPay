@@ -69,7 +69,7 @@ const EmployeeESIDetailForm = ({ editData, onClose, onSuccess }) => {
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to save Employee ESI detail");
+      toast.error(err?.response?.data?.message || "Failed to save Employee ESI detail");
     }
   };
 

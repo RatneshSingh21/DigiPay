@@ -8,6 +8,7 @@ import {
   Typography,
   CircularProgress,
   MenuItem,
+  Button,
 } from "@mui/material";
 
 const GET_PERSONAL_ENDPOINT = (id) => `/PersonalDetails/${id}`;
@@ -83,6 +84,7 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [personalDetailsExists, setPersonalDetailsExists] = useState(false);
 
   // ===============================
   // FETCH PERSONAL DETAILS
@@ -93,6 +95,7 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
         const res = await axiosInstance.get(GET_PERSONAL_ENDPOINT(employeeId));
 
         if (res.data) {
+          setPersonalDetailsExists(true);
           setForm({
             ...res.data,
             employeeId,
@@ -100,6 +103,8 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
               ? res.data.dateOfBirth.slice(0, 10)
               : "",
           });
+        } else {
+          setPersonalDetailsExists(false); // ← Personal Details does NOT exist
         }
       } catch (err) {
         if (err.response?.status === 404) {
@@ -134,25 +139,22 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
     try {
       setSaving(true);
 
-      if (
-        form.employeePersonalDetailsId === 0 ||
-        !form.employeePersonalDetailsId
-      ) {
-        // CREATE NEW
+      if (!personalDetailsExists || form.employeePersonalDetailsId === 0) {
+        // CREATE
         const res = await axiosInstance.post(SAVE_PERSONAL_ENDPOINT, form);
-
         toast.success("Personal details saved");
+
         onLocalUpdate?.(res.data);
 
-        // Update form with created ID if API returns it
         if (res.data?.employeePersonalDetailsId) {
           setForm((prev) => ({
             ...prev,
             employeePersonalDetailsId: res.data.employeePersonalDetailsId,
           }));
+          setPersonalDetailsExists(true);
         }
       } else {
-        // UPDATE EXISTING
+        // UPDATE
         await axiosInstance.put(UPDATE_PERSONAL_ENDPOINT, form);
         toast.success("Personal details updated");
         onLocalUpdate?.(form);
@@ -180,19 +182,9 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
         <Typography variant="h6" fontWeight="bold">
           Personal Details
         </Typography>
-
-        <button
-          onClick={onSave}
-          disabled={saving}
-          className={`px-4 py-1.5 rounded-lg font-medium text-white transition-all duration-200
-            ${
-              saving
-                ? "bg-gray-400 cursor-not-allowed shadow-none"
-                : "bg-primary hover:bg-secondary shadow-md hover:shadow-lg"
-            }`}
-        >
-          {saving ? "Saving…" : "Save"}
-        </button>
+        <Button variant="contained" onClick={onSave} disabled={saving}>
+          {saving ? "Saving…" : personalDetailsExists ? "Update" : "Save"}
+        </Button>
       </Grid>
 
       {/* Form */}

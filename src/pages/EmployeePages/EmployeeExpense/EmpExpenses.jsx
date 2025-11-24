@@ -51,7 +51,7 @@ const EmpExpenses = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message || "Failed to fetch expenses");
+      // toast.error(err?.response?.data?.message || "Failed to fetch expenses");
     } finally {
       setLoading(false);
     }

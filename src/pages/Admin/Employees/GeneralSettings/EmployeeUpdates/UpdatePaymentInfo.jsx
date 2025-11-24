@@ -8,6 +8,7 @@ import {
   Typography,
   CircularProgress,
   MenuItem,
+  Button,
 } from "@mui/material";
 
 const GET_BANK_DETAILS = (id) => `/BankDetails/employee/${id}`;
@@ -45,6 +46,7 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [bankDetailsExists, setBankDetailsExists] = useState(false);
 
   // =========================
   // FETCH BANK DETAILS
@@ -60,8 +62,10 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
             ...latestBank,
             employeeId,
           });
+
+          setBankDetailsExists(true); // ← Correct
         } else {
-          console.log("No bank details found → will call POST on save.");
+          setBankDetailsExists(false); // ← No record exists
         }
       } catch (err) {
         console.error(err);
@@ -87,14 +91,15 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
       // 🌟 No Bank Detail → CREATE
       if (!form.bankDetailId) {
         const res = await axiosInstance.post(CREATE_BANK_DETAILS, form);
+
         toast.success("Bank details created successfully!");
 
-        // API returns new ID, so update local state
         if (res.data?.bankDetailId) {
           setForm((prev) => ({
             ...prev,
             bankDetailId: res.data.bankDetailId,
           }));
+          setBankDetailsExists(true); // ← Switch to Update mode
         }
 
         onLocalUpdate?.(form);
@@ -108,7 +113,7 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
       onLocalUpdate?.(form);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to save bank details");
+      toast.error(err?.response?.data?.message || "Failed to save bank details");
     } finally {
       setSaving(false);
     }
@@ -129,20 +134,9 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
         <Typography variant="h6" fontWeight="bold">
           Payment Info
         </Typography>
-
-        <button
-          onClick={onSave}
-          disabled={saving}
-          className={`px-4 py-1.5 rounded-lg font-medium text-white transition-all duration-200
-            ${
-              saving
-                ? "bg-gray-400 cursor-not-allowed shadow-none"
-                : "bg-primary hover:bg-secondary shadow-md hover:shadow-lg"
-            }
-        normal-case`}
-        >
-          {saving ? "Saving…" : "Save"}
-        </button>
+        <Button variant="contained" onClick={onSave} disabled={saving}>
+          {saving ? "Saving…" : bankDetailsExists ? "Update" : "Save"}
+        </Button>
       </Grid>
 
       {/* Form */}

@@ -25,7 +25,9 @@ const EmployeeESIDetails = () => {
       mappingData.forEach((m) => fetchEmployeeName(m.employeeId));
     } catch (err) {
       console.error("Failed to fetch Employee ESI details", err);
-      toast.error("Failed to fetch Employee ESI details");
+      toast.error(
+        err?.response?.data?.message || "Failed to fetch Employee ESI details"
+      );
     } finally {
       setLoading(false);
     }
