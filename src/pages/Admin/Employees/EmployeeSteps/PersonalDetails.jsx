@@ -1,18 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Select from "react-select";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import { useAddEmployeeStore } from "../../../../store/useAddEmployeeStore";
 import Spinner from "../../../../components/Spinner";
 
-// Convert ISO datetime to yyyy-MM-dd for input[type="date"]
 const formatDateForInput = (dateStr) => {
   if (!dateStr) return "";
-  const date = new Date(dateStr);
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const d = new Date(dateStr);
+  return d.toISOString().slice(0, 10);
 };
 
 const differentlyAbledOptions = [
@@ -24,48 +20,21 @@ const differentlyAbledOptions = [
 ];
 
 const indianStates = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-  "Andaman and Nicobar Islands",
-  "Chandigarh",
-  "Dadra and Nagar Haveli and Daman and Diu",
-  "Delhi",
-  "Lakshadweep",
-  "Puducherry",
+  "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa",
+  "Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala",
+  "Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland",
+  "Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura",
+  "Uttar Pradesh","Uttarakhand","West Bengal","Andaman and Nicobar Islands",
+  "Chandigarh","Dadra and Nagar Haveli and Daman and Diu","Delhi",
+  "Lakshadweep","Puducherry"
 ];
 
 const stateOptions = indianStates.map((state) => ({
-  label: state,
   value: state,
+  label: state,
 }));
 
-const PersonalDetails = () => {
+export default function PersonalDetails() {
   const {
     employeeId,
     personalDetails,
@@ -75,67 +44,108 @@ const PersonalDetails = () => {
     basicDetails,
   } = useAddEmployeeStore();
 
-  const [form, setForm] = useState(personalDetails || {});
-  const [isEdit, setIsEdit] = useState(!!personalDetails && personalDetails.employeeId); // edit if store already has data
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
 
-  if (!basicDetails) return null;
+  const [form, setForm] = useState({});
+  const [isEdit, setIsEdit] = useState(false);
 
-  const fullName = `${basicDetails.firstName || ""} ${
-    basicDetails.lastName || ""
-  }`.trim();
-  const employeeCode = basicDetails.employeeId || "N/A";
-  const email = basicDetails.workEmail || "N/A";
-  const departmentName = basicDetails.department?.label || "N/A";
+  // ---------------------------------------
+  // 1️⃣ Fetch data when user returns to step
+  // ---------------------------------------
+  useEffect(() => {
+    if (!employeeId) return;
+    fetchPersonalDetails();
+  }, [employeeId]);
 
+  const fetchPersonalDetails = async () => {
+    try {
+      setFetching(true);
+      const response = await axiosInstance.get(`/PersonalDetails/${employeeId}`);
+
+      if (response.data) {
+        setForm(response.data);
+        setStepData("personalDetails", response.data);
+
+        setIsEdit(true); // existing data found
+      } else {
+        setForm({});
+        setIsEdit(false);
+      }
+    } catch (err) {
+      console.error("GET personal details failed:", err);
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  // ---------------------------------------
+  // Input Handlers
+  // ---------------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectChange = (selectedOption, { name }) => {
-    setForm((prev) => ({ ...prev, [name]: selectedOption?.value || "" }));
+  const handleSelectChange = (value, { name }) => {
+    setForm((prev) => ({ ...prev, [name]: value?.value || "" }));
   };
 
+  // ---------------------------------------
+  // 2️⃣ Submit Handler (POST + PUT)
+  // ---------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!employeeId) {
-      toast.error("No employee selected. Please add basic details first.");
+      toast.error("Please fill Basic Details first.");
       return;
     }
 
+    setLoading(true);
+
     try {
-      setLoading(true);
+      const payload = {
+        ...form,
+        employeeId,
+        dateOfBirth: form.dateOfBirth
+          ? new Date(form.dateOfBirth).toISOString()
+          : null,
+      };
+
       let response;
+
       if (isEdit) {
-        response = await axiosInstance.put(`/PersonalDetails/update`, {
-          employeeId,
-          ...form,
-        });
-        toast.success("Personal details updated successfully!");
+        response = await axiosInstance.put("/PersonalDetails/update", payload);
+        toast.success("Personal details updated!");
       } else {
-        response = await axiosInstance.post(`/PersonalDetails/save`, {
-          employeeId,
-          ...form,
-        });
-        toast.success("Personal details added successfully!");
-        setIsEdit(true); // switch to edit mode after creation
+        response = await axiosInstance.post("/PersonalDetails/save", payload);
+        toast.success("Personal details saved!");
+        setIsEdit(true);
       }
 
-      // Update store
+      // Save returned payload to state
       setStepData("personalDetails", response.data);
+      setForm(response.data);
 
-      // Move to next step
+      // Go to next step
       setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1));
     } catch (error) {
-      console.error("Error saving personal details:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to save personal details."
-      );
+      console.error("Save failed:", error);
+      toast.error(error.response?.data?.message || "Save failed!");
     } finally {
       setLoading(false);
     }
   };
+
+  // ---------------------------------------
+  // Loading skeleton
+  // ---------------------------------------
+  if (fetching) return <div className="p-6"><Spinner /></div>;
+
+  if (!basicDetails) return null;
+
+  const fullName = `${basicDetails.firstName || ""} ${basicDetails.lastName || ""}`;
+  const departmentName = basicDetails.department?.label || "-";
 
   return (
     <>
@@ -145,18 +155,10 @@ const PersonalDetails = () => {
           Employee Summary :
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1">
-          <p>
-            <span className="font-medium">Employee Code:</span> {employeeCode}
-          </p>
-          <p>
-            <span className="font-medium">Full Name:</span> {fullName}
-          </p>
-          <p>
-            <span className="font-medium">Email:</span> {email}
-          </p>
-          <p>
-            <span className="font-medium">Department:</span> {departmentName}
-          </p>
+          <p><strong>Employee Code:</strong> {basicDetails.employeeId}</p>
+          <p><strong>Full Name:</strong> {fullName}</p>
+          <p><strong>Email:</strong> {basicDetails.workEmail}</p>
+          <p><strong>Department:</strong> {departmentName}</p>
         </div>
       </div>
 
@@ -171,159 +173,94 @@ const PersonalDetails = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Father's Name */}
-          <div>
-            <label className="block text-sm font-medium">Father's Name</label>
-            <input
-              type="text"
-              name="fatherName"
-              value={form.fatherName || ""}
-              onChange={handleChange}
-              placeholder="Enter Father's Name"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
+          <Input
+            label="Father's Name"
+            name="fatherName"
+            value={form.fatherName || ""}
+            onChange={handleChange}
+            placeholder="Enter Father's Name"
+          />
 
           {/* Date of Birth */}
-          <div>
-            <label className="block text-sm font-medium">
-              Employee Date of Birth
-            </label>
-            <input
-              type="date"
-              name="dateOfBirth"
-              value={formatDateForInput(form.dateOfBirth) || ""}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
+          <Input
+            type="date"
+            label="Date of Birth"
+            name="dateOfBirth"
+            required
+            value={formatDateForInput(form.dateOfBirth)}
+            onChange={handleChange}
+          />
 
-          {/* PAN */}
-          <div>
-            <label className="block text-sm font-medium">PAN Number</label>
-            <input
-              type="text"
-              name="pan"
-              value={form.pan || ""}
-              onChange={handleChange}
-              placeholder="ABCDE1234F"
-              maxLength={10}
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
+          <Input
+            label="PAN Number"
+            name="pan"
+            maxLength={10}
+            value={form.pan || ""}
+            placeholder="ABCDE1234F"
+            onChange={handleChange}
+          />
 
-          {/* Personal Email */}
-          <div>
-            <label className="block text-sm font-medium">Personal Email</label>
-            <input
-              type="email"
-              name="personalEmailAddress"
-              value={form.personalEmailAddress || ""}
-              onChange={handleChange}
-              placeholder="Enter email"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
+          <Input
+            type="email"
+            label="Personal Email"
+            name="personalEmailAddress"
+            value={form.personalEmailAddress || ""}
+            onChange={handleChange}
+            placeholder="example@gmail.com"
+          />
 
-          {/* Differently Abled Type */}
-          <div>
-            <label className="block text-sm font-medium">
-              Differently Abled Type
-            </label>
-            <Select
-              name="differentlyAbledType"
-              value={
-                differentlyAbledOptions.find(
-                  (opt) => opt.value === form.differentlyAbledType
-                ) || null
-              }
-              onChange={(selectedOption) =>
-                handleSelectChange(selectedOption, {
-                  name: "differentlyAbledType",
-                })
-              }
-              options={differentlyAbledOptions}
-              isClearable
-              className="react-select-container"
-              classNamePrefix="select"
-            />
-          </div>
+          {/* Differently Abled */}
+          <SelectField
+            label="Differently Abled Type"
+            name="differentlyAbledType"
+            value={form.differentlyAbledType}
+            options={differentlyAbledOptions}
+            onChange={handleSelectChange}
+          />
 
-          {/* Address Line 1 */}
-          <div>
-            <label className="block text-sm font-medium">Address Line 1</label>
-            <input
-              type="text"
-              name="addressLine1"
-              value={form.addressLine1 || ""}
-              onChange={handleChange}
-              placeholder="House No, Street"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
+          <Input
+            label="Address Line 1"
+            name="addressLine1"
+            value={form.addressLine1 || ""}
+            onChange={handleChange}
+          />
 
-          {/* Address Line 2 */}
-          <div>
-            <label className="block text-sm font-medium">Address Line 2</label>
-            <input
-              type="text"
-              name="addressLine2"
-              value={form.addressLine2 || ""}
-              onChange={handleChange}
-              placeholder="Locality, Landmark"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
+          <Input
+            label="Address Line 2"
+            name="addressLine2"
+            value={form.addressLine2 || ""}
+            onChange={handleChange}
+          />
 
-          {/* City */}
-          <div>
-            <label className="block text-sm font-medium">City</label>
-            <input
-              type="text"
-              name="city"
-              value={form.city || ""}
-              onChange={handleChange}
-              placeholder="Enter city"
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
+          <Input
+            label="City"
+            name="city"
+            value={form.city || ""}
+            onChange={handleChange}
+          />
 
           {/* State */}
-          <div>
-            <label className="block text-sm font-medium">State</label>
-            <Select
-              name="state"
-              value={
-                stateOptions.find((opt) => opt.value === form.state) || null
-              }
-              onChange={handleSelectChange}
-              options={stateOptions}
-              isClearable
-              className="react-select-container"
-              classNamePrefix="select"
-            />
-          </div>
+          <SelectField
+            label="State"
+            name="state"
+            value={form.state}
+            options={stateOptions}
+            onChange={handleSelectChange}
+          />
 
-          {/* Pincode */}
-          <div>
-            <label className="block text-sm font-medium">Pin Code</label>
-            <input
-              type="text"
-              name="pinCode"
-              value={form.pinCode || ""}
-              onChange={handleChange}
-              placeholder="110001"
-              maxLength={6}
-              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
+          <Input
+            label="Pin Code"
+            name="pinCode"
+            maxLength={6}
+            value={form.pinCode || ""}
+            onChange={handleChange}
+          />
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className={`flex items-center cursor-pointer justify-center gap-2 bg-primary text-white px-6 py-2 rounded-full ${
+          className={`flex items-center justify-center gap-2 bg-primary text-white px-6 py-2 rounded-full ${
             loading ? "opacity-50 cursor-not-allowed" : "hover:bg-secondary"
           }`}
         >
@@ -333,6 +270,33 @@ const PersonalDetails = () => {
       </form>
     </>
   );
-};
+}
 
-export default PersonalDetails;
+// Reusable Input Component
+function Input({ label, ...props }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-1">{label}</label>
+      <input
+        {...props}
+        className="w-full px-4 py-2 border border-blue-300 rounded-md"
+      />
+    </div>
+  );
+}
+
+// Reusable Select Component
+function SelectField({ label, name, value, options, onChange }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-1">{label}</label>
+      <Select
+        name={name}
+        value={options.find((o) => o.value === value) || null}
+        onChange={(v) => onChange(v, { name })}
+        options={options}
+        isClearable
+      />
+    </div>
+  );
+}

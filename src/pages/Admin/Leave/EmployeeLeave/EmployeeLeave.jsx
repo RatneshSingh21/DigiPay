@@ -136,7 +136,7 @@ const EmployeeLeave = () => {
             No leaves found.
           </div>
         ) : (
-          <table className="w-full text-sm text-left text-gray-700 border-collapse">
+          <table className="w-full text-sm text-center text-gray-700 border-collapse">
             <thead className="bg-gray-100 text-gray-600 text-xs uppercase">
               <tr>
                 <th className="px-4 py-2">#</th>

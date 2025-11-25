@@ -47,6 +47,7 @@ import GeneralSettings from "./pages/Admin/Employees/GeneralSettings/GeneralSett
 //Admin Settings Pages
 import OrganisationProfile from "./pages/Admin/Settings/OrganisationProfile";
 import CreateSuperAdmin from "./pages/Admin/Settings/CreateSuperAdmin";
+import CreateAdminFromEmployee from "./pages/Admin/Settings/CreateAdminFromEmployee";
 import Departments from "./pages/Admin/Settings/Departments";
 import WorkLocations from "./pages/Admin/Settings/WorkLocations";
 import PaySchedule from "./pages/Admin/Settings/PaySchedule";
@@ -247,6 +248,7 @@ const App = () => {
                   />
                   <Route path="departments" element={<Departments />} />
                   <Route path="create-admin" element={<CreateSuperAdmin />} />
+                  <Route path="create-from-employee" element={<CreateAdminFromEmployee />} />
                   <Route path="work-locations" element={<WorkLocations />} />
                   <Route path="permissions" element={<Permissions />} />
                   <Route path="payschedule" element={<PaySchedule />} />

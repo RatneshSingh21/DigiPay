@@ -78,6 +78,7 @@ const labelToPath = {
   // Settings
   "Organisation Profile": "organisation-profile",
   "Create Admin": "create-admin",
+  "Create From Employee": "create-from-employee",
   Departments: "departments",
   Designation: "designation",
   "Work Locations": "work-locations",
@@ -180,6 +181,7 @@ const labelToIcon = {
   // Settings
   "Organisation Profile": <FaBuilding className="mr-2" />,
   "Create Admin": <MdPersonAddAlt1 className="mr-2" />,
+  "Create From Employee": <MdPersonAddAlt1 className="mr-2" />,
   Departments: <MdOutlineCorporateFare className="mr-2" />,
   Designation: <HiOutlineBriefcase className="mr-2" />,
   "Work Locations": <GoLocation className="mr-2" />,

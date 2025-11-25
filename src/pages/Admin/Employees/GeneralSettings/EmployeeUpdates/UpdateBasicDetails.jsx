@@ -80,17 +80,26 @@ export default function UpdateBasicDetails({ employeeId, onLocalUpdate }) {
         mobileNumber: emp.mobileNumber || "",
         isDirector: emp.isDirector ?? false,
         gender: emp.gender || "",
-        departmentId: emp.departmentId || "",
-        designationId: emp.designationId || "",
-        workLocationId: emp.workLocationId || "",
-        payScheduleId: emp.payScheduleId || "",
+        departmentId: emp.departmentId ? Number(emp.departmentId) : "",
+        designationId: emp.designationId ? Number(emp.designationId) : "",
+        workLocationId: emp.workLocationId ? Number(emp.workLocationId) : "",
+        payScheduleId: emp.payScheduleId ? Number(emp.payScheduleId) : "",
         portalAccessEnabled: emp.portalAccessEnabled ?? true,
         aadhaarCardNumber: emp.aadhaarCardNumber || "",
       });
       setBasicDetailsExists(true);
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch employee");
+      if (err.response?.status === 404) {
+        // No personal details found → leave form as default for new entry
+        console.warn("No Basic details found. Creating new entry.");
+        setForm((prev) => ({
+          ...prev,
+          employeeId,
+        }));
+      } else {
+        console.error(err);
+        toast.error("Failed to fetch employee");
+      }
     } finally {
       setLoading(false);
     }
@@ -100,8 +109,12 @@ export default function UpdateBasicDetails({ employeeId, onLocalUpdate }) {
   //  ON MOUNT → LOAD DROPDOWNS + EMPLOYEE
   // ---------------------------
   useEffect(() => {
-    fetchDropdowns();
-    fetchEmployee();
+    const loadData = async () => {
+      await fetchDropdowns();
+      await fetchEmployee();
+    };
+
+    loadData();
   }, [employeeId]);
 
   // ---------------------------

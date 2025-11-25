@@ -19,6 +19,8 @@ const EmployeeESIDetails = () => {
     setLoading(true);
     try {
       const res = await getEmployeeESIDetails();
+      // console.log(res.data.data);
+      
       if (res.data?.data) setData(res.data.data);
 
       const mappingData = res.data.data || [];
@@ -34,24 +36,26 @@ const EmployeeESIDetails = () => {
   };
 
   const fetchEmployeeName = async (id) => {
-    if (employeeMap[id]) return;
-    try {
-      const res = await axiosInstance.get(`/Employee/${id}`);
-      const emp = res.data?.response || res.data;
-      if (emp) {
-        setEmployeeMap((prev) => ({
-          ...prev,
-          [id]: `${emp.fullName} (${emp.employeeCode})`,
-        }));
-      }
-    } catch (err) {
-      console.log("Failed to fetch employee", err);
+  if (employeeMap[id]) return;
+
+  try {
+    const res = await axiosInstance.get(`/Employee/${id}`);
+    const emp = res.data?.data;
+
+    if (emp) {
       setEmployeeMap((prev) => ({
         ...prev,
-        [id]: `Emp-${id}`,
+        [id]: `${emp.fullName} (${emp.employeeCode})`,
       }));
     }
-  };
+  } catch (err) {
+    console.log("Failed to fetch employee", err);
+    setEmployeeMap((prev) => ({
+      ...prev,
+      [id]: `Emp-${id}`,
+    }));
+  }
+};
 
   useEffect(() => {
     fetchData();
@@ -107,7 +111,7 @@ const EmployeeESIDetails = () => {
       </div>
 
       <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full text-sm border-collapse text-center">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
               <th className="px-3 py-2 border">ESI ID</th>

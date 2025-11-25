@@ -88,6 +88,7 @@ const submenuMap = {
   Settings: [
     "Organisation Profile",
     "Create Admin",
+    "Create From Employee",
     "Departments",
     "Designation",
     "Work Locations",

@@ -16,7 +16,10 @@ export default function ApprovalWrapper() {
       const res = await axiosInstance.get("/EmployeeRoleMapping");
 
       const options = res.data
-        .filter((item) => ["HOD", "admin"].includes(item.roleName))
+        .filter((item) => {
+          const role = item.roleName?.toLowerCase(); // 🔥 case-insensitive role name
+          return role !== "user" && role !== "employee"; // ❌ excluded
+        })
         .map((item) => ({
           label: `${item.employeeName} (${item.roleName})`,
           value: item.employeeId,

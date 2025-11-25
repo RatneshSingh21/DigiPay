@@ -30,10 +30,11 @@ const UploadedDocuments = () => {
         const employeePromises = uniqueIds.map(async (id) => {
           try {
             const empRes = await axiosInstance.get(`/Employee/${id}`);
+            const emp = empRes.data?.data;
             return {
               id,
-              name: empRes.data.fullName || "Unknown",
-              employeeCode: empRes.data.employeeCode || "",
+              name: emp?.fullName || "Unknown",
+              employeeCode: emp?.employeeCode || "",
             };
           } catch {
             return { id, name: "Unknown", employeeCode: "" };

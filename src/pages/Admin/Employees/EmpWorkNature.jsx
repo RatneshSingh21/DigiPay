@@ -120,11 +120,13 @@ const EmpWorkNature = () => {
                 </td>
               </tr>
             ) : workNatures.length > 0 ? (
-              workNatures.map((item,index) => (
+              workNatures.map((item, index) => (
                 <tr key={item.workNatureId} className="hover:bg-gray-50">
                   <td className="px-4 py-2">{index + 1}</td>
                   <td className="px-4 py-2">{item.workNatureName}</td>
-                  <td className="px-4 py-2">{item.description}</td>
+                  <td className="px-4 py-2">
+                    {item.description ? item.description : "-"}
+                  </td>
                   <td className="px-4 py-2">{item.isActive ? "Yes" : "No"}</td>
                   <td className="px-4 py-2">{item.createdBy || "-"}</td>
                   <td className="px-4 py-2">

@@ -15,24 +15,24 @@ const OTCalculation = () => {
     setLoading(true);
     try {
       const res = await axiosInstance.get("/OTCalculation");
-      const otData = res.data.response || [];
+      const otData = res.data?.data ?? res.data?.response ?? [];
       setOtList(otData);
 
-      // Extract unique employeeIds
       const employeeIds = [...new Set(otData.map((ot) => ot.employeeId))];
 
-      // Fetch employee names
       const employeeData = {};
       await Promise.all(
         employeeIds.map(async (id) => {
           try {
             const empRes = await axiosInstance.get(`/Employee/${id}`);
-            employeeData[id] = `${empRes.data.fullName} (${empRes.data.employeeCode})`;
-          } catch (err) {
+            const emp = empRes.data?.data;
+            employeeData[id] = `${emp.fullName} (${emp.employeeCode})`;
+          } catch {
             employeeData[id] = "Unknown";
           }
         })
       );
+
       setEmployeeMap(employeeData);
     } catch (error) {
       toast.error("Failed to fetch OT Calculations");

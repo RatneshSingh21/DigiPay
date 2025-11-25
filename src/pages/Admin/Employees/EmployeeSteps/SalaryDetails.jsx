@@ -186,40 +186,50 @@ const SalaryDetails = () => {
   const netPay = totalEarnings - totalDeductions;
 
   useEffect(() => {
-    if (!employeeId) return;
+    if (!employeeId || earnings.length === 0 || deductions.length === 0) return;
 
     axiosInstance
       .get(`/EmployeeSalary/employee/${employeeId}`)
       .then((res) => {
-        if (res.data) {
-          // Salary Exists → Pre-fill store
-          setStepData("salaryDetails", res.data);
+        const salary = res.data?.data;
+        if (!salary) return;
 
-          // Prefill Basic Salary
-          if (res.data.basicSalary) {
-            setBasicSalary(res.data.basicSalary);
-          }
+        setStepData("salaryDetails", salary);
 
-          // Prefill Earnings & Deductions
-          setEarnings((prev) =>
-            prev.map((e) => ({
-              ...e,
-              monthly: res.data[e.componentName] ?? e.monthly,
-              annual: (res.data[e.componentName] ?? e.monthly) * 12,
-            }))
-          );
-
-          setDeductions((prev) =>
-            prev.map((d) => ({
-              ...d,
-              monthly: res.data[d.componentName] ?? d.monthly,
-              annual: (res.data[d.componentName] ?? d.monthly) * 12,
-            }))
-          );
+        if (salary.basicSalary) {
+          setBasicSalary(salary.basicSalary);
         }
+
+        // Prefill earnings with actual saved values
+        setEarnings((prev) =>
+          prev.map((e) => {
+            const value = salary[e.componentName];
+            return value !== undefined
+              ? {
+                  ...e,
+                  monthly: value,
+                  annual: value * 12,
+                }
+              : e;
+          })
+        );
+
+        // Prefill deductions with actual saved values
+        setDeductions((prev) =>
+          prev.map((d) => {
+            const value = salary[d.componentName];
+            return value !== undefined
+              ? {
+                  ...d,
+                  monthly: value,
+                  annual: value * 12,
+                }
+              : d;
+          })
+        );
       })
       .catch(() => console.log("Salary not found → will create new"));
-  }, [employeeId]);
+  }, [employeeId, earnings.length, deductions.length]);
 
   const handleSave = async () => {
     try {

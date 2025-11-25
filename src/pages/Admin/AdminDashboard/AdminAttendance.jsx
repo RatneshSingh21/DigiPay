@@ -171,7 +171,7 @@ const AdminAttendance = () => {
         const employeeIds = [...new Set(mergedData.map((a) => a.employeeId))];
         const employeeResponses = await Promise.all(
           employeeIds.map((id) =>
-            axiosInstance.get(`/Employee/${id}`).then((r) => r.data)
+            axiosInstance.get(`/Employee/${id}`).then((r) => r.data.data)
           )
         );
 

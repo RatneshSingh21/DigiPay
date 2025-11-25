@@ -47,14 +47,14 @@ const OTCalculationForm = ({ onClose, onSuccess }) => {
               const empRes = await axiosInstance.get(
                 `/Employee/${rec.employeeId}`
               );
-              const emp = empRes.data;
+              const emp = empRes.data.data;
               return {
                 value: rec.attendanceRecordId,
                 label: `Record #${rec.attendanceRecordId} | ${emp.fullName} (${
                   emp.employeeCode
                 }) | Date: ${new Date(
                   rec.attendanceDate
-                ).toLocaleDateString()} | Hours: ${rec.totalHoursWorked}`,
+                ).toLocaleDateString()} | Hours: ${rec.totalHoursWorked.toFixed(4)}`,
               };
             } catch {
               // fallback if employee fetch fails

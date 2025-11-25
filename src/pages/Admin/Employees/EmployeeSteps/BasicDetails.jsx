@@ -113,7 +113,7 @@ const BasicDetails = () => {
       let res;
       if (!employeeId) {
         res = await axiosInstance.post("/Employee", payload);
-        setEmployeeId(res.data.id);
+        setEmployeeId(res.data.data.id);
       } else {
         await axiosInstance.put(`/Employee/${employeeId}`, payload);
       }

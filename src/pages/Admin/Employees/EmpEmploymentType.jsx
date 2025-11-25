@@ -111,7 +111,7 @@ const EmpEmploymentType = () => {
                   <td className="px-4 py-2 font-medium text-gray-800">
                     {type.employmentTypeName}
                   </td>
-                  <td className="px-4 py-2">{type.description}</td>
+                  <td className="px-4 py-2">{type.description ? type.description : "-"}</td>
                   <td className="px-4 py-2">
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${

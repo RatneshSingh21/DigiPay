@@ -18,78 +18,80 @@ const ExpenseDocuments = () => {
     "w-full px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm";
 
   useEffect(() => {
-  const fetchExpenses = async () => {
-    try {
-      const res = await axiosInstance("/ExpenseDetails/all");
-      const data = res.data.data || [];
+    const fetchExpenses = async () => {
+      try {
+        const res = await axiosInstance("/ExpenseDetails/all");
+        const data = res.data.data || [];
 
-      // Collect all unique employee IDs (for creator + approvers)
-      const allEmployeeIds = new Set();
-      data.forEach((item) => {
-        if (item.createdBy) allEmployeeIds.add(item.createdBy);
-        if (Array.isArray(item.customApproverIds)) {
-          item.customApproverIds.forEach((id) => allEmployeeIds.add(id));
-        }
-      });
+        // Collect all unique employee IDs (for creator + approvers)
+        const allEmployeeIds = new Set();
+        data.forEach((item) => {
+          if (item.createdBy) allEmployeeIds.add(item.createdBy);
+          if (Array.isArray(item.customApproverIds)) {
+            item.customApproverIds.forEach((id) => allEmployeeIds.add(id));
+          }
+        });
 
-      // Fetch employee details for all unique IDs
-      const employeePromises = Array.from(allEmployeeIds).map(async (id) => {
-        try {
-          const empRes = await axiosInstance(`/Employee/${id}`);
+        // Fetch employee details for all unique IDs
+        const employeePromises = Array.from(allEmployeeIds).map(async (id) => {
+          try {
+            const empRes = await axiosInstance(`/Employee/${id}`);
+            const emp = empRes.data?.data;
+
+            return {
+              id,
+              name: emp?.fullName || "Unknown",
+              employeeCode: emp?.employeeCode || "",
+            };
+          } catch {
+            return { id, name: "Unknown", employeeCode: "" };
+          }
+        });
+
+        const employeeData = await Promise.all(employeePromises);
+        const employeeMap = employeeData.reduce((acc, emp) => {
+          acc[emp.id] = emp;
+          return acc;
+        }, {});
+
+        // Group by createdBy (employee)
+        const grouped = data.reduce((acc, item) => {
+          if (!acc[item.createdBy]) acc[item.createdBy] = [];
+          acc[item.createdBy].push(item);
+          return acc;
+        }, {});
+
+        // Prepare final grouped data with approver names
+        const result = Object.entries(grouped).map(([empId, expenses]) => {
+          const emp = employeeMap[empId] || {};
+          const enrichedExpenses = expenses.map((e) => ({
+            ...e,
+            approverNames: Array.isArray(e.customApproverIds)
+              ? e.customApproverIds.map(
+                  (id) => employeeMap[id]?.name || "Unknown"
+                )
+              : [],
+          }));
+
           return {
-            id,
-            name: empRes.data.fullName || "Unknown",
-            employeeCode: empRes.data.employeeCode || "",
+            empId,
+            employeeName: emp.name,
+            employeeCode: emp.employeeCode,
+            totalAmount: expenses.reduce((sum, e) => sum + (e.amount || 0), 0),
+            expenses: enrichedExpenses,
           };
-        } catch {
-          return { id, name: "Unknown", employeeCode: "" };
-        }
-      });
+        });
 
-      const employeeData = await Promise.all(employeePromises);
-      const employeeMap = employeeData.reduce((acc, emp) => {
-        acc[emp.id] = emp;
-        return acc;
-      }, {});
+        setGroupedExpenses(result);
+      } catch (error) {
+        console.error("Error fetching expenses:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      // Group by createdBy (employee)
-      const grouped = data.reduce((acc, item) => {
-        if (!acc[item.createdBy]) acc[item.createdBy] = [];
-        acc[item.createdBy].push(item);
-        return acc;
-      }, {});
-
-      // Prepare final grouped data with approver names
-      const result = Object.entries(grouped).map(([empId, expenses]) => {
-        const emp = employeeMap[empId] || {};
-        const enrichedExpenses = expenses.map((e) => ({
-          ...e,
-          approverNames: Array.isArray(e.customApproverIds)
-            ? e.customApproverIds.map(
-                (id) => employeeMap[id]?.name || "Unknown"
-              )
-            : [],
-        }));
-
-        return {
-          empId,
-          employeeName: emp.name,
-          employeeCode: emp.employeeCode,
-          totalAmount: expenses.reduce((sum, e) => sum + (e.amount || 0), 0),
-          expenses: enrichedExpenses,
-        };
-      });
-
-      setGroupedExpenses(result);
-    } catch (error) {
-      console.error("Error fetching expenses:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchExpenses();
-}, []);
+    fetchExpenses();
+  }, []);
 
   const filtered = groupedExpenses.filter(
     (e) =>

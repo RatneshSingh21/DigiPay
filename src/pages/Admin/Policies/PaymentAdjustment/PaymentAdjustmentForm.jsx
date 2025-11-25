@@ -73,7 +73,7 @@ export default function PaymentAdjustmentForm({
           value: item.complianceId,
           label: item.complianceName,
         }));
-        const otFormatted = otRes.data.map((item) => ({
+        const otFormatted = otRes.data.data.map((item) => ({
           value: item.otRateSlabId,
           label: `${item.rateType} - ₹${item.ratePerHour}/hr`,
         }));

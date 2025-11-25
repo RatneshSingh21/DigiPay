@@ -68,8 +68,17 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
           setBankDetailsExists(false); // ← No record exists
         }
       } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch bank details");
+        if (err.response?.status === 404) {
+          // No personal details found → leave form as default for new entry
+          console.warn("No Payment details found. Creating new entry.");
+          setForm((prev) => ({
+            ...prev,
+            employeeId,
+          }));
+        } else {
+          console.error(err);
+          // toast.error("Failed to fetch bank details");
+        }
       } finally {
         setLoading(false);
       }
@@ -113,7 +122,9 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
       onLocalUpdate?.(form);
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message || "Failed to save bank details");
+      toast.error(
+        err?.response?.data?.message || "Failed to save bank details"
+      );
     } finally {
       setSaving(false);
     }

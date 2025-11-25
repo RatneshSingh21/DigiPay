@@ -26,7 +26,7 @@ const OTSlabMaster = () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/OTRateSlabMaster/all");
-      setSlabs(res.data || []);
+      setSlabs(res.data.data || []);
     } catch (err) {
       toast.error("Failed to fetch OT Rate Slabs!");
     } finally {

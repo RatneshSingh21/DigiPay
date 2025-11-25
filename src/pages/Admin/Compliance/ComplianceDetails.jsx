@@ -29,7 +29,7 @@ const ComplianceDetails = () => {
       const res = await axiosInstance.get("/Compliance/get-all");
       setCompliance(res.data || []);
     } catch (err) {
-      toast.error("Failed to fetch holiday list!");
+      // toast.error("Failed to fetch Compliance list!");
       console.error(err);
     } finally {
       setLoading(false);

@@ -103,7 +103,7 @@ export default function EmployeeOtPermissionForm({
 
       // API is a POST createOrUpdate (single endpoint)
       const res = await axiosInstance.post(
-        "/EmployeeOTPermission/createOrUpdate",
+        "/EmployeeOTPermission/createOTPermission",
         payload
       );
 

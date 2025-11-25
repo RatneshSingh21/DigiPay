@@ -29,7 +29,7 @@ const ComplianceRules = () => {
       const res = await axiosInstance.get("/ComplianceRule/get-all");
       setRules(res.data || []);
     } catch (err) {
-      toast.error("Failed to fetch compliance rules!");
+      // toast.error("Failed to fetch compliance rules!");
       console.error(err);
     } finally {
       setLoading(false);

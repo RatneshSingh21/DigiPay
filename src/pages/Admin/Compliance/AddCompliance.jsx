@@ -5,6 +5,48 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 import Spinner from "../../../components/Spinner";
 
+const indianStates = [
+  { value: "AN", label: "Andaman & Nicobar (AN)" },
+  { value: "AP", label: "Andhra Pradesh (AP)" },
+  { value: "AR", label: "Arunachal Pradesh (AR)" },
+  { value: "AS", label: "Assam (AS)" },
+  { value: "BR", label: "Bihar (BR)" },
+  { value: "CH", label: "Chandigarh (CH)" },
+  { value: "CT", label: "Chhattisgarh (CT)" },
+  { value: "DL", label: "Delhi (DL)" },
+  { value: "DN", label: "Dadra & Nagar Haveli (DN)" },
+  { value: "DD", label: "Daman & Diu (DD)" },
+  { value: "GA", label: "Goa (GA)" },
+  { value: "GJ", label: "Gujarat (GJ)" },
+  { value: "HR", label: "Haryana (HR)" },
+  { value: "HP", label: "Himachal Pradesh (HP)" },
+  { value: "JK", label: "Jammu & Kashmir (JK)" },
+  { value: "JH", label: "Jharkhand (JH)" },
+  { value: "KA", label: "Karnataka (KA)" },
+  { value: "KL", label: "Kerala (KL)" },
+  { value: "LA", label: "Ladakh (LA)" },
+  { value: "LD", label: "Lakshadweep (LD)" },
+  { value: "MP", label: "Madhya Pradesh (MP)" },
+  { value: "MH", label: "Maharashtra (MH)" },
+  { value: "MN", label: "Manipur (MN)" },
+  { value: "ML", label: "Meghalaya (ML)" },
+  { value: "MZ", label: "Mizoram (MZ)" },
+  { value: "NL", label: "Nagaland (NL)" },
+  { value: "OR", label: "Odisha (OR)" },
+  { value: "PB", label: "Punjab (PB)" },
+  { value: "PY", label: "Puducherry (PY)" },
+  { value: "RJ", label: "Rajasthan (RJ)" },
+  { value: "SK", label: "Sikkim (SK)" },
+  { value: "TN", label: "Tamil Nadu (TN)" },
+  { value: "TS", label: "Telangana (TS)" },
+  { value: "TR", label: "Tripura (TR)" },
+  { value: "UP", label: "Uttar Pradesh (UP)" },
+  { value: "UK", label: "Uttarakhand (UK)" },
+  { value: "WB", label: "West Bengal (WB)" },
+];
+const selectAllOption = { value: "ALL", label: "Select All States" };
+const stateOptions = [selectAllOption, ...indianStates];
+
 const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +64,12 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
 
   useEffect(() => {
     if (isEdit === "Edit" && initialData) {
-      setFormData({ ...initialData });
+      setFormData({
+        ...initialData,
+        applicableStates: initialData.applicableStates
+          ? initialData.applicableStates.split(",")
+          : [],
+      });
     }
   }, [isEdit, initialData]);
 
@@ -44,12 +91,17 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const payload = {
-        ...formData,
-        createdBy: user?.name,
-      };
+    const payload = {
+      complianceName: formData.complianceName,
+      complianceCode: formData.complianceCode,
+      isEnabled: formData.isEnabled,
+      description: formData.description,
+      applicableStates: formData.applicableStates.join(","), // Convert array to string
+      ruleCount: Number(formData.ruleCount),
+      status: formData.status,
+    };
 
+    try {
       if (isEdit === "Edit") {
         await axiosInstance.put(
           `/Compliance/update/${formData.complianceId}`,
@@ -69,15 +121,38 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
       setLoading(false);
     }
 
-    setFormData({
-      complianceName: "",
-      complianceCode: "",
-      isEnabled: false,
-      description: "",
-      applicableStates: "",
-      ruleCount: 0,
-      status: "",
-    });
+    // reset only for add mode
+    if (isEdit !== "Edit") {
+      setFormData({
+        complianceName: "",
+        complianceCode: "",
+        isEnabled: false,
+        description: "",
+        applicableStates: "",
+        ruleCount: 0,
+        status: "",
+      });
+    }
+  };
+
+  const handleStatesChange = (selectedOptions) => {
+    if (!selectedOptions) {
+      setFormData({ ...formData, applicableStates: [] });
+      return;
+    }
+
+    // When 'Select All' is clicked
+    if (selectedOptions.some((opt) => opt.value === "ALL")) {
+      setFormData({
+        ...formData,
+        applicableStates: indianStates.map((s) => s.value), // Only state codes
+      });
+    } else {
+      setFormData({
+        ...formData,
+        applicableStates: selectedOptions.map((opt) => opt.value),
+      });
+    }
   };
 
   const inputClass =
@@ -141,17 +216,35 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
           </div>
 
           {/* Applicable States */}
+          {/* Applicable States */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-0.5">
               Applicable States
             </label>
-            <input
-              type="text"
-              name="applicableStates"
-              value={formData.applicableStates}
-              onChange={handleChange}
-              placeholder="Enter states (comma separated)"
-              className={inputClass}
+
+            <Select
+              isMulti
+              options={stateOptions}
+              value={[
+                ...stateOptions.filter((opt) =>
+                  formData.applicableStates.includes(opt.value)
+                ),
+              ]}
+              onChange={handleStatesChange}
+              placeholder="Select applicable states..."
+              classNamePrefix="react-select"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  borderColor: "#93c5fd",
+                  minHeight: "36px",
+                  "&:hover": { borderColor: "#60a5fa" },
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  padding: "0 6px",
+                }),
+              }}
             />
           </div>
 

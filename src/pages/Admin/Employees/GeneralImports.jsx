@@ -28,6 +28,12 @@ const data = [
     importApi: "/BankDetails/import",
     exportApi: "/BankDetails/export",
   },
+  {
+    id: 5,
+    name: "PF & ESI Mapping", // New row for ESI mapping
+    importApi: "/Employee/import-compliance", // adjust import endpoint if you have one
+    exportApi: "/Employee/export-compliance-template", // your given endpoint
+  },
 ];
 
 export default function GeneralImports() {

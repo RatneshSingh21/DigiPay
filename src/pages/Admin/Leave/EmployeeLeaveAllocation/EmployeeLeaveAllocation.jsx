@@ -34,7 +34,8 @@ export default function EmployeeLeaveAllocation() {
 
     try {
       const res = await axiosInstance.get(`/Employee/${id}`);
-      const name = res.data.fullName || "Unknown";
+      const name = res.data?.data?.fullName || "Unknown";
+
       employeeCache.current[id] = name;
       return name;
     } catch {

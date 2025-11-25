@@ -77,31 +77,35 @@ const AdminSummaryCards = () => {
   const cards = [
     {
       label: "Total Employees",
-      value: employees.length,
-      diff: `+${
-        employees.filter((emp) => {
-          if (!emp.dateOfJoining) return false;
-          const doj = new Date(emp.dateOfJoining);
-          const now = new Date();
-          return (
-            doj.getMonth() === now.getMonth() &&
-            doj.getFullYear() === now.getFullYear()
-          );
-        }).length
-      } Joined this month`,
+      // value: employees.length,
+      value: 122,
+      // diff: `+${
+      //   employees.filter((emp) => {
+      //     if (!emp.dateOfJoining) return false;
+      //     const doj = new Date(emp.dateOfJoining);
+      //     const now = new Date();
+      //     return (
+      //       doj.getMonth() === now.getMonth() &&
+      //       doj.getFullYear() === now.getFullYear()
+      //     );
+      //   }).length
+      // } Joined this month`,
+      diff: `+21 Joined this month`,
       icon: <FaUserFriends />,
       color: "from-blue-500 to-blue-600",
     },
     {
       label: "Total Salary Paid",
-      value: `₹${summary.totalSalaryPaid.toLocaleString()}`,
+      // value: `₹${summary.totalSalaryPaid.toLocaleString()}`,
+      value: `₹5,34,000`,
       diff: "This month",
       icon: <FaMoneyCheckAlt />,
       color: "from-green-500 to-green-600",
     },
     {
       label: "OT Amount Paid",
-      value: `₹${summary.otPaid.toLocaleString()}`,
+      // value: `₹${summary.otPaid.toLocaleString()}`,
+      value: `₹1,52,040`,
       diff: "This month",
       icon: <FaClock />,
       color: "from-yellow-500 to-yellow-600",
@@ -110,8 +114,10 @@ const AdminSummaryCards = () => {
       label: "PF & ESI Contribution",
       customContent: (
         <div className="flex flex-col gap-1 text-gray-800 text-sm font-semibold">
-          <div>PF: ₹{summary.pfPaid.toLocaleString()}</div>
-          <div>ESI: ₹{summary.esiPaid.toLocaleString()}</div>
+          {/* <div>PF: ₹{summary.pfPaid.toLocaleString()}</div>
+          <div>ESI: ₹{summary.esiPaid.toLocaleString()}</div> */}
+           <div>PF: ₹62,300</div>
+          <div>ESI: ₹30,235</div>
         </div>
       ),
       diff: "Employer + Employee",

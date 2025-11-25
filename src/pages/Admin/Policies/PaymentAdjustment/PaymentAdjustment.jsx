@@ -17,8 +17,8 @@ export default function PaymentAdjustment() {
     setLoading(true);
     try {
       const res = await axiosInstance.get("/PaymentAdjustment/getAll");
-      if (Array.isArray(res.data)) {
-        setAdjustments(res.data);
+      if (Array.isArray(res.data.data)) {
+        setAdjustments(res.data.data);
       } else {
         setAdjustments([]);
       }

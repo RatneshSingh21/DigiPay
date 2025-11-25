@@ -27,7 +27,7 @@ const EmployeeProfile = () => {
       try {
         setLoading(true);
         const res = await axiosInstance.get(`/Employee/${User.userId}`);
-        const emp = res.data;
+        const emp = res.data.data;
 
         // fetch related names
         const [deptRes, desigRes, payRes, locRes] = await Promise.all([

@@ -6,7 +6,7 @@ import useAuthStore from "../../../store/authStore";
 
 const AddDepartmentForm = ({ onClose, isEdit, initialData, onSuccess }) => {
   const [loading, setLoading] = useState(false);
-   const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
   const [formData, setFormData] = useState({
     name: "",
     description: "",

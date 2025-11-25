@@ -85,8 +85,17 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
         setSalaryExists(false); // ← Salary does NOT exist
       }
     } catch (err) {
-      console.error(err);
-      setSalaryExists(false);
+      if (err.response?.status === 404) {
+        // No personal details found → leave form as default for new entry
+        console.warn("No Salary details found. Creating new entry.");
+        setForm((prev) => ({
+          ...prev,
+          employeeId,
+        }));
+      } else {
+        console.error(err);
+        setSalaryExists(false);
+      }
     } finally {
       setLoading(false);
     }

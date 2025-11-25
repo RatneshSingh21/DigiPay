@@ -115,7 +115,7 @@ const EmpCategory = () => {
                   <td className="px-4 py-2 font-medium text-gray-800">
                     {cat.categoryName}
                   </td>
-                  <td className="px-4 py-2">{cat.description}</td>
+                  <td className="px-4 py-2">{cat.description ? cat.description : "-" }</td>
                   <td className="px-4 py-2">
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${

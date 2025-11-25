@@ -130,7 +130,7 @@ const EmpWorkType = () => {
                 >
                   <td className="px-2 py-2">{index + 1}</td>
                   <td className="px-2 py-2">{item.workTypeName}</td>
-                  <td className="px-2 py-2">{item.description}</td>
+                  <td className="px-2 py-2">{item.description ? item.description : "-"}</td>
                   <td className="px-2 py-2">{item.workHoursPerDay || "-"}</td>
                   <td className="px-2 py-2">{item.breakHours || "-"}</td>
                   <td className="px-2 py-2">

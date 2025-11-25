@@ -30,7 +30,7 @@ const EmployeePFMapping = () => {
     if (employeeMap[id]) return;
     try {
       const res = await axiosInstance.get(`/Employee/${id}`);
-      const emp = res.data?.response || res.data;
+      const emp = res.data?.data;
       if (emp) {
         setEmployeeMap((prev) => ({
           ...prev,
