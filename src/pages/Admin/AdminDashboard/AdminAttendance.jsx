@@ -10,6 +10,9 @@ const statusColors = {
   active: "bg-blue-100 text-blue-700",
 };
 
+// 🔥 Cache must be outside component to survive re-renders
+const locationCache = {};
+
 const AdminAttendance = () => {
   const [activeTab, setActiveTab] = useState("Today");
   const [attendanceData, setAttendanceData] = useState([]);
@@ -25,16 +28,86 @@ const AdminAttendance = () => {
   const getLocationName = async (lat, lon) => {
     try {
       if (!lat || !lon) return "-";
+
+      const key = `${lat}-${lon}`;
+
+      // ✔ Use cache (avoids multiple API calls)
+      if (locationCache[key]) return locationCache[key];
+
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+        {
+          headers: {
+            "User-Agent": "MyAttendanceApp/1.0",
+            "Accept-Language": "en",
+          },
+        }
       );
+
       const data = await res.json();
-      return data.display_name || "-";
+      const formatted = data?.display_name || "-";
+
+      // ✔ Store in cache
+      locationCache[key] = formatted;
+
+      return formatted;
     } catch (err) {
-      console.error("Location fetch error:", err);
+      console.error("Location API error:", err);
       return "-";
     }
   };
+
+  // const formatGoogleStyleAddress = (data) => {
+  //   if (!data || !data.address) return data.display_name || "-";
+
+  //   const a = data.address;
+
+  //   const sector = a.suburb || a.neighbourhood || a.residential;
+  //   const block = a.hamlet || a.quarter;
+  //   const city = a.city || a.town || a.village;
+  //   const district = a.county || a.state_district;
+  //   const state = a.state;
+  //   const country = a.country;
+
+  //   return [sector, block, city, district, state, country]
+  //     .filter(Boolean)
+  //     .join(", ");
+  // };
+
+  //   const getLocationName = async (lat, lon) => {
+  //     try {
+  //       if (!lat || !lon) return "-";
+
+  //       const key = `${lat}-${lon}`;
+
+  //       // ✔ Use cache (unlimited and persistent)
+  //       if (locationCache[key]) return locationCache[key];
+
+  //       const res = await fetch(
+  //         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+  //         {
+  //           headers: {
+  //             "User-Agent": "YourAppName/1.0 (your-email@example.com)",
+  //             "Accept-Language": "en",
+  //           },
+  //         }
+  //       );
+
+  //       if (!res.ok) {
+  //         console.warn("⚠ Error from Nominatim:", res.status);
+  //         return "-";
+  //       }
+
+  //       const data = await res.json();
+  //       const formatted = formatGoogleStyleAddress(data);
+
+  //       locationCache[key] = formatted || "-";
+  //       return formatted || "-";
+  //     } catch (err) {
+  //       console.error("Location API error:", err);
+  //       return "-";
+  //     }
+  //   };
 
   useEffect(() => {
     const fetchAttendance = async () => {
@@ -111,44 +184,51 @@ const AdminAttendance = () => {
 
         // 🔹 Merge grouped raw punches with processed records
         // Always keep attendanceDate
-        const mergedData = Object.values(groupedBasic).map((b) => {
-          const match = records.find(
-            (r) =>
-              r.employeeId === b.employeeId &&
-              new Date(r.attendanceDate).toDateString() ===
-                new Date(
-                  b.inTime || b.outTime || b.attendanceDate
-                ).toDateString()
+        // 🔥 Final Correct Merge Logic (Processed > Punches)
+        const mergedData = Object.values(groupedBasic).map((punch) => {
+          const punchDate = new Date(
+            punch.inTime || punch.outTime || punch.attendanceDate
+          ).toDateString();
+
+          const processed = records.find(
+            (rec) =>
+              rec.employeeId === punch.employeeId &&
+              new Date(rec.attendanceDate).toDateString() === punchDate
           );
 
-          if (match) {
+          // If processed attendance exists → it wins (except location)
+          if (processed) {
             return {
-              attendanceId: match.attendanceRecordId,
-              employeeId: b.employeeId,
-              attendanceDate: match.attendanceDate,
-              inTime: match.inTime,
-              outTime: match.outTime,
-              totalHours: match.totalHoursWorked,
-              status: match.isAbsent ? "Absent" : "Present",
-              latitude: b.latitude,
-              longitude: b.longitude,
-            };
-          } else {
-            return {
-              attendanceId: b.attendanceId,
-              employeeId: b.employeeId,
-              attendanceDate: b.inTime || b.outTime || b.attendanceDate,
-              inTime: b.inTime,
-              outTime: b.outTime,
-              totalHours:
-                b.inTime && b.outTime
-                  ? (new Date(b.outTime) - new Date(b.inTime)) / 3600000
-                  : null,
-              status: b.inTime || b.outTime ? "Present" : "Absent",
-              latitude: b.latitude,
-              longitude: b.longitude,
+              attendanceId: processed.attendanceRecordId,
+              employeeId: processed.employeeId,
+              attendanceDate: processed.attendanceDate,
+              inTime: processed.inTime,
+              outTime: processed.outTime,
+              totalHours: processed.totalHoursWorked,
+              status: processed.isAbsent ? "Absent" : "Present",
+
+              // always use raw punch location
+              latitude: punch.latitude,
+              longitude: punch.longitude,
             };
           }
+
+          // If NO processed record → fallback to punches
+          return {
+            attendanceId: punch.attendanceId,
+            employeeId: punch.employeeId,
+            attendanceDate: punch.attendanceDate,
+            inTime: punch.inTime,
+            outTime: punch.outTime,
+            totalHours:
+              punch.inTime && punch.outTime
+                ? (new Date(punch.outTime) - new Date(punch.inTime)) / 3600000
+                : null,
+            status: punch.inTime || punch.outTime ? "Present" : "Absent",
+
+            latitude: punch.latitude,
+            longitude: punch.longitude,
+          };
         });
 
         // Fetch readable locations for all records
@@ -198,25 +278,22 @@ const AdminAttendance = () => {
   // 🔹 Filter attendance by active tab
   const filterByTab = (data) => {
     const today = new Date();
-    if (activeTab === "Today") {
-      return data.filter(
-        (att) => att.inTime && isSameDay(new Date(att.inTime), today)
-      );
-    }
-    if (activeTab === "Week") {
-      return data.filter(
-        (att) =>
-          att.inTime &&
-          isSameWeek(new Date(att.inTime), today, { weekStartsOn: 1 })
-      );
-    }
-    if (activeTab === "Month") {
-      return data.filter(
-        (att) => att.inTime && isSameMonth(new Date(att.inTime), today)
-      );
-    }
-    console.log(data);
-    return data;
+
+    return data.filter((att) => {
+      const date = new Date(att.attendanceDate);
+
+      if (activeTab === "Today") {
+        return isSameDay(date, today);
+      }
+      if (activeTab === "Week") {
+        return isSameWeek(date, today, { weekStartsOn: 1 });
+      }
+      if (activeTab === "Month") {
+        return isSameMonth(date, today);
+      }
+
+      return true;
+    });
   };
 
   const filteredData = filterByTab(attendanceData);
@@ -284,7 +361,7 @@ const AdminAttendance = () => {
                 {currentData.length > 0 ? (
                   currentData.map((att) => (
                     <tr
-                      key={att.attendanceId || att.attendanceRecordId}
+                      key={`${att.employeeId}-${att.attendanceDate}`}
                       className="border-b hover:bg-gray-50 transition-colors"
                     >
                       <td className="py-3 text-gray-800">

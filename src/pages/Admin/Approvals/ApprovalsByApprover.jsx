@@ -104,7 +104,7 @@ const ApprovalsByApprover = ({ approverId }) => {
         approverId: item.approverId,
 
         details: {
-          leaveType: item.leaveType,
+          leaveType: item.leaveName,
           fromDate: item.fromDate,
           toDate: item.toDate,
           reason: item.reason,

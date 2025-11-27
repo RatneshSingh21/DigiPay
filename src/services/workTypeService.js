@@ -2,76 +2,82 @@ import axiosInstance from "../axiosInstance/axiosInstance";
 
 // ---------- Category ----------
 export const getAllCategories = () => axiosInstance.get("/Category/all");
-const mapCategoryOptions = (response) => {
-  const data = response?.data?.data || [];
-  return data.map((item) => ({
-    value: item.categoryId,
-    label: item.categoryName,
-  }));
-};
+const mapCategoryOptions = (response) =>
+  Array.isArray(response?.data?.data)
+    ? response.data.data.map((item) => ({
+        value: item.categoryId,
+        label: item.categoryName,
+      }))
+    : [];
 
 // ---------- Employment Type ----------
 export const getAllEmploymentTypes = () =>
   axiosInstance.get("/EmploymentType/all");
-const mapEmploymentTypeOptions = (response) => {
-  const data = response?.data?.data || [];
-  return data.map((item) => ({
-    value: item.employmentTypeId,
-    label: item.employmentTypeName,
-  }));
-};
+const mapEmploymentTypeOptions = (response) =>
+  Array.isArray(response?.data?.data)
+    ? response.data.data.map((item) => ({
+        value: item.employmentTypeId,
+        label: item.employmentTypeName,
+      }))
+    : [];
 
 // ---------- Work Nature ----------
 export const getAllWorkNatures = () =>
   axiosInstance.get("/WorkNatureMaster/all");
-const mapWorkNatureOptions = (response) => {
-  const data = response?.data?.data || [];
-  return data.map((item) => ({
-    value: item.workNatureId,
-    label: item.workNatureName,
-  }));
-};
+const mapWorkNatureOptions = (response) =>
+  Array.isArray(response?.data?.data)
+    ? response.data.data.map((item) => ({
+        value: item.workNatureId,
+        label: item.workNatureName,
+      }))
+    : [];
 
 // ---------- Shift ----------
 export const getShifts = () => axiosInstance.get("/shift");
-const mapShiftOptions = (data) => {
-  if (!Array.isArray(data)) return [];
-  return data.map((item) => ({
-    value: item.id,
-    label: `${item.shiftName} (${item.shiftStart} - ${item.shiftEnd})`,
-  }));
-};
+const mapShiftOptions = (data) =>
+  Array.isArray(data)
+    ? data.map((item) => ({
+        value: item.id,
+        label: `${item.shiftName || "N/A"} (${item.shiftStart || "N/A"} - ${
+          item.shiftEnd || "N/A"
+        })`,
+      }))
+    : [];
 
 // ---------- OT Rate Slab ----------
 export const getOTRateSlabs = () => axiosInstance.get("/OTRateSlabMaster/all");
-const mapOTRateSlabOptions = (data) => {
-  if (!Array.isArray(data)) return [];
-  return data.map((item) => ({
-    value: item.otRateSlabId,
-    label: `${item.rateType} - ${item.ratePerHour}% (From ${item.fromHours}h to ${item.toHours}h)`,
-  }));
-};
+const mapOTRateSlabOptions = (data) =>
+  Array.isArray(data)
+    ? data.map((item) => ({
+        value: item.otRateSlabId,
+        label: `${item.rateType || "N/A"}: ${item.ratePerHour ?? 0}/unit (${
+          item.fromHours ?? 0
+        }h to ${item.toHours ?? 0}h)${
+          item.notes ? " — " + item.notes.trim() : ""
+        }`,
+      }))
+    : [];
 
 // ---------- Weekend Policy ----------
 export const getWeekendPolicies = () =>
   axiosInstance.get("/WeekendPolicy/get-all");
-const mapWeekendPolicyOptions = (data) => {
-  if (!Array.isArray(data)) return [];
-  return data.map((item) => ({
-    value: item.weekendPolicyId,
-    label: item.policyName,
-  }));
-};
+const mapWeekendPolicyOptions = (data) =>
+  Array.isArray(data)
+    ? data.map((item) => ({
+        value: item.weekendPolicyId,
+        label: item.policyName || "N/A",
+      }))
+    : [];
 
 // ---------- Pay Schedule ----------
 export const getPaySchedules = () => axiosInstance.get("/PaySchedule/all");
-const mapPayScheduleOptions = (data) => {
-  if (!Array.isArray(data)) return [];
-  return data.map((item) => ({
-    value: item.id,
-    label: item.name,
-  }));
-};
+const mapPayScheduleOptions = (data) =>
+  Array.isArray(data)
+    ? data.map((item) => ({
+        value: item.id,
+        label: item.name || "N/A",
+      }))
+    : [];
 
 // ---------- Fetch All HR Options ----------
 export const fetchAllHROptions = async () => {
@@ -85,13 +91,13 @@ export const fetchAllHROptions = async () => {
       weekendPolicies,
       paySchedules,
     ] = await Promise.all([
-      getAllCategories(),
-      getAllEmploymentTypes(),
-      getAllWorkNatures(),
-      getShifts(),
-      getOTRateSlabs(),
-      getWeekendPolicies(),
-      getPaySchedules(),
+      getAllCategories().catch(() => ({ data: { data: [] } })),
+      getAllEmploymentTypes().catch(() => ({ data: { data: [] } })),
+      getAllWorkNatures().catch(() => ({ data: { data: [] } })),
+      getShifts().catch(() => ({ data: { data: [] } })),
+      getOTRateSlabs().catch(() => ({ data: { data: [] } })),
+      getWeekendPolicies().catch(() => ({ data: { data: [] } })),
+      getPaySchedules().catch(() => ({ data: { data: [] } })),
     ]);
 
     return {
@@ -99,12 +105,21 @@ export const fetchAllHROptions = async () => {
       employmentTypeIds: mapEmploymentTypeOptions(employmentTypes),
       workNatureIds: mapWorkNatureOptions(workNatures),
       shiftIds: mapShiftOptions(shifts.data),
-      otRateSlabIds: mapOTRateSlabOptions(otRateSlabs.data),
+      otRateSlabIds: mapOTRateSlabOptions(otRateSlabs.data.data),
       weekendPolicyIds: mapWeekendPolicyOptions(weekendPolicies.data),
       payScheduleIds: mapPayScheduleOptions(paySchedules.data),
     };
   } catch (error) {
     console.error("Error fetching HR options:", error);
-    throw error;
+    // Return all empty arrays if fetching fails
+    return {
+      categoryIds: [],
+      employmentTypeIds: [],
+      workNatureIds: [],
+      shiftIds: [],
+      otRateSlabIds: [],
+      weekendPolicyIds: [],
+      payScheduleIds: [],
+    };
   }
 };

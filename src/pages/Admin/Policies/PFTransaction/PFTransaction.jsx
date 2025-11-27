@@ -41,10 +41,10 @@ const PFTransaction = () => {
     if (employeeMap[id]) return;
     try {
       const res = await axiosInstance.get(`/Employee/${id}`);
-      const emp = res.data;
+      const emp = res.data.data;
       setEmployeeMap((prev) => ({
         ...prev,
-        [id]: emp.fullName || `Emp-${id}`,
+        [id]: `${emp.fullName} (${emp.employeeCode})` || `Emp-${id}`,
       }));
     } catch (err) {
       console.log("Failed to fetch employee", err);
@@ -139,7 +139,7 @@ const PFTransaction = () => {
           <input
             type="month"
             value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target  .value)}
+            onChange={(e) => setSelectedMonth(e.target.value)}
             className="border px-2 py-1 text-sm rounded-md"
           />
 
@@ -201,7 +201,7 @@ const PFTransaction = () => {
                       {employeeMap[t.employeeId] || "Loading..."}
                     </td>
                     <td className="p-2">
-                      {new Date(t.payrollMonth).toLocaleDateString()}
+                      {new Date(t.payrollMonth).toLocaleDateString("en-Gb")}
                     </td>
                     <td className="p-2">{t.wageConsidered}</td>
                     <td className="p-2">{t.employeeContribution}</td>

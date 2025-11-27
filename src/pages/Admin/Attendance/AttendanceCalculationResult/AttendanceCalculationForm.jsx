@@ -60,9 +60,9 @@ const AttendanceCalculationForm = ({ onSuccess }) => {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white shadow-md rounded-2xl p-6 mt-8">
+    <div className="max-w-lg mx-auto bg-white p-6">
       <h2 className="text-xl font-semibold mb-4 text-gray-800">
-        Generate Attendance Calculation
+        Attendance Calculation
       </h2>
 
       {loading ? (

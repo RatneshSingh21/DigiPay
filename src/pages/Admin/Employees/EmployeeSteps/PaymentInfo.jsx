@@ -14,7 +14,7 @@ const paymentModes = [
 ];
 
 const accountTypeOptions = [
-  { value: "Savings", label: "Savings" },
+  { value: "Saving", label: "Saving" },
   { value: "Current", label: "Current" },
   { value: "Salary", label: "Salary" },
   { value: "Fixed Deposit", label: "Fixed Deposit" },
@@ -129,7 +129,7 @@ const PaymentInfo = () => {
       if (bankDetailId) {
         // UPDATE
         response = await axiosInstance.put(
-          `/BankDetails/${bankDetailId}`,
+          `/BankDetails/update/${bankDetailId}`,
           payload
         );
         toast.success("Payment info updated!");

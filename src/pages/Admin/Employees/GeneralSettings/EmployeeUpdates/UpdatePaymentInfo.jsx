@@ -24,7 +24,7 @@ const paymentModes = [
 ];
 
 const accountTypeOptions = [
-  { value: "Savings", label: "Savings" },
+  { value: "Saving", label: "Saving" },
   { value: "Current", label: "Current" },
   { value: "Salary", label: "Salary" },
   { value: "Fixed Deposit", label: "Fixed Deposit" },

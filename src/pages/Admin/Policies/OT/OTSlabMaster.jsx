@@ -14,7 +14,6 @@ const OTSlabMaster = () => {
   const [isEdit, setIsEdit] = useState("Create");
   const [selectedSlab, setSelectedSlab] = useState(null);
 
-  const { user } = useAuthStore();
 
   const openModal = () => setShowAddModal(true);
   const closeModal = () => {
@@ -28,7 +27,8 @@ const OTSlabMaster = () => {
       const res = await axiosInstance.get("/OTRateSlabMaster/all");
       setSlabs(res.data.data || []);
     } catch (err) {
-      toast.error("Failed to fetch OT Rate Slabs!");
+      console.log(err);
+      // toast.error("Failed to fetch OT Rate Slabs!");
     } finally {
       setLoading(false);
     }

@@ -6,7 +6,7 @@ import { fetchAllHROptions } from "../../../services/workTypeService";
 import Spinner from "../../../components/Spinner";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 
-const EmpWorkTypeForm = ({ user, onClose, onSuccess }) => {
+const EmpWorkTypeForm = ({ onClose, onSuccess }) => {
   const [form, setForm] = useState({
     workTypeName: "",
     description: "",
@@ -30,10 +30,6 @@ const EmpWorkTypeForm = ({ user, onClose, onSuccess }) => {
     esiApplicable: true,
     leavePolicyId: null,
     isActive: true,
-    createdBy: user?.userId,
-    createdDate: new Date().toISOString(),
-    updatedBy: user?.userId,
-    updatedDate: new Date().toISOString(),
   });
 
   const [dropdowns, setDropdowns] = useState(null);
@@ -72,7 +68,32 @@ const EmpWorkTypeForm = ({ user, onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axiosInstance.post("/WorkTypeMaster/create", form);
+      const payload = {
+        workTypeName: form.workTypeName,
+        description: form.description,
+        categoryId: form.categoryId || 0,
+        employmentTypeId: form.employmentTypeId || 0,
+        workNatureId: form.workNatureId || 0,
+        shiftId: form.shiftId || 0,
+        workHoursPerDay: Number(form.workHoursPerDay) || 0,
+        breakHours: Number(form.breakHours) || 0,
+        overtimeApplicable: form.overtimeApplicable,
+        otRateSlabId: form.otRateSlabId || 0,
+        weekendPolicyId: form.weekendPolicyId || 0,
+        payScheduleId: form.payScheduleId || 0,
+        minWageRate: Number(form.minWageRate) || 0,
+        isPieceRateApplicable: form.isPieceRateApplicable,
+        pieceRateFormulaId: 0,
+        complianceGroupId: 0,
+        unionApplicable: form.unionApplicable,
+        factoryActCoverage: form.factoryActCoverage,
+        pfApplicable: form.pfApplicable,
+        esiApplicable: form.esiApplicable,
+        leavePolicyId: 0,
+        isActive: form.isActive,
+      };
+
+      const res = await axiosInstance.post("/WorkTypeMaster/create", payload);
       toast.success(res.data.message || "Work Type created successfully");
       onClose();
       onSuccess();

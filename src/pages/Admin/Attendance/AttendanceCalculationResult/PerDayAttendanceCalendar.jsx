@@ -26,9 +26,7 @@ const PerDayAttendanceCalendar = ({ perDayDetails = [] }) => {
   for (let i = 0; i < firstDayOfWeek; i++) calendar.push(null);
 
   for (let day = 1; day <= daysInMonth; day++) {
-    const dayData = sortedDays.find(
-      (d) => new Date(d.date).getDate() === day
-    );
+    const dayData = sortedDays.find((d) => new Date(d.date).getDate() === day);
     calendar.push(dayData || { date: new Date(year, month, day) });
   }
 
@@ -52,7 +50,7 @@ const PerDayAttendanceCalendar = ({ perDayDetails = [] }) => {
   };
 
   return (
-    <div>
+    <div className="max-h-[70vh] overflow-y-auto p-2">
       <h4 className="font-semibold text-gray-700 mb-4 text-center text-lg">
         Daily Attendance (Monthly Calendar)
       </h4>
@@ -96,13 +94,15 @@ const PerDayAttendanceCalendar = ({ perDayDetails = [] }) => {
                         : "-"}
                     </div>
                     <div>
-                      <strong>Total Hours:</strong> {day.totalHoursWorked.toFixed(4) || 0}
+                      <strong>Total Hours:</strong>{" "}
+                      {day.totalHoursWorked.toFixed(4) || 0}
                     </div>
                     <div>
                       <strong>Late:</strong> {day.lateMinutes || 0} min
                     </div>
                     <div>
-                      <strong>Early Leave:</strong> {day.earlyLeaveMinutes || 0} min
+                      <strong>Early Leave:</strong> {day.earlyLeaveMinutes || 0}{" "}
+                      min
                     </div>
                   </div>
                 ) : (
@@ -126,11 +126,15 @@ const PerDayAttendanceCalendar = ({ perDayDetails = [] }) => {
                 )}
 
                 {/* Day Number */}
-                <div className="text-sm font-semibold">{new Date(day.date).getDate()}</div>
+                <div className="text-sm font-semibold">
+                  {new Date(day.date).getDate()}
+                </div>
 
                 {/* Hours */}
                 {day.totalHoursWorked && (
-                  <div className="text-xs text-gray-700 mt-1">{day.totalHoursWorked.toFixed(4)} hrs</div>
+                  <div className="text-xs text-gray-700 mt-1">
+                    {day.totalHoursWorked.toFixed(4)} hrs
+                  </div>
                 )}
 
                 {/* Late/Early label */}

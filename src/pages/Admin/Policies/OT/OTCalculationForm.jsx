@@ -12,6 +12,7 @@ const OTCalculationForm = ({ onClose, onSuccess }) => {
   });
   const [loading, setLoading] = useState(false);
   const [employees, setEmployees] = useState([]);
+  const [allRecords, setAllRecords] = useState([]);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
 
   // Fetch Employees
@@ -31,53 +32,41 @@ const OTCalculationForm = ({ onClose, onSuccess }) => {
     fetchEmployees();
   }, []);
 
-  // Fetch Attendance Records and Employee Details
   useEffect(() => {
-    const fetchAttendanceRecords = async () => {
+    const fetchAllAttendance = async () => {
       try {
         const res = await axiosInstance.get(
           "/AttendanceRecord/getAttendancerecord/all"
         );
-        const records = res.data.data || [];
-
-        // For each attendance record, fetch corresponding employee details
-        const updatedRecords = await Promise.all(
-          records.map(async (rec) => {
-            try {
-              const empRes = await axiosInstance.get(
-                `/Employee/${rec.employeeId}`
-              );
-              const emp = empRes.data.data;
-              return {
-                value: rec.attendanceRecordId,
-                label: `Record #${rec.attendanceRecordId} | ${emp.fullName} (${
-                  emp.employeeCode
-                }) | Date: ${new Date(
-                  rec.attendanceDate
-                ).toLocaleDateString()} | Hours: ${rec.totalHoursWorked.toFixed(4)}`,
-              };
-            } catch {
-              // fallback if employee fetch fails
-              return {
-                value: rec.attendanceRecordId,
-                label: `Record #${rec.attendanceRecordId} | Emp ID: ${
-                  rec.employeeId
-                } | Date: ${new Date(
-                  rec.attendanceDate
-                ).toLocaleDateString()} | Hours: ${rec.totalHoursWorked}`,
-              };
-            }
-          })
-        );
-
-        setAttendanceRecords(updatedRecords);
+        setAllRecords(res.data.data || []);
       } catch (error) {
         toast.error("Failed to fetch attendance records");
       }
     };
 
-    fetchAttendanceRecords();
+    fetchAllAttendance();
   }, []);
+
+  // Fetch Attendance Records and Employee Details
+  useEffect(() => {
+    if (!formData.employeeId) {
+      setAttendanceRecords([]);
+      return;
+    }
+
+    const filtered = allRecords.filter(
+      (rec) => rec.employeeId === formData.employeeId
+    );
+
+    const mapped = filtered.map((rec) => ({
+      value: rec.attendanceRecordId,
+      label: `Record #${rec.attendanceRecordId} | Date: ${new Date(
+        rec.attendanceDate
+      ).toLocaleDateString("en-Gb")} | Hours: ${rec.totalHoursWorked}`,
+    }));
+
+    setAttendanceRecords(mapped);
+  }, [formData.employeeId, allRecords]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -87,6 +76,7 @@ const OTCalculationForm = ({ onClose, onSuccess }) => {
     setFormData((prev) => ({
       ...prev,
       employeeId: selectedOption ? selectedOption.value : "",
+      attendanceRecordId: "", // RESET
     }));
   };
 
@@ -123,7 +113,7 @@ const OTCalculationForm = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
         <button
           className="absolute top-4 right-4 cursor-pointer text-gray-500 hover:text-gray-700"

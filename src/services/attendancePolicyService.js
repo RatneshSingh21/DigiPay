@@ -52,23 +52,23 @@ const mapLatePolicyOptions = (response) => {
 
 // ---------- OT Policy ----------
 export const getAllOTPolicies = () =>
-  axiosInstance.get("/OTRateSlabAssignmentRule");
-const mapOTAssignmentRuleOptions = (data) => {
-  if (!Array.isArray(data)) return [];
-  return data.map((item) => ({
-    value: item.otRateSlabAssignmentRuleId,
-    label: `${item.ruleCode} - ${item.entityName}`,
-  }));
-};
-
-// ---------- OT Rate Slab ----------
-export const getAllOTRateSlabs = () =>
   axiosInstance.get("/OTRateSlabMaster/all");
 const mapOTRateSlabOptions = (data) => {
   if (!Array.isArray(data)) return [];
   return data.map((item) => ({
     value: item.otRateSlabId,
     label: `${item.rateType} - ${item.ratePerHour}% (From ${item.fromHours}h to ${item.toHours}h)`,
+  }));
+};
+
+// ---------- OT Rate Slab ----------
+export const getAllOTRateSlabs = () =>
+  axiosInstance.get("/OTRateSlabAssignmentRule");
+const mapOTAssignmentRuleOptions = (data) => {
+  if (!Array.isArray(data)) return [];
+  return data.map((item) => ({
+    value: item.otRateSlabAssignmentRuleId,
+    label: `${item.ruleCode} - ${item.entityName}`,
   }));
 };
 
@@ -197,9 +197,9 @@ export const fetchAllAttendancePolicyOptions = async () => {
       departmentIds: mapDepartmentOptions(departments.data),
       locationIds: mapWorkLocationOptions(locations.data),
       latePolicyIds: mapLatePolicyOptions(latePolicies),
-      otPolicyIds: mapOTAssignmentRuleOptions(otPolicies.data),
-      otRateSlabIds: mapOTRateSlabOptions(otRateSlabs.data),
-      bonusPolicyIds: mapBonusPolicyOptions(bonusPolicies.data),
+      otPolicyIds: mapOTRateSlabOptions(otPolicies.data.data),
+      otRateSlabIds: mapOTAssignmentRuleOptions(otRateSlabs.data),
+      bonusPolicyIds: mapBonusPolicyOptions(bonusPolicies.data.data),
       specialAllowancePolicyIds: [], // No API yet
       holidayListIds: mapHolidayListOptions(holidayLists.data),
       leaveTypeIds: mapLeaveTypeOptions(leaveTypes.data),

@@ -9,8 +9,8 @@ const AttendanceCalculationResult = () => {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); 
-  const [employees, setEmployees] = useState([]); 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [employees, setEmployees] = useState([]);
 
   const fetchResults = async () => {
     try {
@@ -46,16 +46,27 @@ const AttendanceCalculationResult = () => {
 
   // Filter results based on search
   const filteredResults = results.filter((r) =>
-    getEmployeeName(r.employeeId).toLowerCase().includes(searchQuery.toLowerCase())
+    getEmployeeName(r.employeeId)
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
   );
 
   // Highlight search matches
   const highlightText = (text) => {
     if (!searchQuery) return text;
     const regex = new RegExp(`(${searchQuery})`, "gi");
-    return text.toString().split(regex).map((part, i) =>
-      regex.test(part) ? <span key={i} className="bg-yellow-200">{part}</span> : part
-    );
+    return text
+      .toString()
+      .split(regex)
+      .map((part, i) =>
+        regex.test(part) ? (
+          <span key={i} className="bg-yellow-200">
+            {part}
+          </span>
+        ) : (
+          part
+        )
+      );
   };
 
   return (
@@ -77,7 +88,7 @@ const AttendanceCalculationResult = () => {
             onClick={() => setShowForm(true)}
             className="bg-primary cursor-pointer text-white px-4 py-1 rounded-lg hover:bg-secondary"
           >
-            Generate
+            Add
           </button>
         </div>
       </div>
@@ -85,7 +96,7 @@ const AttendanceCalculationResult = () => {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 backdrop-blur-sm bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg relative">
+          <div className="bg-white shadow rounded-2xl p-6 w-full max-w-lg relative">
             <button
               onClick={() => setShowForm(false)}
               className="absolute cursor-pointer text-lg top-3 right-3 text-gray-500 hover:text-gray-800"

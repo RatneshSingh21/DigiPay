@@ -7,22 +7,45 @@ const Attendance = () => {
   const [attendanceData, setAttendanceData] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [openDates, setOpenDates] = useState({});
 
-  // Fetch attendance records
+  const toggleDate = (date) => {
+    setOpenDates((prev) => ({
+      ...prev,
+      [date]: !prev[date],
+    }));
+  };
+
+  // Fetch & merge attendance
   const fetchAttendance = async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get(
-        "/AttendanceRecord/getAttendancerecord/all"
-      );
-      if (res.data && res.data.data) {
-        setAttendanceData(res.data.data);
-      } else {
-        setAttendanceData([]);
-      }
+      const res = await axiosInstance.get("/Attendance/all");
+      const raw = res.data || [];
+
+      const merged = {};
+
+      raw.forEach((item) => {
+        const key = `${item.employeeId}-${item.attendanceDate}`;
+
+        if (!merged[key]) {
+          merged[key] = {
+            employeeId: item.employeeId,
+            attendanceDate: item.attendanceDate,
+            inTime: null,
+            outTime: null,
+            status: item.status,
+          };
+        }
+
+        if (item.punchType === "IN") merged[key].inTime = item.inTime;
+        if (item.punchType === "OUT") merged[key].outTime = item.outTime;
+      });
+
+      setAttendanceData(Object.values(merged));
     } catch (error) {
-      console.error("Error fetching attendance:", error);
+      toast.error("Failed to fetch attendance");
     } finally {
       setLoading(false);
     }
@@ -38,28 +61,53 @@ const Attendance = () => {
     }
   };
 
-  // Get employee name by ID
+  // Get employee name
   const getEmployeeName = (id) => {
-    const emp = employees.find((e) => e.employeeId === id || e.id === id);
+    const emp = employees.find((e) => e.id === id);
     return emp ? `${emp.fullName} (${emp.employeeCode})` : `Emp#${id}`;
   };
 
-  // Filtered attendance based on search
+  // Search filter
   const filteredAttendance = attendanceData.filter((item) =>
     getEmployeeName(item.employeeId)
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
   );
 
-  // Highlight search matches
+  // --- GROUPED BY DATE LOGIC BEFORE RETURN ---
+  const groupedByDate = filteredAttendance.reduce((groups, item) => {
+    const dateKey = new Date(item.attendanceDate).toLocaleDateString("en-GB");
+    if (!groups[dateKey]) groups[dateKey] = [];
+    groups[dateKey].push(item);
+    return groups;
+  }, {});
+
+  // Highlight searched text
   const highlightText = (text) => {
     if (!searchQuery) return text;
     const regex = new RegExp(`(${searchQuery})`, "gi");
-    const parts = text.toString().split(regex);
-    return parts.map((part, i) =>
-      regex.test(part) ? <span key={i} className="bg-yellow-200">{part}</span> : part
+    return text.split(regex).map((part, index) =>
+      regex.test(part) ? (
+        <span key={index} className="bg-yellow-200">
+          {part}
+        </span>
+      ) : (
+        part
+      )
     );
   };
+
+  // Status pill colors
+  const statusColors = {
+    Present: "bg-green-100 text-green-700",
+    Absent: "bg-red-100 text-red-700",
+    Late: "bg-yellow-100 text-yellow-700",
+    Early: "bg-purple-100 text-purple-700",
+    Default: "bg-gray-100 text-gray-700",
+  };
+
+  const getStatusClass = (status) =>
+    statusColors[status] || statusColors.Default;
 
   useEffect(() => {
     fetchAttendance();
@@ -69,105 +117,118 @@ const Attendance = () => {
   return (
     <>
       {/* Header */}
-      <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
-        <h2 className="font-semibold text-xl">Attendance Record</h2>
-        <div className="flex items-center gap-2 flex-col md:flex-row w-full md:w-auto">
+      <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+        <h2 className="font-semibold text-xl text-gray-800">
+          Attendance Data
+        </h2>
+
+        <div className="flex items-center gap-2 w-full md:w-auto">
           <input
             type="text"
-            placeholder="Search by employee name or code"
+            placeholder="Search employee..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
+            className="border px-3 py-2 rounded-md text-sm w-full md:w-64 focus:ring-1 focus:ring-primary"
           />
           <button
             onClick={fetchAttendance}
-            className="flex cursor-pointer items-center text-sm gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
+            className="flex items-center gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg text-sm"
           >
             <FiRefreshCw /> Refresh
           </button>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto shadow rounded-lg bg-white mx-3">
-        <table className="min-w-full divide-y text-sm divide-gray-200 text-center">
-          <thead className="bg-gray-100 text-gray-600">
-            <tr>
-              <th className="py-2 px-3">Employee</th>
-              <th className="py-2 px-3">Date</th>
-              <th className="py-2 px-3">In Time</th>
-              <th className="py-2 px-3">Out Time</th>
-              <th className="py-2 px-3">Total Hours</th>
-              <th className="py-2 px-3">Late (mins)</th>
-              <th className="py-2 px-3">Early Leave (mins)</th>
-              <th className="py-2 px-3">OT (mins)</th>
-              <th className="py-2 px-3">Remarks</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="9" className="text-center py-4">
-                  Loading attendance data...
-                </td>
-              </tr>
-            ) : filteredAttendance.length > 0 ? (
-              filteredAttendance.map((item) => (
-                <tr
-                  key={item.attendanceRecordId}
-                  className="hover:bg-gray-50"
+      {/* Grouped Attendance */}
+      <div className="mx-3">
+        {loading ? (
+          <div className="text-center py-4 text-gray-500">
+            Loading attendance...
+          </div>
+        ) : Object.keys(groupedByDate).length > 0 ? (
+          Object.keys(groupedByDate)
+            .sort(
+              (a, b) =>
+                new Date(b.split("/").reverse().join("-")) -
+                new Date(a.split("/").reverse().join("-"))
+            )
+            .map((date) => (
+              <div
+                key={date}
+                className="mb-4 shadow rounded-lg bg-white overflow-hidden"
+              >
+                {/* Date Header */}
+                <div
+                  onClick={() => toggleDate(date)}
+                  className="bg-gray-300 text-black px-4 py-2 font-semibold flex justify-between items-center cursor-pointer"
                 >
-                  <td className="py-2 px-3">{highlightText(getEmployeeName(item.employeeId))}</td>
-                  <td className="py-2 px-3">
-                    {new Date(item.attendanceDate).toLocaleDateString("en-GB")}
-                  </td>
-                  <td className="py-2 px-3">
-                    {item.inTime
-                      ? new Date(item.inTime).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "-"}
-                  </td>
-                  <td className="py-2 px-3">
-                    {item.outTime
-                      ? new Date(item.outTime).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "-"}
-                  </td>
-                  <td className="py-2 px-3">{item.totalHoursWorked?.toFixed(2) || "-"}</td>
-                  <td className="py-2 px-3">
-                    {item.shiftSegments?.reduce(
-                      (sum, seg) => sum + (seg.lateMinutes || 0),
-                      0
-                    ) || 0}
-                  </td>
-                  <td className="py-2 px-3">
-                    {item.shiftSegments?.reduce(
-                      (sum, seg) => sum + (seg.earlyLeaveMinutes || 0),
-                      0
-                    ) || 0}
-                  </td>
-                  <td className="py-2 px-3">
-                    {item.shiftSegments?.reduce(
-                      (sum, seg) => sum + (seg.otMinutes || 0),
-                      0
-                    ) || 0}
-                  </td>
-                  <td className="py-2 px-3 text-gray-600">{item.remarks || "-"}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="9" className="text-center py-4 text-gray-500">
-                  No attendance records found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  <span>📅 {date}</span>
+                  <span className="text-lg">{openDates[date] ? "▼" : "▶"}</span>
+                </div>
+
+                {/* Table Inside Each Date */}
+                {openDates[date] && (
+                  <div className="overflow-x-auto transition-all duration-300">
+                    <table className="min-w-full text-sm text-center divide-y divide-gray-200">
+                      <thead className="bg-gray-100 text-gray-600">
+                        <tr>
+                          <th className="py-2 px-3">Employee</th>
+                          <th className="py-2 px-3">In Time</th>
+                          <th className="py-2 px-3">Out Time</th>
+                          <th className="py-2 px-3">Status</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {groupedByDate[date].map((item, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="py-2 px-3">
+                              {highlightText(getEmployeeName(item.employeeId))}
+                            </td>
+
+                            <td className="py-2 px-3">
+                              {item.inTime
+                                ? new Date(item.inTime).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : "-"}
+                            </td>
+
+                            <td className="py-2 px-3">
+                              {item.outTime
+                                ? new Date(item.outTime).toLocaleTimeString(
+                                    [],
+                                    {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    }
+                                  )
+                                : "-"}
+                            </td>
+
+                            <td className="py-2 px-3">
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(
+                                  item.status
+                                )}`}
+                              >
+                                {item.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            ))
+        ) : (
+          <div className="text-center py-4 text-gray-500">
+            No attendance found.
+          </div>
+        )}
       </div>
     </>
   );

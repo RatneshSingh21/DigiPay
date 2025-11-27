@@ -24,7 +24,7 @@ export default function PaymentAdjustment() {
       }
     } catch (error) {
       console.error("Error fetching payment adjustments:", error);
-      toast.error("Failed to fetch payment adjustments");
+      // toast.error("Failed to fetch payment adjustments");
     } finally {
       setLoading(false);
     }

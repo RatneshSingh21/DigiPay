@@ -95,13 +95,13 @@ const OTCalculation = () => {
                       {employeeMap[ot.employeeId] || "Loading..."}
                     </td>
                     <td className="p-3">
-                      {new Date(ot.attendanceDate).toLocaleDateString()}
+                      {new Date(ot.attendanceDate).toLocaleDateString("en-Gb")}
                     </td>
                     <td className="p-3">{ot.attendanceRecordId}</td>
                     {/* <td className="p-3">{ot.shiftId}</td>
                     <td className="p-3">{ot.policyId}</td> */}
                     <td className="p-3">{ot.otMinutes}</td>
-                    <td className="p-3">{ot.otHours}</td>
+                    <td className="p-3">{(ot.otMinutes / 60).toFixed(2)}</td>
                     <td className="p-3">{ot.otRatePerHour}</td>
                     <td className="p-3">{ot.otMultiplier}</td>
                     <td className="p-3">{ot.otAmount}</td>

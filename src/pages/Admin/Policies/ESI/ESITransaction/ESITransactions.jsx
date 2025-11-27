@@ -82,7 +82,7 @@ const ESITransactions = () => {
         // Create map {id: fullName}
         const map = {};
         response.data.forEach((emp) => {
-          map[emp.id] = emp.fullName;
+          map[emp.id] = `${emp.fullName} (${emp.employeeCode})`;
         });
         setEmployeeMap(map);
       }
@@ -144,7 +144,7 @@ const ESITransactions = () => {
         <table className="min-w-full divide-y text-xs divide-gray-200">
           <thead className="bg-gray-100 text-gray-600 text-center">
             <tr>
-              <th className="px-2 py-2">ID</th>
+              <th className="px-2 py-2">S.No</th>
               <th className="px-2 py-2">Employee</th>
               <th className="px-2 py-2">Rule ID</th>
               <th className="px-2 py-2">Month</th>
@@ -161,9 +161,9 @@ const ESITransactions = () => {
           </thead>
           <tbody className="divide-y divide-gray-200 text-center">
             {transactions.length > 0 ? (
-              transactions.map((txn) => (
+              transactions.map((txn,index) => (
                 <tr key={txn.contributionId} className="hover:bg-gray-50">
-                  <td className="px-2 py-2">{txn.contributionId}</td>
+                  <td className="px-2 py-2">{index+1}</td>
                   <td className="px-2 py-2">
                     {employeeMap[txn.employeeId] || `ID: ${txn.employeeId}`}
                   </td>

@@ -2,77 +2,13 @@ import React, { useState, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
-import useAuthStore from "../../../store/authStore";
 import Spinner from "../../../components/Spinner";
-import EmpWorkTypeForm from "./EmpWorkTypeForm"; // 👈 new import
+import EmpWorkTypeForm from "./EmpWorkTypeForm";
 
 const EmpWorkType = () => {
-  const User = useAuthStore((state) => state.user);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [workTypes, setWorkTypes] = useState([]);
-
-  const [dropdowns, setDropdowns] = useState({
-    categories: [],
-    employmentTypes: [],
-    workNatures: [],
-    shifts: [],
-    otRateSlabs: [],
-    weekendPolicies: [],
-    paySchedules: [],
-    pieceRateFormulas: [],
-    complianceGroups: [],
-    leavePolicies: [],
-  });
-
-  // Fetch all dropdowns
-  useEffect(() => {
-    const fetchDropdowns = async () => {
-      try {
-        const [
-          catRes,
-          empRes,
-          wnRes,
-          shiftRes,
-          otRes,
-          wpRes,
-          psRes,
-          prfRes,
-          cgRes,
-          lpRes,
-        ] = await Promise.all([
-          axiosInstance.get("/Category/list"),
-          axiosInstance.get("/EmploymentType/list"),
-          axiosInstance.get("/WorkNatureMaster/all"),
-          axiosInstance.get("/ShiftMaster/list"),
-          axiosInstance.get("/OTRateSlab/list"),
-          axiosInstance.get("/WeekendPolicy/list"),
-          axiosInstance.get("/PaySchedule/all"),
-          axiosInstance.get("/PieceRateFormula/list"),
-          axiosInstance.get("/ComplianceGroup/list"),
-          axiosInstance.get("/LeavePolicy/list"),
-        ]);
-
-        setDropdowns({
-          categories: catRes.data?.data || [],
-          employmentTypes: empRes.data?.data || [],
-          workNatures: wnRes.data?.data || [],
-          shifts: shiftRes.data?.data || [],
-          otRateSlabs: otRes.data?.data || [],
-          weekendPolicies: wpRes.data?.data || [],
-          paySchedules: psRes.data?.data || [],
-          pieceRateFormulas: prfRes.data?.data || [],
-          complianceGroups: cgRes.data?.data || [],
-          leavePolicies: lpRes.data?.data || [],
-        });
-      } catch (err) {
-        console.error("Failed to fetch dropdowns", err);
-      }
-    };
-
-    fetchDropdowns();
-    fetchWorkTypes();
-  }, []);
 
   // Fetch Work Types list
   const fetchWorkTypes = async () => {
@@ -88,19 +24,24 @@ const EmpWorkType = () => {
     }
   };
 
+  useEffect(() => {
+    fetchWorkTypes();
+  }, []);
+
   return (
     <div>
-      {/* Header */}
+      {/* Header */}{" "}
       <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
+        {" "}
         <h2 className="font-semibold text-xl">Work Types</h2>
         <button
           onClick={() => setShowModal(true)}
           className="flex items-center text-sm cursor-pointer gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
         >
-          <FiPlus /> Add New
-        </button>
+          {" "}
+          <FiPlus /> Add New{" "}
+        </button>{" "}
       </div>
-
       {/* Table Section */}
       <div className="overflow-x-auto p-4 shadow rounded-lg border border-gray-200">
         {loading ? (
@@ -130,7 +71,7 @@ const EmpWorkType = () => {
                 >
                   <td className="px-2 py-2">{index + 1}</td>
                   <td className="px-2 py-2">{item.workTypeName}</td>
-                  <td className="px-2 py-2">{item.description ? item.description : "-"}</td>
+                  <td className="px-2 py-2">{item.description || "-"}</td>
                   <td className="px-2 py-2">{item.workHoursPerDay || "-"}</td>
                   <td className="px-2 py-2">{item.breakHours || "-"}</td>
                   <td className="px-2 py-2">
@@ -153,12 +94,9 @@ const EmpWorkType = () => {
           </p>
         )}
       </div>
-
       {/* Add Modal */}
       {showModal && (
         <EmpWorkTypeForm
-          user={User}
-          dropdowns={dropdowns}
           onClose={() => setShowModal(false)}
           onSuccess={fetchWorkTypes}
         />

@@ -15,7 +15,7 @@ const PFContributionRuleForm = ({ initialData, onClose, refreshList }) => {
       calculationType: "Percentage",
       dependsOnRuleId: null,
       hasCeiling: false,
-      ceilingAmount: "",
+      ceilingAmount: 0,
       maxContribution: "",
       effectiveFrom: new Date().toISOString().split("T")[0],
       effectiveTo: null,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
-import { X } from "lucide-react"; 
+import { X } from "lucide-react";
 import {
   createESITransaction,
   getAllEmployees,
@@ -105,7 +105,7 @@ const AddESITransactionsForm = ({ isOpen, onClose, onSuccess }) => {
             <Select
               options={employees.map((emp) => ({
                 value: emp.id,
-                label: emp.fullName,
+                label: `${emp.fullName} (${emp.employeeCode})`,
               }))}
               onChange={(option) =>
                 setFormData((prev) => ({ ...prev, employeeId: option.value }))
@@ -114,9 +114,13 @@ const AddESITransactionsForm = ({ isOpen, onClose, onSuccess }) => {
                 employees.find((emp) => emp.id === formData.employeeId)
                   ? {
                       value: formData.employeeId,
-                      label: employees.find(
-                        (emp) => emp.id === formData.employeeId
-                      ).fullName,
+                      label: `${
+                        employees.find((emp) => emp.id === formData.employeeId)
+                          .fullName
+                      } (${
+                        employees.find((emp) => emp.id === formData.employeeId)
+                          .employeeCode
+                      })`,
                     }
                   : null
               }

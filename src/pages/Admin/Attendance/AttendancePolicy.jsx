@@ -21,7 +21,7 @@ const AttendancePolicyList = () => {
       setPolicies(res.data.data || []);
       setFilteredData(res.data.data || []);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to fetch policies");
+      // toast.error(err?.response?.data?.message || "Failed to fetch policies");
       console.error(err);
     }
   };

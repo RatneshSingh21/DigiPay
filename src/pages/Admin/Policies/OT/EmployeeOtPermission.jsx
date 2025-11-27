@@ -57,7 +57,7 @@ export default function EmployeeOtPermission() {
       setPermissions(enriched);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load OT permissions");
+      // toast.error("Failed to load OT permissions");
     } finally {
       setLoading(false);
     }

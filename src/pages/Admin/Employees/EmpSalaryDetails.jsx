@@ -196,26 +196,34 @@ const EmpSalaryDetails = () => {
             <table className="text-xs">
               <thead className="bg-gray-100 text-gray-700 sticky top-0">
                 <tr className="text-center">
-                  <th className="px-2 py-2">S.No</th>
-                  <th className="px-2 py-2">Emp Code</th>
-                  <th className="px-2 py-2">Emp Name</th>
-                  <th className="px-2 py-2">Basic Salary</th>
-                  <th className="px-2 py-2">HRA</th>
-                  <th className="px-2 py-2">Conveyance</th>
-                  <th className="px-2 py-2">Fixed Allowance</th>
-                  <th className="px-2 py-2">Bonus</th>
-                  <th className="px-2 py-2">Overtime</th>
-                  <th className="px-2 py-2">PF</th>
-                  <th className="px-2 py-2">ESI</th>
-                  <th className="px-2 py-2">Gross Earnings</th>
-                  <th className="px-2 py-2">Total Deductions</th>
-                  <th className="px-2 py-2">Net Salary</th>
-                  <th className="px-2 py-2">CTC</th>
-                  <th className="px-2 py-2">T.Working Days</th>
-                  <th className="px-2 py-2">Status</th>
+                  <th className="p-2 border-r border-gray-200">S.No</th>
+                  <th className="p-2 border-r border-gray-200">Emp Code</th>
+                  <th className="p-2 border-r border-gray-200">Emp Name</th>
+                  <th className="p-2 border-r border-gray-200">Basic Salary</th>
+                  <th className="p-2 border-r border-gray-200">HRA</th>
+                  <th className="p-2 border-r border-gray-200">Conveyance</th>
+                  <th className="p-2 border-r border-gray-200">
+                    Fixed Allowance
+                  </th>
+                  <th className="p-2 border-r border-gray-200">Bonus</th>
+                  <th className="p-2 border-r border-gray-200">Overtime</th>
+                  <th className="p-2 border-r border-gray-200">PF</th>
+                  <th className="p-2 border-r border-gray-200">ESI</th>
+                  <th className="p-2 border-r border-gray-200">
+                    Gross Earnings
+                  </th>
+                  <th className="p-2 border-r border-gray-200">
+                    Total Deductions
+                  </th>
+                  <th className="p-2 border-r border-gray-200">Net Salary</th>
+                  <th className="p-2 border-r border-gray-200">CTC</th>
+                  <th className="p-2 border-r border-gray-200">
+                    T.Working Days
+                  </th>
+                  <th className="p-2 border-r border-gray-200">Status</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100 text-center">
                 {currentSalaries.map((s, idx) => {
                   const emp = employeeMap[s.employeeId] || {};
                   return (
@@ -225,25 +233,51 @@ const EmpSalaryDetails = () => {
                         idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                       } hover:bg-gray-100 transition-all`}
                     >
-                      <td className="px-2 py-2">{idx + 1}</td>
-                      <td className="px-2 py-2">{emp.code || "-"}</td>
-                      <td className="px-2 py-2">{emp.name || "-"}</td>
-                      <td className="px-2 py-2">{s.basicSalary}</td>
-                      <td className="px-2 py-2">{s.hra}</td>
-                      <td className="px-2 py-2">{s.conveyanceAllowance}</td>
-                      <td className="px-2 py-2">{s.fixedAllowance}</td>
-                      <td className="px-2 py-2">{s.bonus}</td>
-                      <td className="px-2 py-2">
+                      <td className="p-2 border-r border-gray-200">
+                        {idx + 1}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {emp.code || "-"}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {emp.name || "-"}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.basicSalary}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">{s.hra}</td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.conveyanceAllowance}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.fixedAllowance}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.bonus}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
                         {(s.overtimeHours * s.overtimeRate).toFixed(4)}
                       </td>
-                      <td className="px-2 py-2">{s.pfEmployee}</td>
-                      <td className="px-2 py-2">{s.esicEmployee}</td>
-                      <td className="px-2 py-2">{s.grossEarnings}</td>
-                      <td className="px-2 py-2">{s.totalDeductions}</td>
-                      <td className="px-2 py-2">{s.netSalary}</td>
-                      <td className="px-2 py-2">{s.ctc}</td>
-                      <td className="px-2 py-2">{s.totalWorkingDays}</td>
-                      <td className="px-2 py-2">
+                      <td className="p-2 border-r border-gray-200">
+                        {s.pfEmployee}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.esicEmployee}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.grossEarnings}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.totalDeductions}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.netSalary}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">{s.ctc}</td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.totalWorkingDays}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
                         <StatusPill enabled={s.status === 1} />
                       </td>
                     </tr>

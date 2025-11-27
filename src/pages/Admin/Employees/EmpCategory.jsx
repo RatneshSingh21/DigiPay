@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiX, FiPlus } from "react-icons/fi";
 import { toast } from "react-toastify";
-import useAuthStore from "../../../store/authStore";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 
 const EmpCategory = () => {

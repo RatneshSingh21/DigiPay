@@ -2,11 +2,12 @@ import React, { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
+import Select from "react-select";
 
 const CreateAdminFromEmployee = () => {
   const [employees, setEmployees] = useState([]);
   const [roleMappings, setRoleMappings] = useState([]);
-  const [departments, setDepartments] = useState({}); // cache { deptId: deptName }
+  const [departments, setDepartments] = useState({});
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -18,9 +19,6 @@ const CreateAdminFromEmployee = () => {
 
   const roles = ["Admin", "User", "Hod", "Manager", "SuperAdmin"];
 
-  // ----------------------------
-  // FETCH EMPLOYEES + ROLE MAPPINGS
-  // ----------------------------
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -43,24 +41,19 @@ const CreateAdminFromEmployee = () => {
     fetchData();
   }, []);
 
-  // ----------------------------
-  // FILTERED EMPLOYEES FOR AUTOCOMPLETE
-  // ----------------------------
   const filteredEmployees = useMemo(() => {
     if (!search.trim()) return [];
     const s = search.toLowerCase();
     return employees.filter(
       (emp) =>
-        emp.fullName.toLowerCase().includes(s) && emp.portalAccessEnabled === true
+        emp.fullName.toLowerCase().includes(s) &&
+        emp.portalAccessEnabled === true
     );
   }, [search, employees]);
 
-  // ----------------------------
-  // GET DEPARTMENT NAME (with caching)
-  // ----------------------------
   const getDepartmentName = async (deptId) => {
     if (!deptId) return "N/A";
-    if (departments[deptId]) return departments[deptId]; // cached
+    if (departments[deptId]) return departments[deptId];
 
     try {
       const res = await axiosInstance.get(`/Department/${deptId}`);
@@ -73,9 +66,6 @@ const CreateAdminFromEmployee = () => {
     }
   };
 
-  // ----------------------------
-  // EMPLOYEE SELECTION HANDLER
-  // ----------------------------
   const handleEmployeeSelect = (emp) => {
     setSelectedEmployee(emp.id);
     setSearch(emp.fullName);
@@ -86,9 +76,6 @@ const CreateAdminFromEmployee = () => {
     setShowDropdown(false);
   };
 
-  // ----------------------------
-  // SUBMIT
-  // ----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedEmployee) return toast.error("Pick an employee");
@@ -96,10 +83,13 @@ const CreateAdminFromEmployee = () => {
 
     setSubmitting(true);
     try {
-      const res = await axiosInstance.post("/user-auth/add-user-from-employee", {
-        employeeId: Number(selectedEmployee),
-        role,
-      });
+      const res = await axiosInstance.post(
+        "/user-auth/add-user-from-employee",
+        {
+          employeeId: Number(selectedEmployee),
+          role,
+        }
+      );
 
       if (res.data?.success) {
         toast.success(res.data.message || "User created successfully");
@@ -117,9 +107,6 @@ const CreateAdminFromEmployee = () => {
     }
   };
 
-  // ----------------------------
-  // SELECTED EMPLOYEE DETAILS
-  // ----------------------------
   const selectedEmployeeDetails = employees.find(
     (e) => e.id === Number(selectedEmployee)
   );
@@ -133,16 +120,13 @@ const CreateAdminFromEmployee = () => {
     }
   }, [selectedEmployeeDetails]);
 
-  // ----------------------------
-  // EMPLOYEES WITH ROLES (TABLE)
-  // ----------------------------
   const employeesWithRoles = useMemo(() => {
     return employees.filter((emp) =>
       roleMappings.some((r) => r.employeeId === emp.id)
     );
   }, [employees, roleMappings]);
 
-  const [tableDeptNames, setTableDeptNames] = useState({}); // caching for table
+  const [tableDeptNames, setTableDeptNames] = useState({});
 
   useEffect(() => {
     employeesWithRoles.forEach((emp) => {
@@ -155,83 +139,99 @@ const CreateAdminFromEmployee = () => {
   }, [employeesWithRoles]);
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Create Admin from Employee</h2>
+    <div>
+      {/* Header */}
+      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+        <h2 className="font-semibold text-xl"> Create Admin from Employee</h2>
+      </div>
 
       {loading ? (
         <div className="flex justify-center py-20">
           <Spinner />
         </div>
       ) : (
-        <>
-          {/* EMPLOYEE AUTOCOMPLETE SEARCH */}
-          <div className="mb-6 w-96 relative">
-            <label className="text-sm font-medium">Search Employee</label>
-            <input
-              type="text"
-              className="border p-2 rounded w-full mt-1"
-              placeholder="Type employee name..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setSelectedEmployee("");
-                setShowDropdown(true);
-              }}
-            />
+        <div className="p-5">
+          {/* Search Box + Form Card */}
+          <div className="bg-white shadow-lg p-6 rounded-xl border mb-8 w-full max-w-lg">
+            <h3 className="text-lg font-semibold mb-4 text-gray-700">
+              Assign Role to Employee
+            </h3>
 
-            {showDropdown && search.trim() !== "" && filteredEmployees.length > 0 && (
-              <div className="absolute z-30 w-full bg-white shadow-lg border rounded mt-1 max-h-60 overflow-y-auto">
-                {filteredEmployees.map((emp) => (
-                  <div
-                    key={emp.id}
-                    className="p-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleEmployeeSelect(emp)}
-                  >
-                    {emp.fullName} ({emp.employeeCode})
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Search */}
+            <div className="relative mb-5">
+              <label className="text-sm font-medium text-gray-700">
+                Search Employee
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Type employee name..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setSelectedEmployee("");
+                  setShowDropdown(true);
+                }}
+              />
 
-            {showDropdown && search.trim() !== "" && filteredEmployees.length === 0 && (
-              <div className="absolute z-30 w-full bg-white shadow-lg border rounded mt-1 p-2 text-sm text-gray-500">
-                No employees found
-              </div>
-            )}
-          </div>
-
-          {/* FORM */}
-          <form onSubmit={handleSubmit} className="grid gap-4 w-96 mb-8">
-            <div>
-              <label className="text-sm font-medium">Role</label>
-              <select
-                className="w-full border p-2 rounded mt-1"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                disabled={!selectedEmployee}
-              >
-                <option value="">-- Select Role --</option>
-                {roles.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
+              {/* Dropdown */}
+              {showDropdown && search.trim() !== "" && (
+                <div className="absolute z-30 w-full bg-white shadow-xl border rounded-lg mt-1 max-h-60 overflow-y-auto transition-all duration-300">
+                  {filteredEmployees.length > 0 ? (
+                    filteredEmployees.map((emp) => (
+                      <div
+                        key={emp.id}
+                        className="p-2 hover:bg-blue-50 cursor-pointer"
+                        onClick={() => handleEmployeeSelect(emp)}
+                      >
+                        <span className="font-medium">{emp.fullName}</span>{" "}
+                        <span className="text-gray-600 text-sm">
+                          ({emp.employeeCode})
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-2 text-gray-500 text-sm">
+                      No employees found
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            <button
-              className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded disabled:opacity-50"
-              type="submit"
-              disabled={submitting}
-            >
-              {submitting ? "Creating..." : "Create User"}
-            </button>
-          </form>
+            {/* Role Form */}
+            <form onSubmit={handleSubmit} className="grid gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Role
+                </label>
+                <Select
+                  value={role ? { label: role, value: role } : null}
+                  onChange={(selected) => setRole(selected?.value || "")}
+                  isDisabled={!selectedEmployee}
+                  options={roles.map((r) => ({ label: r, value: r }))}
+                  placeholder="Select Role..."
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                />
+              </div>
 
-          {/* EMPLOYEE DETAILS CARD */}
+              <button
+                className="bg-primary hover:bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg shadow-md transition disabled:opacity-50"
+                type="submit"
+                disabled={submitting}
+              >
+                {submitting ? "Creating..." : "Create User"}
+              </button>
+            </form>
+          </div>
+
+          {/* Selected Employee Card */}
           {selectedEmployeeDetails && (
-            <div className="p-4 border rounded bg-gray-50 mb-8 w-96">
-              <h3 className="font-semibold text-lg mb-2">Employee Details</h3>
+            <div className="p-5 bg-gradient-to-r from-blue-50 to-purple-50 border rounded-xl shadow-md mb-10 max-w-lg">
+              <h3 className="font-bold text-lg mb-3 text-gray-800">
+                Employee Details
+              </h3>
               <p>
                 <strong>Name:</strong> {selectedEmployeeDetails.fullName}
               </p>
@@ -239,53 +239,56 @@ const CreateAdminFromEmployee = () => {
                 <strong>Email:</strong> {selectedEmployeeDetails.workEmail}
               </p>
               <p>
-                <strong>Dept:</strong> {selectedDeptName || "N/A"}
+                <strong>Department:</strong> {selectedDeptName || "N/A"}
               </p>
               <p>
                 <strong>Code:</strong> {selectedEmployeeDetails.employeeCode}
               </p>
-              <p>
+              <p className="mt-2">
                 <strong>Current Role:</strong>{" "}
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+                <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">
                   {role || "Not Assigned"}
                 </span>
               </p>
             </div>
           )}
 
-          {/* TABLE */}
-          <h3 className="text-lg font-semibold mb-3">
-            Employees With Assigned Roles
-          </h3>
+          <div className="overflow-x-auto shadow rounded-lg h-[250px] overflow-y-scroll mt-6">
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
+              <thead className="bg-gray-100 text-gray-700 text-center sticky top-0 z-10">
+                <tr className="border-b">
+                  <th className="px-4 py-3 font-semibold">Name</th>
+                  <th className="px-4 py-3 font-semibold">Email</th>
+                  <th className="px-4 py-3 font-semibold">Dept</th>
+                  <th className="px-4 py-3 font-semibold">Role</th>
+                </tr>
+              </thead>
 
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-200 text-left">
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Email</th>
-                <th className="border p-2">Dept</th>
-                <th className="border p-2">Role</th>
-              </tr>
-            </thead>
-            <tbody>
-              {employeesWithRoles.map((emp) => {
-                const mapping = roleMappings.find((r) => r.employeeId === emp.id);
-                const deptName = tableDeptNames[emp.departmentId] || "N/A";
+              <tbody className="divide-y divide-gray-200 text-center">
+                {employeesWithRoles.map((emp) => {
+                  const mapping = roleMappings.find(
+                    (r) => r.employeeId === emp.id
+                  );
+                  const deptName = tableDeptNames[emp.departmentId] || "N/A";
 
-                return (
-                  <tr key={emp.id}>
-                    <td className="border p-2">{emp.fullName}</td>
-                    <td className="border p-2">{emp.workEmail}</td>
-                    <td className="border p-2">{deptName}</td>
-                    <td className="border p-2 text-green-700 font-semibold">
-                      {mapping?.roleName}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </>
+                  return (
+                    <tr
+                      key={emp.id}
+                      className="hover:bg-blue-50 transition cursor-pointer border-b"
+                    >
+                      <td className="px-4 py-3">{emp.fullName}</td>
+                      <td className="px-4 py-3">{emp.workEmail}</td>
+                      <td className="px-4 py-3">{deptName}</td>
+                      <td className="px-4 py-3 text-blue-700 font-semibold">
+                        {mapping?.roleName}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );

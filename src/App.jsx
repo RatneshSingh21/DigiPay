@@ -163,7 +163,7 @@ const App = () => {
 
   return (
     <div>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="bottom-right" autoClose={3000} />
 
       {/* Company creation modal (blocking if no companyId) */}
       {showCompanyModal && (

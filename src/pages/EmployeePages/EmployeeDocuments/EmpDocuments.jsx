@@ -21,7 +21,7 @@ const EmpDocuments = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message || "Failed to fetch documents");
+      // toast.error(err?.response?.data?.message || "Failed to fetch documents");
     } finally {
       setLoading(false);
     }

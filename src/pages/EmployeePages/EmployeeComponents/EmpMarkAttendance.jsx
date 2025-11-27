@@ -14,7 +14,7 @@ const statusOptions = [
 
 const workTypeOptions = [
   { value: "Remote", label: "Remote" },
-  { value: "Onsite", label: "Onsite" },
+  { value: "Office", label: "Office" },
   { value: "Hybrid", label: "Hybrid" },
   { value: "Work From Home", label: "Work From Home" },
 ];
