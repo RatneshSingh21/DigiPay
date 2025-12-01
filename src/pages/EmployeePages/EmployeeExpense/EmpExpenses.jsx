@@ -12,20 +12,6 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 import Select from "react-select";
 
-// Map statusId to readable status + color
-const getStatusBadge = (statusId) => {
-  switch (statusId) {
-    case 1:
-      return { text: "Pending", color: "bg-yellow-100 text-yellow-700" };
-    case 2:
-      return { text: "Rejected", color: "bg-red-100 text-red-700" };
-    case 3:
-      return { text: "Approved", color: "bg-green-100 text-green-700" };
-    default:
-      return { text: "Unknown", color: "bg-gray-100 text-gray-700" };
-  }
-};
-
 const EmpExpenses = () => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,6 +19,18 @@ const EmpExpenses = () => {
   const employeeId = useAuthStore((state) => state.user?.userId);
   const [headerOptions, setHeaderOptions] = useState([]);
   const [selectedHeader, setSelectedHeader] = useState(null);
+  const [statusList, setStatusList] = useState([]);
+
+  const fetchStatusList = async () => {
+    try {
+      const res = await axiosInstance.get("/StatusMaster");
+      if (res.data?.data) {
+        setStatusList(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch status master", err);
+    }
+  };
 
   // Fetch all expenses
   const fetchExpenses = async () => {
@@ -41,8 +39,14 @@ const EmpExpenses = () => {
       const res = await axiosInstance.get(
         `/ExpenseDetails/by-employee/${employeeId}`
       );
+      // console.log(res.data);
+
       if (res.data?.data) {
-        setExpenses(res.data.data || []);
+        setExpenses(
+          res.data.data.sort(
+            (a, b) => new Date(b.expenseDate) - new Date(a.expenseDate)
+          )
+        );
         const uniqueHeaders = [
           ...new Set(res.data.data.map((e) => e.expenseDetailsName)),
         ];
@@ -59,7 +63,32 @@ const EmpExpenses = () => {
 
   useEffect(() => {
     fetchExpenses();
+    fetchStatusList();
   }, []);
+
+  const getStatusBadge = (statusId) => {
+    const found = statusList.find((s) => s.statusId === statusId);
+
+    if (!found) {
+      return { text: "Unknown", color: "bg-gray-100 text-gray-700" };
+    }
+
+    switch (found.statusName.toLowerCase()) {
+      case "pending":
+        return {
+          text: found.statusName,
+          color: "bg-yellow-100 text-yellow-700",
+        };
+      case "processed":
+        return { text: found.statusName, color: "bg-blue-100 text-blue-700" };
+      case "approved":
+        return { text: found.statusName, color: "bg-green-100 text-green-700" };
+      case "rejected":
+        return { text: found.statusName, color: "bg-red-100 text-red-700" };
+      default:
+        return { text: found.statusName, color: "bg-gray-100 text-gray-700" };
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">

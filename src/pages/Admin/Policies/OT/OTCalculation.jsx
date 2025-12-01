@@ -169,20 +169,17 @@ const OTCalculation = () => {
                             className="bg-gray-200 font-semibold cursor-pointer"
                             onClick={() => toggleGroup(date)}
                           >
-                            <td
-                              colSpan={12}
-                              className="p-2 text-left flex justify-between"
-                            >
-                              <span>
-                                {new Date(date).toLocaleDateString("en-GB")}
-                              </span>
-                              <span
-                                className={`transition-transform ${
-                                  isOpen ? "rotate-90" : ""
-                                }`}
-                              >
-                                ►
-                              </span>
+                            <td colSpan={12} className="p-2 text-left">
+                              <div className="flex  items-center w-full">
+                                <span
+                                  className={`transition-transform ${
+                                    isOpen ? "rotate-90" : ""
+                                  }`}
+                                >
+                                  ►
+                                </span>
+                                <span>{date}</span>
+                              </div>
                             </td>
                           </tr>
 
@@ -239,18 +236,17 @@ const OTCalculation = () => {
                           className="bg-gray-200 font-semibold cursor-pointer"
                           onClick={() => toggleGroup(emp)}
                         >
-                          <td
-                            colSpan={12}
-                            className="p-2 text-left flex justify-between"
-                          >
-                            <span>{emp}</span>
-                            <span
-                              className={`transition-transform ${
-                                isOpen ? "rotate-90" : ""
-                              }`}
-                            >
-                              ►
-                            </span>
+                          <td colSpan={12} className="p-2 text-left">
+                            <div className="flex  items-center w-full">
+                              <span
+                                className={`transition-transform ${
+                                  isOpen ? "rotate-90" : ""
+                                }`}
+                              >
+                                ►
+                              </span>
+                              <span>{emp}</span>
+                            </div>
                           </td>
                         </tr>
 

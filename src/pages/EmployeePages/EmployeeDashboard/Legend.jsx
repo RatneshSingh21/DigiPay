@@ -6,7 +6,6 @@ const items = [
   { label: "Leave", color: "bg-orange-400" },
   { label: "Holiday", color: "bg-blue-600" },
   { label: "Week Off", color: "bg-gray-300" },
-  { label: "Remote", color: "bg-pink-300" },
   { label: "HalfDay", color: "bg-purple-400" },
 ];
 

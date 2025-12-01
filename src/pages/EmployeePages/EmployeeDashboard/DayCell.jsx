@@ -4,7 +4,6 @@ import { format, isToday } from "date-fns";
 const statusColors = {
   Leave: "bg-orange-400",
   Holiday: "bg-blue-600",
-  Remote: "bg-pink-300",
   Present: "bg-green-500",
   Absent: "bg-red-500",
   HalfDay: "bg-purple-400",
@@ -16,6 +15,12 @@ const DayCell = ({ date, data }) => {
   const isCurrentDay = isToday(date); // highlight today
 
   const totalHours = data?.totalHoursWorked ?? 0;
+
+  // Convert totalHours (decimal) to hh:mm format
+  const hours = Math.floor(totalHours);
+  const minutes = Math.round((totalHours - hours) * 60);
+  const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+
   const hoursColor =
     totalHours === 0
       ? "text-gray-400"
@@ -30,15 +35,13 @@ const DayCell = ({ date, data }) => {
     >
       <div className="font-medium">{formatted}</div>
 
-      {/* Total hours worked */}
-      <div className={`text-[11px] ${hoursColor}`}>{totalHours.toFixed(1)}</div>
+      {/* Total hours worked in hh:mm */}
+      <div className={`text-[11px] ${hoursColor}`}>{formattedTime}</div>
 
       {/* Status dot */}
       {data?.status && (
         <div
-          className={`w-2 h-2 mt-1 rounded-full ${
-            statusColors[data.status] || "bg-gray-400"
-          }`}
+          className={`w-2 h-2 mt-1 rounded-full ${statusColors[data.status] || "bg-gray-400"}`}
           title={data.status}
         />
       )}

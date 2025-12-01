@@ -1,17 +1,21 @@
 import { AiFillDashboard, AiFillSetting } from "react-icons/ai";
 import { RiArticleFill, RiFolderOpenFill } from "react-icons/ri";
-import { FaClipboardCheck, FaBusinessTime, FaUsers, FaUserFriends } from "react-icons/fa";
+import {
+  FaBusinessTime,
+  FaUsers,
+  FaUserFriends,
+  FaShieldAlt,
+} from "react-icons/fa";
 import { IoDocuments } from "react-icons/io5";
 import {
   MdAdminPanelSettings,
-  MdChecklistRtl,
   MdEventAvailable,
-  MdPolicy,
+  MdFingerprint,
 } from "react-icons/md";
 import AdminSidebarItem from "./AdminSidebarItem";
 import assets from "../../../assets/assets";
 import { Link } from "react-router-dom";
-
+import { Gavel } from "lucide-react";
 
 const menuItems = [
   {
@@ -52,19 +56,19 @@ const menuItems = [
   },
   {
     label: "Policy",
-    icon: <MdPolicy />,
+    icon: <Gavel size={20} />,
     to: "/admin-dashboard/policy",
     collapseOnClick: true,
   },
   {
     label: "Compliance",
-    icon: <FaClipboardCheck />,
+    icon: <FaShieldAlt size={16} />,
     to: "/admin-dashboard/compliance",
     collapseOnClick: true,
   },
-   {
+  {
     label: "Attendance",
-    icon: <MdChecklistRtl />,
+    icon: <MdFingerprint />,
     to: "/admin-dashboard/attendance",
     collapseOnClick: true,
   },

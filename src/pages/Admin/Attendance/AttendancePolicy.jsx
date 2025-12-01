@@ -40,10 +40,10 @@ const AttendancePolicyList = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="p-4">
+    <>
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Attendance Policies</h2>
+      <div className="px-4 py-3 shadow sticky top-14 bg-white flex items-center justify-between z-10">
+        <h2 className="font-semibold text-xl">Attendance Policies</h2>
         <button
           onClick={() => setShowModal(true)}
           className="flex cursor-pointer text-sm items-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-secondary"
@@ -192,7 +192,7 @@ const AttendancePolicyList = () => {
           initialData={editData}
         />
       )}
-    </div>
+    </>
   );
 };
 

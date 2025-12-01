@@ -100,26 +100,43 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { type, from, to, reason, approvers } = formData;
-    const today = new Date();
 
+    const startDate = new Date(from);
+    const endDate = new Date(to);
+
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+
+    // Required fields
     if (!type || !from || !to || !reason) {
       setError("Please complete all fields.");
       return;
     }
-    if (isBefore(new Date(to), new Date(from))) {
+
+    // To date before From date
+    if (endDate < startDate) {
       setError("To date cannot be before From date.");
       return;
     }
-    if (isBefore(new Date(from), today)) {
-      setError("You cannot apply for backdated leave.");
+
+    // Backdated not allowed → today allowed
+    const startDateOnly = new Date(from);
+    const todayOnly = new Date();
+    todayOnly.setHours(0, 0, 0, 0);
+
+    if (startDateOnly < todayOnly) {
+      setError("You cannot apply for a backdated leave.");
       return;
     }
-    if (checkOverlap(new Date(from), new Date(to))) {
+
+    // Overlap check
+    if (checkOverlap(startDate, endDate)) {
       setError("You already have a leave applied in this date range.");
       return;
     }
 
-    const days = (new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24) + 1;
+    const days = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
+
     if (days > type.maxLeavesPerYear) {
       setError(
         `You cannot apply more than ${type.maxLeavesPerYear} days for ${type.label}.`
@@ -134,15 +151,21 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
         leaveTypeId: type.value,
         leaveName: type.label,
         leaveCode: type.code,
-        fromDate: new Date(from).toISOString(),
-        toDate: new Date(to).toISOString(),
+        fromDate: startDate.toISOString(),
+        toDate: endDate.toISOString(),
         reason,
         customApproverIds: approvers?.map((a) => a.value) || [],
       });
 
       toast.success(`Leave Applied Successfully for ${days} day(s)!`);
-      refreshHistory?.(); // refresh parent history
-      setFormData({ type: null, from: "", to: "", reason: "", approvers: [] });
+      refreshHistory?.();
+      setFormData({
+        type: null,
+        from: "",
+        to: "",
+        reason: "",
+        approvers: [],
+      });
       setError("");
       onClose();
     } catch (err) {

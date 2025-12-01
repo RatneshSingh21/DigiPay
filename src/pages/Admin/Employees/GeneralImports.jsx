@@ -30,9 +30,15 @@ const data = [
   },
   {
     id: 5,
-    name: "PF & ESI Mapping", // New row for ESI mapping
-    importApi: "/Employee/import-compliance", // adjust import endpoint if you have one
-    exportApi: "/Employee/export-compliance-template", // your given endpoint
+    name: "Attendance",
+    importApi: "/Attendance/import",
+    exportApi: "/Attendance/export",
+  },
+  {
+    id: 6,
+    name: "PF & ESI Mapping",
+    importApi: "/Employee/import-compliance",
+    exportApi: "/Employee/export-compliance-template",
   },
 ];
 
@@ -61,27 +67,27 @@ export default function GeneralImports() {
         toast.success(`"${file.name}" imported successfully for ${fieldName}`);
         console.log("Import response:", response.data);
       } catch (error) {
-      console.error("Import failed:", error);
+        console.error("Import failed:", error);
 
-      let errorMsg = "Failed to import file.";
-      if (error.response?.data instanceof Blob) {
-        try {
-          const text = await error.response.data.text();
-          const parsed = JSON.parse(text);
-          errorMsg = parsed.message || parsed.error || text;
-        } catch {
-          errorMsg = await error.response.data.text();
+        let errorMsg = "Failed to import file.";
+        if (error.response?.data instanceof Blob) {
+          try {
+            const text = await error.response.data.text();
+            const parsed = JSON.parse(text);
+            errorMsg = parsed.message || parsed.error || text;
+          } catch {
+            errorMsg = await error.response.data.text();
+          }
+        } else {
+          errorMsg =
+            error.response?.data?.message ||
+            error.response?.data?.error ||
+            error.response?.data ||
+            error.message;
         }
-      } else {
-        errorMsg =
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.response?.data ||
-          error.message;
-      }
 
-      toast.error(`Import failed for ${fieldName}: ${errorMsg}`);
-    }
+        toast.error(`Import failed for ${fieldName}: ${errorMsg}`);
+      }
     }
     event.target.value = "";
   };
@@ -113,27 +119,27 @@ export default function GeneralImports() {
 
       toast.success(`"${fileName}" exported successfully`);
     } catch (error) {
-    console.error("Export failed:", error);
+      console.error("Export failed:", error);
 
-    let errorMsg = "Failed to export data.";
-    if (error.response?.data instanceof Blob) {
-      try {
-        const text = await error.response.data.text();
-        const parsed = JSON.parse(text);
-        errorMsg = parsed.message || parsed.error || text;
-      } catch {
-        errorMsg = await error.response.data.text();
+      let errorMsg = "Failed to export data.";
+      if (error.response?.data instanceof Blob) {
+        try {
+          const text = await error.response.data.text();
+          const parsed = JSON.parse(text);
+          errorMsg = parsed.message || parsed.error || text;
+        } catch {
+          errorMsg = await error.response.data.text();
+        }
+      } else {
+        errorMsg =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.response?.data ||
+          error.message;
       }
-    } else {
-      errorMsg =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.response?.data ||
-        error.message;
-    }
 
-    toast.error(`Export failed for ${fieldName}: ${errorMsg}`);
-  }
+      toast.error(`Export failed for ${fieldName}: ${errorMsg}`);
+    }
   };
   return (
     <div className="bg-white">

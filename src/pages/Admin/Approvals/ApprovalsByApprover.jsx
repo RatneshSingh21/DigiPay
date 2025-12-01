@@ -89,6 +89,13 @@ const ApprovalsByApprover = ({ approverId }) => {
         safeRequest(`/ApprovalMaster/od-by-approver/${approverId}`),
       ]);
 
+      console.log("Fetched Approvals:", {
+        leaveRes,
+        expenseRes,
+        advanceRes,
+        odRes,
+      });
+
       const leaveData = leaveRes.map((item) => ({
         approvalId: item.approvalId,
         type: "Leave",
@@ -148,6 +155,7 @@ const ApprovalsByApprover = ({ approverId }) => {
 
         details: {
           advancePaymentAmount: item.advancePaymentAmount,
+          reason: item.reason,
           advancePaymentType: item.advancePaymentType,
           noOfInstallments: item.noOfInstallments,
           installmentAmount: item.installmentAmount,
@@ -516,11 +524,15 @@ const ApprovalsByApprover = ({ approverId }) => {
                     {approval.type === "Expense" && (
                       <>
                         <p>
-                          <strong>Expense:</strong>{" "}
+                          <strong>Expense Head:</strong>{" "}
                           {approval.details.expenseDetailsName}
                         </p>
                         <p>
                           <strong>Amount:</strong> ₹{approval.details.amount}
+                        </p>
+                        <p>
+                          <strong>Description:</strong>{" "}
+                          {approval.details.description}
                         </p>
                         <p>
                           <strong>Date:</strong>
@@ -529,10 +541,6 @@ const ApprovalsByApprover = ({ approverId }) => {
                           ).toLocaleString("en-GB", {
                             hour12: true,
                           })}
-                        </p>
-                        <p>
-                          <strong>Description:</strong>{" "}
-                          {approval.details.description}
                         </p>
 
                         {/* {approval.details.fileName && (
@@ -556,7 +564,11 @@ const ApprovalsByApprover = ({ approverId }) => {
                           {approval.details.advancePaymentAmount}
                         </p>
                         <p>
-                          <strong>Type:</strong>{" "}
+                          <strong>Reason:</strong>
+                          {approval.details.reason}
+                        </p>
+                        <p>
+                          <strong>Payment Type:</strong>{" "}
                           {approval.details.advancePaymentType}
                         </p>
                         <p>
@@ -588,7 +600,7 @@ const ApprovalsByApprover = ({ approverId }) => {
                     {approval.type === "OnDuty" && (
                       <>
                         <p>
-                          <strong>In Time:</strong>{" "}
+                          <strong>From:</strong>{" "}
                           {new Date(approval.details.inDateTime).toLocaleString(
                             "en-GB",
                             {
@@ -597,7 +609,7 @@ const ApprovalsByApprover = ({ approverId }) => {
                           )}
                         </p>
                         <p>
-                          <strong>Out Time:</strong>{" "}
+                          <strong>To:</strong>{" "}
                           {new Date(
                             approval.details.outDateTime
                           ).toLocaleString("en-GB", {

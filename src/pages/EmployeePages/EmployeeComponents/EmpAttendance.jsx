@@ -34,45 +34,101 @@ const EmpAttendance = () => {
     label: "All",
     value: "All",
   });
-  const [attendanceData, setAttendanceData] = useState({}); // yyyy-MM-dd -> perDayDetails object
+  const [attendanceData, setAttendanceData] = useState({}); // yyyy-MM-dd -> perDayDetails
   const [loading, setLoading] = useState(true);
 
   const firstDayOfMonth = startOfMonth(selectedDate);
   const lastDayOfMonth = endOfMonth(selectedDate);
 
-  // Fetch attendance calculation results
+  // Convert decimal hours to hh:mm
+  const formatHours = (totalHours) => {
+    const h = Math.floor(totalHours);
+    const m = Math.round((totalHours - h) * 60);
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  };
+
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get("/AttendanceCalculationResult/all");
-        let data = res.data.response || [];
 
+        // 1️⃣ Fetch calculation data
+        const calcRes = await axiosInstance.get(
+          "/AttendanceCalculationResult/all"
+        );
+        let calcData = calcRes.data.response || [];
         if (user?.userId) {
-          data = data.filter((item) => item.employeeId === user.userId);
+          calcData = calcData.filter((item) => item.employeeId === user.userId);
         }
 
-        // Map date -> perDayDetails object
+        // 2️⃣ Fetch punch data
+        const punchRes = await axiosInstance.get("/Attendance/all");
+        let punchData = punchRes.data || [];
+        if (user?.userId) {
+          punchData = punchData.filter(
+            (item) => item.employeeId === user.userId
+          );
+        }
+
         const mapped = {};
-        data.forEach((item) => {
+
+        // Map calculation data
+        calcData.forEach((item) => {
           item.perDayDetails.forEach((d) => {
-            const dateKey = format(new Date(d.date), "yyyy-MM-dd");
-            mapped[dateKey] = {
-              ...d,
+            const key = format(new Date(d.date), "yyyy-MM-dd");
+            mapped[key] = {
+              inTime: d.inTime || null,
+              outTime: d.outTime || null,
+              totalHoursWorked: d.totalHoursWorked || 0,
+              lateMinutes: d.lateMinutes || 0,
+              earlyLeaveMinutes: d.earlyLeaveMinutes || 0,
+              otMinutes: d.otMinutes || 0,
               status: item.isAbsent
                 ? "Absent"
                 : item.isHalfDay
                 ? "Half Day"
-                : d.otMinutes > 0
-                ? "Present"
                 : "Present",
             };
           });
         });
 
+        // Merge punch data if calculation missing or add IN/OUT
+        punchData.forEach((item) => {
+          const key = format(new Date(item.attendanceDate), "yyyy-MM-dd");
+
+          if (!mapped[key]) {
+            mapped[key] = {
+              inTime: item.punchType === "IN" ? item.inTime : null,
+              outTime: item.punchType === "OUT" ? item.outTime : null,
+              totalHoursWorked: 0, // Will calculate below
+              lateMinutes: 0,
+              earlyLeaveMinutes: 0,
+              otMinutes: 0,
+              status: item.status || "Unknown",
+            };
+          } else {
+            if (item.punchType === "IN" && !mapped[key].inTime)
+              mapped[key].inTime = item.inTime;
+            if (item.punchType === "OUT" && !mapped[key].outTime)
+              mapped[key].outTime = item.outTime;
+          }
+
+          // Calculate total hours from IN/OUT
+          const inTime = mapped[key].inTime
+            ? new Date(mapped[key].inTime)
+            : null;
+          const outTime = mapped[key].outTime
+            ? new Date(mapped[key].outTime)
+            : null;
+          if (inTime && outTime) {
+            const diffHours = (outTime - inTime) / (1000 * 60 * 60); // difference in hours
+            mapped[key].totalHoursWorked = diffHours;
+          }
+        });
+
         setAttendanceData(mapped);
       } catch (err) {
-        console.error("Error fetching attendance calculation:", err);
+        console.error("Error fetching attendance:", err);
       } finally {
         setLoading(false);
       }
@@ -182,7 +238,9 @@ const EmpAttendance = () => {
                         </div>
                         <div>
                           <strong>Total Hours:</strong>{" "}
-                          {dayData.totalHoursWorked.toFixed(4) || 0}
+                          {dayData.totalHoursWorked
+                            ? formatHours(dayData.totalHoursWorked)
+                            : "00:00"}
                         </div>
                         <div>
                           <strong>Late:</strong> {dayData.lateMinutes || 0} min
