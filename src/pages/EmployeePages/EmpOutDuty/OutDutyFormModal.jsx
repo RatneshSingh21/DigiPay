@@ -131,7 +131,7 @@ const OutDutyFormModal = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center px-2 sm:px-4">
+    <div className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center px-2 sm:px-4">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md sm:max-w-xl p-4 sm:p-6 relative animate-fade-in">
         {/* Close button */}
         <button

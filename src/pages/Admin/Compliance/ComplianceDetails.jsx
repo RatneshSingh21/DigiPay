@@ -108,7 +108,7 @@ const ComplianceDetails = () => {
             {compliance.map((item) => (
               <div
                 key={item.complianceId}
-                className="bg-white rounded-xl shadow-md p-6 relative hover:shadow-lg transition"
+                className="bg-white shadow-sm rounded-xl p-4 border border-gray-200 hover:shadow-md transition"
               >
                 {/* Card Header */}
                 <div className="flex justify-between items-start text-sm">

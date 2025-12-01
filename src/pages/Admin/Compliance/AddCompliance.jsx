@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
-import useAuthStore from "../../../store/authStore";
 import Spinner from "../../../components/Spinner";
 
 const indianStates = [
@@ -60,7 +59,6 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
     status: "",
   });
 
-  const { user } = useAuthStore();
 
   useEffect(() => {
     if (isEdit === "Edit" && initialData) {
@@ -161,11 +159,9 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
   return (
     <div
       className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center px-4"
-      onClick={onClose}
     >
       <div
         className="bg-white w-full max-w-lg md:max-w-2xl lg:max-w-3xl rounded-2xl shadow-xl relative p-8 sm:p-6 max-h-[80vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"

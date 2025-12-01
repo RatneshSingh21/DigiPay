@@ -2,9 +2,15 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { FiEdit, FiTrash2, FiPlus, FiRefreshCw, FiX } from "react-icons/fi";
 import AddOTRateSlabMaster from "./AddOTRateSlabMaster";
-import useAuthStore from "../../../../store/authStore";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import assets from "../../../../assets/assets";
+
+const CardItem = ({ label, value }) => (
+  <div>
+    <p className="text-gray-500 text-[10px]">{label}</p>
+    <p className="font-medium text-gray-800">{value}</p>
+  </div>
+);
 
 const OTSlabMaster = () => {
   const [slabs, setSlabs] = useState([]);
@@ -14,21 +20,38 @@ const OTSlabMaster = () => {
   const [isEdit, setIsEdit] = useState("Create");
   const [selectedSlab, setSelectedSlab] = useState(null);
 
-
   const openModal = () => setShowAddModal(true);
   const closeModal = () => {
     setShowAddModal(false);
     setSelectedSlab(null);
   };
 
+  const fetchComplianceName = async (id) => {
+    try {
+      const res = await axiosInstance.get(`/Compliance/get-by-id/${id}`);
+      return res.data?.complianceName || "N/A";
+    } catch (error) {
+      return "N/A";
+    }
+  };
+
   const fetchSlabs = async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/OTRateSlabMaster/all");
-      setSlabs(res.data.data || []);
+      const slabData = res.data.data || [];
+
+      // Fetch Compliance Names
+      const slabsWithCompliance = await Promise.all(
+        slabData.map(async (slab) => {
+          const complianceName = await fetchComplianceName(slab.complianceId);
+          return { ...slab, complianceName };
+        })
+      );
+
+      setSlabs(slabsWithCompliance);
     } catch (err) {
       console.log(err);
-      // toast.error("Failed to fetch OT Rate Slabs!");
     } finally {
       setLoading(false);
     }
@@ -108,90 +131,139 @@ const OTSlabMaster = () => {
           </button>
         </div>
       ) : (
-        <div className="border mx-4 max-w-xl md:max-w-5xl 2xl:max-w-full overflow-auto border-gray-200 rounded-lg max-h-[60vh]">
-          <table className="text-xs text-gray-700 text-center">
-            <thead className="bg-gray-100 border-b">
-              <tr>
-                {[
-                  "Slab ID",
-                  "Compliance ID",
-                  "From Hours",
-                  "To Hours",
-                  "Rate/Hour",
-                  "Rate Type",
-                  "Multiplier",
-                  "Grace Minutes",
-                  "Effective From",
-                  "Effective To",
-                  "Enabled",
-                  "Notes",
-                  "Actions",
-                ].map((head) => (
-                  <th
-                    key={head}
-                    className={`px-3 py-2 text-center font-semibold whitespace-nowrap ${
-                      head === "Notes" ? "min-w-[250px]" : ""
-                    }`}
-                  >
-                    {head}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {slabs.map((slab) => (
-                <tr
-                  key={slab.otRateSlabId}
-                  className="hover:bg-gray-50 border-b transition"
-                >
-                  <td className="px-3 py-2">{slab.otRateSlabId}</td>
-                  <td className="px-3 py-2">{slab.complianceId}</td>
-                  <td className="px-3 py-2">{slab.fromHours}</td>
-                  <td className="px-3 py-2">{slab.toHours}</td>
-                  <td className="px-3 py-2">{slab.ratePerHour}</td>
-                  <td className="px-3 py-2">{slab.rateType}</td>
-                  <td className="px-3 py-2">{slab.multiplierValue}</td>
-                  <td className="px-3 py-2">{slab.graceMinutesBeforeOT}</td>
-                  <td className="px-3 py-2">
-                    {slab.effectiveFrom?.split("T")[0] || "-"}
-                  </td>
-                  <td className="px-3 py-2">
-                    {slab.effectiveTo?.split("T")[0] || "-"}
-                  </td>
-                  <td className="px-3 py-2">
-                    {slab.isEnabled ? (
-                      <span className="text-green-600 font-medium">Yes</span>
-                    ) : (
-                      <span className="text-red-500 font-medium">No</span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2 min-w-[250px] break-words">
-                    {slab.notes || "-"}
-                  </td>
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          setIsEdit(true);
-                          setSelectedSlab(slab);
-                          openModal();
-                        }}
-                        className="flex items-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded-md transition"
-                      >
-                        <FiEdit size={12} /> Edit
-                      </button>
-                      <button
-                        onClick={() => setConfirmDeleteId(slab.otRateSlabId)}
-                        className="flex items-center gap-1 bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded-md transition"
-                      >
-                        <FiTrash2 size={12} /> Delete
-                      </button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 pb-10">
+          {slabs.map((slab) => {
+            const status = (() => {
+              const today = new Date();
+              const from = new Date(slab.effectiveFrom);
+              const to = new Date(slab.effectiveTo);
+
+              if (!slab.isEnabled) return "Disabled";
+              if (today < from) return "Scheduled";
+              if (today > to) return "Expired";
+              return "Active";
+            })();
+
+            const statusClass =
+              status === "Active"
+                ? "bg-green-100 text-green-700 border-green-300"
+                : status === "Scheduled"
+                ? "bg-blue-100 text-blue-700 border-blue-300"
+                : status === "Expired"
+                ? "bg-red-100 text-red-700 border-red-300"
+                : "bg-gray-200 text-gray-700 border-gray-300";
+
+            return (
+              <div
+                key={slab.otRateSlabId}
+                className="bg-white shadow-sm rounded-xl p-4 border border-gray-200 hover:shadow-md transition"
+              >
+                {/* Title + Actions */}
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-800">
+                      {slab.complianceName}
+                    </h3>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
+                      Slab #{slab.otRateSlabId}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Status Badge */}
+                    <span
+                      className={`text-[10px] px-2 py-1 rounded-full border ${statusClass}`}
+                    >
+                      {status}
+                    </span>
+
+                    {/* Edit Btn */}
+                    <button
+                      onClick={() => {
+                        setIsEdit(true);
+                        setSelectedSlab(slab);
+                        openModal();
+                      }}
+                      className="p-1.5 bg-blue-50 cursor-pointer text-blue-600 rounded-md hover:bg-blue-100"
+                    >
+                      <FiEdit size={14} />
+                    </button>
+
+                    {/* Delete Btn */}
+                    <button
+                      onClick={() => setConfirmDeleteId(slab.otRateSlabId)}
+                      className="p-1.5 bg-red-50 cursor-pointer text-red-600 rounded-md hover:bg-red-100"
+                    >
+                      <FiTrash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Info Grid */}
+                <div className="grid grid-cols-2 gap-3 mt-4 text-xs text-gray-800">
+                  <CardItem
+                    label="Compliance"
+                    value={`${slab.complianceName} (ID ${slab.complianceId})`}
+                  />
+                  <CardItem
+                    label="Enabled"
+                    value={
+                      slab.isEnabled ? (
+                        <span className="text-green-600 font-semibold">
+                          Yes
+                        </span>
+                      ) : (
+                        <span className="text-red-600 font-semibold">No</span>
+                      )
+                    }
+                  />
+
+                  <CardItem label="From Hours" value={slab.fromHours} />
+                  <CardItem label="To Hours" value={slab.toHours} />
+                  <CardItem label="Rate / Hr" value={slab.ratePerHour} />
+                  <CardItem label="Rate Type" value={slab.rateType} />
+                  <CardItem label="Multiplier" value={slab.multiplierValue} />
+                  <CardItem
+                    label="Grace Minutes"
+                    value={slab.graceMinutesBeforeOT}
+                  />
+
+                  <CardItem
+                    label="Overflow Handling"
+                    value={slab.overflowHandlingType || "—"}
+                  />
+                  <CardItem
+                    label="Overflow Policy ID"
+                    value={slab.overflowPolicyId || "—"}
+                  />
+                  <div className="col-span-2">
+                    <div className="text-[10px] font-semibold text-gray-500">
+                      Calculation Formula
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <div className="text-[11px] bg-gray-50 border border-gray-200 rounded-md p-2 mt-1 font-mono text-gray-800">
+                      {slab.calculationFormula || "—"}
+                    </div>
+                  </div>
+                  <CardItem
+                    label="Effective From"
+                    value={slab.effectiveFrom?.split("T")[0]}
+                  />
+                  <CardItem
+                    label="Effective To"
+                    value={slab.effectiveTo?.split("T")[0]}
+                  />
+                </div>
+
+                {/* Notes */}
+                {slab.notes && (
+                  <div className="mt-3 border-t pt-2 text-[11px] text-gray-600">
+                    <span className="font-semibold">Notes: </span>
+                    {slab.notes}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 

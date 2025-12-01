@@ -88,15 +88,23 @@ const EmployeeSidebar = ({ collapsed, setCollapsed }) => {
   useEffect(() => {
     const fetchRoleMapping = async () => {
       try {
+        setHasApprovalAccess(false);
+
         const res = await axiosInstance.get("/EmployeeRoleMapping");
         const mappings = res.data;
 
-        // Check if logged-in employeeId exists in mapping list
-        const found = mappings.some(
+        // roles belonging to logged-in employee
+        const userRoles = mappings.filter(
           (m) => m.employeeId === Number(user?.userId)
         );
 
-        setHasApprovalAccess(found);
+        // EXCLUDE only user + employee
+        const hasValidRole = userRoles.some((role) => {
+          const name = role.roleName?.toLowerCase();
+          return name !== "user" && name !== "employee";
+        });
+
+        setHasApprovalAccess(hasValidRole);
       } catch (error) {
         console.error("Error fetching employee role mapping:", error);
       }

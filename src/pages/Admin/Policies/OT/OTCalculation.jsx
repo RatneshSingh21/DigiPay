@@ -3,12 +3,23 @@ import { FiPlus } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import OTCalculationForm from "./OTCalculationForm";
+import Select from "react-select";
 
 const OTCalculation = () => {
   const [showModal, setShowModal] = useState(false);
   const [otList, setOtList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [employeeMap, setEmployeeMap] = useState({}); // {id: fullName}
+  const [viewMode, setViewMode] = useState("employee"); // "date" or "employee"
+  const [openGroups, setOpenGroups] = useState({});
+
+  // Toogle Group
+  const toggleGroup = (key) => {
+    setOpenGroups((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   // Fetch OT List
   const fetchOTList = async () => {
@@ -45,17 +56,76 @@ const OTCalculation = () => {
     fetchOTList();
   }, []);
 
+  // 👉 Group by Date
+  const groupByDate = otList.reduce((acc, item) => {
+    const date = item.attendanceDate.split("T")[0];
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(item);
+    return acc;
+  }, {});
+
+  // 👉 Group by Employee
+  const groupByEmployee = otList.reduce((acc, item) => {
+    const emp = employeeMap[item.employeeId] || "Unknown Employee";
+    if (!acc[emp]) acc[emp] = [];
+    acc[emp].push(item);
+    return acc;
+  }, {});
+
   return (
     <div>
       {/* Header */}
       <div className="sticky top-14 bg-white shadow-sm px-4 py-2 mb-2 flex justify-between items-center z-10">
         <h2 className="text-xl font-semibold text-gray-800">OT Calculation</h2>
-        <button
-          className="flex items-center gap-2 text-sm cursor-pointer bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-md"
-          onClick={() => setShowModal(true)}
-        >
-          <FiPlus size={14} /> Add OT Entry
-        </button>
+        {/* Switch View with react-select */}
+        <div className="flex gap-5">
+          <div className="w-50">
+            <Select
+              options={[
+                { value: "employee", label: "Group by Employee" },
+                { value: "date", label: "Group by Date" },
+              ]}
+              value={
+                viewMode === "date"
+                  ? { value: "date", label: "Group by Date" }
+                  : { value: "employee", label: "Group by Employee" }
+              }
+              onChange={(option) => setViewMode(option.value)}
+              isSearchable={false}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  minHeight: "30px",
+                  height: "30px",
+                  fontSize: "12px",
+                }),
+                dropdownIndicator: (base) => ({
+                  ...base,
+                  padding: 2,
+                }),
+                clearIndicator: (base) => ({
+                  ...base,
+                  padding: 2,
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  padding: "0 6px",
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  fontSize: "12px",
+                }),
+              }}
+            />
+          </div>
+
+          <button
+            className="flex items-center gap-2 text-sm cursor-pointer bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-md"
+            onClick={() => setShowModal(true)}
+          >
+            <FiPlus size={14} /> Add OT Entry
+          </button>
+        </div>
       </div>
 
       {/* OT List */}
@@ -85,34 +155,143 @@ const OTCalculation = () => {
                   <th className="p-3">Processed to Salary</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 text-gray-700 text-center">
-                {otList.map((ot) => (
-                  <tr
-                    key={ot.otCalculationId}
-                    className="hover:bg-gray-50 transition-colors duration-150"
-                  >
-                    <td className="p-3">
-                      {employeeMap[ot.employeeId] || "Loading..."}
-                    </td>
-                    <td className="p-3">
-                      {new Date(ot.attendanceDate).toLocaleDateString("en-Gb")}
-                    </td>
-                    <td className="p-3">{ot.attendanceRecordId}</td>
-                    {/* <td className="p-3">{ot.shiftId}</td>
-                    <td className="p-3">{ot.policyId}</td> */}
-                    <td className="p-3">{ot.otMinutes}</td>
-                    <td className="p-3">{(ot.otMinutes / 60).toFixed(2)}</td>
-                    <td className="p-3">{ot.otRatePerHour}</td>
-                    <td className="p-3">{ot.otMultiplier}</td>
-                    <td className="p-3">{ot.otAmount}</td>
-                    <td className="p-3">{ot.isHolidayOT ? "Yes" : "No"}</td>
-                    <td className="p-3">{ot.isWeekendOT ? "Yes" : "No"}</td>
-                    <td className="p-3">{ot.isApproved ? "Yes" : "No"}</td>
-                    <td className="p-3">
-                      {ot.isProcessedToSalary ? "Yes" : "No"}
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="text-gray-700 text-center">
+                {/* ---------------- GROUP BY DATE ---------------- */}
+                {viewMode === "date" &&
+                  Object.keys(groupByDate)
+                    .sort()
+                    .map((date) => {
+                      const isOpen = openGroups[date];
+                      return (
+                        <React.Fragment key={date}>
+                          {/* Date Header */}
+                          <tr
+                            className="bg-gray-200 font-semibold cursor-pointer"
+                            onClick={() => toggleGroup(date)}
+                          >
+                            <td
+                              colSpan={12}
+                              className="p-2 text-left flex justify-between"
+                            >
+                              <span>
+                                {new Date(date).toLocaleDateString("en-GB")}
+                              </span>
+                              <span
+                                className={`transition-transform ${
+                                  isOpen ? "rotate-90" : ""
+                                }`}
+                              >
+                                ►
+                              </span>
+                            </td>
+                          </tr>
+
+                          {/* Rows under each group */}
+                          {isOpen &&
+                            groupByDate[date].map((ot) => (
+                              <tr
+                                key={ot.otCalculationId}
+                                className="hover:bg-gray-50"
+                              >
+                                <td className="p-3">
+                                  {employeeMap[ot.employeeId]}
+                                </td>
+                                <td className="p-3">
+                                  {new Date(
+                                    ot.attendanceDate
+                                  ).toLocaleDateString("en-GB")}
+                                </td>
+                                <td className="p-3">{ot.attendanceRecordId}</td>
+                                <td className="p-3">{ot.otMinutes}</td>
+                                <td className="p-3">
+                                  {(ot.otMinutes / 60).toFixed(2)}
+                                </td>
+                                <td className="p-3">{ot.otRatePerHour}</td>
+                                <td className="p-3">{ot.otMultiplier}</td>
+                                <td className="p-3">{ot.otAmount}</td>
+                                <td className="p-3">
+                                  {ot.isHolidayOT ? "Yes" : "No"}
+                                </td>
+                                <td className="p-3">
+                                  {ot.isWeekendOT ? "Yes" : "No"}
+                                </td>
+                                <td className="p-3">
+                                  {ot.isApproved ? "Yes" : "No"}
+                                </td>
+                                <td className="p-3">
+                                  {ot.isProcessedToSalary ? "Yes" : "No"}
+                                </td>
+                              </tr>
+                            ))}
+                        </React.Fragment>
+                      );
+                    })}
+
+                {/* ---------------- GROUP BY EMPLOYEE ---------------- */}
+                {viewMode === "employee" &&
+                  Object.keys(groupByEmployee).map((emp) => {
+                    const isOpen = openGroups[emp];
+
+                    return (
+                      <React.Fragment key={emp}>
+                        {/* Employee Header */}
+                        <tr
+                          className="bg-gray-200 font-semibold cursor-pointer"
+                          onClick={() => toggleGroup(emp)}
+                        >
+                          <td
+                            colSpan={12}
+                            className="p-2 text-left flex justify-between"
+                          >
+                            <span>{emp}</span>
+                            <span
+                              className={`transition-transform ${
+                                isOpen ? "rotate-90" : ""
+                              }`}
+                            >
+                              ►
+                            </span>
+                          </td>
+                        </tr>
+
+                        {/* Rows under employee */}
+                        {isOpen &&
+                          groupByEmployee[emp].map((ot) => (
+                            <tr
+                              key={ot.otCalculationId}
+                              className="hover:bg-gray-50"
+                            >
+                              <td className="p-3">{emp}</td>
+                              <td className="p-3">
+                                {new Date(ot.attendanceDate).toLocaleDateString(
+                                  "en-GB"
+                                )}
+                              </td>
+                              <td className="p-3">{ot.attendanceRecordId}</td>
+                              <td className="p-3">{ot.otMinutes}</td>
+                              <td className="p-3">
+                                {(ot.otMinutes / 60).toFixed(2)}
+                              </td>
+                              <td className="p-3">{ot.otRatePerHour}</td>
+                              <td className="p-3">{ot.otMultiplier}</td>
+                              <td className="p-3">{ot.otAmount}</td>
+                              <td className="p-3">
+                                {ot.isHolidayOT ? "Yes" : "No"}
+                              </td>
+                              <td className="p-3">
+                                {ot.isWeekendOT ? "Yes" : "No"}
+                              </td>
+                              <td className="p-3">
+                                {ot.isApproved ? "Yes" : "No"}
+                              </td>
+                              <td className="p-3">
+                                {ot.isProcessedToSalary ? "Yes" : "No"}
+                              </td>
+                            </tr>
+                          ))}
+                      </React.Fragment>
+                    );
+                  })}
               </tbody>
             </table>
           </div>
