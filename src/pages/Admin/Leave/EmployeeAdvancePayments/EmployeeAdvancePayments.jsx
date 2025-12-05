@@ -88,7 +88,7 @@ const EmployeeAdvancePayments = () => {
         }
       } catch (err) {
         console.error(err);
-        toast.error("Failed to load approvers");
+        // toast.error("Failed to load approvers");
       } finally {
         setLoadingApprovers(false);
       }

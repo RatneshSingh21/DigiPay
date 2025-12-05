@@ -51,9 +51,14 @@ const PerDayAttendanceCalendar = ({ perDayDetails = [] }) => {
 
   return (
     <div className="max-h-[70vh] overflow-y-auto p-2">
-      <h4 className="font-semibold text-gray-700 mb-4 text-center text-lg">
-        Daily Attendance (Monthly Calendar)
-      </h4>
+      {/* Show Month Name */}
+    <h3 className="text-center text-md font-bold mb-2">
+      {firstDate.toLocaleString("default", { month: "long", year: "numeric" })}
+    </h3>
+
+    <h4 className="font-semibold text-gray-700 mb-4 text-center text-md">
+      Daily Attendance (Monthly Calendar)
+    </h4>
 
       {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-1 text-center font-medium text-gray-600 mb-2">
@@ -63,7 +68,7 @@ const PerDayAttendanceCalendar = ({ perDayDetails = [] }) => {
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-1 text-xs">
         {calendar.map((day, idx) => {
           if (!day) return <div key={idx} className="p-3"></div>;
 

@@ -408,7 +408,7 @@ export default function AddOTRateSlabMaster({
                 { value: "none", label: "None" },
                 { value: "bonus", label: "Bonus" },
                 { value: "specialAllowance", label: "Special Allowance" },
-                { value: "carryForward", label: "Carry Forward" },
+                // { value: "carryForward", label: "Carry Forward" },
               ]}
               value={
                 form.overflowHandlingType

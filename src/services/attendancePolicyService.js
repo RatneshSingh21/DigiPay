@@ -155,25 +155,71 @@ const mapWeekendPolicyMappingOptions = (data) => {
 };
 
 // ---------- Fetch All Attendance Policy Options ----------
+// export const fetchAllAttendancePolicyOptions = async () => {
+//   try {
+//     const [
+//       shifts,
+//       workTypes,
+//       departments,
+//       locations,
+//       latePolicies,
+//       otPolicies,
+//       otRateSlabs,
+//       bonusPolicies,
+//       specialAllowances,
+//       holidayLists,
+//       leaveTypes,
+//       compliances,
+//       complianceRules,
+//       weekendPolicies,
+//       weekendMappings,
+//     ] = await Promise.all([
+//       getAllShifts(),
+//       getAllWorkTypes(),
+//       getAllDepartments(),
+//       getAllWorkLocations(),
+//       getAllLatePolicies(),
+//       getAllOTPolicies(),
+//       getAllOTRateSlabs(),
+//       getAllBonusPolicies(),
+//       getAllSpecialAllowancePolicies(), // returns []
+//       getAllHolidayLists(),
+//       getAllLeaveTypes(),
+//       getAllCompliances(),
+//       getAllComplianceRules(),
+//       getAllWeekendPolicies(),
+//       getAllWeekendPolicyMappings(),
+//     ]);
+
+//     return {
+//       shiftIds: mapShiftOptions(shifts.data),
+//       workTypeIds: mapWorkTypeOptions(workTypes.data),
+//       departmentIds: mapDepartmentOptions(departments.data),
+//       locationIds: mapWorkLocationOptions(locations.data),
+//       latePolicyIds: mapLatePolicyOptions(latePolicies),
+//       otPolicyIds: mapOTRateSlabOptions(otPolicies.data.data),
+//       otRateSlabIds: mapOTAssignmentRuleOptions(otRateSlabs.data),
+//       bonusPolicyIds: mapBonusPolicyOptions(bonusPolicies.data.data),
+//       specialAllowancePolicyIds: [], // No API yet
+//       holidayListIds: mapHolidayListOptions(holidayLists.data),
+//       leaveTypeIds: mapLeaveTypeOptions(leaveTypes.data),
+//       complianceIds: mapComplianceOptions(compliances.data),
+//       complianceRuleIds: mapComplianceRuleOptions(complianceRules.data),
+//       weekendPolicyIds: mapWeekendPolicyOptions(weekendPolicies.data),
+//       weekendPolicyMappingIds: mapWeekendPolicyMappingOptions(
+//         weekendMappings.data
+//       ),
+//     };
+//   } catch (error) {
+//     console.error("Error fetching attendance policy options:", error);
+//     throw error;
+//   }
+// };
+
+
 export const fetchAllAttendancePolicyOptions = async () => {
   try {
-    const [
-      shifts,
-      workTypes,
-      departments,
-      locations,
-      latePolicies,
-      otPolicies,
-      otRateSlabs,
-      bonusPolicies,
-      specialAllowances,
-      holidayLists,
-      leaveTypes,
-      compliances,
-      complianceRules,
-      weekendPolicies,
-      weekendMappings,
-    ] = await Promise.all([
+    const results = await Promise.allSettled([
       getAllShifts(),
       getAllWorkTypes(),
       getAllDepartments(),
@@ -182,7 +228,7 @@ export const fetchAllAttendancePolicyOptions = async () => {
       getAllOTPolicies(),
       getAllOTRateSlabs(),
       getAllBonusPolicies(),
-      getAllSpecialAllowancePolicies(), // returns []
+      getAllSpecialAllowancePolicies(),
       getAllHolidayLists(),
       getAllLeaveTypes(),
       getAllCompliances(),
@@ -191,27 +237,31 @@ export const fetchAllAttendancePolicyOptions = async () => {
       getAllWeekendPolicyMappings(),
     ]);
 
+    const safe = (res) =>
+      res.status === "fulfilled" ? res.value?.data ?? [] : [];
+
     return {
-      shiftIds: mapShiftOptions(shifts.data),
-      workTypeIds: mapWorkTypeOptions(workTypes.data),
-      departmentIds: mapDepartmentOptions(departments.data),
-      locationIds: mapWorkLocationOptions(locations.data),
-      latePolicyIds: mapLatePolicyOptions(latePolicies),
-      otPolicyIds: mapOTRateSlabOptions(otPolicies.data.data),
-      otRateSlabIds: mapOTAssignmentRuleOptions(otRateSlabs.data),
-      bonusPolicyIds: mapBonusPolicyOptions(bonusPolicies.data.data),
-      specialAllowancePolicyIds: [], // No API yet
-      holidayListIds: mapHolidayListOptions(holidayLists.data),
-      leaveTypeIds: mapLeaveTypeOptions(leaveTypes.data),
-      complianceIds: mapComplianceOptions(compliances.data),
-      complianceRuleIds: mapComplianceRuleOptions(complianceRules.data),
-      weekendPolicyIds: mapWeekendPolicyOptions(weekendPolicies.data),
+      shiftIds: mapShiftOptions(safe(results[0])),
+      workTypeIds: mapWorkTypeOptions(safe(results[1])),
+      departmentIds: mapDepartmentOptions(safe(results[2])),
+      locationIds: mapWorkLocationOptions(safe(results[3])),
+      latePolicyIds: mapLatePolicyOptions(results[4].value || {}),
+      otPolicyIds: mapOTRateSlabOptions(safe(results[5])?.data || []),
+      otRateSlabIds: mapOTAssignmentRuleOptions(safe(results[6])),
+      bonusPolicyIds: mapBonusPolicyOptions(safe(results[7])?.data || []),
+      specialAllowancePolicyIds: [],
+      holidayListIds: mapHolidayListOptions(safe(results[9])),
+      leaveTypeIds: mapLeaveTypeOptions(safe(results[10])),
+      complianceIds: mapComplianceOptions(safe(results[11])),
+      complianceRuleIds: mapComplianceRuleOptions(safe(results[12])),
+      weekendPolicyIds: mapWeekendPolicyOptions(safe(results[13])),
       weekendPolicyMappingIds: mapWeekendPolicyMappingOptions(
-        weekendMappings.data
+        safe(results[14])
       ),
     };
   } catch (error) {
     console.error("Error fetching attendance policy options:", error);
-    throw error;
+    return {}; // Prevent UI break
   }
 };
+

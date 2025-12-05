@@ -59,7 +59,7 @@ const AttendanceRecord = () => {
       list.forEach((r) => fetchEmployeeById(r.employeeId));
     } catch (err) {
       console.log(err);
-      toast.error("Failed loading records");
+      // toast.error("Failed loading records");
     } finally {
       setLoading(false);
     }

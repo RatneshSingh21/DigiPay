@@ -64,25 +64,44 @@ export default function PaymentAdjustmentForm({
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
-        const [complianceRes, otRes] = await Promise.all([
+        const [complianceRes, otRes] = await Promise.allSettled([
           axiosInstance.get("/Compliance/get-all"),
           axiosInstance.get("/OTRateSlabMaster/all"),
         ]);
 
-        const complianceFormatted = complianceRes.data.map((item) => ({
-          value: item.complianceId,
-          label: item.complianceName,
-        }));
-        const otFormatted = otRes.data.data.map((item) => ({
-          value: item.otRateSlabId,
-          label: `${item.rateType} - ₹${item.ratePerHour}/hr`,
-        }));
+        // ---------- COMPLIANCE ----------
+        if (
+          complianceRes.status === "fulfilled" &&
+          Array.isArray(complianceRes.value.data)
+        ) {
+          setComplianceOptions(
+            complianceRes.value.data.map((item) => ({
+              value: item.complianceId,
+              label: item.complianceName,
+            }))
+          );
+        } else {
+          setComplianceOptions([]); // fallback empty list
+        }
 
-        setComplianceOptions(complianceFormatted);
-        setOtOptions(otFormatted);
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to load dropdown data");
+        // ---------- OT RATE SLAB ----------
+        if (
+          otRes.status === "fulfilled" &&
+          otRes.value.data?.data &&
+          Array.isArray(otRes.value.data.data)
+        ) {
+          setOtOptions(
+            otRes.value.data.data.map((item) => ({
+              value: item.otRateSlabId,
+              label: `${item.rateType} - ₹${item.ratePerHour}/hr`,
+            }))
+          );
+        } else {
+          setOtOptions([]); // fallback empty list
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load dropdowns.");
       }
     };
 
@@ -205,7 +224,12 @@ export default function PaymentAdjustmentForm({
             onChange={(selected) =>
               handleSelectChange(selected, "complianceId")
             }
-            placeholder="Select Compliance"
+            placeholder={
+              complianceOptions.length === 0
+                ? "No compliance available"
+                : "Select Compliance"
+            }
+            noOptionsMessage={() => "No compliance found"}
             isClearable
           />
         </div>
@@ -219,7 +243,12 @@ export default function PaymentAdjustmentForm({
             onChange={(selected) =>
               handleSelectChange(selected, "otRateSlabId")
             }
-            placeholder="Select OT Rate Slab"
+            placeholder={
+              otOptions.length === 0
+                ? "No OT Rate Slabs Available"
+                : "Select OT Rate Slab"
+            }
+            noOptionsMessage={() => "No OT Rate Slabs found"}
             isClearable
           />
         </div>

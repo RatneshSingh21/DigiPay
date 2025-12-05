@@ -29,7 +29,7 @@ const AttendanceTable = ({ records, employeeCache }) => {
         <table className="w-full text-xs text-gray-700">
           <thead className="bg-gray-200 sticky top-0 shadow text-gray-700">
             <tr>
-              <th className="py-2 px-4">ID</th>
+              <th className="py-2 px-4">S.No</th>
               <th className="py-2 px-4">Employee</th>
               <th className="py-2 px-4 whitespace-nowrap">Date</th>
               <th className="py-2 px-4">In</th>

@@ -172,6 +172,7 @@ const Attendance = () => {
                     <table className="min-w-full text-sm text-center divide-y divide-gray-200">
                       <thead className="bg-gray-100 text-gray-600">
                         <tr>
+                          <th className="py-2 px-3">S.No</th>
                           <th className="py-2 px-3">Employee</th>
                           <th className="py-2 px-3">In Time</th>
                           <th className="py-2 px-3">Out Time</th>
@@ -182,6 +183,9 @@ const Attendance = () => {
                       <tbody>
                         {groupedByDate[date].map((item, index) => (
                           <tr key={index} className="hover:bg-gray-50">
+                            <td className="py-2 px-3">
+                              {index + 1}
+                            </td>
                             <td className="py-2 px-3">
                               {highlightText(getEmployeeName(item.employeeId))}
                             </td>

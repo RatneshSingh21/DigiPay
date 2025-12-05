@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { FiChevronDown } from "react-icons/fi";
 import PerDayAttendanceCalendar from "./PerDayAttendanceCalendar";
 import ModalOverlay from "../../../../components/ModalOverlay";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
+
 
 const AttendanceResultTable = ({ results, highlightText, getEmployeeName }) => {
   const [selectedDetails, setSelectedDetails] = useState(null);
+console.log(results);
 
   if (results.length === 0)
     return <p className="text-center text-gray-500">No data available.</p>;

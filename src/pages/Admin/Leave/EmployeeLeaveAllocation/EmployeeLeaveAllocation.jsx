@@ -93,7 +93,7 @@ export default function EmployeeLeaveAllocation() {
       setGroupedAllocations(formatted);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch allocations");
+      // toast.error("Failed to fetch allocations");
     } finally {
       setLoading(false);
     }

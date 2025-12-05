@@ -30,16 +30,23 @@ const data = [
   },
   {
     id: 5,
+    name: "Employee Work Types",
+    importApi: "/EmployeeWorkType/import",
+    exportApi: "/EmployeeWorkType/export",
+  },
+  {
+    id: 6,
     name: "Attendance",
     importApi: "/Attendance/import",
     exportApi: "/Attendance/export",
   },
   {
-    id: 6,
+    id: 7,
     name: "PF & ESI Mapping",
     importApi: "/Employee/import-compliance",
     exportApi: "/Employee/export-compliance-template",
   },
+  
 ];
 
 export default function GeneralImports() {
