@@ -307,10 +307,13 @@ const OTSlabMaster = () => {
               <FiX size={16} />
             </button>
             <AddOTRateSlabMaster
-              onClose={closeModal}
-              isEdit={isEdit}
+              isEdit={!!selectedSlab}
               initialData={selectedSlab}
-              onSuccess={fetchSlabs}
+              onClose={closeModal}
+              onSuccess={() => {
+                fetchSlabs();
+                closeModal();
+              }}
             />
           </div>
         </div>
