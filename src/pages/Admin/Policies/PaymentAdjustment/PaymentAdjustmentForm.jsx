@@ -12,22 +12,21 @@ export default function PaymentAdjustmentForm({
 }) {
   const initialFormData = {
     paymentType: "",
-    complianceId: 0,
-    otRateSlabId: 0,
-    salaryId: null,
-    maxAllowedAmount: 0,
+    complianceId: "",
+    otRateSlabId: "",
+    maxAllowedAmount: "",
     isActive: true,
     isUserSelectable: true,
     description: "",
     calculationFormula: "",
     additionalMetadataJson: "",
-    executionOrder: 0,
+    executionOrder: "",
     paymentCalculationType: "",
     isTaxable: true,
     isRecurring: true,
     effectiveFrom: "",
     effectiveTo: "",
-    linkedPaymentAdjustmentId: 0,
+    linkedPaymentAdjustmentId: "",
   };
 
   const [loading, setLoading] = useState(false);
@@ -124,7 +123,6 @@ export default function PaymentAdjustmentForm({
           ? checked
           : name === "maxAllowedAmount" ||
             name === "executionOrder" ||
-            name === "salaryId" ||
             name === "linkedPaymentAdjustmentId"
           ? Number(value)
           : value,
@@ -198,7 +196,6 @@ export default function PaymentAdjustmentForm({
             value={formData.maxAllowedAmount}
             onChange={handleChange}
             className={inputClass}
-            min="0"
           />
         </div>
 
@@ -253,17 +250,6 @@ export default function PaymentAdjustmentForm({
           />
         </div>
 
-        {/* <div>
-          <label className="block text-gray-700">Salary ID</label>
-          <input
-            type="number"
-            name="salaryId"
-            value={formData.salaryId}
-            onChange={handleChange}
-            className={inputClass}
-            min="0"
-          />
-        </div> */}
 
         <div>
           <label className="block text-gray-700">Execution Order</label>
@@ -273,7 +259,6 @@ export default function PaymentAdjustmentForm({
             value={formData.executionOrder}
             onChange={handleChange}
             className={inputClass}
-            min="0"
           />
         </div>
 
@@ -346,7 +331,6 @@ export default function PaymentAdjustmentForm({
             value={formData.linkedPaymentAdjustmentId}
             onChange={handleChange}
             className={inputClass}
-            min="0"
           />
         </div>
         <div></div>

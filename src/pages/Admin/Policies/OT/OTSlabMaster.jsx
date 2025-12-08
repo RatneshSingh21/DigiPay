@@ -246,11 +246,21 @@ const OTSlabMaster = () => {
                   </div>
                   <CardItem
                     label="Effective From"
-                    value={slab.effectiveFrom?.split("T")[0]}
+                    value={
+                      slab.effectiveFrom
+                        ? new Date(slab.effectiveFrom).toLocaleDateString(
+                            "en-GB"
+                          )
+                        : "—"
+                    }
                   />
                   <CardItem
                     label="Effective To"
-                    value={slab.effectiveTo?.split("T")[0]}
+                    value={
+                      slab.effectiveTo
+                        ? new Date(slab.effectiveTo).toLocaleDateString("en-GB")
+                        : "—"
+                    }
                   />
                 </div>
 

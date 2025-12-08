@@ -36,6 +36,7 @@ const submenuMap = {
     "ESI Rules",
     "ESI Transactions",
     "Late Policy",
+    "Leave Policy",
     "Weekend Policy",
     "Attendance Policy",
     // "Policy Details",
@@ -54,6 +55,7 @@ const submenuMap = {
   Attendance: [
     "Attendance",
     "Add Attendance",
+    "Manual Attendance",
     "Punch",
     "Attendance Policy",
     "Attendance Record",

@@ -36,7 +36,7 @@ import EmployeeList from "./pages/Admin/Employees/EmployeeList";
 import AddEmployee from "./pages/Admin/Employees/AddEmployee";
 import EmpBasicSalary from "./pages/Admin/Employees/EmpBasicSalary";
 import EmpSalaryDetails from "./pages/Admin/Employees/EmpSalaryDetails";
-import SalaryCalculate from "./pages/Admin/Employees/SalaryCalculate";
+import SalaryCalculate from "./pages/Admin/Employees/SalaryCalculate/SalaryCalculate";
 import EmpCategory from "./pages/Admin/Employees/EmpCategory";
 import EmpEmploymentType from "./pages/Admin/Employees/EmpEmploymentType";
 import EmpWorkType from "./pages/Admin/Employees/EmpWorkType";
@@ -68,6 +68,7 @@ import ShiftMapping from "./pages/Admin/Shift/ShiftMapping";
 //Admin Attendance Pages
 import Attendance from "./pages/Admin/Settings/Attendance";
 import AttendanceForm from "./pages/Admin/Attendance/AttendanceForm";
+import ManualAttendance from "./pages/Admin/Attendance/ManualAttendance/ManualAttendance";
 import AttendancePunch from "./pages/Admin/Attendance/AttendancePunch";
 import AttendancePolicy from "./pages/Admin/Attendance/AttendancePolicy";
 import AttendanceRecord from "./pages/Admin/Attendance/AttendanceRecord";
@@ -106,6 +107,7 @@ import PFTransaction from "./pages/Admin/Policies/PFTransaction/PFTransaction";
 import PFContributionRule from "./pages/Admin/Policies/PFContributionRule/PFContributionRule";
 import ESIRules from "./pages/Admin/Policies/ESI/ESIRule/ESIRules";
 import ESITransactions from "./pages/Admin/Policies/ESI/ESITransaction/ESITransactions";
+import LeavePolicy from "./pages/Admin/Policies/LeavePolicy/LeavePolicy";
 import LatePolicy from "./pages/Admin/Policies/LatePolicy/LatePolicy";
 import WeekendPolicy from "./pages/Admin/Policies/WeekendPolicy/WeekendPolicy";
 
@@ -139,6 +141,8 @@ import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
+
+
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -280,6 +284,7 @@ const App = () => {
                   <Route index element={<Navigate to="attendance" />} />
                   <Route path="attendance" element={<Attendance />} />
                   <Route path="add-attendance" element={<AttendanceForm />} />
+                  <Route path="manual-attendance" element={<ManualAttendance />} />
                   <Route path="punch" element={<AttendancePunch />} />
                   <Route path="atten-policy" element={<AttendancePolicy />} />
                   <Route path="atten-record" element={<AttendanceRecord />} />
@@ -377,6 +382,7 @@ const App = () => {
                   <Route path="esi-rule" element={<ESIRules />} />
                   <Route path="esi-transaction" element={<ESITransactions />} />
                   <Route path="late-policy" element={<LatePolicy />} />
+                  <Route path="policy-leave" element={<LeavePolicy />} />
                   <Route path="weekend-policy" element={<WeekendPolicy />} />
                   <Route path="atten-policy" element={<AttendancePolicy />} />
                   <Route path="policy-details" element={<PolicyDetails />} />

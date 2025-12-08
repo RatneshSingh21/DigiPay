@@ -212,7 +212,6 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
           </div>
 
           {/* Applicable States */}
-          {/* Applicable States */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-0.5">
               Applicable States
@@ -305,7 +304,7 @@ const AddCompliance = ({ onClose, isEdit, initialData, onSuccess }) => {
               name="isEnabled"
               checked={formData.isEnabled}
               onChange={handleChange}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+              className="accent-primary"
             />
             <label className="ml-2 text-sm text-gray-700">Enabled</label>
           </div>

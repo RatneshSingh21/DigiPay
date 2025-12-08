@@ -131,10 +131,12 @@ const ComplianceRules = () => {
                     <td className="px-3 py-2">{rule.ruleType}</td>
                     <td className="px-3 py-2">{rule.description}</td>
                     <td className="px-3 py-2 text-center">
-                      {rule.effectiveFrom?.split("T")[0] || "-"}
+
+                      {rule.effectiveFrom? new Date(rule.effectiveFrom).toLocaleDateString("en-GB") : "—"}
+                     
                     </td>
                     <td className="px-3 py-2 text-center">
-                      {rule.effectiveTo?.split("T")[0] || "-"}
+                      {rule.effectiveTo? new Date(rule.effectiveTo).toLocaleDateString("en-GB") : "—"}
                     </td>
                     <td className="px-3 py-2 text-center">
                       <span

@@ -98,10 +98,10 @@ export default function PaymentAdjustment() {
                   <td className="py-2 px-3">{item.calculationFormula}</td>
                   <td className="py-2 px-3">{item.maxAllowedAmount}</td>
                   <td className="py-2 px-3">
-                    {item.effectiveFrom?.split("T")[0]}
+                    {item.effectiveFrom? new Date(item.effectiveFrom).toLocaleDateString("en-GB") : "—"}
                   </td>
                   <td className="py-2 px-3">
-                    {item.effectiveTo?.split("T")[0]}
+                    {item.effectiveTo? new Date(item.effectiveTo).toLocaleDateString("en-GB") : "—"}
                   </td>
                   <td className="py-2 px-3">{item.isTaxable ? "Yes" : "No"}</td>
                   <td className="py-2 px-3">

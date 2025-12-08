@@ -19,12 +19,8 @@ export default function AddOTRateSlabMaster({
     graceMinutesBeforeOT: "",
     effectiveFrom: "",
     effectiveTo: "",
-    specialAllowancePolicyId: "",
-    bonusPolicyId: "",
+    paymentAdjustmentId: "",
     maxOTHours: "",
-    overflowHandlingType: "",
-    overflowPolicyId: "",
-    overflowFormula: "",
     includeOverflowInPayroll: false,
     calculationFormula: "",
     additionalMetadataJson: "",
@@ -37,20 +33,37 @@ export default function AddOTRateSlabMaster({
 
   const [compliances, setCompliances] = useState([]);
   const [loadingCompliances, setLoadingCompliances] = useState(false);
+  const [paymentAdjustments, setPaymentAdjustments] = useState([]);
+  const [loadingPaymentAdjustments, setLoadingPaymentAdjustments] =
+    useState(false);
+
+  const fetchPaymentAdjustments = async () => {
+    try {
+      setLoadingPaymentAdjustments(true);
+      const res = await axiosInstance.get("/PaymentAdjustment/getAll");
+      setPaymentAdjustments(res.data?.data || []);
+    } catch (error) {
+      toast.error("Failed to load payment adjustments");
+    } finally {
+      setLoadingPaymentAdjustments(false);
+    }
+  };
+
+  const fetchCompliances = async () => {
+    try {
+      setLoadingCompliances(true);
+      const res = await axiosInstance.get("/Compliance/get-all");
+      setCompliances(res.data || []);
+    } catch (error) {
+      toast.error("Failed to load compliances");
+    } finally {
+      setLoadingCompliances(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCompliances = async () => {
-      try {
-        setLoadingCompliances(true);
-        const res = await axiosInstance.get("/Compliance/get-all");
-        setCompliances(res.data || []);
-      } catch (error) {
-        toast.error("Failed to load compliances");
-      } finally {
-        setLoadingCompliances(false);
-      }
-    };
     fetchCompliances();
+    fetchPaymentAdjustments();
   }, []);
 
   useEffect(() => {
@@ -83,14 +96,10 @@ export default function AddOTRateSlabMaster({
         graceMinutesBeforeOT: initialData.graceMinutesBeforeOT ?? "",
         effectiveFrom: toLocalDateTime(initialData.effectiveFrom),
         effectiveTo: toLocalDateTime(initialData.effectiveTo),
-        specialAllowancePolicyId: initialData.specialAllowancePolicyId ?? "",
-        bonusPolicyId: initialData.bonusPolicyId ?? "",
+        paymentAdjustmentId: initialData.paymentAdjustmentId ?? "",
 
         // ✅ Missing fields added
         maxOTHours: initialData.maxOTHours ?? "",
-        overflowHandlingType: initialData.overflowHandlingType ?? "",
-        overflowPolicyId: initialData.overflowPolicyId ?? "",
-        overflowFormula: initialData.overflowFormula ?? "",
         includeOverflowInPayroll: initialData.includeOverflowInPayroll ?? false,
 
         calculationFormula: initialData.calculationFormula ?? "",
@@ -101,25 +110,29 @@ export default function AddOTRateSlabMaster({
     }
   }, [isEdit, initialData]);
 
+
   const validate = () => {
     const e = {};
+
     if (!form.complianceId) e.complianceId = "Compliance is required.";
     if (form.fromHours === "" || isNaN(Number(form.fromHours)))
       e.fromHours = "Enter a valid number.";
     if (form.toHours === "" || isNaN(Number(form.toHours)))
       e.toHours = "Enter a valid number.";
-    if (
-      form.fromHours !== "" &&
-      form.toHours !== "" &&
-      Number(form.fromHours) > Number(form.toHours)
-    )
-      e.toHours = "toHours must be >= fromHours.";
+    if (Number(form.fromHours) > Number(form.toHours))
+      e.toHours = "To Hours must be >= From Hours.";
+
     if (form.ratePerHour === "" || isNaN(Number(form.ratePerHour)))
       e.ratePerHour = "Enter a valid number.";
+
+    if (form.paymentAdjustmentId === "" || isNaN(Number(form.paymentAdjustmentId)))
+      e.paymentAdjustmentId = "Payment Adjustment is required.";
+
     if (form.effectiveFrom && form.effectiveTo) {
       if (new Date(form.effectiveFrom) > new Date(form.effectiveTo))
         e.effectiveTo = "effectiveTo must be after effectiveFrom.";
     }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -130,7 +143,7 @@ export default function AddOTRateSlabMaster({
   };
 
   const submit = async (e) => {
-    e && e.preventDefault && e.preventDefault();
+    e.preventDefault();
     if (!validate()) return;
     setLoading(true);
     try {
@@ -142,29 +155,20 @@ export default function AddOTRateSlabMaster({
         ratePerHour: Number(form.ratePerHour),
         rateType: form.rateType,
         multiplierValue:
-          form.multiplierValue === "" ? null : Number(form.multiplierValue),
+          form.multiplierValue === "" ? 0 : Number(form.multiplierValue),
         graceMinutesBeforeOT:
           form.graceMinutesBeforeOT === ""
-            ? null
+            ? 0
             : Number(form.graceMinutesBeforeOT),
         effectiveFrom: toISO(form.effectiveFrom),
         effectiveTo: toISO(form.effectiveTo),
-        specialAllowancePolicyId:
-          form.specialAllowancePolicyId === ""
-            ? null
-            : Number(form.specialAllowancePolicyId),
-        bonusPolicyId:
-          form.bonusPolicyId === "" ? null : Number(form.bonusPolicyId),
-        maxOTHours: form.maxOTHours === "" ? null : Number(form.maxOTHours),
-        overflowHandlingType: form.overflowHandlingType || null,
-        overflowPolicyId:
-          form.overflowPolicyId === "" ? null : Number(form.overflowPolicyId),
-        overflowFormula: form.overflowFormula || null,
-        includeOverflowInPayroll: !!form.includeOverflowInPayroll,
-        calculationFormula: form.calculationFormula || null,
-        additionalMetadataJson: form.additionalMetadataJson || null,
-        isEnabled: !!form.isEnabled,
-        notes: form.notes || null,
+        paymentAdjustmentId: Number(form.paymentAdjustmentId),
+        maxOTHours: form.maxOTHours === "" ? 0 : Number(form.maxOTHours),
+        includeOverflowInPayroll: Boolean(form.includeOverflowInPayroll),
+        calculationFormula: form.calculationFormula || "",
+        additionalMetadataJson: form.additionalMetadataJson || "",
+        isEnabled: Boolean(form.isEnabled),
+        notes: form.notes || "",
       };
 
       let res;
@@ -193,6 +197,8 @@ export default function AddOTRateSlabMaster({
         err?.response?.data?.message || err.message || "Failed to save ";
 
       toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -287,7 +293,6 @@ export default function AddOTRateSlabMaster({
               value={form.ratePerHour}
               onChange={(e) => handleChange("ratePerHour", e.target.value)}
               type="number"
-              step="0.01"
               className={`w-full border rounded-lg px-3 py-2 ${
                 errors.ratePerHour
                   ? "border-red-500"
@@ -307,7 +312,6 @@ export default function AddOTRateSlabMaster({
               value={form.multiplierValue}
               onChange={(e) => handleChange("multiplierValue", e.target.value)}
               type="number"
-              step="0.01"
               className="w-full border rounded-lg px-3 py-2  border-blue-300  focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
@@ -323,6 +327,18 @@ export default function AddOTRateSlabMaster({
               }
               type="number"
               className="w-full border rounded-lg px-3 py-2  border-blue-300  focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium mb-1">
+              Max OT Hours
+            </label>
+            <input
+              value={form.maxOTHours}
+              onChange={(e) => handleChange("maxOTHours", e.target.value)}
+              type="number"
+              className="w-full border rounded-lg px-3 py-2 border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
@@ -362,102 +378,59 @@ export default function AddOTRateSlabMaster({
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1">
-              Special Allowance Policy ID
+            <label className="text-xs font-medium mb-1 block">
+              Payment Adjustment
             </label>
-            <input
-              value={form.specialAllowancePolicyId}
-              onChange={(e) =>
-                handleChange("specialAllowancePolicyId", e.target.value)
-              }
-              type="number"
-              className="w-full border rounded-lg px-3 py-2  border-blue-300  focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
 
-          <div>
-            <label className="block text-xs font-medium mb-1">
-              Bonus Policy ID
-            </label>
-            <input
-              value={form.bonusPolicyId}
-              onChange={(e) => handleChange("bonusPolicyId", e.target.value)}
-              type="number"
-              className="w-full border rounded-lg px-3 py-2  border-blue-300  focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium mb-1">
-              Max OT Hours
-            </label>
-            <input
-              value={form.maxOTHours}
-              onChange={(e) => handleChange("maxOTHours", e.target.value)}
-              type="number"
-              className="w-full border rounded-lg px-3 py-2 border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium mb-1">
-              Overflow Handling Type
-            </label>
             <Select
-              options={[
-                { value: "none", label: "None" },
-                { value: "bonus", label: "Bonus" },
-                { value: "specialAllowance", label: "Special Allowance" },
-                // { value: "carryForward", label: "Carry Forward" },
-              ]}
+              options={paymentAdjustments.map((p) => ({
+                value: p.paymentAdjustmentId,
+                label: `${p.paymentType} (ID: ${p.paymentAdjustmentId})`,
+              }))}
+              isLoading={loadingPaymentAdjustments}
               value={
-                form.overflowHandlingType
-                  ? {
-                      value: form.overflowHandlingType,
-                      label: form.overflowHandlingType,
-                    }
-                  : null
+                paymentAdjustments
+                  .map((p) => ({
+                    value: p.paymentAdjustmentId,
+                    label: `${p.paymentType} (ID: ${p.paymentAdjustmentId})`,
+                  }))
+                  .find((opt) => opt.value === form.paymentAdjustmentId) || null
               }
               onChange={(selected) =>
-                handleChange("overflowHandlingType", selected?.value || "")
+                handleChange("paymentAdjustmentId", selected?.value || "")
               }
+              placeholder="Select Payment Adjustment"
             />
+
+            {errors.paymentAdjustmentId && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.paymentAdjustmentId}
+              </p>
+            )}
           </div>
 
-          <div>
-            <label className="block text-xs font-medium mb-1">
-              Overflow Policy ID
+          <div className="flex flex-col justify-center gap-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={form.includeOverflowInPayroll}
+                onChange={(e) =>
+                  handleChange("includeOverflowInPayroll", e.target.checked)
+                }
+                className="h-4 w-4 accent-primary"
+              />
+              <span className="text-xs">Include Overflow in Payroll</span>
             </label>
-            <input
-              value={form.overflowPolicyId}
-              onChange={(e) => handleChange("overflowPolicyId", e.target.value)}
-              type="number"
-              className="w-full border rounded-lg px-3 py-2 border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
 
-          <div>
-            <label className="block text-xs font-medium mb-1">
-              Overflow Formula
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={form.isEnabled}
+                onChange={(e) => handleChange("isEnabled", e.target.checked)}
+                className="h-4 w-4 accent-primary"
+              />
+              <span className="text-xs">Is Enabled</span>
             </label>
-            <input
-              value={form.overflowFormula}
-              onChange={(e) => handleChange("overflowFormula", e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Optional custom calculation formula"
-            />
-          </div>
-
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={form.includeOverflowInPayroll}
-              onChange={(e) =>
-                handleChange("includeOverflowInPayroll", e.target.checked)
-              }
-              className="h-4 w-4 accent-primary"
-            />
-            <span className="text-sm">Include Overflow in Payroll</span>
           </div>
         </div>
 
@@ -489,18 +462,8 @@ export default function AddOTRateSlabMaster({
         </div>
 
         <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={form.isEnabled}
-              onChange={(e) => handleChange("isEnabled", e.target.checked)}
-              className="h-4 w-4 accent-primary"
-            />
-            <span className="text-sm">Is Enabled</span>
-          </label>
-
           <div className="flex-1">
-            <label className="block text-xs font-medium mb-1">Notes</label>
+            <label className="block text-xs font-medium mb-1">Additional Notes</label>
             <input
               value={form.notes}
               onChange={(e) => handleChange("notes", e.target.value)}

@@ -48,6 +48,7 @@ import Footer from "./Footer.png";
 import Landscape from "./Landscape.jpg";
 import NotificationGif from "./NotificationGif.gif";
 import MagnifyGif from "./MagnifyGif.gif";
+import NoData from "./NoData.png";
 
 const assets = {
   bg: bg,
@@ -100,6 +101,7 @@ const assets = {
   Landscape: Landscape,
   MagnifyGif: MagnifyGif,
   NotificationGif: NotificationGif,
+  NoData: NoData,
 };
 
 export default assets;

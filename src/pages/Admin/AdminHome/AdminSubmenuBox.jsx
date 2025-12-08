@@ -70,6 +70,7 @@ const labelToPath = {
   //Attendance
   Attendance: "attendance",
   "Add Attendance": "add-attendance",
+  "Manual Attendance": "manual-attendance",
   Punch: "punch",
   "Attendance Policy": "atten-policy",
   "Attendance Record": "atten-record",
@@ -126,6 +127,7 @@ const labelToPath = {
   "ESI Rules": "esi-rule",
   "ESI Transactions": "esi-transaction",
   "Late Policy": "late-policy",
+  "Leave Policy": "policy-leave",
   "Weekend Policy": "weekend-policy",
   "Policy Details": "policy-details",
 
@@ -167,6 +169,7 @@ const labelToIcon = {
   // Attendance
   Attendance: <FaUserCheck className="mr-2" />,
   "Add Attendance": <TbCalendarStats className="mr-2" />,
+  "Manual Attendance": <TbCalendarStats className="mr-2" />,
   Punch: <MdPunchClock className="mr-2" />,
   "Attendance Policy": <MdPunchClock className="mr-2" />,
   "Attendance Record": <FaCalendarCheck className="mr-2" />,
@@ -229,6 +232,7 @@ const labelToIcon = {
   "ESI Rules": <GiBookCover className="mr-2" />,
   "ESI Transactions": <FaExchangeAlt className="mr-2" />,
   "Late Policy": <FaExchangeAlt className="mr-2" />,
+  "Leave Policy": <FaUmbrellaBeach className="mr-2" />,
   "Weekend Policy": <FaUmbrellaBeach className="mr-2" />,
   "Policy Details": <FaFileAlt className="mr-2" />,
 

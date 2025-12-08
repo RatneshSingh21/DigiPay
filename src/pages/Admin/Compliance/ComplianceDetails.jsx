@@ -152,12 +152,20 @@ const ComplianceDetails = () => {
                     <span className="font-semibold">Description:</span>{" "}
                     {item.description || "—"}
                   </p>
+                  <p className="font-semibold">States:</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {item.applicableStates?.split(",").map((s) => (
+                      <span
+                        key={s}
+                        className="bg-gray-100 px-2 py-1 rounded text-xs border"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+
                   <p>
-                    <span className="font-semibold">States:</span>{" "}
-                    {item.applicableStates || "—"}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Rules:</span>{" "}
+                    <span className="font-semibold">Rule Count:</span>{" "}
                     {item.ruleCount}
                   </p>
                   <p>

@@ -142,7 +142,7 @@ export default function EmployeeLeaveAllocation() {
     formData.append("file", file);
 
     try {
-      await axiosInstance.post("/EmployeeLeaveAllocation/import", formData);
+      await axiosInstance.post("/EmployeeLeaveAllocation/import-leave-allocated", formData);
       toast.success("Import successful");
       fetchAllocations();
     } catch {

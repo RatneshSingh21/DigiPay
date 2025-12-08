@@ -19,6 +19,7 @@ const LandingSection = () => {
         backgroundSize: "cover", // ensures it covers the screen
         backgroundPosition: "center", // keeps center focus
         backgroundRepeat: "no-repeat",
+        height: "90vh",
       }}
     >
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-20 py-16">
