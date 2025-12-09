@@ -24,7 +24,7 @@ const data = [
   },
   {
     id: 4,
-    name: "Payment Info",
+    name: "Bank Details",
     importApi: "/BankDetails/import",
     exportApi: "/BankDetails/export",
   },
@@ -36,39 +36,39 @@ const data = [
   },
   {
     id: 6,
-    name: "Attendance",
-    importApi: "/Attendance/import",
-    exportApi: "/Attendance/export",
-  },
-  {
-    id: 7,
-    name: "PF & ESI Mapping",
-    importApi: "/Employee/import-compliance",
-    exportApi: "/Employee/export-compliance-template",
-  },
-  {
-    id: 8,
-    name: "Leave Policy Mapping",
-    importApi: "/EmployeeLeavePolicyAllocation/import-Leave",
-    exportApi: "/EmployeeLeavePolicyAllocation/export",
-  },
-  {
-    id: 9,
-    name: "Holiday List",
-    importApi: "/HolidayListMaster/import-holiday",
-    exportApi: "/HolidayListMaster/export",
-  },
-  {
-    id: 10,
     name: "Employee Shift Mapping",
     importApi: "/ShiftMapping/import-shift-mapping",
     exportApi: "/ShiftMapping/export",
   },
   {
-    id: 11,
+    id: 7,
+    name: "Holiday List",
+    importApi: "/HolidayListMaster/import-holiday",
+    exportApi: "/HolidayListMaster/export",
+  },
+  {
+    id: 8,
+    name: "Day-Wise Attendance",
+    importApi: "/Attendance/import",
+    exportApi: "/Attendance/export",
+  },
+  {
+    id: 9,
     name: "Monthly Attendance",
     importApi: "/Attendance/monthly-summary/import-summary",
     exportApi: "/Attendance/monthly-summary/export-summary",
+  },
+  {
+    id: 10,
+    name: "PF & ESI Mapping",
+    importApi: "/Employee/import-compliance",
+    exportApi: "/Employee/export-compliance-template",
+  },
+  {
+    id: 11,
+    name: "Leave Policy Mapping",
+    importApi: "/EmployeeLeavePolicyAllocation/import-Leave",
+    exportApi: "/EmployeeLeavePolicyAllocation/export",
   },
   {
     id: 12,

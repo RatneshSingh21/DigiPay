@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 //baseURL :"https://medisyspayapi.digicodesoftware.com/api",
 
 const axiosInstance = axios.create({
-  baseURL :"https://medisyspayapi.digicodesoftware.com/api",
+  baseURL: "https://digipaydevops.digicodesoftware.com/api",
   headers: {
     "Content-Type": "application/json",
   },

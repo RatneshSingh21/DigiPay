@@ -150,7 +150,7 @@ const EmployeeList = () => {
       ) : employees.length > 0 ? (
         <div className="px-4 mt-4">
           {/* Filters */}
-          <div className="flex flex-wrap gap-4 mb-4">
+          <div className="flex flex-wrap gap-4 mb-4 justify-center">
             <div className="min-w-[250px]">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Search by Name
@@ -270,7 +270,7 @@ const EmployeeList = () => {
           {/* Employee Table */}
           {currentEmployees.length > 0 ? (
             <>
-              <div className="border max-w-xl md:max-w-5xl 2xl:max-w-full overflow-auto border-gray-200 rounded-lg max-h-[60vh]">
+      <div className="border mx-auto max-w-xl md:max-w-5xl 2xl:max-w-7xl overflow-auto border-gray-200 rounded-lg max-h-[60vh]">
                 <table className="text-xs">
                   <thead className="bg-gray-100 text-gray-700 sticky top-0">
                     <tr className="text-center">

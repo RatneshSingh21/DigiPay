@@ -73,7 +73,7 @@ const submenuMap = {
     "Increment Letter",
     "Experience Cert.",
     "Full & Final Statement",
-    "All Reports",
+    "HR Dashboard",
     // "Nomination-Declaration",
     // "Job Posting",
   ],

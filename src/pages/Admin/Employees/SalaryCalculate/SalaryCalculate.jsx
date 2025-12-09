@@ -4,7 +4,6 @@ import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import SalaryCalculateForm from "./SalaryCalculateForm";
 import ManualSalaryCalculateForm from "./ManualSalaryCalculateForm";
 
-
 const SalaryCalculate = () => {
   const [salaries, setSalaries] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -76,7 +75,7 @@ const SalaryCalculate = () => {
         </div>
       </div>
 
-      <div className="border mx-auto max-w-xl md:max-w-5xl 2xl:max-w-full overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
+      <div className="border mx-auto max-w-xl md:max-w-5xl 2xl:max-w-7xl overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
         <table className="divide-y divide-gray-200 text-xs text-center">
           <thead className="bg-gray-100 text-gray-600 sticky top-0">
             <tr>

@@ -37,7 +37,7 @@ import {
 import { GoLocation } from "react-icons/go";
 import { GiBookCover } from "react-icons/gi";
 import { RiShieldKeyholeLine } from "react-icons/ri";
-import { AiOutlinePlusCircle, AiOutlineSchedule } from "react-icons/ai";
+import { AiFillDashboard, AiOutlinePlusCircle, AiOutlineSchedule } from "react-icons/ai";
 import { BiTimeFive } from "react-icons/bi";
 import { HiOutlineBriefcase, HiOutlineDocumentReport } from "react-icons/hi";
 import {
@@ -108,7 +108,7 @@ const labelToPath = {
   "Nomination-Declaration": "nomination-declaration",
   "Job Posting": "job-posting",
   "Full & Final Statement": "full-&-final-statement",
-  "All Reports": "all-reports",
+  "HR Dashboard": "all-reports",
 
   // Leave
   "Leave Types": "leave-types",
@@ -213,7 +213,7 @@ const labelToIcon = {
   "Nomination-Declaration": <FaFileAlt className="mr-2" />,
   "Job Posting": <MdGavel className="mr-2" />,
   "Full & Final Statement": <FaFileAlt className="mr-2" />,
-  "All Reports": <FaFileAlt className="mr-2" />,
+  "HR Dashboard": <AiFillDashboard className="mr-2" />,
 
   // Leave
   "Leave Types": <FaUmbrellaBeach className="mr-2" />,

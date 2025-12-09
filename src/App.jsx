@@ -88,7 +88,7 @@ import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/Nominatio
 import LetterFieldMaster from "./pages/Admin/Settings/LetterFieldMaster";
 import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalStatement";
 import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificateEditor";
-import AdminReports from "./pages/Admin/AdminReports/AdminReports";
+import AdminReports from "./pages/Admin/Reports/AdminReports";
 
 //Admin Leave Pages
 import Leave from "./pages/Admin/Leave/Leave";
@@ -141,8 +141,6 @@ import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
-
-
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -252,7 +250,10 @@ const App = () => {
                   />
                   <Route path="departments" element={<Departments />} />
                   <Route path="create-admin" element={<CreateSuperAdmin />} />
-                  <Route path="create-from-employee" element={<CreateAdminFromEmployee />} />
+                  <Route
+                    path="create-from-employee"
+                    element={<CreateAdminFromEmployee />}
+                  />
                   <Route path="work-locations" element={<WorkLocations />} />
                   <Route path="permissions" element={<Permissions />} />
                   <Route path="payschedule" element={<PaySchedule />} />
@@ -284,7 +285,10 @@ const App = () => {
                   <Route index element={<Navigate to="attendance" />} />
                   <Route path="attendance" element={<Attendance />} />
                   <Route path="add-attendance" element={<AttendanceForm />} />
-                  <Route path="manual-attendance" element={<ManualAttendance />} />
+                  <Route
+                    path="manual-attendance"
+                    element={<ManualAttendance />}
+                  />
                   <Route path="punch" element={<AttendancePunch />} />
                   <Route path="atten-policy" element={<AttendancePolicy />} />
                   <Route path="atten-record" element={<AttendanceRecord />} />

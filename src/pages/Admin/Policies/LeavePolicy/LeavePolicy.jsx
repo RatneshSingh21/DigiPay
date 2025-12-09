@@ -4,6 +4,13 @@ import LeavePolicyForm from "./LeavePolicyForm";
 import { FiEdit2, FiPlus, FiRefreshCw } from "react-icons/fi";
 import assets from "../../../../assets/assets";
 
+const Field = ({ label, value }) => (
+  <div className="flex justify-between border-b pb-1">
+    <span className="font-semibold text-gray-600">{label}:</span>
+    <span className="text-gray-800">{value || "-"}</span>
+  </div>
+);
+
 const LeavePolicy = () => {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -108,185 +115,209 @@ const LeavePolicy = () => {
                 />
               </div>
 
-              {/* ---------- Show ALL API Fields ---------- */}
-              <div className="mt-3 text-sm text-gray-700 space-y-1">
-                <p>
-                  <strong>Effective From:</strong> {policy.effectiveFrom}
-                </p>
-                <p>
-                  <strong>Effective To:</strong> {policy.effectiveTo}
-                </p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {policy.isActive ? "Active" : "Inactive"}
-                </p>
+              {/* ---------- Show ALL API Fields in 2-Column Table ---------- */}
+              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-gray-700 text-sm">
+                <Field
+                  label="Effective From"
+                  value={
+                    policy.effectiveFrom
+                      ? new Date(policy.effectiveFrom).toLocaleDateString(
+                          "en-GB"
+                        )
+                      : "-"
+                  }
+                />
+                <Field
+                  label="Effective To"
+                  value={
+                    policy.effectiveTo
+                      ? new Date(policy.effectiveTo).toLocaleDateString("en-GB")
+                      : "-"
+                  }
+                />
+                <Field
+                  label="Status"
+                  value={policy.isActive ? "Active" : "Inactive"}
+                />
 
-                <p>
-                  <strong>Leave Types:</strong>{" "}
-                  {policy.applicableLeaveTypeIds.join(", ")}
-                </p>
-                <p>
-                  <strong>Holiday Lists:</strong>{" "}
-                  {policy.applicableHolidayListIds.join(", ")}
-                </p>
-                <p>
-                  <strong>Weekend Policies:</strong>{" "}
-                  {policy.applicableWeekendPolicyIds.join(", ")}
-                </p>
-                <p>
-                  <strong>Departments:</strong>{" "}
-                  {policy.applicableDepartmentIds.join(", ")}
-                </p>
-                <p>
-                  <strong>Designations:</strong>{" "}
-                  {policy.applicableDesignationIds.join(", ")}
-                </p>
-                <p>
-                  <strong>Grades:</strong>{" "}
-                  {policy.applicableGradeIds.join(", ")}
-                </p>
-                <p>
-                  <strong>Roles:</strong> {policy.applicableRoleIds.join(", ")}
-                </p>
-                <p>
-                  <strong>Work Locations:</strong>{" "}
-                  {policy.applicableWorkLocationIds.join(", ")}
-                </p>
-                <p>
-                  <strong>Shifts:</strong>{" "}
-                  {policy.applicableShiftIds.join(", ")}
-                </p>
-                <p>
-                  <strong>Employment Types:</strong>{" "}
-                  {policy.applicableEmploymentTypeIds.join(", ")}
-                </p>
+                <Field
+                  label="Leave Types"
+                  value={policy.applicableLeaveTypeIds.join(", ")}
+                />
+                <Field
+                  label="Holiday Lists"
+                  value={policy.applicableHolidayListIds.join(", ")}
+                />
+                <Field
+                  label="Weekend Policies"
+                  value={policy.applicableWeekendPolicyIds.join(", ")}
+                />
+                <Field
+                  label="Departments"
+                  value={policy.applicableDepartmentIds.join(", ")}
+                />
+                <Field
+                  label="Designations"
+                  value={policy.applicableDesignationIds.join(", ")}
+                />
+                <Field
+                  label="Grades"
+                  value={policy.applicableGradeIds.join(", ")}
+                />
+                <Field
+                  label="Roles"
+                  value={policy.applicableRoleIds.join(", ")}
+                />
+                <Field
+                  label="Work Locations"
+                  value={policy.applicableWorkLocationIds.join(", ")}
+                />
+                <Field
+                  label="Shifts"
+                  value={policy.applicableShiftIds.join(", ")}
+                />
+                <Field
+                  label="Employment Types"
+                  value={policy.applicableEmploymentTypeIds.join(", ")}
+                />
 
-                <p>
-                  <strong>Allow Backdated Leave:</strong>{" "}
-                  {policy.allowBackdatedLeave ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Backdated Limit (Days):</strong>{" "}
-                  {policy.backdatedLimitInDays}
-                </p>
+                <Field
+                  label="Allow Backdated Leave"
+                  value={policy.allowBackdatedLeave ? "Yes" : "No"}
+                />
+                <Field
+                  label="Backdated Limit (Days)"
+                  value={policy.backdatedLimitInDays}
+                />
 
-                <p>
-                  <strong>Allow Future Leave:</strong>{" "}
-                  {policy.allowFutureDatedLeave ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Future Limit (Days):</strong>{" "}
-                  {policy.futureDatedLimitInDays}
-                </p>
+                <Field
+                  label="Allow Future Leave"
+                  value={policy.allowFutureDatedLeave ? "Yes" : "No"}
+                />
+                <Field
+                  label="Future Limit (Days)"
+                  value={policy.futureDatedLimitInDays}
+                />
 
-                <p>
-                  <strong>Min Notice Period:</strong>{" "}
-                  {policy.minNoticePeriodInDays}
-                </p>
-                <p>
-                  <strong>Max Days Per Application:</strong>{" "}
-                  {policy.maxDaysPerApplication}
-                </p>
-                <p>
-                  <strong>Min Days Per Application:</strong>{" "}
-                  {policy.minDaysPerApplication}
-                </p>
+                <Field
+                  label="Min Notice Period"
+                  value={policy.minNoticePeriodInDays}
+                />
+                <Field
+                  label="Max Days / Application"
+                  value={policy.maxDaysPerApplication}
+                />
+                <Field
+                  label="Min Days / Application"
+                  value={policy.minDaysPerApplication}
+                />
 
-                <p>
-                  <strong>Allow Mixed Leave Types:</strong>{" "}
-                  {policy.allowMixedLeaveTypesInSingleApplication
-                    ? "Yes"
-                    : "No"}
-                </p>
-                <p>
-                  <strong>Include Holidays:</strong>{" "}
-                  {policy.includeHolidaysInLeaveCount ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Include Weekends:</strong>{" "}
-                  {policy.includeWeekendsInLeaveCount ? "Yes" : "No"}
-                </p>
+                <Field
+                  label="Allow Mixed Leave Types"
+                  value={
+                    policy.allowMixedLeaveTypesInSingleApplication
+                      ? "Yes"
+                      : "No"
+                  }
+                />
+                <Field
+                  label="Include Holidays"
+                  value={policy.includeHolidaysInLeaveCount ? "Yes" : "No"}
+                />
+                <Field
+                  label="Include Weekends"
+                  value={policy.includeWeekendsInLeaveCount ? "Yes" : "No"}
+                />
 
-                <p>
-                  <strong>Leave During Notice Period:</strong>{" "}
-                  {policy.allowLeaveDuringNoticePeriod ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Block If Attendance Missing:</strong>{" "}
-                  {policy.blockLeaveIfAttendanceMissing ? "Yes" : "No"}
-                </p>
+                <Field
+                  label="Leave During Notice Period"
+                  value={policy.allowLeaveDuringNoticePeriod ? "Yes" : "No"}
+                />
+                <Field
+                  label="Block If Attendance Missing"
+                  value={policy.blockLeaveIfAttendanceMissing ? "Yes" : "No"}
+                />
 
-                <p>
-                  <strong>Min Service Months Required:</strong>{" "}
-                  {policy.minServiceMonthsRequired}
-                </p>
-                <p>
-                  <strong>Allow Half Day:</strong>{" "}
-                  {policy.allowHalfDayLeave ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Half Day Cutoff:</strong> {policy.halfDayCutoffTime}
-                </p>
+                <Field
+                  label="Min Service Months Required"
+                  value={policy.minServiceMonthsRequired}
+                />
+                <Field
+                  label="Allow Half Day"
+                  value={policy.allowHalfDayLeave ? "Yes" : "No"}
+                />
+                <Field
+                  label="Half Day Cutoff"
+                  value={policy.halfDayCutoffTime}
+                />
 
-                <p>
-                  <strong>Document Required After Days:</strong>{" "}
-                  {policy.documentRequiredAfterDays}
-                </p>
-                <p>
-                  <strong>Document For Half Day:</strong>{" "}
-                  {policy.requireDocumentForHalfDay ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Document For LOP:</strong>{" "}
-                  {policy.requireDocumentForLOP ? "Yes" : "No"}
-                </p>
+                <Field
+                  label="Document Required After Days"
+                  value={policy.documentRequiredAfterDays}
+                />
+                <Field
+                  label="Document For Half Day"
+                  value={policy.requireDocumentForHalfDay ? "Yes" : "No"}
+                />
+                <Field
+                  label="Document For LOP"
+                  value={policy.requireDocumentForLOP ? "Yes" : "No"}
+                />
 
-                <p>
-                  <strong>Auto Deduct Unapproved:</strong>{" "}
-                  {policy.autoDeductForUnapprovedAbsence ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Auto Deduct Priority:</strong>{" "}
-                  {policy.autoDeductPriority.join(", ")}
-                </p>
+                <Field
+                  label="Auto Deduct Unapproved"
+                  value={policy.autoDeductForUnapprovedAbsence ? "Yes" : "No"}
+                />
+                <Field
+                  label="Auto Deduct Priority"
+                  value={policy.autoDeductPriority.join(", ")}
+                />
 
-                <p>
-                  <strong>Convert Excess Leave to LOP:</strong>{" "}
-                  {policy.autoConvertExcessLeaveToLOP ? "Yes" : "No"}
-                </p>
+                <Field
+                  label="Convert Excess Leave to LOP"
+                  value={policy.autoConvertExcessLeaveToLOP ? "Yes" : "No"}
+                />
 
-                <p>
-                  <strong>Comp Off Enabled:</strong>{" "}
-                  {policy.compOffEnabled ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Comp Off Expiry (Days):</strong>{" "}
-                  {policy.compOffExpiryInDays}
-                </p>
-                <p>
-                  <strong>Comp Off on Holiday:</strong>{" "}
-                  {policy.allowCompOffOnHoliday ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Comp Off on Weekend:</strong>{" "}
-                  {policy.allowCompOffOnWeekend ? "Yes" : "No"}
-                </p>
+                <Field
+                  label="Comp Off Enabled"
+                  value={policy.compOffEnabled ? "Yes" : "No"}
+                />
+                <Field
+                  label="Comp Off Expiry (Days)"
+                  value={policy.compOffExpiryInDays}
+                />
+                <Field
+                  label="Comp Off on Holiday"
+                  value={policy.allowCompOffOnHoliday ? "Yes" : "No"}
+                />
+                <Field
+                  label="Comp Off on Weekend"
+                  value={policy.allowCompOffOnWeekend ? "Yes" : "No"}
+                />
 
-                <p>
-                  <strong>Created On:</strong> {policy.createdOn}
-                </p>
-                <p>
-                  <strong>Created By:</strong> {policy.createdBy}
-                </p>
+                <Field
+                  label="Created On"
+                  value={
+                    policy.createdOn
+                      ? new Date(policy.createdOn).toLocaleDateString("en-GB")
+                      : "-"
+                  }
+                />
+                <Field label="Created By" value={policy.createdBy} />
 
                 {policy.updatedOn && (
                   <>
-                    <p>
-                      <strong>Updated On:</strong> {policy.updatedOn}
-                    </p>
-                    <p>
-                      <strong>Updated By:</strong> {policy.updatedBy}
-                    </p>
+                    <Field
+                      label="Updated On"
+                      value={
+                        policy.updatedOn
+                          ? new Date(policy.updatedOn).toLocaleDateString(
+                              "en-GB"
+                            )
+                          : "-"
+                      }
+                    />
+                    <Field label="Updated By" value={policy.updatedBy} />
                   </>
                 )}
               </div>
