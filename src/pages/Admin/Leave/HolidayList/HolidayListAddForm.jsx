@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Select from "react-select";
-import useAuthStore from "../../../store/authStore";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
-import Spinner from "../../../components/Spinner";
+import useAuthStore from "../../../../store/authStore";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import Spinner from "../../../../components/Spinner";
 
 const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
   const { user } = useAuthStore();

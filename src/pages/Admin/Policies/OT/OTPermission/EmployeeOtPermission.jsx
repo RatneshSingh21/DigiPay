@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { FiPlus, FiEdit2 } from "react-icons/fi";
 import { toast } from "react-toastify";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 import EmployeeOtPermissionForm from "./EmployeeOtPermissionForm";
 
 // GLOBAL CACHE — survives re-renders

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import LeaveTypeLocation from "./Leave Mapping/LeaveTypeLocation";
-import LeaveTypeRole from "./Leave Mapping/LeaveTypeRole";
-import LeaveTypeDepartment from "./Leave Mapping/LeaveTypeDepartment";
+import LeaveTypeLocation from "./LeaveTypeLocation";
+import LeaveTypeRole from "./LeaveTypeRole";
+import LeaveTypeDepartment from "./LeaveTypeDepartment";
 
 const tabs = [
   { id: "By Location", label: "By Location" },

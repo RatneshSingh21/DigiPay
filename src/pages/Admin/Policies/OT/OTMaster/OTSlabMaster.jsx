@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { FiEdit, FiTrash2, FiPlus, FiRefreshCw, FiX } from "react-icons/fi";
 import AddOTRateSlabMaster from "./AddOTRateSlabMaster";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
-import assets from "../../../../assets/assets";
+import axiosInstance from "../../../../../axiosInstance/axiosInstance";
+import assets from "../../../../../assets/assets";
 
 const CardItem = ({ label, value }) => (
   <div>

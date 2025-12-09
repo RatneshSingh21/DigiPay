@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { FiDownload } from "react-icons/fi";
-import assets from "../../../assets/assets";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
+import assets from "../../../../assets/assets";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import LeaveList from "./LeaveList";
 import AddLeaveForm from "./AddLeaveForm";
-import ImportLeave from "./ImportLeave";
+import ImportLeave from "../ImportLeave";
 
 
 const Leave = () => {

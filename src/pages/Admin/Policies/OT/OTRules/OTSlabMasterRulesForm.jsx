@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 
 export default function OTSlabMasterRulesForm({
   onClose,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 // import toast, { Toaster } from "react-hot-toast";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
-import useAuthStore from "../../../store/authStore";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import useAuthStore from "../../../../store/authStore";
 import { toast } from "react-toastify";
 import Select from "react-select";
 

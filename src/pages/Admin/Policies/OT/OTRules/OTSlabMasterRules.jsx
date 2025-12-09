@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
-import ConfirmModal from "../../../../components/ConfirmModal";
+import axiosInstance from "../../../../../axiosInstance/axiosInstance";
+import ConfirmModal from "../../../../../components/ConfirmModal";
 import OTSlabMasterRulesForm from "./OTSlabMasterRulesForm";
 
 export default function OTSlabMasterRules() {

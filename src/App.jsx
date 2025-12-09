@@ -91,17 +91,16 @@ import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/Exp
 import AdminReports from "./pages/Admin/Reports/AdminReports";
 
 //Admin Leave Pages
-import Leave from "./pages/Admin/Leave/Leave";
+import Leave from "./pages/Admin/Leave/LeaveType/Leave";
 import LeaveRequests from "./pages/Admin/Leave/LeaveRequests";
 import LeaveBalance from "./pages/Admin/Leave/LeaveBalance";
-import LeaveMapping from "./pages/Admin/Leave/LeaveMapping";
-import HolidayList from "./pages/Admin/Leave/HolidayList";
+import LeaveMapping from "./pages/Admin/Leave/Leave Mapping/LeaveMapping";
+import HolidayList from "./pages/Admin/Leave/HolidayList/HolidayList";
 import EmployeeLeave from "./pages/Admin/Leave/EmployeeLeave/EmployeeLeave";
 import EmployeeLeaveAllocation from "./pages/Admin/Leave/EmployeeLeaveAllocation/EmployeeLeaveAllocation";
 import EmployeeAdvancePayments from "./pages/Admin/Leave/EmployeeAdvancePayments/EmployeeAdvancePayments";
 
 //Admin Policy Pages
-import PolicyDetails from "./pages/Admin/Policies/PolicyDetails";
 import PFSettings from "./pages/Admin/Policies/PFSettings/PFSettings";
 import PFTransaction from "./pages/Admin/Policies/PFTransaction/PFTransaction";
 import PFContributionRule from "./pages/Admin/Policies/PFContributionRule/PFContributionRule";
@@ -124,10 +123,10 @@ import TravelDetails from "./pages/Admin/Documents/TravelDetails";
 import ComplianceDetails from "./pages/Admin/Compliance/ComplianceDetails";
 import ComplianceRules from "./pages/Admin/Compliance/ComplianceRules";
 import PaymentAdjustment from "./pages/Admin/Policies/PaymentAdjustment/PaymentAdjustment";
-import OTSlabMaster from "./pages/Admin/Policies/OT/OTSlabMaster";
-import OTSlabMasterRules from "./pages/Admin/Policies/OT/OTSlabMasterRules";
-import OTCalculation from "./pages/Admin/Policies/OT/OTCalculation";
-import EmployeeOtPermission from "./pages/Admin/Policies/OT/EmployeeOtPermission";
+import OTSlabMaster from "./pages/Admin/Policies/OT/OTMaster/OTSlabMaster";
+import OTSlabMasterRules from "./pages/Admin/Policies/OT/OTRules/OTSlabMasterRules";
+import OTCalculation from "./pages/Admin/Policies/OT/OTCalculation/OTCalculation";
+import EmployeeOtPermission from "./pages/Admin/Policies/OT/OTPermission/EmployeeOtPermission";
 
 // Employee Pages
 import EmployeeProfile from "./pages/EmployeePages/EmployeeComponents/EmployeeProfile";
@@ -389,7 +388,6 @@ const App = () => {
                   <Route path="policy-leave" element={<LeavePolicy />} />
                   <Route path="weekend-policy" element={<WeekendPolicy />} />
                   <Route path="atten-policy" element={<AttendancePolicy />} />
-                  <Route path="policy-details" element={<PolicyDetails />} />
                 </Route>
 
                 {/* Approvals Main Page */}

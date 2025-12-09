@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { FiEdit, FiRefreshCw, FiTrash2 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import HolidayListAddForm from "./HolidayListAddForm";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
-import ConfirmModal from "../../../components/ConfirmModal";
-import assets from "../../../assets/assets";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import ConfirmModal from "../../../../components/ConfirmModal";
+import assets from "../../../../assets/assets";
 
 const HolidayList = () => {
   const [holidays, setHolidays] = useState([]);

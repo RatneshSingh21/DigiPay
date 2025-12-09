@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { toast } from "react-toastify";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
-import ConfirmModal from "../../../components/ConfirmModal";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import ConfirmModal from "../../../../components/ConfirmModal";
 
 const LeaveList = ({
   fetchLeaves,

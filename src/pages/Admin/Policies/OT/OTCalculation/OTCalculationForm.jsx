@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { FiX } from "react-icons/fi";
 import { toast } from "react-toastify";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 
 const OTCalculationForm = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
