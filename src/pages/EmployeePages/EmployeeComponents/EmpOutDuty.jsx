@@ -6,6 +6,7 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Pagination from "../../../components/Pagination";
 import useAuthStore from "../../../store/authStore";
 import OutDutyFormModal from "../EmpOutDuty/OutDutyFormModal";
+import GatePassCard from "../EmpOutDuty/GatePassCard";
 
 const EmpOutDuty = () => {
   const [requests, setRequests] = useState([]);
@@ -14,6 +15,9 @@ const EmpOutDuty = () => {
   const [loading, setLoading] = useState(false);
   const [approverMapping, setApproverMapping] = useState({});
   const userId = useAuthStore((state) => state.user?.userId);
+  const [selectedGatePass, setSelectedGatePass] = useState(null);
+  const companyId = useAuthStore((state) => state.companyId);
+  const [employees, setEmployees] = useState([]);
 
   // 🔹 Pagination States
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,6 +44,19 @@ const EmpOutDuty = () => {
     } catch (err) {
       toast.error("Failed to fetch statuses");
       console.error(err);
+    }
+  };
+
+  const fetchEmployees = async () => {
+    try {
+      const res = await axiosInstance.get(
+        `/user-auth/getEmployee/companyId/${companyId}`
+      );
+      if (res.data?.status === 200) {
+        setEmployees(res.data.data);
+      }
+    } catch (err) {
+      console.log("Failed to fetch employees", err);
     }
   };
 
@@ -108,6 +125,7 @@ const EmpOutDuty = () => {
     fetchOnDuty();
     fetchStatuses();
     fetchApprovers();
+    fetchEmployees(); // ⬅ important
   }, []);
 
   // 🔹 Handle pagination click
@@ -118,7 +136,7 @@ const EmpOutDuty = () => {
       {/* Header */}
       <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <h2 className="font-semibold text-lg sm:text-xl text-gray-800 text-center sm:text-left">
-          Employee On Duty
+          Employee On Duty/Gate Pass
         </h2>
         <button
           onClick={() => setShowModal(true)}
@@ -129,25 +147,30 @@ const EmpOutDuty = () => {
         </button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto bg-white rounded-xl shadow">
-        <table className="min-w-full text-xs text-center table-auto">
-          <thead className="bg-gray-100 text-gray-700">
-            <tr className="border-b">
-              <th className="px-2 sm:px-4 py-3">S.No</th>
-              <th className="px-2 sm:px-4 py-3">In Date & Time</th>
-              <th className="px-2 sm:px-4 py-3">Out Date & Time</th>
-              <th className="px-2 sm:px-4 py-3">Reason</th>
-              <th className="px-2 sm:px-4 py-3">Time(hrs)</th>
-              <th className="px-2 sm:px-4 py-3">Applied On</th>
-              <th className="px-2 sm:px-4 py-3">Status</th>
-              <th className="px-2 sm:px-4 py-3">Approvers</th>
+      {/* Table (Updated to Salary UI Style) */}
+      <div
+        className="mt-4 mx-4 p-4 border
+        overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh] bg-white shadow"
+      >
+        <table className="min-w-full divide-y divide-gray-200 text-xs text-center">
+          <thead className="bg-gray-100 text-gray-600">
+            <tr>
+              <th className="p-2 border-r border-gray-200">S.No</th>
+              <th className="p-2 border-r border-gray-200">In Date & Time</th>
+              <th className="p-2 border-r border-gray-200">Out Date & Time</th>
+              <th className="p-2 border-r border-gray-200">Reason</th>
+              <th className="p-2 border-r border-gray-200">Time (hrs)</th>
+              <th className="p-2 border-r border-gray-200">Applied On</th>
+              <th className="p-2 border-r border-gray-200">Status</th>
+              <th className="p-2 border-r border-gray-200">Approvers</th>
+              <th className="p-2 border-r border-gray-200">Gate Pass</th>
             </tr>
           </thead>
-          <tbody className="text-xs">
+
+          <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr>
-                <td colSpan="8" className="text-center py-4 text-gray-500">
+                <td colSpan="9" className="text-center py-6 text-gray-500">
                   Loading...
                 </td>
               </tr>
@@ -155,45 +178,40 @@ const EmpOutDuty = () => {
               currentRequests.map((req, index) => (
                 <tr
                   key={req.onDutyID || index}
-                  className="border-t hover:bg-gray-50 transition-all duration-150"
+                  className={`hover:bg-gray-50 transition-all ${
+                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  }`}
                 >
-                  {/* Index */}
-                  <td className="px-2 sm:px-4 py-3">
+                  <td className="p-2 border-r border-gray-200">
                     {indexOfFirst + index + 1}
                   </td>
 
-                  {/* In Date */}
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap">
+                  <td className="p-2 border-r border-gray-200 whitespace-nowrap">
                     {format(new Date(req.inDateTime), "dd MMM yyyy HH:mm a")}
                   </td>
 
-                  {/* Out Date */}
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap">
+                  <td className="p-2 border-r border-gray-200 whitespace-nowrap">
                     {format(new Date(req.outDateTime), "dd MMM yyyy HH:mm a")}
                   </td>
 
-                  {/* Reason */}
-                  <td className="px-2 sm:px-4 py-3">{req.reason}</td>
+                  <td className="p-2 border-r border-gray-200">{req.reason}</td>
 
-                  {/* Total Time (hrs) */}
-                  <td className="px-2 sm:px-4 py-3">
+                  <td className="p-2 border-r border-gray-200">
                     {(req.totalTime / 60).toFixed(1)} hrs
                   </td>
 
-                  {/* Applied On */}
-                  <td className="px-2 sm:px-4 py-3 whitespace-nowrap">
+                  <td className="p-2 border-r border-gray-200 whitespace-nowrap">
                     {req.appliedAt
                       ? format(new Date(req.appliedAt), "dd MMM yyyy HH:mm a")
                       : "-"}
                   </td>
 
-                  {/* Status */}
-                  <td className="px-2 sm:px-4 py-3">
+                  <td className="p-2 border-r border-gray-200">
                     {(() => {
                       const { name, color } = getStatusInfo(req.statusId);
                       return (
                         <span
-                          className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${color}`}
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${color}`}
                         >
                           {name}
                         </span>
@@ -201,22 +219,38 @@ const EmpOutDuty = () => {
                     })()}
                   </td>
 
-                  {/* Approvers */}
-                  <td className="px-2 sm:px-4 py-3">
-                    {req.approvers && req.approvers.length > 0
+                  <td className="p-2 border-r border-gray-200">
+                    {req.approvers?.length
                       ? req.approvers
                           .map((id) => approverMapping?.onDuty?.[id] || "N/A")
                           .join(", ")
                       : "N/A"}
                   </td>
+
+                  <td className="p-2 border-r border-gray-200">
+                    {getStatusInfo(req.statusId)
+                      .name.toLowerCase()
+                      .includes("approve") ? (
+                      <button
+                        onClick={() => {
+                          const emp = employees.find(
+                            (e) => e.id === req.appliedByInt
+                          );
+                          setSelectedGatePass({ ...req, employee: emp });
+                        }}
+                        className="px-3 py-1 bg-primary hover:bg-secondary cursor-pointer text-white rounded-md"
+                      >
+                        Print Gate Pass
+                      </button>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="8"
-                  className="text-center py-4 text-gray-500 text-sm"
-                >
+                <td colSpan="9" className="text-center py-6 text-gray-500">
                   No out duty requests found.
                 </td>
               </tr>
@@ -245,6 +279,14 @@ const EmpOutDuty = () => {
           onClose={() => setShowModal(false)}
           onSuccess={fetchOnDuty}
           statuses={statuses}
+        />
+      )}
+
+      {selectedGatePass && (
+        <GatePassCard
+          data={selectedGatePass}
+          approverMapping={approverMapping}
+          onClose={() => setSelectedGatePass(null)}
         />
       )}
     </div>

@@ -13,6 +13,8 @@ const EmpBasicSalary = () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/EmployeeSalary/all");
+      console.log(res.data);
+
       if (res.data.success) {
         setSalaries(res.data.data);
       } else {
@@ -87,9 +89,16 @@ const EmpBasicSalary = () => {
                 <th className="p-2 border-r border-gray-200">Fixed Allow.</th>
                 <th className="p-2 border-r border-gray-200">Bonus</th>
                 <th className="p-2 border-r border-gray-200">Special Allow.</th>
+                <th className="p-2 border-r border-gray-200">Leave Encash</th>
                 <th className="p-2 border-r border-gray-200">PF</th>
+                <th className="p-2 border-r border-gray-200">ESI</th>
+                <th className="p-2 border-r border-gray-200">Loan</th>
+                <th className="p-2 border-r border-gray-200">Arrears</th>
                 <th className="p-2 border-r border-gray-200">Prof. Tax</th>
                 <th className="p-2 border-r border-gray-200">TDS</th>
+                <th className="p-2 border-r border-gray-200">
+                  Other Deduction
+                </th>
                 <th className="p-2 border-r border-gray-200 text-green-700">
                   Gross
                 </th>
@@ -137,13 +146,29 @@ const EmpBasicSalary = () => {
                     ₹{emp.specialAllowance.toLocaleString()}
                   </td>
                   <td className="p-2 border-r border-gray-200">
+                    ₹{emp.leaveEncashment}
+                  </td>
+
+                  <td className="p-2 border-r border-gray-200">
                     ₹{emp.pfEmployee.toLocaleString()}
+                  </td>
+                  <td className="p-2 border-r border-gray-200">
+                    {emp.esicEmployee}
+                  </td>
+                  <td className="p-2 border-r border-gray-200">
+                    ₹{emp.loanRepayment}
+                  </td>
+                  <td className="p-2 border-r border-gray-200">
+                    ₹{emp.arrears}
                   </td>
                   <td className="p-2 border-r border-gray-200">
                     ₹{emp.professionalTax.toLocaleString()}
                   </td>
                   <td className="p-2 border-r border-gray-200">
                     ₹{emp.tds.toLocaleString()}
+                  </td>
+                  <td className="p-2 border-r border-gray-200">
+                    ₹{emp.otherDeductions}
                   </td>
                   <td className="p-2 border-r border-gray-200 font-medium text-green-600">
                     ₹{emp.grossEarnings.toLocaleString()}

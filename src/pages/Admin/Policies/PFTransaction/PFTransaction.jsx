@@ -136,12 +136,19 @@ const PFTransaction = () => {
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Payroll Month Selector */}
-          <input
-            type="month"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            className="border px-2 py-1 text-sm rounded-md"
-          />
+          <div className="relative">
+            {!selectedMonth && (
+              <span className="absolute left-3 top-[10px] text-gray-400 font-bold pointer-events-none text-sm">
+                Select Month
+              </span>
+            )}
+            <input
+              type="month"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="border px-2 py-1 text-sm rounded-md h-[38px] w-full relative"
+            />
+          </div>
 
           {/* Generate File Button */}
           <button

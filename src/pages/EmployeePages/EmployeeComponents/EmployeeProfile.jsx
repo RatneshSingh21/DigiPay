@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReactDOM from "react-dom/client";
 import { MdEmail, MdPhone, MdWork, MdCalendarToday } from "react-icons/md";
 import { format } from "date-fns";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 import assets from "../../../assets/assets";
 import { toast } from "react-toastify";
-
+import QRCode from "react-qr-code";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -72,10 +73,43 @@ const EmployeeProfile = () => {
     }
   }, []);
 
-  // Helper to build QR image URL
-  const buildQrUrl = (text, size = 180) => {
-    const data = encodeURIComponent(text);
-    return `https://api.qrserver.com/v1/create-qr-code/?data=${data}&size=${size}x${size}&format=png`;
+  const generateQrPng = (text, size = 300) => {
+    return new Promise((resolve) => {
+      const container = document.createElement("div");
+      container.style.position = "fixed";
+      container.style.left = "-9999px";
+      document.body.appendChild(container);
+
+      const qrElement = <QRCode value={text} size={size} />;
+
+      // Render QR SVG temporarily
+      const root = ReactDOM.createRoot(container);
+      root.render(qrElement);
+
+      setTimeout(() => {
+        const svg = container.querySelector("svg");
+
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgData], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(svgBlob);
+
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, size, size);
+
+          const png = canvas.toDataURL("image/png");
+          resolve(png);
+
+          URL.revokeObjectURL(url);
+          document.body.removeChild(container);
+        };
+        img.src = url;
+      }, 100);
+    });
   };
 
   // Create a clean inline-styled card node, mount it off-screen (visible to browser),
@@ -85,8 +119,16 @@ const EmployeeProfile = () => {
     try {
       setLoading(true);
 
-      const qrText = `${employee.employeeCode}+${employee.fullName}+${employee.workEmail}+${employee.mobileNumber}+${employee.designationName}+${employee.departmentName}`;
-      const qrUrl = buildQrUrl(qrText, 300);
+      const qrText = `
+${employee.employeeCode}
+${employee.fullName}
+${employee.workEmail}
+${employee.mobileNumber}
+${employee.designationName}
+${employee.departmentName}
+`.trim();
+
+      const qrPng = await generateQrPng(qrText, 300);
 
       // Create isolated iframe
       const iframe = document.createElement("iframe");
@@ -243,7 +285,7 @@ const EmployeeProfile = () => {
             }</p>
 
            
-            <img src="${qrUrl}" class="qr" />
+           <img src="${qrPng}" class="qr" />
           </div>
 
         </div>

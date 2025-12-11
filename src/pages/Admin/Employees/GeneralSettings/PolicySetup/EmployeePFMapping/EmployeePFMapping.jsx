@@ -90,6 +90,7 @@ const EmployeePFMapping = () => {
         <table className="w-full text-sm text-center border-collapse">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
+              <th className="px-3 py-2 border">S.No</th>
               <th className="px-3 py-2 border">Employee</th>
               <th className="px-3 py-2 border">PF Number</th>
               <th className="px-3 py-2 border">PF Setting Id</th>
@@ -100,11 +101,14 @@ const EmployeePFMapping = () => {
           </thead>
           <tbody>
             {filteredMappings.length > 0 ? (
-              filteredMappings.map((m) => (
+              filteredMappings.map((m,i) => (
                 <tr
                   key={m.pfEmployeeMappingId}
                   className="hover:bg-gray-50 transition"
                 >
+                  <td className="px-3 py-2 border">
+                    {i+1}
+                  </td>
                   <td className="px-3 py-2 border">
                     {employeeMap[m.employeeId] || `ID: ${m.employeeId}`}
                   </td>

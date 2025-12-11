@@ -132,27 +132,34 @@ const EmpLeaveRequest = () => {
       </div>
 
       {/* Leave History */}
-      <div className="bg-white shadow rounded p-6">
-        <h3 className="text-xl font-semibold mb-2 text-gray-700">
-          Leave History
-        </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-center border rounded overflow-hidden">
-            <thead className="text-gray-600 bg-gray-100">
+      <div className="bg-white shadow rounded p-3">
+        <h3 className="text-xl font-semibold text-gray-700">Leave History</h3>
+        {/* Updated Table Container */}
+        <div
+          className="mt-4 mx-4 p-4 border 
+    overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh] bg-white shadow"
+        >
+          <table className="min-w-full divide-y divide-gray-200 text-xs text-center">
+            <thead className="bg-gray-100 text-gray-600">
               <tr>
-                <th className="px-4 py-3">S.No</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Code</th>
-                <th className="px-4 py-3">From</th>
-                <th className="px-4 py-3">To</th>
-                <th className="px-4 py-3">Days</th>
-                <th className="px-4 py-3">Reason</th>
-                <th className="px-4 py-3">Applied On</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Approved By</th>
+                <th className="px-4 py-3 border-r border-gray-200">S.No</th>
+                <th className="px-4 py-3 border-r border-gray-200">Type</th>
+                <th className="px-4 py-3 border-r border-gray-200">Code</th>
+                <th className="px-4 py-3 border-r border-gray-200">From</th>
+                <th className="px-4 py-3 border-r border-gray-200">To</th>
+                <th className="px-4 py-3 border-r border-gray-200">Days</th>
+                <th className="px-4 py-3 border-r border-gray-200">Reason</th>
+                <th className="px-4 py-3 border-r border-gray-200">
+                  Applied On
+                </th>
+                <th className="px-4 py-3 border-r border-gray-200">Status</th>
+                <th className="px-4 py-3 border-r border-gray-200">
+                  Approved By
+                </th>
               </tr>
             </thead>
-            <tbody>
+
+            <tbody className="divide-y divide-gray-100">
               {currentLeaves.length ? (
                 currentLeaves.map((leave, index) => {
                   const from = new Date(leave.fromDate);
@@ -163,26 +170,40 @@ const EmpLeaveRequest = () => {
                   return (
                     <tr
                       key={leave.applyLeaveId}
-                      className="border-t hover:bg-gray-50 transition"
+                      className={`hover:bg-gray-50 transition ${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      }`}
                     >
-                      <td className="px-4 py-3">{index + 1}</td>
-                      <td className="px-4 py-3">{leave.leaveName}</td>
-                      <td className="px-4 py-3">{leave.leaveCode}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 border-r border-gray-200">
+                        {indexOfFirst + index + 1}
+                      </td>
+                      <td className="px-4 py-3 border-r border-gray-200">
+                        {leave.leaveName}
+                      </td>
+                      <td className="px-4 py-3 border-r border-gray-200">
+                        {leave.leaveCode}
+                      </td>
+                      <td className="px-4 py-3 border-r border-gray-200">
                         {renderDate(leave.fromDate)}
                       </td>
-                      <td className="px-4 py-3">{renderDate(leave.toDate)}</td>
-                      <td className="px-4 py-3">{diffDays} Days</td>
-                      <td className="px-4 py-3">{leave.reason || "—"}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 border-r border-gray-200">
+                        {renderDate(leave.toDate)}
+                      </td>
+                      <td className="px-4 py-3 border-r border-gray-200">
+                        {diffDays} Days
+                      </td>
+                      <td className="px-4 py-3 border-r border-gray-200">
+                        {leave.reason || "—"}
+                      </td>
+                      <td className="px-4 py-3 border-r border-gray-200">
                         {renderDate(leave.createdOn)}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 border-r border-gray-200">
                         <StatusPill
                           status={statusMap[leave.status] || "Unknown"}
                         />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 border-r border-gray-200">
                         {leave.approvedBy && leave.approvedBy.length > 0
                           ? leave.approvedBy
                               .map(
@@ -196,7 +217,7 @@ const EmpLeaveRequest = () => {
                 })
               ) : (
                 <tr>
-                  <td colSpan={10} className="text-center py-4 text-gray-400">
+                  <td colSpan={10} className="text-center py-5 text-gray-400">
                     No leave records found.
                   </td>
                 </tr>

@@ -114,7 +114,7 @@ const EmployeeESIDetails = () => {
         <table className="w-full text-sm border-collapse text-center">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
-              <th className="px-3 py-2 border">ESI ID</th>
+              <th className="px-3 py-2 border">S.No</th>
               <th className="px-3 py-2 border">Employee</th>
               <th className="px-3 py-2 border">ESI Number</th>
               <th className="px-3 py-2 border">Applicable</th>
@@ -135,9 +135,9 @@ const EmployeeESIDetails = () => {
                 </td>
               </tr>
             ) : (
-              filteredData.map((item) => (
+              filteredData.map((item,index) => (
                 <tr key={item.employeeESIId}>
-                  <td className="px-3 py-2 border">{item.employeeESIId}</td>
+                  <td className="px-3 py-2 border">{index+1}</td>
                   <td className="px-3 py-2 border">
                     {employeeMap[item.employeeId] || `ID: ${item.employeeId}`}
                   </td>

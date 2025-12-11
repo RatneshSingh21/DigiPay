@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
+import { FaPlus, FaRegCalendarAlt, FaCalendarDay } from "react-icons/fa";
 
 // Components
 import AddAttendanceModal from "./AttendanceRecord/AddAttendanceModal";
@@ -139,24 +140,24 @@ const AttendanceRecord = () => {
           <h2 className="font-semibold text-xl">Attendance Records</h2>
           <div className="flex gap-3 text-sm">
             <button
-              className="bg-primary text-white cursor-pointer px-4 py-2 rounded"
+              className="bg-primary text-white cursor-pointer px-4 py-2 rounded flex items-center gap-2"
               onClick={() => setShowAdd(true)}
             >
-              ➕ Add Attendance
+              <FaPlus /> Add Attendance
             </button>
 
             <button
-              className="bg-blue-600 text-white px-4 cursor-pointer py-2 rounded"
+              className="bg-blue-600 text-white px-4 cursor-pointer py-2 rounded flex items-center gap-2"
               onClick={() => setShowMonthly(true)}
             >
-              📅 Generate Monthly
+              <FaRegCalendarAlt /> Generate Monthly
             </button>
 
             <button
-              className="bg-green-600 text-white cursor-pointer px-4 py-2 rounded"
+              className="bg-green-600 text-white cursor-pointer px-4 py-2 rounded flex items-center gap-2"
               onClick={() => setShowDate(true)}
             >
-              📆 Generate Date
+              <FaCalendarDay /> Generate Date
             </button>
           </div>
         </div>
@@ -183,7 +184,7 @@ const AttendanceRecord = () => {
           {/* Month */}
           <div className="relative">
             {!filterMonth && (
-              <span className="absolute left-3 top-[10px] text-gray-400 pointer-events-none text-sm">
+              <span className="absolute left-3 top-[10px] text-gray-400 font-bold pointer-events-none text-sm">
                 Select Month
               </span>
             )}

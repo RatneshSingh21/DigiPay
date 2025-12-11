@@ -119,7 +119,7 @@ const HolidayList = () => {
                     {holiday.holidayName}
                   </td>
                   <td className="py-2 px-4 font-medium text-gray-800 text-center">
-                    {holiday.description}
+                    {holiday.description ? holiday.description : "-"}
                   </td>
                   <td className="py-2 px-4 text-center">
                     {new Date(holiday.holidayDate).toLocaleDateString("en-GB")}

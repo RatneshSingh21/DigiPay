@@ -17,7 +17,8 @@ const ManualAttendance = () => {
       setAttendanceList(data);
       fetchEmployees(data);
     } catch (err) {
-      toast.error("Failed to load attendance");
+      console.log(err);
+      // toast.error("Failed to load attendance");
     }
   };
 

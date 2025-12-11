@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { FiRefreshCw } from "react-icons/fi";
 import { toast } from "react-toastify";
+import { FaRegCalendarAlt } from "react-icons/fa";
 
 const Attendance = () => {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -118,9 +119,7 @@ const Attendance = () => {
     <>
       {/* Header */}
       <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-        <h2 className="font-semibold text-xl text-gray-800">
-          Attendance Data
-        </h2>
+        <h2 className="font-semibold text-xl text-gray-800">Attendance Data</h2>
 
         <div className="flex items-center gap-2 w-full md:w-auto">
           <input
@@ -162,7 +161,9 @@ const Attendance = () => {
                   onClick={() => toggleDate(date)}
                   className="bg-gray-300 text-black px-4 py-2 font-semibold flex justify-between items-center cursor-pointer"
                 >
-                  <span>📅 {date}</span>
+                  <span className="flex items-center gap-1">
+                    <FaRegCalendarAlt /> {date}
+                  </span>
                   <span className="text-lg">{openDates[date] ? "▼" : "▶"}</span>
                 </div>
 
@@ -183,9 +184,7 @@ const Attendance = () => {
                       <tbody>
                         {groupedByDate[date].map((item, index) => (
                           <tr key={index} className="hover:bg-gray-50">
-                            <td className="py-2 px-3">
-                              {index + 1}
-                            </td>
+                            <td className="py-2 px-3">{index + 1}</td>
                             <td className="py-2 px-3">
                               {highlightText(getEmployeeName(item.employeeId))}
                             </td>

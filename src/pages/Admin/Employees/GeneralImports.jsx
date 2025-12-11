@@ -32,7 +32,7 @@ const data = [
     id: 5,
     name: "Employee Work Types",
     importApi: "/EmployeeWorkType/import",
-    exportApi: "/EmployeeWorkType/export",
+    exportApi: "/EmployeeWorkType/export-work-types",
   },
   {
     id: 6,

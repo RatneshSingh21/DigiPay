@@ -42,7 +42,7 @@ const EmpSalaryDetails = () => {
 
   // 🔹 Filters
   const [viewType, setViewType] = useState("monthly");
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -199,16 +199,30 @@ const EmpSalaryDetails = () => {
                   <th className="p-2 border-r border-gray-200">S.No</th>
                   <th className="p-2 border-r border-gray-200">Emp Code</th>
                   <th className="p-2 border-r border-gray-200">Emp Name</th>
-                  <th className="p-2 border-r border-gray-200">Basic Salary</th>
+                  <th className="p-2 border-r border-gray-200">Month</th>
+                  <th className="p-2 border-r border-gray-200">Year</th>
+                  <th className="p-2 border-r border-gray-200">Basic</th>
                   <th className="p-2 border-r border-gray-200">HRA</th>
                   <th className="p-2 border-r border-gray-200">Conveyance</th>
                   <th className="p-2 border-r border-gray-200">
-                    Fixed Allowance
+                    Special Allow.
                   </th>
+
+                  <th className="p-2 border-r border-gray-200">Fixed Allow.</th>
                   <th className="p-2 border-r border-gray-200">Bonus</th>
-                  <th className="p-2 border-r border-gray-200">Overtime</th>
+                  <th className="p-2 border-r border-gray-200">OT Hours</th>
+                  <th className="p-2 border-r border-gray-200">OT Rate</th>
+                  <th className="p-2 border-r border-gray-200">OT Amount</th>
                   <th className="p-2 border-r border-gray-200">PF</th>
                   <th className="p-2 border-r border-gray-200">ESI</th>
+                  <th className="p-2 border-r border-gray-200">Prof. Tax</th>
+                  <th className="p-2 border-r border-gray-200">TDS</th>
+                  <th className="p-2 border-r border-gray-200">Arrears</th>
+                  <th className="p-2 border-r border-gray-200">Leave Encash</th>
+                  <th className="p-2 border-r border-gray-200">Loan</th>
+                  <th className="p-2 border-r border-gray-200">
+                    Other Deductions
+                  </th>
                   <th className="p-2 border-r border-gray-200">
                     Gross Earnings
                   </th>
@@ -217,9 +231,8 @@ const EmpSalaryDetails = () => {
                   </th>
                   <th className="p-2 border-r border-gray-200">Net Salary</th>
                   <th className="p-2 border-r border-gray-200">CTC</th>
-                  <th className="p-2 border-r border-gray-200">
-                    T.Working Days
-                  </th>
+                  <th className="p-2 border-r border-gray-200">Working Days</th>
+                  <th className="p-2 border-r border-gray-200">Absent</th>
                   <th className="p-2 border-r border-gray-200">Status</th>
                 </tr>
               </thead>
@@ -243,9 +256,16 @@ const EmpSalaryDetails = () => {
                         {emp.name || "-"}
                       </td>
                       <td className="p-2 border-r border-gray-200">
+                        {s.month}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">{s.year}</td>
+                      <td className="p-2 border-r border-gray-200">
                         {s.basicSalary}
                       </td>
                       <td className="p-2 border-r border-gray-200">{s.hra}</td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.specialAllowance}
+                      </td>
                       <td className="p-2 border-r border-gray-200">
                         {s.conveyanceAllowance}
                       </td>
@@ -256,13 +276,35 @@ const EmpSalaryDetails = () => {
                         {s.bonus}
                       </td>
                       <td className="p-2 border-r border-gray-200">
-                        {(s.overtimeHours * s.overtimeRate).toFixed(4)}
+                        {s.overtimeHours}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.overtimeRate}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {(s.overtimeHours * s.overtimeRate).toFixed(2)}
                       </td>
                       <td className="p-2 border-r border-gray-200">
                         {s.pfEmployee}
                       </td>
                       <td className="p-2 border-r border-gray-200">
                         {s.esicEmployee}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.professionalTax}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">{s.tds}</td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.arrears}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.leaveEncashment}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.loanRepayment}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.otherDeductions}
                       </td>
                       <td className="p-2 border-r border-gray-200">
                         {s.grossEarnings}
@@ -276,6 +318,9 @@ const EmpSalaryDetails = () => {
                       <td className="p-2 border-r border-gray-200">{s.ctc}</td>
                       <td className="p-2 border-r border-gray-200">
                         {s.totalWorkingDays}
+                      </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.absentDays}
                       </td>
                       <td className="p-2 border-r border-gray-200">
                         <StatusPill enabled={s.status === 1} />

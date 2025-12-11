@@ -101,12 +101,12 @@ const menuItems = [
 const AdminSidebar = ({ collapsed, setCollapsed }) => {
   return (
     <aside
-      className={`text-white fixed top-0 left-0 h-screen z-30 shadow-md transition-all duration-300 ${
+      className={`text-white fixed top-0 left-0 max-h-[100vh] z-30 shadow-md transition-all duration-300 ${
         collapsed ? "w-16" : "w-52"
       }`}
     >
       {/* Logo */}
-      <div className="p-4 flex items-center justify-center bg-white">
+      <div className="p-4 flex items-center justify-center bg-white h-[9vh]">
         <div className="flex items-center">
           <img src={assets.logo} alt="DigiCode Logo" className="w-8 h-8" />
           {!collapsed && (
@@ -118,7 +118,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
       </div>
 
       {/* Menu */}
-      <div className="bg-secondary h-full pt-5 m-1 rounded-md">
+      <div className="bg-secondary h-[90vh] pt-5 m-1 rounded-md">
         <nav className="px-2 rounded-sm text-lg">
           {menuItems.map((item) => (
             <AdminSidebarItem
