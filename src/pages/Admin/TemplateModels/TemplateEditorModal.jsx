@@ -1,30 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
-import PayslipPreview from "./PayslipPreview";
-import assets from "../../../assets/assets";
 
 const TemplateEditorModal = ({
   template,
+  config,
   onClose,
   PreviewComponent,
   onSave,
 }) => {
-  const [formState, setFormState] = useState({
-    showPAN: false,
-    showYTD: false,
-    showBank: true,
-    showWorkLocation: false,
-    showDepartment: false,
-    showDesignation: true,
-    showOrgName: true,
-    showOrgAddress: true,
-    logo: assets.Digicode,
-    logoSize: 140,
-    signature: null,
-    signatureAlign: "right",
-    orgName: "Digicode Software Pvt. Ltd.",
-    orgAddress: "123 Main Street City, State ZIP",
-  });
+  const [formState, setFormState] = useState(() => config || {});
+
+  useEffect(() => {
+    if (config) {
+      setFormState(config);
+    }
+  }, [config]);
 
   const handleCheckbox = (field) => {
     setFormState((prev) => ({ ...prev, [field]: !prev[field] }));

@@ -13,7 +13,6 @@ export default function PaymentAdjustmentForm({
   const initialFormData = {
     paymentType: "",
     complianceId: "",
-    otRateSlabId: "",
     maxAllowedAmount: "",
     isActive: true,
     isUserSelectable: true,
@@ -31,6 +30,8 @@ export default function PaymentAdjustmentForm({
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
+  const [showLinkedPayment, setShowLinkedPayment] = useState(false);
+
   const [otOptions, setOtOptions] = useState([]);
   const [complianceOptions, setComplianceOptions] = useState([]);
 
@@ -57,6 +58,9 @@ export default function PaymentAdjustmentForm({
           ? new Date(initialData.effectiveTo).toISOString().split("T")[0]
           : "",
       });
+
+      // 🔑 UI-only logic
+      setShowLinkedPayment(Number(initialData.linkedPaymentAdjustmentId) > 0);
     }
   }, [isEdit, initialData]);
 
@@ -231,26 +235,6 @@ export default function PaymentAdjustmentForm({
           />
         </div>
 
-        {/* OT Rate Slab Dropdown */}
-        <div>
-          <label className="block text-gray-700">OT Rate Slab</label>
-          <Select
-            options={otOptions}
-            value={otOptions.find((opt) => opt.value === formData.otRateSlabId)}
-            onChange={(selected) =>
-              handleSelectChange(selected, "otRateSlabId")
-            }
-            placeholder={
-              otOptions.length === 0
-                ? "No OT Rate Slabs Available"
-                : "Select OT Rate Slab"
-            }
-            noOptionsMessage={() => "No OT Rate Slabs found"}
-            isClearable
-          />
-        </div>
-
-
         <div>
           <label className="block text-gray-700">Execution Order</label>
           <input
@@ -321,18 +305,46 @@ export default function PaymentAdjustmentForm({
           />
         </div>
 
-        <div>
-          <label className="block text-gray-700">
-            Linked Payment Adjustment ID
-          </label>
+        {/* Link Payment Adjustment (UI only) */}
+        <div className="flex items-center space-x-2 col-span-2">
           <input
-            type="number"
-            name="linkedPaymentAdjustmentId"
-            value={formData.linkedPaymentAdjustmentId}
-            onChange={handleChange}
-            className={inputClass}
+            type="checkbox"
+            checked={showLinkedPayment}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setShowLinkedPayment(checked);
+
+              // keep API payload valid
+              if (!checked) {
+                setFormData((prev) => ({
+                  ...prev,
+                  linkedPaymentAdjustmentId: 0,
+                }));
+              }
+            }}
+            className="accent-primary"
           />
+          <label className="text-gray-700">
+            Link another Payment Adjustment
+          </label>
         </div>
+
+        {/* Show input ONLY when checkbox is checked */}
+        {showLinkedPayment && (
+          <div>
+            <label className="block text-gray-700">
+              Linked Payment Adjustment ID
+            </label>
+            <input
+              type="number"
+              name="linkedPaymentAdjustmentId"
+              value={formData.linkedPaymentAdjustmentId}
+              onChange={handleChange}
+              className={inputClass}
+              min={1}
+            />
+          </div>
+        )}
         <div></div>
 
         {/* Boolean fields */}

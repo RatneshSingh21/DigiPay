@@ -264,11 +264,12 @@ const EmpSalaryDetails = () => {
                       </td>
                       <td className="p-2 border-r border-gray-200">{s.hra}</td>
                       <td className="p-2 border-r border-gray-200">
-                        {s.specialAllowance}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
                         {s.conveyanceAllowance}
                       </td>
+                      <td className="p-2 border-r border-gray-200">
+                        {s.specialAllowance}
+                      </td>
+                      
                       <td className="p-2 border-r border-gray-200">
                         {s.fixedAllowance}
                       </td>

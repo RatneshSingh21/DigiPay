@@ -4,9 +4,9 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import ModalOverlay from "../../../components/ModalOverlay";
 import { toast } from "react-toastify";
 import assets from "../../../assets/assets";
-import PayScheduleForm from "../PaySchedule/PayScheduleForm";
+import PayScheduleForm from "./PayScheduleForm";
 import ConfirmModal from "../../../components/ConfirmModal";
-import ImportPayschedule from "../PaySchedule/ImportPayschedule";
+import ImportPayschedule from "./ImportPayschedule";
 
 const PaySchedule = () => {
   const [paySchedules, setPaySchedules] = useState([]);

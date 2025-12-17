@@ -50,11 +50,12 @@ import CreateSuperAdmin from "./pages/Admin/Settings/CreateSuperAdmin";
 import CreateAdminFromEmployee from "./pages/Admin/Settings/CreateAdminFromEmployee";
 import Departments from "./pages/Admin/Settings/Departments";
 import WorkLocations from "./pages/Admin/Settings/WorkLocations";
-import PaySchedule from "./pages/Admin/Settings/PaySchedule";
+import PaySchedule from "./pages/Admin/PaySchedule/PaySchedule";
 import Permissions from "./pages/Admin/Settings/Permissions";
 import Designation from "./pages/Admin/Settings/Designation";
 import StatusMaster from "./pages/Admin/Settings/StatusMaster";
 import Salary from "./pages/Admin/Settings/Salary";
+import SalaryCalculationType from "./pages/Admin/Settings/SalaryCalculationType/SalaryCalculationType";
 
 //Admin Role Pages
 import RoleMaster from "./pages/Admin/Role/RoleMaster";
@@ -85,7 +86,6 @@ import JobPosting from "./pages/Admin/Reports/PayrollReport/JobPosting";
 import OfferLetter from "./pages/Admin/Reports/PayrollReport/OfferLetter";
 import LetterOfIntent from "./pages/Admin/Reports/PayrollReport/LetterOfIntent";
 import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/NominationDeclaration";
-import LetterFieldMaster from "./pages/Admin/Settings/LetterFieldMaster";
 import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalStatement";
 import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificateEditor";
 import AdminReports from "./pages/Admin/Reports/AdminReports";
@@ -140,6 +140,7 @@ import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
+
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -255,13 +256,11 @@ const App = () => {
                   />
                   <Route path="work-locations" element={<WorkLocations />} />
                   <Route path="permissions" element={<Permissions />} />
-                  <Route path="payschedule" element={<PaySchedule />} />
                   <Route path="shifts" element={<Shifts />} />
                   <Route path="designation" element={<Designation />} />
                   <Route path="salary" element={<Salary />} />
                   <Route path="status-master" element={<StatusMaster />} />
-                  <Route path="field-master" element={<LetterFieldMaster />} />
-                  <Route path="attendance" element={<Attendance />} />
+                  <Route path="salary-calculation-type" element={<SalaryCalculationType />} />    
                 </Route>
 
                 {/* Role SubRoutes */}

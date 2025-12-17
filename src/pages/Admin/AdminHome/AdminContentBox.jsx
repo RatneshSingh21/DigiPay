@@ -95,12 +95,10 @@ const submenuMap = {
     "Designation",
     "Work Locations",
     "Permissions",
-    "PaySchedule",
     "Shifts",
     "Salary Configuration",
+    "Salary Calculation Type",
     "Status Master",
-    "Attendance",
-    // "LetterField Master",
   ],
 };
 

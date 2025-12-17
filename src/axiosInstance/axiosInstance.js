@@ -10,11 +10,13 @@ import { toast } from "react-toastify";
 //baseURL :"https://medisyspayapi.digicodesoftware.com/api",
 
 const axiosInstance = axios.create({
-  baseURL: "https://digipaydevops.digicodesoftware.com/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "http://localhost:5023/api",
 });
+
+// IMPORTANT FIX FOR FILE UPLOAD
+delete axiosInstance.defaults.headers.post["Content-Type"];
+delete axiosInstance.defaults.headers.common["Content-Type"];
+delete axiosInstance.defaults.headers.put["Content-Type"];
 
 // Attach token to all requests
 axiosInstance.interceptors.request.use(

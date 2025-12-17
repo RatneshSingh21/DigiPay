@@ -23,7 +23,6 @@ import {
 import {
   MdAdminPanelSettings,
   MdCelebration,
-  MdChecklistRtl,
   MdGavel,
   MdOutlineChecklistRtl,
   MdOutlineCorporateFare,
@@ -44,9 +43,11 @@ import {
   TbCalendarStats,
   TbCurrencyRupee,
   TbReportMoney,
+  TbMathFunction,
 } from "react-icons/tb";
 import { FaGears } from "react-icons/fa6";
 import { BsBriefcase, BsCashStack, BsPeople } from "react-icons/bs";
+
 
 // Label to path mapping
 const labelToPath = {
@@ -88,7 +89,7 @@ const labelToPath = {
   Shifts: "shifts",
   "Salary Configuration": "salary",
   "Status Master": "status-master",
-  "LetterField Master": "field-master",
+  "Salary Calculation Type": "salary-calculation-type",
 
   // Role
   "Role Master": "role-master",
@@ -194,6 +195,7 @@ const labelToIcon = {
   "Salary Configuration": <TbCurrencyRupee className="mr-2" />,
   "Status Master": <MdOutlineTrackChanges className="mr-2" />,
   "LetterField Master": <HiOutlineDocumentReport className="mr-2" />,
+  "Salary Calculation Type": <TbMathFunction className="mr-2" />,
 
   // Role
   "Role Master": <MdAdminPanelSettings className="mr-2" />,

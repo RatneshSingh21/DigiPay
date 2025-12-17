@@ -189,8 +189,7 @@ const PayslipPreview3 = ({ config }) => {
                   <td className="p-2">{earning.label}</td>
                   <td className="p-2 text-right">{earning.amount}</td>
                   {showYTD && <td className="p-2 text-right">{earning.ytd}</td>}
-                  <td className="p-2">{deduction.label}</td>{" "}
-                  {/* 👈 border-l hata diya */}
+                  <td className="p-2">{deduction.label}</td>
                   <td className="p-2 text-right">{deduction.amount}</td>
                   {showYTD && (
                     <td className="p-2 text-right">{deduction.ytd}</td>
@@ -205,8 +204,7 @@ const PayslipPreview3 = ({ config }) => {
                 ₹{totalEarnings.toLocaleString("en-IN")}
               </td>
               {showYTD && <td className="p-2 text-right"></td>}
-              <td className="p-2">Total Deductions</td>{" "}
-              {/* 👈 border-l hata diya */}
+              <td className="p-2">Total Deductions</td>
               <td className="p-2 text-right">
                 ₹{totalDeductions.toLocaleString("en-IN")}
               </td>
