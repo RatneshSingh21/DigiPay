@@ -8,6 +8,30 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
+/* ===================== MONTH UTILITY ===================== */
+const getLastMonths = (count = 12) => {
+  const months = [];
+  const now = new Date();
+
+  for (let i = 0; i < count; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+
+    months.push({
+      label: date.toLocaleString("default", {
+        month: "short",
+        year: "numeric",
+      }),
+      month: date.getMonth() + 1,
+      year: date.getFullYear(),
+    });
+  }
+
+  return months;
+};
+
+
+const MONTH_OPTIONS = getLastMonths(12);
+
 const AdminSummaryCards = () => {
   const [employees, setEmployees] = useState([]);
   const [summary, setSummary] = useState({
@@ -17,13 +41,14 @@ const AdminSummaryCards = () => {
     esiPaid: 0,
   });
 
-  const [salaryMonth, setSalaryMonth] = useState("previous");
-  const [otMonth, setOtMonth] = useState("previous");
-  const [pfEsiMonth, setPfEsiMonth] = useState("previous");
+  const DEFAULT_MONTH =
+    MONTH_OPTIONS.length > 1 ? MONTH_OPTIONS[1] : MONTH_OPTIONS[0];
 
-  // const currentMonth = new Date().getMonth() + 1; // e.g. 10 for October
+  const [salaryMonth, setSalaryMonth] = useState(DEFAULT_MONTH);
+  const [otMonth, setOtMonth] = useState(DEFAULT_MONTH);
+  const [pfEsiMonth, setPfEsiMonth] = useState(DEFAULT_MONTH);
 
-  // 🧾 Fetch employees (to show count)
+  /* ===================== EMPLOYEES ===================== */
   const fetchEmployees = async () => {
     try {
       const response = await axiosInstance.get("/Employee");
@@ -33,19 +58,13 @@ const AdminSummaryCards = () => {
     }
   };
 
-  // 💰 Fetch salary summary for current month
-
-  const fetchSalaryOnly = async (monthType = "current") => {
+  /* ===================== SALARY ===================== */
+  const fetchSalaryOnly = async ({ month, year }) => {
     try {
-      const now = new Date();
-      let month =
-        monthType === "current"
-          ? now.getMonth() + 1
-          : now.getMonth() === 0
-          ? 12
-          : now.getMonth();
+      const response = await axiosInstance.get(
+        `/Salary/month/${month}?year=${year}`
+      );
 
-      const response = await axiosInstance.get(`/Salary/month/${month}`);
       const salaries = response.data?.data || [];
 
       const totalSalaryPaid = salaries.reduce(
@@ -58,21 +77,18 @@ const AdminSummaryCards = () => {
         totalSalaryPaid,
       }));
     } catch (error) {
-      console.error("Error in salary summary:", error);
+      console.error("Error fetching salary summary:", error);
+      toast.error("Failed to fetch salary");
     }
   };
 
-  const fetchPfEsiOnly = async (monthType = "current") => {
+  /* ===================== PF + ESI ===================== */
+  const fetchPfEsiOnly = async ({ month, year }) => {
     try {
-      const now = new Date();
-      let month =
-        monthType === "current"
-          ? now.getMonth() + 1
-          : now.getMonth() === 0
-          ? 12
-          : now.getMonth();
+      const response = await axiosInstance.get(
+        `/Salary/month/${month}?year=${year}`
+      );
 
-      const response = await axiosInstance.get(`/Salary/month/${month}`);
       const salaries = response.data?.data || [];
 
       const pfPaid = salaries.reduce((sum, s) => sum + (s.pfEmployee || 0), 0);
@@ -88,82 +104,30 @@ const AdminSummaryCards = () => {
       }));
     } catch (error) {
       console.error("Error PF/ESI summary:", error);
+      toast.error("Failed to fetch PF/ESI");
     }
   };
 
-  // const fetchSalarySummary = async (monthType = "current") => {
-  //   try {
-  //     const now = new Date();
-  //     let month =
-  //       monthType === "current"
-  //         ? now.getMonth() + 1
-  //         : now.getMonth() === 0
-  //         ? 12
-  //         : now.getMonth();
-
-  //     const response = await axiosInstance.get(`/Salary/month/${month}`);
-  //     const salaries = response.data?.data || [];
-
-  //     const totalSalaryPaid = salaries.reduce(
-  //       (sum, s) => sum + (s.netSalary || 0),
-  //       0
-  //     );
-  //     const otPaid = salaries.reduce(
-  //       (sum, s) =>
-  //         sum +
-  //         (s.overtimeAmount && s.overtimeAmount > 0
-  //           ? s.overtimeAmount
-  //           : (s.overtimeRate || 0) * (s.overtimeHours || 0)),
-  //       0
-  //     );
-
-  //     const pfPaid = salaries.reduce((sum, s) => sum + (s.pfEmployee || 0), 0);
-  //     const esiPaid = salaries.reduce(
-  //       (sum, s) => sum + (s.esicEmployee || 0),
-  //       0
-  //     );
-
-  //     setSummary((prev) => ({
-  //       ...prev,
-  //       totalSalaryPaid,
-  //       pfPaid,
-  //       esiPaid,
-  //     }));
-  //   } catch (error) {
-  //     console.error("Error fetching salary summary:", error);
-  //     toast.error("Failed to fetch salary summary");
-  //   }
-  // };
-
-  // Fetch OT
-  const fetchOTSummary = async (monthType) => {
+  /* ===================== OT ===================== */
+  const fetchOTSummary = async ({ month, year }) => {
     try {
-      const response = await axiosInstance.get("/OTCalculation");
-      const data = response.data?.response || [];
-
-      const now = new Date();
-      let filterMonth, filterYear;
-
-      if (monthType === "current") {
-        filterMonth = now.getMonth();
-        filterYear = now.getFullYear();
-      } else {
-        filterMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
-        filterYear =
-          now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-      }
-
-      const filteredOT = data.filter((item) => {
-        const date = new Date(item.attendanceDate);
-        return (
-          date.getMonth() === filterMonth && date.getFullYear() === filterYear
-        );
-      });
-
-      const otPaid = filteredOT.reduce(
-        (sum, item) => sum + (item.otAmount || 0),
-        0
+      const response = await axiosInstance.get(
+        `/Salary/month/${month}?year=${year}`
       );
+
+      const data = response.data?.data || [];
+
+      const otPaid = data.reduce((sum, item) => {
+        // Priority: direct otAmount
+        if (item.otAmount && item.otAmount > 0) {
+          return sum + item.otAmount;
+        }
+
+        // Fallback: calculate from hours × rate
+        const hours = item.overtimeHours || 0;
+        const rate = item.overtimeRate || 0;
+        return sum + hours * rate;
+      }, 0);
 
       setSummary((prev) => ({
         ...prev,
@@ -171,14 +135,13 @@ const AdminSummaryCards = () => {
       }));
     } catch (error) {
       console.error("Error fetching OT summary:", error);
-      toast.error("Failed to fetch OT summary");
+      toast.error("Failed to fetch OT");
     }
   };
+
+  /* ===================== EFFECTS ===================== */
   useEffect(() => {
     fetchEmployees();
-    fetchSalaryOnly(); // salary for current month
-    fetchOTSummary(); // ot for current month
-    fetchPfEsiOnly(); // pf + esi for current month
   }, []);
 
   useEffect(() => {
@@ -193,24 +156,57 @@ const AdminSummaryCards = () => {
     fetchPfEsiOnly(pfEsiMonth);
   }, [pfEsiMonth]);
 
-  // 🧩 Card Data
+  /* ===================== DROPDOWN ===================== */
+  const MonthDropdown = ({ value, onChange }) => (
+    <select
+      value={`${value.month}-${value.year}`}
+      onChange={(e) => {
+        const [m, y] = e.target.value.split("-");
+        onChange(
+          MONTH_OPTIONS.find(
+            (opt) => opt.month == m && opt.year == y
+          )
+        );
+      }}
+      className="
+      text-xs font-semibold text-primary
+      bg-gray-50 hover:bg-gray-100
+      border border-gray-200
+      rounded-lg
+      px-2 py-1
+      shadow-sm
+      cursor-pointer
+      transition-all duration-200
+      focus:outline-none focus:ring-1 focus:ring-primary
+    "
+    >
+      {MONTH_OPTIONS.map((opt) => (
+        <option
+          key={`${opt.month}-${opt.year}`}
+          value={`${opt.month}-${opt.year}`}
+        >
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  );
+
+
+  /* ===================== CARDS ===================== */
   const cards = [
     {
       label: "Total Employees",
       value: employees.length,
-      // value: 122,
-      diff: `+${
-        employees.filter((emp) => {
-          if (!emp.dateOfJoining) return false;
-          const doj = new Date(emp.dateOfJoining);
-          const now = new Date();
-          return (
-            doj.getMonth() === now.getMonth() &&
-            doj.getFullYear() === now.getFullYear()
-          );
-        }).length
-      } Joined this month`,
-      // diff: `+21 Joined this month`,
+      diff: `+${employees.filter((emp) => {
+        if (!emp.dateOfJoining) return false;
+        const doj = new Date(emp.dateOfJoining);
+        const now = new Date();
+        return (
+          doj.getMonth() === now.getMonth() &&
+          doj.getFullYear() === now.getFullYear()
+        );
+      }).length
+        } Joined this month`,
       icon: <FaUserFriends />,
       color: "from-blue-500 to-blue-600",
     },
@@ -218,14 +214,10 @@ const AdminSummaryCards = () => {
       label: "Total Salary Paid",
       value: `₹${summary.totalSalaryPaid.toLocaleString()}`,
       diff: (
-        <select
+        <MonthDropdown
           value={salaryMonth}
-          onChange={(e) => setSalaryMonth(e.target.value)}
-          className="text-xs font-semibold text-primary bg-transparent border-none outline-none cursor-pointer"
-        >
-          <option value="current">This month</option>
-          <option value="previous">Previous month</option>
-        </select>
+          onChange={setSalaryMonth}
+        />
       ),
       icon: <FaMoneyCheckAlt />,
       color: "from-green-500 to-green-600",
@@ -234,26 +226,14 @@ const AdminSummaryCards = () => {
       label: "OT Amount Paid",
       value: `₹${summary.otPaid.toLocaleString()}`,
       diff: (
-        <select
+        <MonthDropdown
           value={otMonth}
-          onChange={(e) => setOtMonth(e.target.value)}
-          className="text-xs font-semibold text-primary bg-transparent border-none outline-none cursor-pointer"
-        >
-          <option value="current">This month</option>
-          <option value="previous">Previous month</option>
-        </select>
+          onChange={setOtMonth}
+        />
       ),
       icon: <FaClock />,
       color: "from-yellow-500 to-yellow-600",
     },
-    // {
-    //   label: "OT Amount Paid",
-    //   value: `₹${summary.otPaid.toLocaleString()}`,
-    //   // value: `₹1,52,040`,
-    //   diff: "This month",
-    //   icon: <FaClock />,
-    //   color: "from-yellow-500 to-yellow-600",
-    // },
     {
       label: "PF & ESI Contribution",
       customContent: (
@@ -263,20 +243,17 @@ const AdminSummaryCards = () => {
         </div>
       ),
       diff: (
-        <select
+        <MonthDropdown
           value={pfEsiMonth}
-          onChange={(e) => setPfEsiMonth(e.target.value)}
-          className="text-xs font-semibold text-primary bg-transparent border-none outline-none cursor-pointer"
-        >
-          <option value="current">This month</option>
-          <option value="previous">Previous month</option>
-        </select>
+          onChange={setPfEsiMonth}
+        />
       ),
       icon: <FaHandHoldingUsd />,
       color: "from-purple-500 to-pink-500",
     },
   ];
 
+  /* ===================== UI ===================== */
   return (
     <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {cards.map((card, index) => (
@@ -298,8 +275,12 @@ const AdminSummaryCards = () => {
               {card.icon}
             </div>
           </div>
-          <div className="text-sm font-medium text-gray-500">{card.label}</div>
-          <div className="text-xs font-semibold text-primary">{card.diff}</div>
+          <div className="text-sm font-medium text-gray-500">
+            {card.label}
+          </div>
+          <div className="text-xs font-semibold text-primary">
+            {card.diff}
+          </div>
         </div>
       ))}
     </div>
@@ -307,6 +288,7 @@ const AdminSummaryCards = () => {
 };
 
 export default AdminSummaryCards;
+
 
 
 

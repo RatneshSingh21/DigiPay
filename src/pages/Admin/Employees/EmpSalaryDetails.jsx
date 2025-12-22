@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 import assets from "../../../assets/assets";
-import Pagination from "../../../components/Pagination";
 
 const StatusPill = ({ enabled }) => (
   <span
@@ -15,6 +14,16 @@ const StatusPill = ({ enabled }) => (
     {enabled ? "Paid" : "Pending"}
   </span>
 );
+
+/* 🔹 INR Currency Formatter */
+const formatCurrency = (value) => {
+  if (value === null || value === undefined || isNaN(value)) return "₹0.00";
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+  }).format(value);
+};
 
 const months = [
   { label: "Jan", value: 1 },
@@ -40,7 +49,6 @@ const EmpSalaryDetails = () => {
   const [salaries, setSalaries] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Filters
   const [viewType, setViewType] = useState("monthly");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -48,23 +56,17 @@ const EmpSalaryDetails = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeMap, setEmployeeMap] = useState({});
 
-  // 🔹 Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [perPageData, setPerPageData] = useState(10);
-
+  /* 🔹 Fetch Salaries */
   const fetchSalaries = async () => {
     setLoading(true);
     try {
-      let response;
-      if (viewType === "monthly") {
-        response = await axiosInstance.get(`/Salary/month/${selectedMonth}`);
-      } else {
-        response = await axiosInstance.get(`/Salary/year/${selectedYear}`);
-      }
+      const response =
+        viewType === "monthly"
+          ? await axiosInstance.get(`/Salary/month/${selectedMonth}`)
+          : await axiosInstance.get(`/Salary/year/${selectedYear}`);
+
       setSalaries(response.data?.data || []);
-      console.log(response.data?.data || []);
     } catch (error) {
-      console.error("Error fetching salary data:", error);
       toast.error(
         error?.response?.data?.message || "Error fetching salary data"
       );
@@ -73,51 +75,149 @@ const EmpSalaryDetails = () => {
     }
   };
 
-  useEffect(() => {
-    fetchSalaries();
-  }, [viewType, selectedMonth, selectedYear]);
-
-  // Fetch Employees
-  const fetchEmployees = async () => {
+  /* 🔹 Export All Salaries */
+  const handleExportSalaries = async () => {
     try {
-      const response = await axiosInstance.get("/Employee");
-      if (response.status === 200) {
-        const map = {};
-        response.data.forEach((emp) => {
-          map[emp.id] = {
-            name: emp.fullName,
-            code: emp.employeeCode,
-          };
-        });
-        setEmployeeMap(map);
+      toast.info("Preparing export...");
+
+      const response = await axiosInstance.get("/Salary/ExportAllSalaries", {
+        responseType: "blob", // IMPORTANT for file download
+      });
+
+      // Create a downloadable link
+      const blob = new Blob([response.data], {
+        type:
+          response.headers["content-type"] ||
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Get filename from header if available
+      const contentDisposition = response.headers["content-disposition"];
+      let fileName = "AllSalaries.xlsx";
+
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?(.+)/);
+        if (match && match[1]) {
+          fileName = decodeURIComponent(match[1]);
+        }
       }
+
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Salary export downloaded successfully");
     } catch (error) {
-      console.error("Error fetching employees:", error);
+      console.error(error);
+      toast.error(
+        error?.response?.data?.message || "Failed to export salary data"
+      );
     }
   };
 
   useEffect(() => {
-    fetchEmployees();
+    fetchSalaries();
+  }, [viewType, selectedMonth, selectedYear]);
+
+  /* 🔹 Fetch Employees */
+  useEffect(() => {
+    axiosInstance.get("/Employee").then((res) => {
+      const map = {};
+      res.data.forEach((emp) => {
+        map[emp.id] = { name: emp.fullName, code: emp.employeeCode };
+      });
+      setEmployeeMap(map);
+    });
   }, []);
 
+  /* 🔹 Search Filter */
   const filteredSalaries = useMemo(() => {
-    if (!searchTerm) return salaries;
+    let result = [...salaries];
 
-    return salaries.filter((s) => {
-      const emp = employeeMap[s.employeeId];
-      const empName = emp?.name?.toLowerCase() || "";
-      return empName.includes(searchTerm.toLowerCase());
+    // 🔍 Filter by employee name
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      result = result.filter((s) =>
+        employeeMap[s.employeeId]?.name?.toLowerCase().includes(lower)
+      );
+    }
+
+    // 🔃 Sort by Employee Code (safe for EMP01, EMP2, 1001 etc.)
+    result.sort((a, b) => {
+      const codeA = employeeMap[a.employeeId]?.code || "";
+      const codeB = employeeMap[b.employeeId]?.code || "";
+
+      return codeA.localeCompare(codeB, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
     });
+
+    return result;
   }, [salaries, searchTerm, employeeMap]);
 
-  // 🔹 Pagination calc
-  const totalDataLength = filteredSalaries.length;
-  const totalPages = Math.ceil(totalDataLength / perPageData);
-  const indexOfLast = currentPage * perPageData;
-  const indexOfFirst = indexOfLast - perPageData;
-  const currentSalaries = filteredSalaries.slice(indexOfFirst, indexOfLast);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  /* 🔹 Totals */
+  const totals = useMemo(() => {
+    return filteredSalaries.reduce(
+      (a, s) => {
+        a.basic += s.basicSalary || 0;
+        a.hra += s.hra || 0;
+        a.conveyance += s.conveyanceAllowance || 0;
+        a.special += s.specialAllowance || 0;
+        a.fixed += s.fixedAllowance || 0;
+        a.bonus += s.bonus || 0;
+        a.otHours += s.overtimeHours || 0;
+        a.otAmount += (s.overtimeHours || 0) * (s.overtimeRate || 0);
+        a.pf += s.pfEmployee || 0;
+        a.esi += s.esicEmployee || 0;
+        a.tax += s.professionalTax || 0;
+        a.tds += s.tds || 0;
+        a.arrears += s.arrears || 0;
+        a.leaveEncash += s.leaveEncashment || 0;
+        a.loan += s.loanRepayment || 0;
+        a.otherDed += s.otherDeductions || 0;
+        a.gross += s.grossEarnings || 0;
+        a.totalDed += s.totalDeductions || 0;
+        a.net += s.netSalary || 0;
+        a.ctc += s.ctc || 0;
+        a.working += s.totalWorkingDays || 0;
+        a.absent += s.absentDays || 0;
+        return a;
+      },
+      {
+        basic: 0,
+        hra: 0,
+        conveyance: 0,
+        special: 0,
+        fixed: 0,
+        bonus: 0,
+        otHours: 0,
+        otAmount: 0,
+        pf: 0,
+        esi: 0,
+        tax: 0,
+        tds: 0,
+        arrears: 0,
+        leaveEncash: 0,
+        loan: 0,
+        otherDed: 0,
+        gross: 0,
+        totalDed: 0,
+        net: 0,
+        ctc: 0,
+        working: 0,
+        absent: 0,
+      }
+    );
+  }, [filteredSalaries]);
 
   return (
     <div className="bg-white shadow rounded-xl">
@@ -182,6 +282,13 @@ const EmpSalaryDetails = () => {
               className="px-3 py-2 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm w-[100px]"
             />
           )}
+
+          <button
+            onClick={handleExportSalaries}
+            className="px-4 py-2 bg-green-600 cursor-pointer text-white rounded-md text-sm font-medium hover:bg-green-700 transition"
+          >
+            Export Excel
+          </button>
         </div>
       </div>
 
@@ -191,161 +298,217 @@ const EmpSalaryDetails = () => {
           <Spinner />
         </div>
       ) : filteredSalaries.length > 0 ? (
-        <>
-          <div className="mt-4 mx-4 border max-w-xl md:max-w-5xl 2xl:max-w-full overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh]">
-            <table className="text-xs">
-              <thead className="bg-gray-100 text-gray-700 sticky top-0">
-                <tr className="text-center">
-                  <th className="p-2 border-r border-gray-200">S.No</th>
-                  <th className="p-2 border-r border-gray-200">Emp Code</th>
-                  <th className="p-2 border-r border-gray-200">Emp Name</th>
-                  <th className="p-2 border-r border-gray-200">Month</th>
-                  <th className="p-2 border-r border-gray-200">Year</th>
-                  <th className="p-2 border-r border-gray-200">Basic</th>
-                  <th className="p-2 border-r border-gray-200">HRA</th>
-                  <th className="p-2 border-r border-gray-200">Conveyance</th>
-                  <th className="p-2 border-r border-gray-200">
-                    Special Allow.
-                  </th>
+        <div className="mt-4 mx-auto border max-w-xl md:max-w-5xl xl:max-w-6xl  2xl:max-w-full overflow-x-scroll border-gray-200 rounded-lg max-h-[80vh]">
+          <table className="text-xs">
+            <thead className="bg-gray-100 text-gray-700 sticky top-0">
+              <tr className="text-center">
+                <th className="p-2 border-r border-gray-200">S.No</th>
+                <th className="p-2 border-r border-gray-200">Emp Code</th>
+                <th className="p-2 border-r border-gray-200">Emp Name</th>
+                <th className="p-2 border-r border-gray-200">Month</th>
+                <th className="p-2 border-r border-gray-200">Year</th>
+                <th className="p-2 border-r border-gray-200">Basic</th>
+                <th className="p-2 border-r border-gray-200">HRA</th>
+                <th className="p-2 border-r border-gray-200">Conveyance</th>
+                <th className="p-2 border-r border-gray-200">Special Allow.</th>
 
-                  <th className="p-2 border-r border-gray-200">Fixed Allow.</th>
-                  <th className="p-2 border-r border-gray-200">Bonus</th>
-                  <th className="p-2 border-r border-gray-200">OT Hours</th>
-                  <th className="p-2 border-r border-gray-200">OT Rate</th>
-                  <th className="p-2 border-r border-gray-200">OT Amount</th>
-                  <th className="p-2 border-r border-gray-200">PF</th>
-                  <th className="p-2 border-r border-gray-200">ESI</th>
-                  <th className="p-2 border-r border-gray-200">Prof. Tax</th>
-                  <th className="p-2 border-r border-gray-200">TDS</th>
-                  <th className="p-2 border-r border-gray-200">Arrears</th>
-                  <th className="p-2 border-r border-gray-200">Leave Encash</th>
-                  <th className="p-2 border-r border-gray-200">Loan</th>
-                  <th className="p-2 border-r border-gray-200">
-                    Other Deductions
-                  </th>
-                  <th className="p-2 border-r border-gray-200">
-                    Gross Earnings
-                  </th>
-                  <th className="p-2 border-r border-gray-200">
-                    Total Deductions
-                  </th>
-                  <th className="p-2 border-r border-gray-200">Net Salary</th>
-                  <th className="p-2 border-r border-gray-200">CTC</th>
-                  <th className="p-2 border-r border-gray-200">Working Days</th>
-                  <th className="p-2 border-r border-gray-200">Absent</th>
-                  <th className="p-2 border-r border-gray-200">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-center">
-                {currentSalaries.map((s, idx) => {
-                  const emp = employeeMap[s.employeeId] || {};
-                  return (
-                    <tr
-                      key={s.salaryId}
-                      className={`border-b text-center ${
-                        idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      } hover:bg-gray-100 transition-all`}
-                    >
-                      <td className="p-2 border-r border-gray-200">
-                        {idx + 1}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {emp.code || "-"}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {emp.name || "-"}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.month}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">{s.year}</td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.basicSalary}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">{s.hra}</td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.conveyanceAllowance}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.specialAllowance}
-                      </td>
-                      
-                      <td className="p-2 border-r border-gray-200">
-                        {s.fixedAllowance}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.bonus}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.overtimeHours}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.overtimeRate}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {(s.overtimeHours * s.overtimeRate).toFixed(2)}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.pfEmployee}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.esicEmployee}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.professionalTax}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">{s.tds}</td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.arrears}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.leaveEncashment}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.loanRepayment}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.otherDeductions}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.grossEarnings}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.totalDeductions}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.netSalary}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">{s.ctc}</td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.totalWorkingDays}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        {s.absentDays}
-                      </td>
-                      <td className="p-2 border-r border-gray-200">
-                        <StatusPill enabled={s.status === 1} />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                <th className="p-2 border-r border-gray-200">Fixed Allow.</th>
+                <th className="p-2 border-r border-gray-200">Bonus</th>
+                <th className="p-2 border-r border-gray-200">OT Hours</th>
+                <th className="p-2 border-r border-gray-200">OT Rate</th>
+                <th className="p-2 border-r border-gray-200">OT Amount</th>
+                <th className="p-2 border-r border-gray-200">PF</th>
+                <th className="p-2 border-r border-gray-200">ESI</th>
+                <th className="p-2 border-r border-gray-200">Prof. Tax</th>
+                <th className="p-2 border-r border-gray-200">TDS</th>
+                <th className="p-2 border-r border-gray-200">Arrears</th>
+                <th className="p-2 border-r border-gray-200">Leave Encash</th>
+                <th className="p-2 border-r border-gray-200">Loan</th>
+                <th className="p-2 border-r border-gray-200">
+                  Other Deductions
+                </th>
+                <th className="p-2 border-r border-gray-200">Gross Earnings</th>
+                <th className="p-2 border-r border-gray-200">
+                  Total Deductions
+                </th>
+                <th className="p-2 border-r border-gray-200">Net Salary</th>
+                <th className="p-2 border-r border-gray-200">CTC</th>
+                <th className="p-2 border-r border-gray-200">Working Days</th>
+                <th className="p-2 border-r border-gray-200">Absent</th>
+                <th className="p-2 border-r border-gray-200">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-center">
+              {filteredSalaries.map((s, idx) => {
+                const emp = employeeMap[s.employeeId] || {};
+                return (
+                  <tr
+                    key={s.salaryId}
+                    className={`border-b text-center ${
+                      idx % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-gray-100 transition-all`}
+                  >
+                    <td className="p-2 border-r border-gray-200">{idx + 1}</td>
+                    <td className="p-2 border-r border-gray-200">
+                      {emp.code || "-"}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {emp.name || "-"}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">{s.month}</td>
+                    <td className="p-2 border-r border-gray-200">{s.year}</td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.basicSalary}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">{s.hra}</td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.conveyanceAllowance}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.specialAllowance}
+                    </td>
 
-          {/* Pagination */}
-          <div className="flex justify-end pr-10">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              paginate={paginate}
-              perPageData={perPageData}
-              setPerPageData={setPerPageData}
-              filteredData={filteredSalaries}
-              totalDataLength={totalDataLength}
-            />
-          </div>
-        </>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.fixedAllowance}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">{s.bonus}</td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.overtimeHours}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.overtimeRate}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {(s.overtimeHours * s.overtimeRate).toFixed(2)}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.pfEmployee}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.esicEmployee}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.professionalTax}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">{s.tds}</td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.arrears}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.leaveEncashment}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.loanRepayment}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.otherDeductions}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.grossEarnings}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.totalDeductions}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.netSalary}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">{s.ctc}</td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.totalWorkingDays}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {s.absentDays}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      <StatusPill enabled={s.status === 1} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot className="bg-blue-50 sticky bottom-0 z-10 font-semibold">
+              <tr className="text-center border-t">
+                <td className="p-2 border-r border-gray-200" colSpan={5}>
+                  TOTAL
+                </td>
+
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.basic)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.hra)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.conveyance)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.special)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.fixed)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.bonus)}
+                </td>
+
+                <td className="p-2 border-r border-gray-200">
+                  {totals.otHours}
+                </td>
+                <td className="p-2 border-r border-gray-200">—</td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.otAmount)}
+                </td>
+
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.pf)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.esi)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.tax)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.tds)}
+                </td>
+
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.arrears)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.leaveEncash)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.loan)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.otherDed)}
+                </td>
+
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.gross)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.totalDed)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.net)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {formatCurrency(totals.ctc)}
+                </td>
+
+                <td className="p-2 border-r border-gray-200">
+                  {totals.working}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  {totals.absent}
+                </td>
+                <td className="p-2 border-r border-gray-200">—</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-14">
           <img

@@ -548,7 +548,7 @@ const OrganisationProfile = () => {
                 <img
                   src={logoPreview}
                   alt="Logo"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-gray-600">

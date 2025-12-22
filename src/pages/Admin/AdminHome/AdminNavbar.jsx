@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "../../../store/authStore";
 import ProfileSettingsDrawer from "../../../components/ProfileSettingsDrawer";
 import AdminSettingsDrawer from "./AdminSettingsDrawer";
+import CompanySwitchModal from "../../../components/CompanySwitchModal"; // ✅ ADD
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import NotificationPanel from "./NotificationPanel";
@@ -18,7 +19,10 @@ const AdminNavbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
   const [adminDrawerOpen, setAdminDrawerOpen] = useState(false);
+
   const [companyName, setCompanyName] = useState("Loading...");
+  const [companyModalOpen, setCompanyModalOpen] = useState(false); // ✅ ADD
+
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -28,6 +32,7 @@ const AdminNavbar = () => {
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
   const companyId = useAuthStore((state) => state.companyId);
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -36,7 +41,7 @@ const AdminNavbar = () => {
     navigate("/");
   };
 
-  // 🔹 Fetch company
+  // 🔹 Fetch company name
   useEffect(() => {
     const fetchCompany = async () => {
       if (!companyId) return;
@@ -56,18 +61,17 @@ const AdminNavbar = () => {
       try {
         const response = await axiosInstance.get(`/ApprovalMaster`);
         setNotifications(response.data.data || []);
-        // console.log("Fetched Notifications" + JSON.stringify(response.data.data || []));
-        
       } catch (error) {
         console.error("Failed to fetch notifications:", error);
       }
     };
-    fetchApprovals();
 
+    fetchApprovals();
     const interval = setInterval(fetchApprovals, 300000);
     return () => clearInterval(interval);
   }, []);
 
+  // 🔹 Click outside handlers
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -91,7 +95,10 @@ const AdminNavbar = () => {
         {/* Company Branding */}
         <div className="flex items-center gap-2">
           <div className="flex flex-col leading-tight">
-            <span className="font-bold text-sm text-primary tracking-wide">
+            <span
+              className="font-bold text-sm text-primary tracking-wide cursor-pointer hover:underline"
+              onClick={() => setCompanyModalOpen(true)} // ✅ CLICK OPENS MODAL
+            >
               {companyName}
             </span>
             <span className="text-xs text-gray-500 -mt-1">
@@ -139,7 +146,7 @@ const AdminNavbar = () => {
             </AnimatePresence>
           </div>
 
-          {/* Settings Icon */}
+          {/* Settings */}
           <button
             className="text-gray-600 cursor-pointer hover:text-black p-2 rounded-full hover:bg-gray-200 transition"
             onClick={() => setAdminDrawerOpen(true)}
@@ -147,7 +154,7 @@ const AdminNavbar = () => {
             <FaCog />
           </button>
 
-          {/* Profile Dropdown */}
+          {/* Profile */}
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileMenuOpen((prev) => !prev)}
@@ -192,7 +199,7 @@ const AdminNavbar = () => {
             </AnimatePresence>
           </div>
 
-          {/* Direct Logout Button */}
+          {/* Direct Logout */}
           <button
             className="text-gray-600 cursor-pointer hover:text-red-600 p-2 rounded-full hover:bg-red-50 transition"
             title="Logout"
@@ -208,9 +215,17 @@ const AdminNavbar = () => {
         isOpen={profileDrawerOpen}
         onClose={() => setProfileDrawerOpen(false)}
       />
+
       <AdminSettingsDrawer
         isOpen={adminDrawerOpen}
         onClose={() => setAdminDrawerOpen(false)}
+      />
+
+      {/* Company Switch Modal */}
+      <CompanySwitchModal
+        isOpen={companyModalOpen}
+        onClose={() => setCompanyModalOpen(false)}
+        currentCompanyId={companyId}
       />
     </>
   );

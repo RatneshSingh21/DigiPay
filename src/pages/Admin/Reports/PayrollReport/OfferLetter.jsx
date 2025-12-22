@@ -1,295 +1,748 @@
-
-import React, { useRef, useState } from "react";
-import { useReactToPrint } from "react-to-print";
-import assets from "../../../../assets/assets";
+import React, { useEffect, useRef, useState } from "react";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
+import { generateLetterPdf } from "../PdfUtils";
+import ReactMarkdown from "react-markdown";
 
 export default function OfferLetter() {
-  const certificateRef = useRef();
+  const certificateRef = useRef(null);
 
-  const [useDefaultHeader, setUseDefaultHeader] = useState(true);
-  const [useDefaultFooter, setUseDefaultFooter] = useState(true);
-  const [customHeader, setCustomHeader] = useState(null);
-  const [customFooter, setCustomFooter] = useState(null);
+  const [org, setOrg] = useState({});
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const [formData, setFormData] = useState({
-    logoUrl: assets.Digicode,
-    logoSize: 40,
-    organizationName: "DigiCode Software Pvt. Ltd.",
-    date: "19-Sep-2025",
-    employeeName: "Ratnesh Singh",
-    employeeAddress: "123 Main Street City, State ZIP",
-    subject: "Offer Letter",
-    designation: "Manager - Quality Assurance",
-    joinDate: "15-Oct-2025",
-    conditions:
-      "Please refer to the meeting you had with us. As discussed, we are pleased to offer you the position of Manager - Quality Assurance in our organization on the terms and conditions mutually discussed & agreed during the meeting.",
-    rules:
-      "You will abide by all rules and regulations of the company in vogue from time to time.",
-    appointment:
-      "You will be issued a detailed appointment letter within one week of your joining the duty.",
-    relieving:
-      "This offer is subject to your producing relieving certificate from the present employer, if any, at the time of joining the employment of the company.",
-    documents:
-      "Please bring with you a copy of your educational qualification certificates, five-colored passport sized photographs, Medical fitness certificate, Blood group test report, last 3 month salary slip, Bank statement certificate as well as a copy of this letter of intent.",
-    acceptance:
-      "Please sign the duplicate copy of this letter as a token of acceptance.",
-    signatory: "Authorized Signatory",
-    signatureUrl: "",
+  const [paragraphs, setParagraphs] = useState([
+    "We are pleased to offer you the position of **{JobTitle}** in the **{Department}** at **{CompanyName}**, subject to the terms and conditions outlined in this letter.",
+
+    "Your employment will commence from **{DateOfJoining}**. You will initially be placed on **{EmploymentType}** for a period of **{Duration}**, during which your performance and conduct will be reviewed.",
+
+    "Your total annual compensation (CTC) will be **₹{Salary}**, payable as per the company’s salary structure and applicable statutory deductions.",
+
+    "You will be required to comply with all company policies, rules, and regulations, as amended from time to time, including confidentiality and code of conduct policies.",
+
+    "This offer is contingent upon successful verification of your documents and background. Please sign and return a copy of this letter as acceptance of the offer."
+  ]);
+
+  const [form, setForm] = useState({
+    CandidateName: "Rahul Sharma",
+    Email: "ry027674@gmail.com",
+    Phone: "9876543210",
+    Address: "New Delhi, India",
+    DateOfJoining: "2025-01-15",
+    IssuedDate: "2025-01-01",
+    JobTitle: "Software Engineer",
+    EmploymentType: "Probation",
+    Salary: 600000,
+    Duration: "Six months",
+    Department: "IT Department",
   });
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const [uiSettings, setUiSettings] = useState({
+    showLogo: true,
+    showAddress: true,
+    showCompanyName: true,
 
-  const handleFileUpload = (e, field) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (field === "logo") setFormData({ ...formData, logoUrl: reader.result });
-      else if (field === "header") setCustomHeader(reader.result);
-      else if (field === "footer") setCustomFooter(reader.result);
-      else if (field === "signature") setFormData({ ...formData, signatureUrl: reader.result });
-    };
-    reader.readAsDataURL(file);
+    logoSize: 30, // px
+    signatureSize: 56, // px
+    signatureAlign: "left", // left | center | right
+
+    companyNameColor: "#000000", // black | white
+    addressColor: "#000000", // black | white
+  });
+
+  const replaceVars = (text) => {
+    return text
+      .replaceAll("{CandidateName}", form.CandidateName || "")
+      .replaceAll("{JobTitle}", form.JobTitle || "")
+      .replaceAll("{Department}", form.Department || "")
+      .replaceAll("{CompanyName}", org.company?.companyName || "")
+      .replaceAll(
+        "{DateOfJoining}",
+        form.DateOfJoining
+          ? new Date(form.DateOfJoining).toLocaleDateString("en-GB")
+          : ""
+      )
+      .replaceAll("{EmploymentType}", form.EmploymentType || "")
+      .replaceAll("{Duration}", form.Duration || "")
+      .replaceAll(
+        "{Salary}",
+        form.Salary
+          ? Number(form.Salary).toLocaleString("en-IN")
+          : "0"
+      );
   };
 
-  const handlePrint = useReactToPrint({
-  contentRef: certificateRef,
-    pageStyle: `
-      @page { 
-        size: A4;
-        margin: 0;
+  /* ================= LOAD ORG ================= */
+  useEffect(() => {
+    console.group("📦 Load Organization");
+    const loadOrg = async () => {
+      try {
+        const res = await axiosInstance.get("/OrganizationProfile/full");
+        console.log("✅ Org API Response:", res.data);
+        setOrg(res.data);
+      } catch (err) {
+        console.error("❌ Org API Failed:", err);
+        toast.error("Failed to load organization profile");
+      } finally {
+        console.groupEnd();
       }
-      body { margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      .print-container { width:210mm; min-width:210mm; height:297mm; min-height:297mm; margin:0; padding:0; box-sizing:border-box; }
-    `,
-  });
+    };
+    loadOrg();
+  }, []);
 
-  const formatDate = (dateStr) => {
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
-  return d.toISOString().split("T")[0]; // yyyy-MM-dd
-};
+  /* ================= PARAGRAPHS ================= */
+  const updatePara = (i, val) => {
+    console.log(`✏️ Updating paragraph ${i}`, val);
+    const copy = [...paragraphs];
+    copy[i] = val;
+    setParagraphs(copy);
+  };
 
-  
-const handleSubmit = async () => {
-  try {
-    const { logoUrl, signatureUrl, ...safeFormData } = formData;
+  const addPara = () => {
+    console.log("➕ Adding paragraph");
+    setParagraphs([...paragraphs, ""]);
+  };
 
- const payload = {
-  candidateName: formData.employeeName,
-  address: formData.employeeAddress,
-  dateOfJoining: new Date(formData.joinDate).toISOString(),
-  issuedDate: new Date(formData.date).toISOString(),
-  jobTitle: formData.designation,
-  employmentType: "Full-Time",
-  salary: 0,
-  duration: "Permanent",
-  department: "QA",
-  templateId: 1,
-  customFieldsJson: JSON.stringify({
-    conditions: formData.conditions,
-    rules: formData.rules,
-    appointment: formData.appointment,
-    relieving: formData.relieving,
-    documents: formData.documents,
-    acceptance: formData.acceptance,
-    signatory: formData.signatory,
-    signatureUrl: formData.signatureUrl,
-    logoUrl: formData.logoUrl,
-    logoSize: formData.logoSize
-  }),
-};
+  const removePara = (i) => {
+    console.log("🗑️ Removing paragraph", i);
+    setParagraphs(paragraphs.filter((_, idx) => idx !== i));
+  };
 
-    console.log("Final payload:", payload);
+  /* ================= SUBMIT ================= */
+  /* ================= UPLOAD DIAGNOSTICS ================= */
+  /**
+   * Logs detailed info about API requests/responses and network errors
+   */
+  const handleSubmit = async () => {
+    console.group("🚀 Offer Letter Submit");
 
-    const res = await axiosInstance.post("OfferLetter", payload);
-    console.log("Offer letter saved:", res.data);
-    toast.success("Offer Letter submitted successfully!");
-  } catch (error) {
-    console.error("Error submitting offer letter:", error);
-    toast.error("Failed to submit offer letter!");
-  }
-};
+    try {
+      if (!certificateRef.current) {
+        console.error("❌ certificateRef is NULL - preview not ready");
+        toast.error("Preview not ready");
+        return;
+      }
 
+      console.log("📝 Form Data:", form);
+      console.log("📄 Paragraphs:", paragraphs);
 
-  // Reusable Header for print
-  const Header = () => (
-    <div className="print-header relative w-full">
-      <div className="relative w-full">
-        <img
-          src={useDefaultHeader || !customHeader ? assets.Header : customHeader}
-          alt="Header"
-          className="w-full object-cover"
-        />
-        <div className="absolute inset-0 flex items-center justify-between p-6">
-          <img
-            src={formData.logoUrl}
-            alt="Logo"
-            className="object-contain bg-white p-1 rounded shadow"
-            style={{ height: formData.logoSize }}
-          />
-          <div className="text-right">
-            <h2 className="font-bold text-xl">{formData.organizationName}</h2>
-            {/* optional address could be added here if needed */}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+      setUploadProgress(0);
 
-  // Reusable Footer for print
-  const Footer = () => (
-    <div className="print-footer absolute bottom-0 w-full">
-      <img
-        src={useDefaultFooter || !customFooter ? assets.Footer : customFooter}
-        alt="Footer"
-        className="w-full object-cover"
-      />
-      <div className="absolute inset-0 flex flex-col justify-center items-center p-4 font-medium text-sm">
-        <p>{formData.organizationName}</p>
-         <p>{formData.employeeAddress}</p>
-        {/* additional footer lines can be enabled */}
-      </div>
-    </div>
-  );
+      /* ================= PDF GENERATION ================= */
+      console.log("🖨️ Generating PDF...");
+      const result = await generateOfferLetterPdf(certificateRef, {
+        debug: true,
+      });
 
+      if (!result?.blob) throw new Error("PDF Blob missing");
+
+      console.log("✅ PDF Generated:", {
+        size: result.blob.size,
+        type: result.blob.type,
+      });
+
+      /* ================= FORM DATA ================= */
+      const fd = new FormData();
+      const payload = {
+        CandidateName: form.CandidateName,
+        Email: form.Email,
+        Phone: form.Phone,
+        Address: form.Address,
+        JobTitle: form.JobTitle,
+        EmploymentType: form.EmploymentType,
+        Department: form.Department,
+        Duration: form.Duration,
+        Salary: Number(form.Salary),
+        DateOfJoining: new Date(form.DateOfJoining).toISOString(),
+        IssuedDate: new Date(form.IssuedDate).toISOString(),
+      };
+      Object.entries(payload).forEach(([k, v]) => fd.append(k, v));
+
+      fd.append("CustomFieldsJson", "");
+      fd.append("File", result.blob, "OfferLetter.pdf");
+
+      console.log("📡 Uploading to API...");
+
+      const res = await axiosInstance.post("/OfferLetter/create", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (e) => {
+          const percent = e.total ? Math.round((e.loaded * 100) / e.total) : 0;
+          console.log(`⬆️ Upload Progress: ${percent}%`);
+          setUploadProgress(percent);
+        },
+      });
+
+      console.log("✅ API Success Response:", res.data);
+      toast.success("Offer Letter uploaded successfully");
+
+      URL.revokeObjectURL(result.url);
+    } catch (err) {
+      console.error("❌ Offer Letter Upload Failed:", err);
+
+      // Axios response error
+      if (err.response) {
+        console.error("📄 API Error Data:", err.response.data);
+        console.error("📄 API Status:", err.response.status);
+      }
+
+      // Axios request error
+      if (err.request) {
+        console.error("📡 Network / Request Error:", err.request);
+      }
+
+      // General message
+      if (err.message) console.error("📝 Error Message:", err.message);
+
+      toast.error("Failed to upload offer letter");
+    } finally {
+      setUploadProgress(0);
+      console.groupEnd();
+    }
+  };
+
+  const inputClass =
+    "w-full border border-gray-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 outline-none";
+
+  /* ================= UI ================= */
   return (
-    <div className="flex bg-gray-100 min-h-screen">
-      {/* Sidebar */}
-      <div className="w-1/3 bg-white shadow-md p-6 overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4">Edit Offer Letter</h2>
+    <div className="flex bg-gray-100 min-h-screen gap-4">
+      {/* ================= FORM ================= */}
+      <div className="w-1/3 bg-white shadow p-6 overflow-y-auto relative">
+        <h2 className="text-lg font-bold mb-6">Offer Letter Details</h2>
 
-        {/* Header/Footer Options */}
-        {['header', 'footer'].map((type) => (
-          <div key={type} className="mb-4">
-            <label className="block font-semibold mb-1">{type.toUpperCase()} Options</label>
-            <div className="flex items-center space-x-2 mb-2">
+        {[
+          ["CandidateName", "Candidate Name"],
+          ["Email", "Candidate Email"],
+          ["Phone", "Candidate Phone"],
+          ["Address", "Candidate Address"],
+          ["JobTitle", "Job Title"],
+          ["Department", "Department"],
+          ["EmploymentType", "Employment Type"],
+        ].map(([key, label]) => (
+          <div key={key} className="text-xs">
+            <label className="block font-medium my-1">{label}</label>
+            <input
+              className={inputClass}
+              value={form[key]}
+              onChange={(e) => {
+                console.log(`✏️ ${key}:`, e.target.value);
+                setForm({ ...form, [key]: e.target.value });
+              }}
+            />
+          </div>
+        ))}
+
+        <div className="text-xs">
+          <label className="block font-medium mb-1">Date of Joining</label>
+          <input
+            type="date"
+            className={inputClass}
+            value={form.DateOfJoining}
+            onChange={(e) =>
+              setForm({ ...form, DateOfJoining: e.target.value })
+            }
+          />
+
+          <label className="block font-medium mb-1">Offer Issued Date</label>
+          <input
+            type="date"
+            className={inputClass}
+            value={form.IssuedDate}
+            onChange={(e) => setForm({ ...form, IssuedDate: e.target.value })}
+          />
+
+          <label className="block font-medium my-1">Salary / CTC</label>
+          <input
+            type="number"
+            className={inputClass}
+            value={form.Salary}
+            onChange={(e) =>
+              setForm({ ...form, Salary: Number(e.target.value) })
+            }
+          />
+
+          <label className="block font-medium my-1">Probation / Duration</label>
+          <input
+            className={inputClass}
+            value={form.Duration}
+            onChange={(e) => setForm({ ...form, Duration: e.target.value })}
+          />
+
+          <h3 className="font-semibold my-2">Letter Content</h3>
+          {paragraphs.map((p, i) => (
+            <div key={i} className="mb-2">
+              <textarea
+                rows={3}
+                className={inputClass}
+                value={p}
+                onChange={(e) => updatePara(i, e.target.value)}
+              />
+              {paragraphs.length > 1 && (
+                <button
+                  className="text-red-600 mt-1 text-sm cursor-pointer font-medium"
+                  onClick={() => removePara(i)}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            onClick={addPara}
+            className="text-primary text-sm cursor-pointer font-medium mb-2"
+          >
+            + Add Paragraph
+          </button>
+
+          <h3 className="font-semibold my-3 text-sm">Header & Signature Settings</h3>
+
+          <div className="grid grid-cols-2 gap-3 text-xs border rounded-md p-3 bg-gray-50 my-2">
+
+            {/* Show Logo */}
+            <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={type === 'header' ? useDefaultHeader : useDefaultFooter}
-                onChange={() =>
-                  type === 'header' ? setUseDefaultHeader(!useDefaultHeader) : setUseDefaultFooter(!useDefaultFooter)
+                checked={uiSettings.showLogo}
+                onChange={(e) =>
+                  setUiSettings({ ...uiSettings, showLogo: e.target.checked })
                 }
               />
-              <span>Use Default {type}</span>
+              Show Logo
+            </label>
+
+            {/* Show Company Name */}
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={uiSettings.showCompanyName}
+                onChange={(e) =>
+                  setUiSettings({ ...uiSettings, showCompanyName: e.target.checked })
+                }
+              />
+              Show Company Name
+            </label>
+
+            {/* Show Address */}
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={uiSettings.showAddress}
+                onChange={(e) =>
+                  setUiSettings({ ...uiSettings, showAddress: e.target.checked })
+                }
+              />
+              Show Address
+            </label>
+
+            <div /> {/* spacer */}
+
+            {/* Logo Size */}
+            <div>
+              <label className="block font-medium mb-1">
+                Logo Size ({uiSettings.logoSize}px)
+              </label>
+              <input
+                type="range"
+                min="20"
+                max="80"
+                value={uiSettings.logoSize}
+                onChange={(e) =>
+                  setUiSettings({
+                    ...uiSettings,
+                    logoSize: Number(e.target.value),
+                  })
+                }
+              />
             </div>
-            {((type === 'header' && !useDefaultHeader) || (type === 'footer' && !useDefaultFooter)) && (
-              <>
-                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, type)} />
-                {(type === 'header' ? customHeader : customFooter) && (
-                  <img
-                    src={type === 'header' ? customHeader : customFooter}
-                    alt={`${type} preview`}
-                    className="h-16 mt-2 object-contain"
-                  />
-                )}
-              </>
-            )}
-          </div>
-        ))}
 
-        {/* Logo Upload */}
-        <div className="mb-4">
-          <label className="block font-semibold mb-1">Company Logo</label>
-          <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'logo')} />
-          <input
-            type="range"
-            min="20"
-            max="120"
-            value={formData.logoSize}
-            onChange={(e) => setFormData({ ...formData, logoSize: +e.target.value })}
-            className="w-full mt-2"
-          />
-          <p className="text-xs text-gray-500">Logo Size: {formData.logoSize}px</p>
+            {/* Signature Size */}
+            <div>
+              <label className="block font-medium mb-1">
+                Signature Size ({uiSettings.signatureSize}px)
+              </label>
+              <input
+                type="range"
+                min="40"
+                max="120"
+                value={uiSettings.signatureSize}
+                onChange={(e) =>
+                  setUiSettings({
+                    ...uiSettings,
+                    signatureSize: Number(e.target.value),
+                  })
+                }
+              />
+            </div>
+
+            {/* Signature Alignment */}
+            <div>
+              <label className="block font-medium mb-1">
+                Signature Alignment
+              </label>
+              <select
+                className={inputClass}
+                value={uiSettings.signatureAlign}
+                onChange={(e) =>
+                  setUiSettings({
+                    ...uiSettings,
+                    signatureAlign: e.target.value,
+                  })
+                }
+              >
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+
+            {/* Company Name Color */}
+            <div>
+              <label className="block font-medium mb-1">
+                Company Name Color
+              </label>
+              <select
+                className={inputClass}
+                value={uiSettings.companyNameColor}
+                onChange={(e) =>
+                  setUiSettings({
+                    ...uiSettings,
+                    companyNameColor: e.target.value,
+                  })
+                }
+              >
+                <option value="#000000">Black</option>
+                <option value="#ffffff">White</option>
+              </select>
+            </div>
+
+            {/* Address Color */}
+            <div>
+              <label className="block font-medium mb-1">
+                Address Text Color
+              </label>
+              <select
+                className={inputClass}
+                value={uiSettings.addressColor}
+                onChange={(e) =>
+                  setUiSettings({
+                    ...uiSettings,
+                    addressColor: e.target.value,
+                  })
+                }
+              >
+                <option value="#000000">Black</option>
+                <option value="#ffffff">White</option>
+              </select>
+            </div>
+
+          </div>
         </div>
 
-        {/* Editable Fields */}
-        {[
-          'organizationName',
-          'date',
-          'employeeName',
-          'employeeAddress',
-          'subject',
-          'designation',
-          'joinDate',
-          'conditions',
-          'rules',
-          'appointment',
-          'relieving',
-          'documents',
-          'acceptance',
-          'signatory',
-        ].map((field) => (
-          <div key={field} className="mb-4">
-            <label className="block font-semibold capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
-            {['conditions', 'rules', 'appointment', 'relieving', 'documents', 'acceptance'].includes(field) ? (
-              <textarea name={field} value={formData[field]} onChange={handleChange} className="border p-2 rounded w-full" rows={3} />
-            ) : (
-              <input type="text" name={field} value={formData[field]} onChange={handleChange} className="border p-2 rounded w-full" />
-            )}
+
+
+
+        {uploadProgress > 0 && (
+          <div className="absolute bottom-0 left-6 right-6">
+            <div className="w-full bg-gray-200 rounded">
+              <div
+                className="bg-green-600 text-white text-xs p-1 rounded"
+                style={{ width: `${uploadProgress}%` }}
+              >
+                {uploadProgress}%
+              </div>
+            </div>
           </div>
-        ))}
+        )}
 
-        {/* Header/Footer image is handled above. Signature */}
-        <div className="mb-4">
-          <label className="block font-semibold">Digital Signature</label>
-          <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'signature')} />
-        </div>
-        {/* <button
-  onClick={handleSubmit}
-  className="mt-2 bg-green-600 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-green-700 w-full"
->
-  Save
-</button> */}
-
-        <button  onClick={handlePrint} className="mt-4 bg-primary cursor-pointer text-white px-4 py-2 rounded-md hover:bg-secondary w-full">
-          Print 
+        <button
+          onClick={handleSubmit}
+          disabled={uploadProgress > 0}
+          className={`bg-primary text-white cursor-pointer text-sm w-full py-2 rounded-md font-semibold
+          ${uploadProgress > 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
+          Save & Upload PDF
         </button>
       </div>
 
-      {/* Preview */}
-      <div ref={certificateRef} className="w-2/3 bg-white m-6 overflow-hidden print-container flex flex-col relative">
-        <Header />
+      <style>
+        {`
+/* =========================
+   PDF / PREVIEW SAFE (PX)
+   A4 @ 96 DPI
+========================= */
 
-        <div className="flex-1 px-10 py-6">
-          <p className="text-right text-sm mb-6"><strong>Date:</strong> {formData.date}</p>
+.print-container {
+  width: 794px; /* 210mm */
+  position: relative;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+}
 
-          <div className="flex justify-between items-start mb-6">
-            <div className="max-w-2/3 text-sm">
-              <p className="mb-1">To,</p>
-              <p className="font-semibold">{formData.employeeName}</p>
-              <p className="text-sm">{formData.employeeAddress}</p>
+.print-page {
+  min-height: 1123px; /* 297mm */
+  padding-top: 227px; /* 60mm */
+  padding-bottom: 151px; /* 40mm */
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* ================= HEADER ================= */
+
+.print-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 151px; /* 40mm */
+  overflow: hidden;
+}
+
+.header-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+
+.header-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  flex: 0 0 auto;
+}
+
+.header-right {
+  text-align: right;
+  max-width: 50%;
+}
+
+.header-logo {
+  height: 30px;
+  display: block;
+}
+
+.header-company-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.header-company-address {
+  font-size: 12px;
+}
+
+/* ================= BODY ================= */
+
+.print-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 24px 0;
+}
+
+.print-page p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.print-page h1 {
+  font-size: 22px;
+  margin: 24px 0;
+}
+
+/* ================= FOOTER ================= */
+
+.print-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 113px; /* 30mm */
+}
+
+.print-footer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.footer-text {
+  position: absolute;
+  bottom: 12px;
+  width: 100%;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  color: #000;
+}
+
+/* ================= BODY SPACING ================= */
+
+.print-body {
+  padding: 24px 40px;
+}
+  .paragraphs{
+  text-align: justify;
+  }
+
+  .paragraphs strong {
+  font-weight: bold;
+}
+
+.paragraphs em {
+  font-style: italic;
+}
+
+.paragraphs del {
+  text-decoration: line-through;
+}
+
+.print-date {
+  text-align: right;
+}
+
+.print-to {
+  margin-top: 16px;
+}
+
+.print-signature {
+  margin-top: 40px;
+}
+
+/* ================= SIGNATURE ================= */
+
+.signature-img {
+  height: 56px; /* h-14 */
+  margin-top: 8px;
+  display: block;
+}
+`}
+      </style>
+
+      {/* ================= PREVIEW ================= */}
+      <div
+        ref={certificateRef}
+        className="print-container"
+        style={{
+          color: "#000",
+          backgroundColor: "#fff",
+          borderColor: "#000",
+        }}
+      >
+        <div className="print-page">
+          {/* HEADER */}
+          {org.orgHeaderImage && (
+            <div className="print-header">
+              <img
+                src={org.orgHeaderImage}
+                className="header-bg"
+                crossOrigin="anonymous"
+                onError={(e) => (e.currentTarget.style.display = "none")}
+              />
+              <div className="header-overlay header-split">
+                <div className="header-left">
+                  {uiSettings.showLogo && org.orgLogo && (
+                    <img
+                      src={org.orgLogo}
+                      crossOrigin="anonymous"
+                      style={{
+                        height: `${uiSettings.logoSize}px`,
+                        objectFit: "contain",
+                      }}
+                      onError={(e) => (e.currentTarget.style.display = "none")}
+                    />
+                  )}
+                </div>
+                <div className="header-right">
+                  {uiSettings.showCompanyName && (
+                    <h2
+                      className="header-company-name"
+                      style={{ color: uiSettings.companyNameColor }}
+                    >
+                      {org.company?.companyName}
+                    </h2>
+                  )}
+                  {uiSettings.showAddress && (
+                    <p
+                      className="header-company-address"
+                      style={{ color: uiSettings.addressColor }}
+                    >
+                      {org.workLocation?.addressLine1},
+                      {org.workLocation?.addressLine2},{org.workLocation?.city},
+                      {org.workLocation?.state} - {org.workLocation?.pinCode}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-           
-          </div>
+          )}
 
-          <h1 className="text-center text-2xl font-bold mb-6">{formData.subject}</h1>
-
-          <div className="text-gray-800 space-y-4 leading-relaxed text-justify">
-            <p>Dear Mr. {formData.employeeName.split(' ')[0]},</p>
-            <p>{formData.conditions}</p>
-            <p>{formData.rules}</p>
-            <p>{formData.appointment}</p>
-            <p>
-              You may join the duty on or before <strong>{formData.joinDate}</strong>.
+          {/* BODY */}
+          <div className="print-body">
+            <p className="print-date">
+              <b>Date:</b> {new Date(form.IssuedDate).toLocaleDateString("en-GB")}
             </p>
-            <p>{formData.relieving}</p>
-            <p>{formData.documents}</p>
-            <p>{formData.acceptance}</p>
+
+            <p className="print-to">
+              <b>To,</b>
+            </p>
+            <p>
+              <b>{form.CandidateName}</b>
+            </p>
+            <p>{form.Address}</p>
+
+            <h1 className="print-title">OFFER LETTER</h1>
+
+            {paragraphs.map((p, i) => (
+              <div key={i} className="paragraphs" style={{ textAlign: "justify" }}>
+                <ReactMarkdown>{replaceVars(p)}</ReactMarkdown>
+              </div>
+            ))}
+
+            <div
+              className="print-signature"
+              style={{
+                textAlign: uiSettings.signatureAlign,
+              }}
+            >
+
+              {org.orgSignature && (
+                <img
+                  src={org.orgSignature}
+                  crossOrigin="anonymous"
+                  style={{
+                    height: `${uiSettings.signatureSize}px`,
+                    objectFit: "contain",
+                    display: "inline-block",
+                  }}
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+              )}
+              <p>Authorized Sign by {org.company?.companyName}</p>
+            </div>
           </div>
 
-          <div className="mt-10 space-y-6">
-            <p className="font-semibold">Thanking you,</p>
-            <p className="font-bold">{formData.organizationName}</p>
-            {formData.signatureUrl && <img src={formData.signatureUrl} alt="Signature" className="h-16 mt-2" />}
-            <p className="font-semibold">{formData.signatory}</p>
+          {/* FOOTER */}
+          <div className="print-footer">
+            {org.orgFooterImage && (
+              <img
+                src={org.orgFooterImage}
+                crossOrigin="anonymous"
+                onError={(e) => (e.currentTarget.style.display = "none")}
+              />
+            )}
+            <div className="footer-text">
+              This is a system generated document
+            </div>
           </div>
         </div>
-
-        <Footer />
       </div>
     </div>
   );

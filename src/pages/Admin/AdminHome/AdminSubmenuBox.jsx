@@ -76,6 +76,7 @@ const labelToPath = {
   "Attendance Policy": "atten-policy",
   "Attendance Record": "atten-record",
   "Attendance Calculation": "atten-calculation",
+  "Attendance Report": "attendance-report",
 
   // Settings
   "Organisation Profile": "organisation-profile",
@@ -97,14 +98,15 @@ const labelToPath = {
   "Emp. Role Mapping": "emp-role-mapping",
 
   // Reports
-  "Attendance Report": "attendance-report",
   "Salary Register": "salary-register",
   "Payslip Templates": "payslip-templates",
+  "Letter of Intent": "letter-intent",
+  "Offer Letter": "offer-letter",
   "Appointment Letter": "appointment-certi",
   "Confirmation Letter": "confirmation-certi",
-  "Offer Letter": "offer-letter",
-  "Letter of Intent": "letter-intent",
   "Increment Letter": "increment-letter",
+  "Promotion Letter": "promotion-letter",
+  "Relieving Letter": "relieving-letter",
   "Experience Cert.": "experience-certi",
   "Nomination-Declaration": "nomination-declaration",
   "Job Posting": "job-posting",
@@ -175,6 +177,7 @@ const labelToIcon = {
   "Attendance Policy": <MdPunchClock className="mr-2" />,
   "Attendance Record": <FaCalendarCheck className="mr-2" />,
   "Attendance Calculation": <FaCalculator className="mr-2" />,
+  "Attendance Report": <FaCalendarCheck className="mr-2" />,
 
   // Documents
   "Expense Header": <FaFileAlt className="mr-2" />,
@@ -203,14 +206,15 @@ const labelToIcon = {
   "Emp. Role Mapping": <MdAdminPanelSettings className="mr-2" />,
 
   // Reports
-  "Attendance Report": <FaCalendarCheck className="mr-2" />,
   "Salary Register": <TbReportMoney className="mr-2" />,
   "Payslip Templates": <HiOutlineDocumentReport className="mr-2" />,
+  "Letter of Intent": <FaFileAlt className="mr-2" />,
+  "Offer Letter": <FaFileAlt className="mr-2" />,
   "Appointment Letter": <FaFileAlt className="mr-2" />,
   "Confirmation Letter": <FaFileAlt className="mr-2" />,
-  "Offer Letter": <FaFileAlt className="mr-2" />,
-  "Letter of Intent": <FaFileAlt className="mr-2" />,
   "Increment Letter": <FaFileAlt className="mr-2" />,
+  "Promotion Letter": <FaFileAlt className="mr-2" />,
+  "Relieving Letter": <FaFileAlt className="mr-2" />,
   "Experience Cert.": <FaFileInvoiceDollar className="mr-2" />,
   "Nomination-Declaration": <FaFileAlt className="mr-2" />,
   "Job Posting": <MdGavel className="mr-2" />,

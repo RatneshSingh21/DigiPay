@@ -79,15 +79,17 @@ import AttendanceCalculationResult from "./pages/Admin/Attendance/AttendanceCalc
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
 import SalaryRegister from "./pages/Admin/Reports/SalaryRegister";
 import PayslipTemplates from "./pages/Admin/Reports/PayslipTemplates";
+import LetterOfIntent from "./pages/Admin/Reports/PayrollReport/LetterOfIntent";
+import OfferLetter from "./pages/Admin/Reports/PayrollReport/OfferLetter";
 import AppointmentLetter from "./pages/Admin/Reports/PayrollReport/AppointmentLetter";
 import ConfirmationLetter from "./pages/Admin/Reports/PayrollReport/ConfirmationLetter";
 import IncrementLetter from "./pages/Admin/Reports/PayrollReport/IncrementLetter";
-import JobPosting from "./pages/Admin/Reports/PayrollReport/JobPosting";
-import OfferLetter from "./pages/Admin/Reports/PayrollReport/OfferLetter";
-import LetterOfIntent from "./pages/Admin/Reports/PayrollReport/LetterOfIntent";
-import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/NominationDeclaration";
-import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalStatement";
+import PromotionLetter from "./pages/Admin/Reports/PayrollReport/PromotionLetter";
+import RelievingLetter from "./pages/Admin/Reports/PayrollReport/RelievingLetter";
 import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificateEditor";
+import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalStatement";
+import JobPosting from "./pages/Admin/Reports/PayrollReport/JobPosting";
+import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/NominationDeclaration";
 import AdminReports from "./pages/Admin/Reports/AdminReports";
 
 //Admin Leave Pages
@@ -142,6 +144,7 @@ import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
 
 
+
 const App = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
@@ -174,306 +177,316 @@ const App = () => {
           onClose={() => setShowCompanyModal(false)}
         />
       )}
-
-      <Routes>
-        {token ? (
-          <>
-            <Route
-              path="/"
-              element={
-                user?.role === "SuperAdmin" || user?.role === "Admin" ? (
-                  <Navigate to="/admin-dashboard" replace />
-                ) : user?.role === "Employee" || user?.role === "User" ? (
-                  <Navigate to="/employee-dashboard" replace />
-                ) : (
-                  <Navigate to="/unauthorized" replace />
-                )
-              }
-            />
-
-            {/* Protected Admin Routes */}
-            <Route
-              element={
-                <ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]} />
-              }
-            >
-              <Route path="/admin-dashboard" element={<AdminDashboardLayout />}>
-                {/* Default route for admin-dashboard */}
-                <Route index element={<Navigate to="dashboard" />} />
-
-                {/* Employees SubRoutes */}
-                <Route path="employees/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="add" />} />
-                  <Route path="list" element={<EmployeeList />} />
-                  <Route path="add" element={<AddEmployee />} />
-                  <Route
-                    path="employee-salary-basic"
-                    element={<EmpBasicSalary />}
-                  />
-                  <Route
-                    path="employee-salary-details"
-                    element={<EmpSalaryDetails />}
-                  />
-                  <Route
-                    path="employee-salary-calculation"
-                    element={<SalaryCalculate />}
-                  />
-                  <Route path="emp-category" element={<EmpCategory />} />
-                  <Route
-                    path="emp-employmenttype"
-                    element={<EmpEmploymentType />}
-                  />
-                  <Route path="emp-worktype" element={<EmpWorkType />} />
-                  <Route path="emp-worknature" element={<EmpWorkNature />} />
-                  <Route path="general-imports" element={<GeneralImports />} />
-                  <Route
-                    path="general-settings"
-                    element={<GeneralSettings />}
-                  />
-                </Route>
-
-                {/* Dashboard Main Page */}
-                <Route path="dashboard" element={<AdminDashboard />} />
-
-                {/* PaySchedule Main Page */}
-                <Route path="payschedule" element={<PaySchedule />} />
-
-                {/* Settings SubRoutes */}
-                <Route path="settings/*" element={<AdminContentBox />}>
-                  <Route
-                    index
-                    element={<Navigate to="organisation-profile" />}
-                  />
-                  <Route
-                    path="organisation-profile"
-                    element={<OrganisationProfile />}
-                  />
-                  <Route path="departments" element={<Departments />} />
-                  <Route path="create-admin" element={<CreateSuperAdmin />} />
-                  <Route
-                    path="create-from-employee"
-                    element={<CreateAdminFromEmployee />}
-                  />
-                  <Route path="work-locations" element={<WorkLocations />} />
-                  <Route path="permissions" element={<Permissions />} />
-                  <Route path="shifts" element={<Shifts />} />
-                  <Route path="designation" element={<Designation />} />
-                  <Route path="salary" element={<Salary />} />
-                  <Route path="status-master" element={<StatusMaster />} />
-                  <Route path="salary-calculation-type" element={<SalaryCalculationType />} />    
-                </Route>
-
-                {/* Role SubRoutes */}
-                <Route path="role/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="role-master" />} />
-                  <Route path="role-master" element={<RoleMaster />} />
-                  <Route path="role-approval" element={<RoleApproval />} />
-                  <Route path="emp-role-mapping" element={<EmpRoleMapping />} />
-                </Route>
-
-                {/* Shift SubRoutes */}
-                <Route path="shifts/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="add-shift" />} />
-                  <Route path="add-shift" element={<Shifts />} />
-                  <Route path="mapp-shift" element={<ShiftMapping />} />
-                </Route>
-
-                {/* Attendance SubRoutes */}
-                <Route path="attendance/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="attendance" />} />
-                  <Route path="attendance" element={<Attendance />} />
-                  <Route path="add-attendance" element={<AttendanceForm />} />
-                  <Route
-                    path="manual-attendance"
-                    element={<ManualAttendance />}
-                  />
-                  <Route path="punch" element={<AttendancePunch />} />
-                  <Route path="atten-policy" element={<AttendancePolicy />} />
-                  <Route path="atten-record" element={<AttendanceRecord />} />
-                  <Route
-                    path="atten-calculation"
-                    element={<AttendanceCalculationResult />}
-                  />
-                </Route>
-
-                {/* Reports SubRoutes */}
-                <Route path="reports/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="attendance-report" />} />
-                  <Route
-                    path="attendance-report"
-                    element={<AttendanceReport />}
-                  />
-                  <Route
-                    path="payslip-templates"
-                    element={<PayslipTemplates />}
-                  />
-                  <Route path="salary-register" element={<SalaryRegister />} />
-                  <Route
-                    path="appointment-certi"
-                    element={<AppointmentLetter />}
-                  />
-                  <Route
-                    path="confirmation-certi"
-                    element={<ConfirmationLetter />}
-                  />
-                  <Route path="offer-letter" element={<OfferLetter />} />
-                  <Route path="letter-intent" element={<LetterOfIntent />} />
-                  <Route
-                    path="increment-letter"
-                    element={<IncrementLetter />}
-                  />
-                  <Route
-                    path="experience-certi"
-                    element={<ExperienceCertificateEditor />}
-                  />
-                  <Route
-                    path="nomination-declaration"
-                    element={<NominationDeclaration />}
-                  />
-                  <Route path="job-posting" element={<JobPosting />} />
-                  <Route
-                    path="full-&-final-statement"
-                    element={<FullFinalStatement />}
-                  />
-                  <Route path="all-reports" element={<AdminReports />} />
-                </Route>
-
-                {/* Documents SubRoutes */}
-                <Route path="expenses/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="expense-documents" />} />
-                  <Route path="expense-header" element={<ExpenseHeader />} />
-                  <Route
-                    path="uploaded-documents"
-                    element={<UploadedDocuments />}
-                  />
-                  <Route
-                    path="expense-documents"
-                    element={<ExpenseDocuments />}
-                  />
-                  <Route path="travel-details" element={<TravelDetails />} />
-                </Route>
-
-                {/* Leave SubRoutes */}
-                <Route path="leave/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="leave-types" />} />
-                  <Route path="leave-types" element={<Leave />} />
-                  <Route path="leave-mapping" element={<LeaveMapping />} />
-                  <Route path="leave-requests" element={<LeaveRequests />} />
-                  <Route path="leave-balance" element={<LeaveBalance />} />
-                  <Route path="holiday-list" element={<HolidayList />} />
-                  <Route path="employee-leave" element={<EmployeeLeave />} />
-                  <Route
-                    path="employee-advance-payments"
-                    element={<EmployeeAdvancePayments />}
-                  />
-                  <Route
-                    path="employee-leave-allocation"
-                    element={<EmployeeLeaveAllocation />}
-                  />
-                </Route>
-
-                {/* Policy SubRoutes */}
-                <Route path="policy/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="pf-settings" />} />
-                  <Route path="pf-settings" element={<PFSettings />} />
-                  <Route path="pf-transaction" element={<PFTransaction />} />
-                  <Route
-                    path="pf-contribution-rule"
-                    element={<PFContributionRule />}
-                  />
-                  <Route path="esi-rule" element={<ESIRules />} />
-                  <Route path="esi-transaction" element={<ESITransactions />} />
-                  <Route path="late-policy" element={<LatePolicy />} />
-                  <Route path="policy-leave" element={<LeavePolicy />} />
-                  <Route path="weekend-policy" element={<WeekendPolicy />} />
-                  <Route path="atten-policy" element={<AttendancePolicy />} />
-                </Route>
-
-                {/* Approvals Main Page */}
-                <Route path="approvals" element={<ApprovalWrapper />} />
-
-                {/* Compliance SubRoutes */}
-                <Route path="compliance/*" element={<AdminContentBox />}>
-                  <Route index element={<Navigate to="compliance-details" />} />
-                  <Route
-                    path="compliance-details"
-                    element={<ComplianceDetails />}
-                  />
-                  <Route
-                    path="compliance-rules"
-                    element={<ComplianceRules />}
-                  />
-                  <Route
-                    path="payment-adjustment"
-                    element={<PaymentAdjustment />}
-                  />
-                  <Route path="otrate" element={<OTSlabMaster />} />
-                  <Route path="otrate-rules" element={<OTSlabMasterRules />} />
-                  <Route
-                    path="otrate-calculation"
-                    element={<OTCalculation />}
-                  />
-                  <Route
-                    path="ot-permission"
-                    element={<EmployeeOtPermission />}
-                  />
-                </Route>
-
-                {/* Nested 404 Catcher for /admin-dashboard/* */}
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Route>
-
-            {/* Protected Employee Routes */}
-            <Route
-              element={<ProtectedRoute allowedRoles={["Employee", "User"]} />}
-            >
+      <div key={companyId || "no-company"}>
+        <Routes>
+          {token ? (
+            <>
               <Route
-                path="/employee-dashboard"
-                element={<EmployeeDashboardLayout />}
+                path="/"
+                element={
+                  user?.role === "SuperAdmin" || user?.role === "Admin" ? (
+                    <Navigate to="/admin-dashboard" replace />
+                  ) : user?.role === "Employee" || user?.role === "User" ? (
+                    <Navigate to="/employee-dashboard" replace />
+                  ) : (
+                    <Navigate to="/unauthorized" replace />
+                  )
+                }
+              />
+
+              {/* Protected Admin Routes */}
+              <Route
+                element={
+                  <ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]} />
+                }
               >
-                <Route index element={<Navigate to="home" />} />
-                <Route path="home" element={<EmployeeDashboard />} />{" "}
-                <Route path="profile" element={<EmployeeProfile />} />
-                <Route path="attendance" element={<EmpAttendance />} />
-                <Route path="leave" element={<EmpLeaveRequest />} />
-                <Route path="salary-slip" element={<EmpSalarySlip />} />
-                <Route path="mark-attendance" element={<EmpMarkAttendance />} />
-                <Route path="my-expenses" element={<EmpExpenses />} />
-                <Route path="my-documents" element={<EmpDocuments />} />
-                <Route path="travel-details" element={<EmpTravel />} />
-                <Route path="advance-payment" element={<EmpAdvancePayment />} />
-                <Route path="on-duty" element={<EmpOutDuty />} />
-                <Route path="approvals" element={<EmpApprovals />} />
-                <Route path="*" element={<NotFound />} />
+                <Route path="/admin-dashboard" element={<AdminDashboardLayout />}>
+                  {/* Default route for admin-dashboard */}
+                  <Route index element={<Navigate to="dashboard" />} />
+
+                  {/* Employees SubRoutes */}
+                  <Route path="employees/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="add" />} />
+                    <Route path="list" element={<EmployeeList />} />
+                    <Route path="add" element={<AddEmployee />} />
+                    <Route
+                      path="employee-salary-basic"
+                      element={<EmpBasicSalary />}
+                    />
+                    <Route
+                      path="employee-salary-details"
+                      element={<EmpSalaryDetails />}
+                    />
+                    <Route
+                      path="employee-salary-calculation"
+                      element={<SalaryCalculate />}
+                    />
+                    <Route path="emp-category" element={<EmpCategory />} />
+                    <Route
+                      path="emp-employmenttype"
+                      element={<EmpEmploymentType />}
+                    />
+                    <Route path="emp-worktype" element={<EmpWorkType />} />
+                    <Route path="emp-worknature" element={<EmpWorkNature />} />
+                    <Route path="general-imports" element={<GeneralImports />} />
+                    <Route
+                      path="general-settings"
+                      element={<GeneralSettings />}
+                    />
+                  </Route>
+
+                  {/* Dashboard Main Page */}
+                  <Route path="dashboard" element={<AdminDashboard />} />
+
+                  {/* PaySchedule Main Page */}
+                  <Route path="payschedule" element={<PaySchedule />} />
+
+                  {/* Settings SubRoutes */}
+                  <Route path="settings/*" element={<AdminContentBox />}>
+                    <Route
+                      index
+                      element={<Navigate to="organisation-profile" />}
+                    />
+                    <Route
+                      path="organisation-profile"
+                      element={<OrganisationProfile />}
+                    />
+                    <Route path="departments" element={<Departments />} />
+                    <Route path="create-admin" element={<CreateSuperAdmin />} />
+                    <Route
+                      path="create-from-employee"
+                      element={<CreateAdminFromEmployee />}
+                    />
+                    <Route path="work-locations" element={<WorkLocations />} />
+                    <Route path="permissions" element={<Permissions />} />
+                    <Route path="shifts" element={<Shifts />} />
+                    <Route path="designation" element={<Designation />} />
+                    <Route path="salary" element={<Salary />} />
+                    <Route path="status-master" element={<StatusMaster />} />
+                    <Route path="salary-calculation-type" element={<SalaryCalculationType />} />
+                  </Route>
+
+                  {/* Role SubRoutes */}
+                  <Route path="role/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="role-master" />} />
+                    <Route path="role-master" element={<RoleMaster />} />
+                    <Route path="role-approval" element={<RoleApproval />} />
+                    <Route path="emp-role-mapping" element={<EmpRoleMapping />} />
+                  </Route>
+
+                  {/* Shift SubRoutes */}
+                  <Route path="shifts/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="add-shift" />} />
+                    <Route path="add-shift" element={<Shifts />} />
+                    <Route path="mapp-shift" element={<ShiftMapping />} />
+                  </Route>
+
+                  {/* Attendance SubRoutes */}
+                  <Route path="attendance/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="attendance" />} />
+                    <Route path="attendance" element={<Attendance />} />
+                    <Route path="add-attendance" element={<AttendanceForm />} />
+                    <Route
+                      path="manual-attendance"
+                      element={<ManualAttendance />}
+                    />
+                    <Route path="punch" element={<AttendancePunch />} />
+                    <Route path="atten-policy" element={<AttendancePolicy />} />
+                    <Route path="atten-record" element={<AttendanceRecord />} />
+                    <Route
+                      path="atten-calculation"
+                      element={<AttendanceCalculationResult />}
+                    />
+                    <Route
+                      path="attendance-report"
+                      element={<AttendanceReport />}
+                    />
+                  </Route>
+
+                  {/* Reports SubRoutes */}
+                  <Route path="reports/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="salary-register" />} />
+                    <Route
+                      path="payslip-templates"
+                      element={<PayslipTemplates />}
+                    />
+                    <Route path="salary-register" element={<SalaryRegister />} />
+
+                    <Route path="letter-intent" element={<LetterOfIntent />} />
+                    <Route path="offer-letter" element={<OfferLetter />} />
+                    <Route
+                      path="appointment-certi"
+                      element={<AppointmentLetter />}
+                    />
+                    <Route
+                      path="confirmation-certi"
+                      element={<ConfirmationLetter />}
+                    />
+                    <Route
+                      path="increment-letter"
+                      element={<IncrementLetter />}
+                    />
+                    <Route
+                      path="promotion-letter"
+                      element={<PromotionLetter />}
+                    />
+                    <Route
+                      path="relieving-letter"
+                      element={<RelievingLetter />}
+                    />
+                    <Route
+                      path="experience-certi"
+                      element={<ExperienceCertificateEditor />}
+                    />
+                    <Route
+                      path="nomination-declaration"
+                      element={<NominationDeclaration />}
+                    />
+                    <Route path="job-posting" element={<JobPosting />} />
+                    <Route
+                      path="full-&-final-statement"
+                      element={<FullFinalStatement />}
+                    />
+                    <Route path="all-reports" element={<AdminReports />} />
+                  </Route>
+
+                  {/* Documents SubRoutes */}
+                  <Route path="expenses/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="expense-documents" />} />
+                    <Route path="expense-header" element={<ExpenseHeader />} />
+                    <Route
+                      path="uploaded-documents"
+                      element={<UploadedDocuments />}
+                    />
+                    <Route
+                      path="expense-documents"
+                      element={<ExpenseDocuments />}
+                    />
+                    <Route path="travel-details" element={<TravelDetails />} />
+                  </Route>
+
+                  {/* Leave SubRoutes */}
+                  <Route path="leave/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="leave-types" />} />
+                    <Route path="leave-types" element={<Leave />} />
+                    <Route path="leave-mapping" element={<LeaveMapping />} />
+                    <Route path="leave-requests" element={<LeaveRequests />} />
+                    <Route path="leave-balance" element={<LeaveBalance />} />
+                    <Route path="holiday-list" element={<HolidayList />} />
+                    <Route path="employee-leave" element={<EmployeeLeave />} />
+                    <Route
+                      path="employee-advance-payments"
+                      element={<EmployeeAdvancePayments />}
+                    />
+                    <Route
+                      path="employee-leave-allocation"
+                      element={<EmployeeLeaveAllocation />}
+                    />
+                  </Route>
+
+                  {/* Policy SubRoutes */}
+                  <Route path="policy/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="pf-settings" />} />
+                    <Route path="pf-settings" element={<PFSettings />} />
+                    <Route path="pf-transaction" element={<PFTransaction />} />
+                    <Route
+                      path="pf-contribution-rule"
+                      element={<PFContributionRule />}
+                    />
+                    <Route path="esi-rule" element={<ESIRules />} />
+                    <Route path="esi-transaction" element={<ESITransactions />} />
+                    <Route path="late-policy" element={<LatePolicy />} />
+                    <Route path="policy-leave" element={<LeavePolicy />} />
+                    <Route path="weekend-policy" element={<WeekendPolicy />} />
+                    <Route path="atten-policy" element={<AttendancePolicy />} />
+                  </Route>
+
+                  {/* Approvals Main Page */}
+                  <Route path="approvals" element={<ApprovalWrapper />} />
+
+                  {/* Compliance SubRoutes */}
+                  <Route path="compliance/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="compliance-details" />} />
+                    <Route
+                      path="compliance-details"
+                      element={<ComplianceDetails />}
+                    />
+                    <Route
+                      path="compliance-rules"
+                      element={<ComplianceRules />}
+                    />
+                    <Route
+                      path="payment-adjustment"
+                      element={<PaymentAdjustment />}
+                    />
+                    <Route path="otrate" element={<OTSlabMaster />} />
+                    <Route path="otrate-rules" element={<OTSlabMasterRules />} />
+                    <Route
+                      path="otrate-calculation"
+                      element={<OTCalculation />}
+                    />
+                    <Route
+                      path="ot-permission"
+                      element={<EmployeeOtPermission />}
+                    />
+                  </Route>
+
+                  {/* Nested 404 Catcher for /admin-dashboard/* */}
+                  <Route path="*" element={<NotFound />} />
+                </Route>
               </Route>
-            </Route>
 
-            {/* Unauthorized Page for blocked access */}
-            <Route path="/unauthorized" element={<Unauthorized />} />
+              {/* Protected Employee Routes */}
+              <Route
+                element={<ProtectedRoute allowedRoles={["Employee", "User"]} />}
+              >
+                <Route
+                  path="/employee-dashboard"
+                  element={<EmployeeDashboardLayout />}
+                >
+                  <Route index element={<Navigate to="home" />} />
+                  <Route path="home" element={<EmployeeDashboard />} />{" "}
+                  <Route path="profile" element={<EmployeeProfile />} />
+                  <Route path="attendance" element={<EmpAttendance />} />
+                  <Route path="leave" element={<EmpLeaveRequest />} />
+                  <Route path="salary-slip" element={<EmpSalarySlip />} />
+                  <Route path="mark-attendance" element={<EmpMarkAttendance />} />
+                  <Route path="my-expenses" element={<EmpExpenses />} />
+                  <Route path="my-documents" element={<EmpDocuments />} />
+                  <Route path="travel-details" element={<EmpTravel />} />
+                  <Route path="advance-payment" element={<EmpAdvancePayment />} />
+                  <Route path="on-duty" element={<EmpOutDuty />} />
+                  <Route path="approvals" element={<EmpApprovals />} />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Route>
 
-            {/* Catch-all for logged-in user: show 404 */}
-            <Route path="*" element={<NotFound />} />
-          </>
-        ) : (
-          <>
-            {/* Public Routes (when user is not logged in) */}
-            <Route path="/" element={<LandingPageMain />} />
-            <Route path="/auth" element={<AuthLayout />} />
-            <Route path="/login-otp" element={<SendLoginOtp />} />
-            <Route path="/forget-password" element={<ForgetPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/verify-otp" element={<VerifyOtp />} />
-            <Route path="/setup-password" element={<EmpCreatePassword />} />
+              {/* Unauthorized Page for blocked access */}
+              <Route path="/unauthorized" element={<Unauthorized />} />
 
-            {/* Unauthorized Page for public access violations */}
-            <Route path="/unauthorized" element={<Unauthorized />} />
+              {/* Catch-all for logged-in user: show 404 */}
+              <Route path="*" element={<NotFound />} />
+            </>
+          ) : (
+            <>
+              {/* Public Routes (when user is not logged in) */}
+              <Route path="/" element={<LandingPageMain />} />
+              <Route path="/auth" element={<AuthLayout />} />
+              <Route path="/login-otp" element={<SendLoginOtp />} />
+              <Route path="/forget-password" element={<ForgetPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/verify-otp" element={<VerifyOtp />} />
+              <Route path="/setup-password" element={<EmpCreatePassword />} />
 
-            {/* Catch-all for public users: show 404 */}
-            <Route path="*" element={<NotFound />} />
-          </>
-        )}
-      </Routes>
+              {/* Unauthorized Page for public access violations */}
+              <Route path="/unauthorized" element={<Unauthorized />} />
+
+              {/* Catch-all for public users: show 404 */}
+              <Route path="*" element={<NotFound />} />
+            </>
+          )}
+        </Routes>
+      </div>
     </div>
   );
 };

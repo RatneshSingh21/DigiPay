@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { FaEye, FaEdit, FaTimes, FaStar } from "react-icons/fa";
+import Select from "react-select";
+import { FaEye, FaEdit, FaTimes, FaStar, FaPlus } from "react-icons/fa";
 import TemplateEditorModal from "../TemplateModels/TemplateEditorModal";
 import PayslipPreview from "../TemplateModels/PayslipPreview";
 import PayslipPreview2 from "../TemplateModels/PayslipPreview2";
@@ -7,6 +8,7 @@ import PayslipPreview3 from "../TemplateModels/PayslipPreview3";
 import PayslipPreview4 from "../TemplateModels/PayslipPreview4";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import assets from "../../../assets/assets";
+import { toast } from "react-toastify";
 
 /* ---------------- PREVIEW MAP ---------------- */
 const previewComponents = {
@@ -50,6 +52,13 @@ const defaultTemplateConfigs = {
   mini: { ...baseConfig },
 };
 
+const templateOptions = [
+  { value: "standard", label: "Standard" },
+  { value: "elegant", label: "Elegant" },
+  { value: "simple", label: "Simple" },
+  { value: "mini", label: "Mini" },
+];
+
 const PayslipTemplates = () => {
   const [templates, setTemplates] = useState([]);
   const [orgProfile, setOrgProfile] = useState(null);
@@ -63,6 +72,10 @@ const PayslipTemplates = () => {
     const saved = localStorage.getItem("templateConfigs");
     return saved ? JSON.parse(saved) : defaultTemplateConfigs;
   });
+
+  /* ---------------- ADD TEMPLATE STATE ---------------- */
+  const [addTemplateVisible, setAddTemplateVisible] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState(null);
 
   /* ---------------- FETCH ALL DATA ---------------- */
   const fetchAll = async () => {
@@ -189,13 +202,94 @@ const PayslipTemplates = () => {
     setEditorVisible(true);
   };
 
+
+
+  /* ---------------- ADD TEMPLATE ---------------- */
+  const handleAddTemplate = async () => {
+    if (!newTemplateName) return toast.error("Select a template name");
+
+    // Check if template already exists
+    const exists = templates.some(
+      (t) => t.name.toLowerCase() === newTemplateName.label.toLowerCase()
+    );
+    if (exists) return toast.error("Template already exists");
+
+    try {
+      await axiosInstance.post("/PayslipTemplate", {
+        name: newTemplateName.label,
+        isDefault: false,
+      });
+      toast.success(`${newTemplateName.label} template added`);
+      setAddTemplateVisible(false);
+      setNewTemplateName(null);
+      fetchAll();
+    } catch (err) {
+      console.error("Failed to add template:", err);
+      toast.error("Failed to add template");
+    }
+  };
+
+
+
   return (
     <div>
-      <div className="sticky top-14 bg-white z-10 p-4 shadow mb-5">
+      <div className="sticky top-14 bg-white z-10 p-4 shadow mb-5 flex justify-between items-center">
         <h2 className="text-xl font-semibold">Payslip Templates</h2>
+        <button
+          className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+          onClick={() => setAddTemplateVisible((prev) => !prev)}
+        >
+          <FaPlus />
+          Add Template
+        </button>
       </div>
+      {/* ---------------- ADD TEMPLATE MODAL ---------------- */}
+      {addTemplateVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-[400px] max-w-[90%] p-6 relative animate-slide-in">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Add Payslip Template</h3>
+              <button
+                onClick={() => setAddTemplateVisible(false)}
+                className="text-gray-400 hover:text-red-500 cursor-pointer transition"
+              >
+                <FaTimes size={18} />
+              </button>
+            </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
+            {/* Select */}
+            <div className="mb-6">
+              <Select
+                options={templateOptions}
+                value={newTemplateName}
+                onChange={setNewTemplateName}
+                placeholder="Select template to add"
+                classNamePrefix="react-select"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300 transition"
+                onClick={() => setAddTemplateVisible(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-primary text-white cursor-pointer rounded-lg hover:bg-secondary transition"
+                onClick={handleAddTemplate}
+              >
+                Add Template
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- TEMPLATE GRID ---------------- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4 mt-10">
         {templates.map((template) => (
           <div
             key={template.templateId}
@@ -238,11 +332,10 @@ const PayslipTemplates = () => {
                 />
 
                 <FaStar
-                  className={`cursor-pointer ${
-                    template.isDefault
-                      ? "text-yellow-500"
-                      : "text-gray-300 hover:text-yellow-400"
-                  }`}
+                  className={`cursor-pointer ${template.isDefault
+                    ? "text-yellow-500"
+                    : "text-gray-300 hover:text-yellow-400"
+                    }`}
                   title={
                     template.isDefault ? "Default Template" : "Set as Default"
                   }
@@ -278,7 +371,7 @@ const PayslipTemplates = () => {
           <div className="bg-white w-[95%] h-[95vh] rounded shadow-lg overflow-y-auto relative p-6">
             <button
               onClick={() => setPreviewVisible(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-red-600"
+              className="absolute top-4 right-4 text-gray-500 cursor-pointer hover:text-red-600"
             >
               <FaTimes size={18} />
             </button>

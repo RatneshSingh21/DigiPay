@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { FiX } from "react-icons/fi";
-import axiosInstance from "../../../../../axiosInstance/axiosInstance";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
 const SalaryCalculateGenerateAllForm = ({ onClose, onSuccess }) => {
   const [form, setForm] = useState({

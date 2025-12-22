@@ -58,9 +58,9 @@ const SalaryConfig = () => {
       {/* List */}
       <div className="mt-8">
         <h3 className="font-semibold mb-2">Current Configs</h3>
-        <div className="overflow-x-auto shadow h-[150px] overflow-y-scroll">
+        <div className="overflow-x-auto shadow h-[38vh] overflow-y-scroll">
           <table className="min-w-full divide-y text-center text-xs divide-gray-200">
-            <thead className="bg-gray-100 text-gray-600">
+            <thead className="bg-gray-100 sticky top-0 text-gray-600">
               <tr>
                 <th className="px-4 py-2">S.No</th>
                 <th className="px-4 py-2">Component Name</th>
@@ -97,11 +97,10 @@ const SalaryConfig = () => {
                     </td>
                     <td className="px-4 py-2">
                       <span
-                        className={`px-2 py-1 text-xs rounded-full font-semibold ${
-                          item.isEnabled
+                        className={`px-2 py-1 text-xs rounded-full font-semibold ${item.isEnabled
                             ? "bg-green-100 text-green-700"
                             : "bg-red-100 text-red-700"
-                        }`}
+                          }`}
                       >
                         {item.isEnabled ? "Active" : "Inactive"}
                       </span>

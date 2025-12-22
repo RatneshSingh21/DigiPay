@@ -4,7 +4,7 @@ import {
   FiPlus,
   FiDownload,
   FiUpload,
-  FiTrash2,
+  FiTrash2, 
   FiEdit2,
 } from "react-icons/fi";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -45,18 +45,26 @@ export default function EmployeeLeaveAllocation() {
 
   // Fetch leave type name
   const getLeaveTypeName = async (id) => {
-    if (!id) return "";
-    if (leaveTypeCache.current[id]) return leaveTypeCache.current[id];
+  if (!id) return "";
+  if (leaveTypeCache.current[id]) return leaveTypeCache.current[id];
 
-    try {
-      const res = await axiosInstance.get(`/LeaveType/${id}`);
-      const name = res.data.leaveName || "Unknown";
-      leaveTypeCache.current[id] = name;
-      return name;
-    } catch {
-      return "Unknown";
-    }
-  };
+  try {
+    const res = await axiosInstance.get(`/LeaveType/${id}`);
+
+    console.log("LeaveType API response:", res);
+
+    const name =
+      res.data?.leaveName ||
+      res.data?.data?.leaveName ||
+      "Unknown";
+
+    leaveTypeCache.current[id] = name;
+    return name;
+  } catch (err) {
+    console.error("LeaveType fetch failed:", err);
+    return "Unknown";
+  }
+};
 
   // Fetch allocations
   const fetchAllocations = async () => {

@@ -12,13 +12,21 @@ const SalaryCalculate = () => {
   const [showGenerateAllForm, setShowGenerateAllForm] = useState(false);
   const [search, setSearch] = useState("");
 
-  const filteredSalaries = salaries.filter((s) => {
+  const filteredSalaries = [...salaries]
+  .filter((s) => {
     const term = search.toLowerCase();
     return (
       s.employeeName?.toLowerCase().includes(term) ||
       s.employeeCode?.toLowerCase().includes(term)
     );
-  });
+  })
+  .sort((a, b) =>
+    (a.employeeCode || "").localeCompare(
+      b.employeeCode || "",
+      undefined,
+      { numeric: true, sensitivity: "base" }
+    )
+  );
 
   const fetchSalaries = async () => {
     try {
@@ -75,7 +83,7 @@ const SalaryCalculate = () => {
         </div>
       </div>
 
-      <div className="border mx-auto max-w-xl md:max-w-5xl 2xl:max-w-7xl overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
+      <div className="border mx-auto max-w-xl md:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
         <table className="divide-y divide-gray-200 text-xs text-center">
           <thead className="bg-gray-100 text-gray-600 sticky top-0">
             <tr>
@@ -117,9 +125,8 @@ const SalaryCalculate = () => {
               filteredSalaries.map((s, i) => (
                 <tr
                   key={s.calculatedSalaryId}
-                  className={`hover:bg-gray-50 transition-all ${
-                    i % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  }`}
+                  className={`hover:bg-gray-50 transition-all ${i % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    }`}
                 >
                   <td className="px-2 py-2 border-r border-gray-200">
                     {i + 1}

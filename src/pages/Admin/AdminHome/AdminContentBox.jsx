@@ -21,8 +21,6 @@ const submenuMap = {
   Leave: [
     "Leave Types",
     "Leave Mapping",
-    // "Leave Requests",
-    // "Leave Balance",
     "Holiday List",
     "Employee Leave",
     "Leave Allocation",
@@ -39,7 +37,6 @@ const submenuMap = {
     "Leave Policy",
     "Weekend Policy",
     "Attendance Policy",
-    // "Policy Details",
   ],
 
   Compliance: [
@@ -60,17 +57,19 @@ const submenuMap = {
     "Attendance Policy",
     "Attendance Record",
     "Attendance Calculation",
+    "Attendance Report",
   ],
 
   Reports: [
-    "Attendance Report",
     "Salary Register",
     "Payslip Templates",
+    "Letter of Intent",
+    "Offer Letter",
     "Appointment Letter",
     "Confirmation Letter",
-    "Offer Letter",
-    "Letter of Intent",
     "Increment Letter",
+    // "Promotion Letter",
+    // "Relieving Letter",
     "Experience Cert.",
     "Full & Final Statement",
     "HR Dashboard",
