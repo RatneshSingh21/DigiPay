@@ -4,18 +4,78 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 
 const data = [
-  { id: 1, name: "Basic Detail", importApi: "/Employee/importley", exportApi: "/Employee/export" },
-  { id: 2, name: "Salary Details", importApi: "/EmployeeSalary/import", exportApi: "/EmployeeSalary/export" },
-  { id: 3, name: "Personal Details", importApi: "/PersonalDetails/import", exportApi: "/PersonalDetails/export" },
-  { id: 4, name: "Bank Details", importApi: "/BankDetails/import", exportApi: "/BankDetails/export" },
-  { id: 5, name: "Employee Work Types", importApi: "/EmployeeWorkType/import", exportApi: "/EmployeeWorkType/export-work-types" },
-  { id: 6, name: "Employee Shift Mapping", importApi: "/ShiftMapping/import-shift-mapping", exportApi: "/ShiftMapping/export" },
-  { id: 7, name: "Holiday List", importApi: "/HolidayListMaster/import-holiday", exportApi: "/HolidayListMaster/export" },
-  { id: 8, name: "Day-Wise Attendance", importApi: "/Attendance/import", exportApi: "/Attendance/export" },
-  { id: 9, name: "Monthly Attendance", importApi: "/Attendance/monthly-summary/import-summary", exportApi: "/Attendance/monthly-summary/export-summary" },
-  { id: 10, name: "PF & ESI Mapping", importApi: "/Employee/import-compliance", exportApi: "/Employee/export-compliance-template" },
-  { id: 11, name: "Leave Policy Mapping", importApi: "/EmployeeLeavePolicyAllocation/import-Leave", exportApi: "/EmployeeLeavePolicyAllocation/export" },
-  { id: 12, name: "Attendance Policy Mapping", importApi: "/EmployeeAttendancePolicyMapping/import-attendance-policy", exportApi: "/EmployeeAttendancePolicyMapping/export" },
+  {
+    id: 1,
+    name: "Basic Detail",
+    importApi: "/Employee/importley",
+    exportApi: "/Employee/export",
+  },
+  {
+    id: 2,
+    name: "Salary Details",
+    importApi: "/EmployeeSalary/import",
+    exportApi: "/EmployeeSalary/export",
+  },
+  {
+    id: 3,
+    name: "Personal Details",
+    importApi: "/PersonalDetails/import",
+    exportApi: "/PersonalDetails/export",
+  },
+  {
+    id: 4,
+    name: "Bank Details",
+    importApi: "/BankDetails/import",
+    exportApi: "/BankDetails/export",
+  },
+  {
+    id: 5,
+    name: "Employee Work Types",
+    importApi: "/EmployeeWorkType/import",
+    exportApi: "/EmployeeWorkType/export-work-types",
+  },
+  {
+    id: 6,
+    name: "Employee Shift Mapping",
+    importApi: "/ShiftMapping/import-shift-mapping",
+    exportApi: "/ShiftMapping/export",
+  },
+  {
+    id: 7,
+    name: "Holiday List",
+    importApi: "/HolidayListMaster/import-holiday",
+    exportApi: "/HolidayListMaster/export",
+  },
+  {
+    id: 8,
+    name: "Day-Wise Attendance",
+    importApi: "/Attendance/import",
+    exportApi: "/Attendance/export",
+  },
+  {
+    id: 9,
+    name: "Monthly Attendance",
+    importApi: "/Attendance/monthly-summary/import-summary",
+    exportApi: "/Attendance/monthly-summary/export-summary",
+  },
+  {
+    id: 10,
+    name: "PF & ESI Mapping",
+    importApi: "/Employee/import-compliance",
+    exportApi: "/Employee/export-compliance-template",
+  },
+  {
+    id: 11,
+    name: "Leave Policy Mapping",
+    importApi: "/EmployeeLeavePolicyAllocation/import-Leave",
+    exportApi: "/EmployeeLeavePolicyAllocation/export",
+  },
+  {
+    id: 12,
+    name: "Attendance Policy Mapping",
+    importApi: "/EmployeeAttendancePolicyMapping/import-attendance-policy",
+    exportApi: "/EmployeeAttendancePolicyMapping/export",
+  },
 ];
 
 export default function GeneralImports() {
@@ -97,8 +157,9 @@ export default function GeneralImports() {
               {data.map((item, i) => (
                 <tr
                   key={item.id}
-                  className={`border-t hover:bg-primary/5 transition ${i % 2 === 1 ? "bg-gray-50" : "bg-white"
-                    }`}
+                  className={`border-t hover:bg-primary/5 transition ${
+                    i % 2 === 1 ? "bg-gray-50" : "bg-white"
+                  }`}
                 >
                   <td className="px-6 py-4 font-medium text-gray-800 flex items-center gap-2">
                     <FiUsers className="text-primary text-sm" />
@@ -108,7 +169,7 @@ export default function GeneralImports() {
                   <td className="px-6 py-4 text-center">
                     <button
                       onClick={() => handleImport(item)}
-                      className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm"
+                      className="inline-flex items-center cursor-pointer gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm"
                     >
                       <FiDownload />
                       Import
@@ -118,7 +179,7 @@ export default function GeneralImports() {
                   <td className="px-6 py-4 text-center">
                     <button
                       onClick={() => handleExport(item.exportApi, item.name)}
-                      className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm"
+                      className="inline-flex items-center cursor-pointer gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm"
                     >
                       <FiUpload />
                       Export

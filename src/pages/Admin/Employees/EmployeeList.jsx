@@ -11,8 +11,9 @@ import assets from "../../../assets/assets";
 /* 🔹 Status Pill */
 const StatusPill = ({ enabled }) => (
   <span
-    className={`text-xs font-semibold px-2 py-1 rounded-full ${enabled ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-      }`}
+    className={`text-xs font-semibold px-2 py-1 rounded-full ${
+      enabled ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+    }`}
   >
     {enabled ? "Enabled" : "Disabled"}
   </span>
@@ -67,7 +68,7 @@ const EmployeeList = () => {
       try {
         const response = await axiosInstance.get("/Employee");
         setEmployees(response.data?.data || response.data || []);
-        console.log(response.data)
+        console.log(response.data);
       } catch (error) {
         if (error.response?.status === 403) {
           toast.error("You don’t have permission to view employees.");
@@ -83,15 +84,22 @@ const EmployeeList = () => {
     fetchEmployees();
   }, []);
 
+  // Sort Employee by EmpCode
+  const sortedEmployees = [...employees].sort((a, b) =>
+    a.employeeCode.localeCompare(b.employeeCode, undefined, {
+      numeric: true,
+      sensitivity: "base",
+    })
+  );
+
   /* 🔹 Filter Employees */
-  const filteredEmployees = employees.filter((emp) => {
+  const filteredEmployees = sortedEmployees.filter((emp) => {
     const matchesLocation =
       !filters.location || emp.workLocationId === Number(filters.location);
     const matchesDepartment =
       !filters.department || emp.departmentId === Number(filters.department);
     const matchesDesignation =
-      !filters.designation ||
-      emp.designationId === Number(filters.designation);
+      !filters.designation || emp.designationId === Number(filters.designation);
     const matchesSearch =
       !searchQuery ||
       emp.fullName?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -219,10 +227,10 @@ const EmployeeList = () => {
                 value={
                   filters.designation
                     ? createSelectValue(
-                      filters.designation,
-                      designations,
-                      "title"
-                    )
+                        filters.designation,
+                        designations,
+                        "title"
+                      )
                     : null
                 }
                 onChange={(selected) =>
@@ -306,8 +314,9 @@ const EmployeeList = () => {
                   {filteredEmployees.map((emp, index) => (
                     <tr
                       key={emp.id}
-                      className={`border-b border-gray-300 text-center ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                        } hover:bg-gray-100 transition-all`}
+                      className={`border-b border-gray-300 text-center ${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      } hover:bg-gray-100 transition-all`}
                     >
                       <td className="px-2 py-2">{index + 1}</td>
                       <td className="px-2 py-2">{emp.employeeCode}</td>
@@ -316,8 +325,9 @@ const EmployeeList = () => {
                           src={
                             emp.profilePic
                               ? emp.profilePic
-                              : `https://i.pravatar.cc/150?u=${emp.id || emp.workEmail
-                              }`
+                              : `https://i.pravatar.cc/150?u=${
+                                  emp.id || emp.workEmail
+                                }`
                           }
                           alt={emp.fullName}
                           className="w-8 h-8 rounded-full object-cover"
@@ -340,7 +350,6 @@ const EmployeeList = () => {
                       </td>
                       <td className="px-2 py-2">
                         {emp.aadhaarCardNumber ? emp.aadhaarCardNumber : "-"}
-
                       </td>
                       <td className="px-2 py-2">
                         <StatusPill enabled={emp.portalAccessEnabled} />

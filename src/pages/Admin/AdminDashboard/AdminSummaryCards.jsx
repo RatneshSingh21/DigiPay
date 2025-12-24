@@ -15,7 +15,6 @@ const getLastMonths = (count = 12) => {
 
   for (let i = 0; i < count; i++) {
     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-
     months.push({
       label: date.toLocaleString("default", {
         month: "short",
@@ -25,15 +24,21 @@ const getLastMonths = (count = 12) => {
       year: date.getFullYear(),
     });
   }
-
   return months;
 };
 
-
 const MONTH_OPTIONS = getLastMonths(12);
+
+/* ===================== FILTER ===================== */
+const filterByMonth = (data, { month, year }) =>
+  data.filter((s) => s.month === month && s.year === year);
+
+const round = (value) => Math.round(Number(value || 0));
 
 const AdminSummaryCards = () => {
   const [employees, setEmployees] = useState([]);
+  const [salaries, setSalaries] = useState([]);
+
   const [summary, setSummary] = useState({
     totalSalaryPaid: 0,
     otPaid: 0,
@@ -48,113 +53,63 @@ const AdminSummaryCards = () => {
   const [otMonth, setOtMonth] = useState(DEFAULT_MONTH);
   const [pfEsiMonth, setPfEsiMonth] = useState(DEFAULT_MONTH);
 
-  /* ===================== EMPLOYEES ===================== */
+  /* ===================== FETCH EMPLOYEES ===================== */
   const fetchEmployees = async () => {
     try {
-      const response = await axiosInstance.get("/Employee");
-      setEmployees(response.data?.data || response.data || []);
-    } catch (error) {
-      console.error("Error fetching employees:", error);
+      const res = await axiosInstance.get("/Employee");
+      setEmployees(res.data || []);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  /* ===================== SALARY ===================== */
-  const fetchSalaryOnly = async ({ month, year }) => {
+  /* ===================== FETCH SALARIES (ONCE) ===================== */
+  const fetchSalaries = async () => {
     try {
-      const response = await axiosInstance.get(
-        `/Salary/month/${month}?year=${year}`
-      );
-
-      const salaries = response.data?.data || [];
-
-      const totalSalaryPaid = salaries.reduce(
-        (sum, s) => sum + (s.netSalary || 0),
-        0
-      );
-
-      setSummary((prev) => ({
-        ...prev,
-        totalSalaryPaid,
-      }));
-    } catch (error) {
-      console.error("Error fetching salary summary:", error);
-      toast.error("Failed to fetch salary");
-    }
-  };
-
-  /* ===================== PF + ESI ===================== */
-  const fetchPfEsiOnly = async ({ month, year }) => {
-    try {
-      const response = await axiosInstance.get(
-        `/Salary/month/${month}?year=${year}`
-      );
-
-      const salaries = response.data?.data || [];
-
-      const pfPaid = salaries.reduce((sum, s) => sum + (s.pfEmployee || 0), 0);
-      const esiPaid = salaries.reduce(
-        (sum, s) => sum + (s.esicEmployee || 0),
-        0
-      );
-
-      setSummary((prev) => ({
-        ...prev,
-        pfPaid,
-        esiPaid,
-      }));
-    } catch (error) {
-      console.error("Error PF/ESI summary:", error);
-      toast.error("Failed to fetch PF/ESI");
-    }
-  };
-
-  /* ===================== OT ===================== */
-  const fetchOTSummary = async ({ month, year }) => {
-    try {
-      const response = await axiosInstance.get(
-        `/Salary/month/${month}?year=${year}`
-      );
-
-      const data = response.data?.data || [];
-
-      const otPaid = data.reduce((sum, item) => {
-        // Priority: direct otAmount
-        if (item.otAmount && item.otAmount > 0) {
-          return sum + item.otAmount;
-        }
-
-        // Fallback: calculate from hours × rate
-        const hours = item.overtimeHours || 0;
-        const rate = item.overtimeRate || 0;
-        return sum + hours * rate;
-      }, 0);
-
-      setSummary((prev) => ({
-        ...prev,
-        otPaid,
-      }));
-    } catch (error) {
-      console.error("Error fetching OT summary:", error);
-      toast.error("Failed to fetch OT");
+      const res = await axiosInstance.get("/CalculatedSalary");
+      setSalaries(res.data?.data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch salaries");
     }
   };
 
   /* ===================== EFFECTS ===================== */
   useEffect(() => {
     fetchEmployees();
+    fetchSalaries();
   }, []);
 
+  /* Salary */
   useEffect(() => {
-    fetchSalaryOnly(salaryMonth);
-  }, [salaryMonth]);
+    const data = filterByMonth(salaries, salaryMonth);
+    setSummary((prev) => ({
+      ...prev,
+      totalSalaryPaid: data.reduce((sum, s) => sum + (s.netSalary || 0), 0),
+    }));
+  }, [salaryMonth, salaries]);
 
+  /* OT */
   useEffect(() => {
-    fetchOTSummary(otMonth);
-  }, [otMonth]);
+    const data = filterByMonth(salaries, otMonth);
+    setSummary((prev) => ({
+      ...prev,
+      otPaid: data.reduce((sum, s) => {
+        if (s.overtimeAmount) return sum + s.overtimeAmount;
+        return sum + (s.overtimeHours || 0) * (s.overtimeRate || 0);
+      }, 0),
+    }));
+  }, [otMonth, salaries]);
 
+  /* PF + ESI */
   useEffect(() => {
-    fetchPfEsiOnly(pfEsiMonth);
-  }, [pfEsiMonth]);
+    const data = filterByMonth(salaries, pfEsiMonth);
+    setSummary((prev) => ({
+      ...prev,
+      pfPaid: data.reduce((sum, s) => sum + (s.pfEmployee || 0), 0),
+      esiPaid: data.reduce((sum, s) => sum + (s.esicEmployee || 0), 0),
+    }));
+  }, [pfEsiMonth, salaries]);
 
   /* ===================== DROPDOWN ===================== */
   const MonthDropdown = ({ value, onChange }) => (
@@ -162,23 +117,9 @@ const AdminSummaryCards = () => {
       value={`${value.month}-${value.year}`}
       onChange={(e) => {
         const [m, y] = e.target.value.split("-");
-        onChange(
-          MONTH_OPTIONS.find(
-            (opt) => opt.month == m && opt.year == y
-          )
-        );
+        onChange(MONTH_OPTIONS.find((opt) => opt.month == m && opt.year == y));
       }}
-      className="
-      text-xs font-semibold text-primary
-      bg-gray-50 hover:bg-gray-100
-      border border-gray-200
-      rounded-lg
-      px-2 py-1
-      shadow-sm
-      cursor-pointer
-      transition-all duration-200
-      focus:outline-none focus:ring-1 focus:ring-primary
-    "
+      className="text-xs font-semibold text-primary bg-gray-50 border border-gray-200 rounded-lg px-2 py-1"
     >
       {MONTH_OPTIONS.map((opt) => (
         <option
@@ -191,63 +132,48 @@ const AdminSummaryCards = () => {
     </select>
   );
 
-
   /* ===================== CARDS ===================== */
   const cards = [
     {
       label: "Total Employees",
       value: employees.length,
-      diff: `+${employees.filter((emp) => {
-        if (!emp.dateOfJoining) return false;
-        const doj = new Date(emp.dateOfJoining);
-        const now = new Date();
-        return (
-          doj.getMonth() === now.getMonth() &&
-          doj.getFullYear() === now.getFullYear()
-        );
-      }).length
-        } Joined this month`,
+      diff: `+${
+        employees.filter((emp) => {
+          if (!emp.dateOfJoining) return false;
+          const d = new Date(emp.dateOfJoining);
+          const now = new Date();
+          return (
+            d.getMonth() === now.getMonth() &&
+            d.getFullYear() === now.getFullYear()
+          );
+        }).length
+      } Joined this month`,
       icon: <FaUserFriends />,
       color: "from-blue-500 to-blue-600",
     },
     {
       label: "Total Salary Paid",
-      value: `₹${summary.totalSalaryPaid.toLocaleString()}`,
-      diff: (
-        <MonthDropdown
-          value={salaryMonth}
-          onChange={setSalaryMonth}
-        />
-      ),
+      value: `₹${round(summary.totalSalaryPaid).toLocaleString()}`,
+      diff: <MonthDropdown value={salaryMonth} onChange={setSalaryMonth} />,
       icon: <FaMoneyCheckAlt />,
       color: "from-green-500 to-green-600",
     },
     {
       label: "OT Amount Paid",
-      value: `₹${summary.otPaid.toLocaleString()}`,
-      diff: (
-        <MonthDropdown
-          value={otMonth}
-          onChange={setOtMonth}
-        />
-      ),
+      value: `₹${round(summary.otPaid).toLocaleString()}`,
+      diff: <MonthDropdown value={otMonth} onChange={setOtMonth} />,
       icon: <FaClock />,
       color: "from-yellow-500 to-yellow-600",
     },
     {
       label: "PF & ESI Contribution",
       customContent: (
-        <div className="flex flex-col gap-1 text-gray-800 text-sm font-semibold">
-          <div>PF: ₹{summary.pfPaid.toLocaleString()}</div>
-          <div>ESI: ₹{summary.esiPaid.toLocaleString()}</div>
+        <div className="text-sm font-semibold">
+          <div>PF: ₹{round(summary.pfPaid).toLocaleString()}</div>
+          <div>ESI: ₹{round(summary.esiPaid).toLocaleString()}</div>
         </div>
       ),
-      diff: (
-        <MonthDropdown
-          value={pfEsiMonth}
-          onChange={setPfEsiMonth}
-        />
-      ),
+      diff: <MonthDropdown value={pfEsiMonth} onChange={setPfEsiMonth} />,
       icon: <FaHandHoldingUsd />,
       color: "from-purple-500 to-pink-500",
     },
@@ -275,12 +201,8 @@ const AdminSummaryCards = () => {
               {card.icon}
             </div>
           </div>
-          <div className="text-sm font-medium text-gray-500">
-            {card.label}
-          </div>
-          <div className="text-xs font-semibold text-primary">
-            {card.diff}
-          </div>
+          <div className="text-sm font-medium text-gray-500">{card.label}</div>
+          <div className="text-xs font-semibold text-primary">{card.diff}</div>
         </div>
       ))}
     </div>
@@ -288,9 +210,6 @@ const AdminSummaryCards = () => {
 };
 
 export default AdminSummaryCards;
-
-
-
 
 // import {
 //   FaUserFriends,
@@ -340,7 +259,6 @@ export default AdminSummaryCards;
 
 //   return arr;
 // };
-
 
 //   const [employees, setEmployees] = useState([]);
 //   const [summary, setSummary] = useState({

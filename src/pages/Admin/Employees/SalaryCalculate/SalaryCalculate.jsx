@@ -1,8 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import Select from "react-select";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import SalaryCalculateForm from "./SalaryCalculateForm";
 import ManualSalaryCalculateForm from "./ManualSalaryCalculateForm";
+
+const months = [
+  { label: "All Months", value: "" },
+  { label: "January", value: 1 },
+  { label: "February", value: 2 },
+  { label: "March", value: 3 },
+  { label: "April", value: 4 },
+  { label: "May", value: 5 },
+  { label: "June", value: 6 },
+  { label: "July", value: 7 },
+  { label: "August", value: 8 },
+  { label: "September", value: 9 },
+  { label: "October", value: 10 },
+  { label: "November", value: 11 },
+  { label: "December", value: 12 },
+];
+
+const round = (value) => Math.round(Number(value || 0));
 
 const SalaryCalculate = () => {
   const [salaries, setSalaries] = useState([]);
@@ -11,23 +30,79 @@ const SalaryCalculate = () => {
   const [showManualForm, setShowManualForm] = useState(false);
   const [showGenerateAllForm, setShowGenerateAllForm] = useState(false);
   const [search, setSearch] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
 
+  /* ================= FILTERED DATA ================= */
   const filteredSalaries = [...salaries]
-  .filter((s) => {
-    const term = search.toLowerCase();
-    return (
-      s.employeeName?.toLowerCase().includes(term) ||
-      s.employeeCode?.toLowerCase().includes(term)
-    );
-  })
-  .sort((a, b) =>
-    (a.employeeCode || "").localeCompare(
-      b.employeeCode || "",
-      undefined,
-      { numeric: true, sensitivity: "base" }
-    )
-  );
+    .filter((s) => {
+      const term = search.toLowerCase();
 
+      const matchesSearch =
+        s.employeeName?.toLowerCase().includes(term) ||
+        s.employeeCode?.toLowerCase().includes(term);
+
+      const matchesMonth =
+        selectedMonth === "" || Number(s.month) === Number(selectedMonth);
+
+      return matchesSearch && matchesMonth;
+    })
+    .sort((a, b) =>
+      (a.employeeCode || "").localeCompare(b.employeeCode || "", undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
+    );
+
+  /* ================= TOTALS ================= */
+  const totals = useMemo(() => {
+    return filteredSalaries.reduce(
+      (acc, s) => {
+        acc.basic += s.basicSalary || 0;
+        acc.hra += s.hra || 0;
+        acc.conveyance += s.conveyanceAllowance || 0;
+        acc.fixed += s.fixedAllowance || 0;
+        acc.bonus += s.bonus || 0;
+        acc.arrears += s.arrears || 0;
+        acc.otAmount += s.overtimeAmount || 0;
+        acc.leaveEncash += s.leaveEncashment || 0;
+        acc.special += s.specialAllowance || 0;
+        acc.pf += s.pfEmployee || 0;
+        acc.esic += s.esicEmployee || 0;
+        acc.pt += s.professionalTax || 0;
+        acc.tds += s.tds || 0;
+        acc.loan += s.loanRepayment || 0;
+        acc.other += s.otherDeductions || 0;
+        acc.gross += s.grossEarnings || 0;
+        acc.deductions += s.totalDeductions || 0;
+        acc.net += s.netSalary || 0;
+        acc.ctc += s.ctc || 0;
+        return acc;
+      },
+      {
+        basic: 0,
+        hra: 0,
+        conveyance: 0,
+        fixed: 0,
+        bonus: 0,
+        arrears: 0,
+        otAmount: 0,
+        leaveEncash: 0,
+        special: 0,
+        pf: 0,
+        esic: 0,
+        pt: 0,
+        tds: 0,
+        loan: 0,
+        other: 0,
+        gross: 0,
+        deductions: 0,
+        net: 0,
+        ctc: 0,
+      }
+    );
+  }, [filteredSalaries]);
+
+  /* ================= API ================= */
   const fetchSalaries = async () => {
     try {
       setLoading(true);
@@ -59,6 +134,33 @@ const SalaryCalculate = () => {
             placeholder="Search by Name or Code..."
             className="border border-blue-300 rounded-md px-3 py-1 text-sm w-64"
           />
+          <div className="w-40 text-sm">
+            <Select
+              options={months}
+              value={months.find(
+                (m) => String(m.value) === String(selectedMonth)
+              )}
+              onChange={(opt) => setSelectedMonth(opt?.value ?? "")}
+              isClearable={false}
+              menuPortalTarget={document.body}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  minHeight: "30px",
+                  height: "30px",
+                  borderColor: "#93c5fd",
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  padding: "0 8px",
+                }),
+                indicatorsContainer: (base) => ({
+                  ...base,
+                  height: "30px",
+                }),
+              }}
+            />
+          </div>
 
           <button
             onClick={() => setShowForm(true)}
@@ -125,8 +227,9 @@ const SalaryCalculate = () => {
               filteredSalaries.map((s, i) => (
                 <tr
                   key={s.calculatedSalaryId}
-                  className={`hover:bg-gray-50 transition-all ${i % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    }`}
+                  className={`hover:bg-gray-50 transition-all ${
+                    i % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  }`}
                 >
                   <td className="px-2 py-2 border-r border-gray-200">
                     {i + 1}
@@ -141,67 +244,67 @@ const SalaryCalculate = () => {
                     {s.year}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.basicSalary.toFixed(2)}
+                    {round(s.basicSalary)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.hra.toFixed(2)}
+                    {round(s.hra)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.conveyanceAllowance.toFixed(2)}
+                    {round(s.conveyanceAllowance)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.fixedAllowance.toFixed(2)}
+                    {round(s.fixedAllowance)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.bonus.toFixed(2)}
+                    {round(s.bonus)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.arrears.toFixed(2)}
+                    {round(s.arrears)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
                     {s.overtimeHours}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.overtimeRate.toFixed(2)}
+                    {s.overtimeRate}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.overtimeAmount.toFixed(2)}
+                    {round(s.overtimeAmount)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.leaveEncashment.toFixed(2)}
+                    {round(s.leaveEncashment)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.specialAllowance.toFixed(2)}
+                    {round(s.specialAllowance)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.pfEmployee.toFixed(2)}
+                    {round(s.pfEmployee)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.esicEmployee.toFixed(2)}
+                    {round(s.esicEmployee)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.professionalTax.toFixed(2)}
+                    {round(s.professionalTax)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.tds.toFixed(2)}
+                    {round(s.tds)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.loanRepayment.toFixed(2)}
+                    {round(s.loanRepayment)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.otherDeductions.toFixed(2)}
+                    {round(s.otherDeductions)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.grossEarnings.toFixed(2)}
+                    {round(s.grossEarnings)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.totalDeductions.toFixed(2)}
+                    {round(s.totalDeductions)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.netSalary.toFixed(2)}
+                    {round(s.netSalary)}
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {s.ctc.toFixed(2)}
+                    {round(s.ctc)}
                   </td>
                 </tr>
               ))
@@ -219,6 +322,69 @@ const SalaryCalculate = () => {
               </tr>
             )}
           </tbody>
+
+          <tfoot className="sticky bottom-0 bg-gray-200 font-semibold text-xs">
+            <tr>
+              <td className="p-2 border-r border-gray-200"  colSpan={4}>TOTAL</td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.basic)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.hra)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.conveyance)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.fixed)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.bonus)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.arrears)}
+              </td>
+              <td className="p-2 border-r border-gray-200">{"-"}</td>
+              <td className="p-2 border-r border-gray-200">{"-"}</td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.otAmount)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.leaveEncash)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.special)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.pf)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.esic)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.pt)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.tds)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.loan)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.other)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.gross)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.deductions)}
+              </td>
+              <td className="p-2 border-r border-gray-200">
+                ₹{round(totals.net)}
+              </td>
+              <td className="p-2">₹{round(totals.ctc)}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 

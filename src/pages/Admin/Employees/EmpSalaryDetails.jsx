@@ -15,15 +15,9 @@ const StatusPill = ({ enabled }) => (
   </span>
 );
 
-/* 🔹 INR Currency Formatter */
-const formatCurrency = (value) => {
-  if (value === null || value === undefined || isNaN(value)) return "₹0.00";
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-  }).format(value);
-};
+const round = (value) => Math.round(Number(value || 0));
+
+
 
 const months = [
   { label: "Jan", value: 1 },
@@ -298,8 +292,8 @@ const EmpSalaryDetails = () => {
           <Spinner />
         </div>
       ) : filteredSalaries.length > 0 ? (
-        <div className="mt-4 mx-auto border max-w-xl md:max-w-5xl xl:max-w-6xl  2xl:max-w-full overflow-x-scroll border-gray-200 rounded-lg max-h-[80vh]">
-          <table className="text-xs">
+        <div className="border mt-5 mx-auto max-w-xl md:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
+          <table className="divide-y divide-gray-200 text-xs text-center">
             <thead className="bg-gray-100 text-gray-700 sticky top-0">
               <tr className="text-center">
                 <th className="p-2 border-r border-gray-200">S.No</th>
@@ -358,20 +352,24 @@ const EmpSalaryDetails = () => {
                     <td className="p-2 border-r border-gray-200">{s.month}</td>
                     <td className="p-2 border-r border-gray-200">{s.year}</td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.basicSalary}
-                    </td>
-                    <td className="p-2 border-r border-gray-200">{s.hra}</td>
-                    <td className="p-2 border-r border-gray-200">
-                      {s.conveyanceAllowance}
+                      {round(s.basicSalary)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.specialAllowance}
+                      {round(s.hra)}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {round(s.conveyanceAllowance)}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {round(s.specialAllowance)}
                     </td>
 
                     <td className="p-2 border-r border-gray-200">
-                      {s.fixedAllowance}
+                      {round(s.fixedAllowance)}
                     </td>
-                    <td className="p-2 border-r border-gray-200">{s.bonus}</td>
+                    <td className="p-2 border-r border-gray-200">
+                      {round(s.bonus)}
+                    </td>
                     <td className="p-2 border-r border-gray-200">
                       {s.overtimeHours}
                     </td>
@@ -379,40 +377,44 @@ const EmpSalaryDetails = () => {
                       {s.overtimeRate}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {(s.overtimeHours * s.overtimeRate).toFixed(2)}
+                      {round(s.overtimeHours * s.overtimeRate)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.pfEmployee}
+                      {round(s.pfEmployee)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.esicEmployee}
+                      {round(s.esicEmployee)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.professionalTax}
-                    </td>
-                    <td className="p-2 border-r border-gray-200">{s.tds}</td>
-                    <td className="p-2 border-r border-gray-200">
-                      {s.arrears}
+                      {round(s.professionalTax)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.leaveEncashment}
+                      {round(s.tds)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.loanRepayment}
+                      {round(s.arrears)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.otherDeductions}
+                      {round(s.leaveEncashment)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.grossEarnings}
+                      {round(s.loanRepayment)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.totalDeductions}
+                      {round(s.otherDeductions)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {s.netSalary}
+                      {round(s.grossEarnings)}
                     </td>
-                    <td className="p-2 border-r border-gray-200">{s.ctc}</td>
+                    <td className="p-2 border-r border-gray-200">
+                      {round(s.totalDeductions)}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {round(s.netSalary)}
+                    </td>
+                    <td className="p-2 border-r border-gray-200">
+                      {round(s.ctc)}
+                    </td>
                     <td className="p-2 border-r border-gray-200">
                       {s.totalWorkingDays}
                     </td>
@@ -433,22 +435,22 @@ const EmpSalaryDetails = () => {
                 </td>
 
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.basic)}
+                  ₹{round(totals.basic)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.hra)}
+                  ₹{round(totals.hra)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.conveyance)}
+                  ₹{round(totals.conveyance)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.special)}
+                  ₹{round(totals.special)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.fixed)}
+                  ₹{round(totals.fixed)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.bonus)}
+                  ₹{round(totals.bonus)}
                 </td>
 
                 <td className="p-2 border-r border-gray-200">
@@ -456,46 +458,46 @@ const EmpSalaryDetails = () => {
                 </td>
                 <td className="p-2 border-r border-gray-200">—</td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.otAmount)}
+                  ₹{round(totals.otAmount)}
                 </td>
 
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.pf)}
+                  ₹{round(totals.pf)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.esi)}
+                  ₹{round(totals.esi)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.tax)}
+                  ₹{round(totals.tax)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.tds)}
-                </td>
-
-                <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.arrears)}
-                </td>
-                <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.leaveEncash)}
-                </td>
-                <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.loan)}
-                </td>
-                <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.otherDed)}
+                  ₹{round(totals.tds)}
                 </td>
 
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.gross)}
+                  ₹{round(totals.arrears)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.totalDed)}
+                  ₹{round(totals.leaveEncash)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.net)}
+                  ₹{round(totals.loan)}
                 </td>
                 <td className="p-2 border-r border-gray-200">
-                  {formatCurrency(totals.ctc)}
+                  ₹{round(totals.otherDed)}
+                </td>
+
+                <td className="p-2 border-r border-gray-200">
+                  ₹{round(totals.gross)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  ₹{round(totals.totalDed)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  ₹{round(totals.net)}
+                </td>
+                <td className="p-2 border-r border-gray-200">
+                  ₹{round(totals.ctc)}
                 </td>
 
                 <td className="p-2 border-r border-gray-200">

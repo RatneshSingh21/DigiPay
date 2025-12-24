@@ -1,0 +1,232 @@
+import React from "react";
+import AmountInWords from "../../../components/AmountInWords";
+
+const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
+  if (!data) return null;
+
+  const {
+    showPAN,
+    showYTD,
+    showBank,
+    showWorkLocation,
+    showDepartment,
+    showDesignation,
+    showOrgName,
+    showOrgAddress,
+    logo,
+    logoSize,
+    signature,
+    signatureAlign,
+    orgName,
+    orgAddress,
+  } = config;
+
+  /* ================= SAME API LOGIC AS PREVIEW-1 ================= */
+
+  const employee = data?.employees?.[0] || {};
+  const department = data?.department?.[0]?.name || "-";
+  const location = data?.workLocations?.[0]?.name || "-";
+  const bank = data?.bankDetail?.[0] || {};
+  const salary = data?.salaryDetail?.[0] || {};
+
+  const payMonthYear = new Date(year, month - 1).toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
+
+  /* ================= EARNINGS ================= */
+  const earnings = [
+    { label: "Basic Salary", amount: salary.basicSalary ?? 0 },
+    { label: "House Rent Allowance", amount: salary.hra ?? 0 },
+    { label: "Special Allowance", amount: salary.specialAllowance ?? 0 },
+    { label: "Fixed Allowance", amount: salary.fixedAllowance ?? 0 },
+    { label: "Other Allowances", amount: salary.otherAllowances ?? 0 },
+    { label: "Conveyance Allowance", amount: salary.conveyanceAllowance ?? 0 },
+    { label: "Bonus", amount: salary.bonus ?? 0 },
+    { label: "Leave Encashment", amount: salary.leaveEncashment ?? 0 },
+    { label: "Overtime", amount: salary.overtimeAmount ?? 0 },
+    { label: "Arrears", amount: salary.arrears ?? 0 },
+  ];
+
+  /* ================= DEDUCTIONS ================= */
+  const deductions =
+    salary.deductions > 0
+      ? [{ label: "Total Deductions", amount: salary.deductions }]
+      : [{ label: "Total Deductions", amount: 0 }];
+
+  const totalEarnings = salary.earnings ?? 0;
+  const totalDeductions = salary.deductions ?? 0;
+  const netPay = salary.netPay ?? 0;
+
+  /* ================= UI (UNCHANGED) ================= */
+
+  return (
+    <div className="bg-white shadow-lg p-8 border rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
+
+      {/* ================= HEADER ================= */}
+      <div className="flex items-start justify-between mb-6">
+        <div className="flex-1 pr-6">
+          {showOrgName && (
+            <h1 className="text-xl font-bold text-gray-900">{orgName}</h1>
+          )}
+          {showOrgAddress && (
+            <p className="text-sm text-gray-600 whitespace-pre-line mt-1">
+              {orgAddress}
+            </p>
+          )}
+        </div>
+        {logo && (
+          <img
+            src={logo}
+            alt="Company Logo"
+            style={{ width: logoSize || 120 }}
+            className="object-contain"
+          />
+        )}
+      </div>
+
+      {/* ================= TITLE ================= */}
+      <h2 className="text-base font-bold border-b pb-1 mb-4">
+        Payslip for the month of {payMonthYear}
+      </h2>
+
+      {/* ================= EMPLOYEE INFO ================= */}
+      <table className="w-full border mb-6 text-sm">
+        <tbody>
+          <Row label="Employee Name" value={employee.fullName} />
+          <Row label="Employee Code" value={employee.employeeCode} />
+          {showDesignation && (
+            <Row label="Designation" value={employee.designation} />
+          )}
+          {showDepartment && (
+            <Row label="Department" value={department} />
+          )}
+          {showWorkLocation && (
+            <Row label="Work Location" value={location} />
+          )}
+          <Row
+            label="Date of Joining"
+            value={
+              employee.dateOfJoining
+                ? new Date(employee.dateOfJoining).toLocaleDateString("en-GB")
+                : "-"
+            }
+          />
+          <Row label="Pay Period" value={payMonthYear} />
+          <Row
+            label="Pay Date"
+            value={
+              salary.paymentDate
+                ? new Date(salary.paymentDate).toLocaleDateString("en-GB")
+                : "-"
+            }
+          />
+          {showPAN && (
+            <Row label="PAN" value={employee.panNumber} />
+          )}
+          {showBank && (
+            <Row label="Bank Account" value={bank.accountNumber} />
+          )}
+        </tbody>
+      </table>
+
+      {/* ================= NET PAY ================= */}
+      <div className="flex justify-end mb-6">
+        <div className="border p-4 bg-gray-50 rounded w-64 text-right">
+          <p className="text-gray-600">Total Net Pay</p>
+          <p className="text-green-600 text-2xl font-bold">
+            ₹{netPay.toLocaleString("en-IN")}
+          </p>
+          <p className="text-xs text-gray-500">
+            Paid Days: {salary.totalWorkingDays || "-"}
+          </p>
+        </div>
+      </div>
+
+      {/* ================= EARNINGS & DEDUCTIONS ================= */}
+      <div className="grid grid-cols-2 gap-6 mb-6">
+        <SalaryTable title="Earnings" rows={earnings} showYTD={showYTD} />
+        <SalaryTable title="Deductions" rows={deductions} showYTD={showYTD} />
+      </div>
+
+      {/* ================= TOTAL SUMMARY ================= */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <SummaryBox title="Gross Earnings" value={totalEarnings} color="blue" />
+        <SummaryBox
+          title="Total Deductions"
+          value={totalDeductions}
+          color="red"
+          align="right"
+        />
+      </div>
+
+      {/* ================= FOOTER ================= */}
+      <div className="bg-green-100 p-4 rounded font-semibold">
+        Total Net Payable: ₹{netPay.toLocaleString("en-IN")} (
+        <AmountInWords amount={netPay} currency="Indian Rupee" />)
+      </div>
+
+      {/* ================= SIGNATURE ================= */}
+      {signature && (
+        <div
+          className={`mt-6 ${
+            signatureAlign === "right" ? "text-right" : "text-left"
+          }`}
+        >
+          <img src={signature} alt="Signature" style={{ width: 90 }} />
+          <p className="text-xs text-gray-500">Authorized Signatory</p>
+        </div>
+      )}
+
+      <p className="text-center text-xs text-gray-400 mt-6">
+        — This is a system-generated document —
+      </p>
+    </div>
+  );
+};
+
+/* ================= HELPERS ================= */
+
+const Row = ({ label, value }) => (
+  <tr>
+    <td className="border p-2 font-medium">{label}</td>
+    <td className="border p-2">{value || "-"}</td>
+  </tr>
+);
+
+const SalaryTable = ({ title, rows, showYTD }) => (
+  <div>
+    <h3 className="font-semibold mb-2">{title}</h3>
+    <table className="w-full border text-sm">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="p-2">Component</th>
+          <th className="p-2 text-right">Amount</th>
+          {showYTD && <th className="p-2 text-right">YTD</th>}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.label} className="border-t">
+            <td className="p-2">{r.label}</td>
+            <td className="p-2 text-right">
+              ₹{Number(r.amount).toLocaleString("en-IN")}
+            </td>
+            {showYTD && <td className="p-2 text-right">-</td>}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+const SummaryBox = ({ title, value, color, align }) => (
+  <div
+    className={`bg-${color}-50 text-${color}-800 border rounded p-3 text-${align}`}
+  >
+    <p>{title}</p>
+    <p className="text-lg font-bold">₹{value.toLocaleString("en-IN")}</p>
+  </div>
+);
+
+export default EmpPayslipPreview2;
