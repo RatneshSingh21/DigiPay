@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 import OTCalculationForm from "./OTCalculationForm";
 import Select from "react-select";
+import assets from "../../../../../assets/assets"; // Make sure illustration is imported
 
 const OTCalculation = () => {
   const [showModal, setShowModal] = useState(false);
@@ -13,7 +14,6 @@ const OTCalculation = () => {
   const [viewMode, setViewMode] = useState("employee"); // "date" or "employee"
   const [openGroups, setOpenGroups] = useState({});
 
-  // Toogle Group
   const toggleGroup = (key) => {
     setOpenGroups((prev) => ({
       ...prev,
@@ -21,7 +21,6 @@ const OTCalculation = () => {
     }));
   };
 
-  // Fetch OT List
   const fetchOTList = async () => {
     setLoading(true);
     try {
@@ -30,7 +29,6 @@ const OTCalculation = () => {
       setOtList(otData);
 
       const employeeIds = [...new Set(otData.map((ot) => ot.employeeId))];
-
       const employeeData = {};
       await Promise.all(
         employeeIds.map(async (id) => {
@@ -43,7 +41,6 @@ const OTCalculation = () => {
           }
         })
       );
-
       setEmployeeMap(employeeData);
     } catch (error) {
       toast.error("Failed to fetch OT Calculations");
@@ -56,7 +53,6 @@ const OTCalculation = () => {
     fetchOTList();
   }, []);
 
-  // 👉 Group by Date
   const groupByDate = otList.reduce((acc, item) => {
     const date = item.attendanceDate.split("T")[0];
     if (!acc[date]) acc[date] = [];
@@ -64,7 +60,6 @@ const OTCalculation = () => {
     return acc;
   }, {});
 
-  // 👉 Group by Employee
   const groupByEmployee = otList.reduce((acc, item) => {
     const emp = employeeMap[item.employeeId] || "Unknown Employee";
     if (!acc[emp]) acc[emp] = [];
@@ -77,7 +72,6 @@ const OTCalculation = () => {
       {/* Header */}
       <div className="sticky top-14 bg-white shadow-sm px-4 py-2 mb-2 flex justify-between items-center z-10">
         <h2 className="text-xl font-semibold text-gray-800">OT Calculation</h2>
-        {/* Switch View with react-select */}
         <div className="flex gap-5">
           <div className="w-50">
             <Select
@@ -99,22 +93,10 @@ const OTCalculation = () => {
                   height: "30px",
                   fontSize: "12px",
                 }),
-                dropdownIndicator: (base) => ({
-                  ...base,
-                  padding: 2,
-                }),
-                clearIndicator: (base) => ({
-                  ...base,
-                  padding: 2,
-                }),
-                valueContainer: (base) => ({
-                  ...base,
-                  padding: "0 6px",
-                }),
-                singleValue: (base) => ({
-                  ...base,
-                  fontSize: "12px",
-                }),
+                dropdownIndicator: (base) => ({ ...base, padding: 2 }),
+                clearIndicator: (base) => ({ ...base, padding: 2 }),
+                valueContainer: (base) => ({ ...base, padding: "0 6px" }),
+                singleValue: (base) => ({ ...base, fontSize: "12px" }),
               }}
             />
           </div>
@@ -131,9 +113,26 @@ const OTCalculation = () => {
       {/* OT List */}
       <div className="overflow-x-auto bg-white rounded-xl shadow p-2 mx-3">
         {loading ? (
-          <p>Loading...</p>
+          <p className="text-gray-500 text-center py-6">Loading OT entries…</p>
         ) : otList.length === 0 ? (
-          <p>No OT entries found.</p>
+          <div className="flex flex-col items-center py-12 rounded-xl shadow-lg">
+            <img
+              src={assets.NoData}
+              alt="No OT Entries"
+              className="w-52 mb-4"
+            />
+            <h3 className="text-lg font-semibold mb-2">No OT entries found</h3>
+            <p className="text-sm text-gray-600 mb-4 max-w-md text-center">
+              Add OT entries here to calculate and manage overtime for
+              employees.
+            </p>
+            <button
+              className="bg-primary text-white px-5 py-2 rounded-lg text-sm hover:bg-secondary transition"
+              onClick={() => setShowModal(true)}
+            >
+              + Add OT Entry
+            </button>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="divide-y divide-gray-200 text-xs">
@@ -142,8 +141,6 @@ const OTCalculation = () => {
                   <th className="p-3">Employee Name</th>
                   <th className="p-3">Attendance Date</th>
                   <th className="p-3">Attendance Record ID</th>
-                  {/* <th className="p-3">Shift ID</th>
-                  <th className="p-3">Policy ID</th> */}
                   <th className="p-3">OT Minutes</th>
                   <th className="p-3">OT Hours</th>
                   <th className="p-3">Rate/Hour</th>
@@ -156,7 +153,7 @@ const OTCalculation = () => {
                 </tr>
               </thead>
               <tbody className="text-gray-700 text-center">
-                {/* ---------------- GROUP BY DATE ---------------- */}
+                {/* GROUP BY DATE OR EMPLOYEE */}
                 {viewMode === "date" &&
                   Object.keys(groupByDate)
                     .sort()
@@ -164,13 +161,12 @@ const OTCalculation = () => {
                       const isOpen = openGroups[date];
                       return (
                         <React.Fragment key={date}>
-                          {/* Date Header */}
                           <tr
                             className="bg-gray-200 font-semibold cursor-pointer"
                             onClick={() => toggleGroup(date)}
                           >
                             <td colSpan={12} className="p-2 text-left">
-                              <div className="flex  items-center w-full">
+                              <div className="flex items-center w-full">
                                 <span
                                   className={`transition-transform ${
                                     isOpen ? "rotate-90" : ""
@@ -182,8 +178,6 @@ const OTCalculation = () => {
                               </div>
                             </td>
                           </tr>
-
-                          {/* Rows under each group */}
                           {isOpen &&
                             groupByDate[date].map((ot) => (
                               <tr
@@ -224,20 +218,17 @@ const OTCalculation = () => {
                       );
                     })}
 
-                {/* ---------------- GROUP BY EMPLOYEE ---------------- */}
                 {viewMode === "employee" &&
                   Object.keys(groupByEmployee).map((emp) => {
                     const isOpen = openGroups[emp];
-
                     return (
                       <React.Fragment key={emp}>
-                        {/* Employee Header */}
                         <tr
                           className="bg-gray-200 font-semibold cursor-pointer"
                           onClick={() => toggleGroup(emp)}
                         >
                           <td colSpan={12} className="p-2 text-left">
-                            <div className="flex  items-center w-full">
+                            <div className="flex items-center w-full">
                               <span
                                 className={`transition-transform ${
                                   isOpen ? "rotate-90" : ""
@@ -249,8 +240,6 @@ const OTCalculation = () => {
                             </div>
                           </td>
                         </tr>
-
-                        {/* Rows under employee */}
                         {isOpen &&
                           groupByEmployee[emp].map((ot) => (
                             <tr
@@ -294,7 +283,6 @@ const OTCalculation = () => {
         )}
       </div>
 
-      {/* Modal Form */}
       {showModal && (
         <OTCalculationForm
           onClose={() => setShowModal(false)}

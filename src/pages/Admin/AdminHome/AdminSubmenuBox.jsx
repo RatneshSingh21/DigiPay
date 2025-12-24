@@ -141,8 +141,6 @@ const labelToPath = {
   "Travel Details": "travel-details",
 
   // Compliance
-  "Compliance Details": "compliance-details",
-  "Compliance Rules": "compliance-rules",
   "Payment Adjustment Policy": "payment-adjustment",
   "OT Master": "otrate",
   "OT Rule": "otrate-rules",
@@ -243,8 +241,6 @@ const labelToIcon = {
   "Policy Details": <FaFileAlt className="mr-2" />,
 
   // Compliance
-  "Compliance Details": <FaFileAlt className="mr-2" />,
-  "Compliance Rules": <FaBalanceScale className="mr-2" />,
   "Payment Adjustment Policy": <TbReportMoney className="mr-2" />,
   "OT Master": <FaClock className="mr-2" />,
   "OT Rule": <FaRegClock className="mr-2" />,

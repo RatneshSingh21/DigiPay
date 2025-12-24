@@ -122,11 +122,8 @@ import ExpenseHeader from "./pages/Admin/Documents/Expense/ExpenseHeader/Expense
 import TravelDetails from "./pages/Admin/Documents/TravelDetails";
 
 //Admin Compliance Pages
-import ComplianceDetails from "./pages/Admin/Compliance/ComplianceDetails";
-import ComplianceRules from "./pages/Admin/Compliance/ComplianceRules";
 import PaymentAdjustment from "./pages/Admin/Policies/PaymentAdjustment/PaymentAdjustment";
 import OTSlabMaster from "./pages/Admin/Policies/OT/OTMaster/OTSlabMaster";
-import OTSlabMasterRules from "./pages/Admin/Policies/OT/OTRules/OTSlabMasterRules";
 import OTCalculation from "./pages/Admin/Policies/OT/OTCalculation/OTCalculation";
 import EmployeeOtPermission from "./pages/Admin/Policies/OT/OTPermission/EmployeeOtPermission";
 
@@ -406,21 +403,12 @@ const App = () => {
 
                   {/* Compliance SubRoutes */}
                   <Route path="compliance/*" element={<AdminContentBox />}>
-                    <Route index element={<Navigate to="compliance-details" />} />
-                    <Route
-                      path="compliance-details"
-                      element={<ComplianceDetails />}
-                    />
-                    <Route
-                      path="compliance-rules"
-                      element={<ComplianceRules />}
-                    />
+                    <Route index element={<Navigate to="payment-adjustment" />} />
                     <Route
                       path="payment-adjustment"
                       element={<PaymentAdjustment />}
                     />
                     <Route path="otrate" element={<OTSlabMaster />} />
-                    <Route path="otrate-rules" element={<OTSlabMasterRules />} />
                     <Route
                       path="otrate-calculation"
                       element={<OTCalculation />}

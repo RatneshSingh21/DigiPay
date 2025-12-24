@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { FiEdit, FiTrash2, FiPlus, FiRefreshCw, FiX } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiPlus, FiRefreshCw } from "react-icons/fi";
 import AddOTRateSlabMaster from "./AddOTRateSlabMaster";
 import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 import assets from "../../../../../assets/assets";
 
-const CardItem = ({ label, value }) => (
+const InfoItem = ({ label, value }) => (
   <div>
-    <p className="text-gray-500 text-[10px]">{label}</p>
-    <p className="font-medium text-gray-800">{value}</p>
+    <p className="text-[10px] text-gray-500">{label}</p>
+    <p className="text-sm font-medium text-gray-800">{value ?? "—"}</p>
   </div>
 );
 
@@ -17,41 +17,15 @@ const OTSlabMaster = () => {
   const [loading, setLoading] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [isEdit, setIsEdit] = useState("Create");
   const [selectedSlab, setSelectedSlab] = useState(null);
-
-  const openModal = () => setShowAddModal(true);
-  const closeModal = () => {
-    setShowAddModal(false);
-    setSelectedSlab(null);
-  };
-
-  const fetchComplianceName = async (id) => {
-    try {
-      const res = await axiosInstance.get(`/Compliance/get-by-id/${id}`);
-      return res.data?.complianceName || "N/A";
-    } catch (error) {
-      return "N/A";
-    }
-  };
 
   const fetchSlabs = async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/OTRateSlabMaster/all");
-      const slabData = res.data.data || [];
-
-      // Fetch Compliance Names
-      const slabsWithCompliance = await Promise.all(
-        slabData.map(async (slab) => {
-          const complianceName = await fetchComplianceName(slab.complianceId);
-          return { ...slab, complianceName };
-        })
-      );
-
-      setSlabs(slabsWithCompliance);
-    } catch (err) {
-      console.log(err);
+      setSlabs(res.data?.data || []);
+    } catch {
+      toast.error("Failed to load OT slabs");
     } finally {
       setLoading(false);
     }
@@ -60,10 +34,10 @@ const OTSlabMaster = () => {
   const handleDelete = async (id) => {
     try {
       await axiosInstance.delete(`/OTRateSlabMaster/${id}`);
-      toast.success("Deleted successfully");
+      toast.success("OT slab deleted");
       fetchSlabs();
-    } catch (error) {
-      toast.error("Failed to delete");
+    } catch {
+      toast.error("Failed to delete OT slab");
     } finally {
       setConfirmDeleteId(null);
     }
@@ -75,176 +49,159 @@ const OTSlabMaster = () => {
 
   return (
     <>
-      {/* Header */}
-      <div className="sticky top-14 bg-white shadow-sm px-4 py-2 mb-6 flex justify-between items-center">
+      {/* HEADER */}
+      <div className="sticky top-14 bg-white shadow-sm px-6 py-3 mb-6 flex justify-between items-center z-10">
         <h2 className="text-xl font-semibold text-gray-800">
-          OT Rate Slab Master
+          Overtime Rate Slabs
         </h2>
-        <div className="flex gap-2 text-sm">
+
+        <div className="flex gap-3 text-sm">
           <button
             onClick={fetchSlabs}
-            className="flex items-center cursor-pointer gap-2 border px-3 py-1.5 rounded-md hover:bg-gray-50 text-gray-700"
+            className="flex items-center gap-2 border cursor-pointer px-4 py-2 rounded-lg hover:bg-gray-50 text-gray-700"
           >
-            <FiRefreshCw size={14} /> Refresh
+            <FiRefreshCw size={16} /> Refresh
           </button>
+
           <button
-            className="flex items-center cursor-pointer gap-2 bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-md"
             onClick={() => {
-              setIsEdit(false);
               setSelectedSlab(null);
-              openModal();
+              setShowAddModal(true);
             }}
+            className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-secondary transition"
           >
-            <FiPlus size={14} /> Add OT Rate Slab
+            <FiPlus size={16} /> New OT Slab
           </button>
         </div>
       </div>
 
-      {/* Empty / Loading / Table */}
+      {/* EMPTY / LOADING */}
       {loading ? (
-        <div className="flex items-center justify-center h-60 text-gray-500 text-sm">
-          Loading OT Rate Slabs...
+        <div className="flex justify-center items-center h-60 text-gray-500">
+          Loading OT slabs…
         </div>
       ) : slabs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-xl shadow">
+        <div className="flex flex-col items-center py-12 bg-white rounded-xl shadow-lg">
           <img
             src={assets.ComplianceIllustration}
-            alt="No data"
-            className="w-56 h-auto mb-4"
+            alt="No OT Slabs"
+            className="w-52 mb-4"
           />
-          <h1 className="text-lg font-semibold text-gray-800 mb-2">
-            Manage OT Rate Slabs
-          </h1>
-          <p className="text-gray-600 mb-5 max-w-md text-sm">
-            Define and manage overtime rate slabs to ensure accurate payroll
-            processing.
+          <h3 className="text-lg font-semibold mb-2">No OT slabs configured</h3>
+          <p className="text-sm text-gray-600 mb-4 max-w-md text-center">
+            Create overtime slabs to control how extra working hours are paid
+            during payroll.
           </p>
           <button
-            className="bg-primary hover:bg-secondary text-white px-5 py-2 rounded-lg text-xs font-medium"
-            onClick={() => {
-              setIsEdit("Add");
-              setSelectedSlab(null);
-              openModal();
-            }}
+            className="bg-primary text-white cursor-pointer px-5 py-2 rounded-lg text-sm hover:bg-secondary transition"
+            onClick={() => setShowAddModal(true)}
           >
-            + New OT Rate Slab
+            + Create OT Slab
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 pb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 px-6 pb-10">
           {slabs.map((slab) => {
-            const status = (() => {
-              const today = new Date();
-              const from = new Date(slab.effectiveFrom);
-              const to = new Date(slab.effectiveTo);
+            const today = new Date();
+            const from = slab.effectiveFrom
+              ? new Date(slab.effectiveFrom)
+              : null;
+            const to = slab.effectiveTo ? new Date(slab.effectiveTo) : null;
 
-              if (!slab.isEnabled) return "Disabled";
-              if (today < from) return "Scheduled";
-              if (today > to) return "Expired";
-              return "Active";
-            })();
+            let status = "Disabled";
+            if (slab.isEnabled) {
+              if (from && today < from) status = "Scheduled";
+              else if (to && today > to) status = "Expired";
+              else status = "Active";
+            }
 
-            const statusClass =
-              status === "Active"
-                ? "bg-green-100 text-green-700 border-green-300"
-                : status === "Scheduled"
-                ? "bg-blue-100 text-blue-700 border-blue-300"
-                : status === "Expired"
-                ? "bg-red-100 text-red-700 border-red-300"
-                : "bg-gray-200 text-gray-700 border-gray-300";
+            const statusColor = {
+              Active: "bg-green-100 text-green-800",
+              Scheduled: "bg-blue-100 text-blue-800",
+              Expired: "bg-red-100 text-red-800",
+              Disabled: "bg-gray-200 text-gray-700",
+            }[status];
 
             return (
               <div
                 key={slab.otRateSlabId}
-                className="bg-white shadow-sm rounded-xl p-4 border border-gray-200 hover:shadow-md transition"
+                className="bg-white rounded-xl p-5 shadow hover:shadow-lg transition"
               >
-                {/* Title + Actions */}
-                <div className="flex justify-between items-start">
+                {/* HEADER */}
+                <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="text-sm font-bold text-gray-800">
-                      {slab.complianceName}
+                    <h3 className="font-semibold text-gray-800">
+                      OT {slab.fromHours} – {slab.toHours} Hours
                     </h3>
-                    <p className="text-[11px] text-gray-500 mt-0.5">
-                      Slab #{slab.otRateSlabId}
+                    <p className="text-[11px] text-gray-500">
+                      Slab ID #{slab.otRateSlabId}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Status Badge */}
                     <span
-                      className={`text-[10px] px-2 py-1 rounded-full border ${statusClass}`}
+                      className={`text-[10px] px-3 py-1 rounded-full font-semibold ${statusColor}`}
                     >
                       {status}
                     </span>
 
-                    {/* Edit Btn */}
                     <button
                       onClick={() => {
-                        setIsEdit(true);
                         setSelectedSlab(slab);
-                        openModal();
+                        setShowAddModal(true);
                       }}
-                      className="p-1.5 bg-blue-50 cursor-pointer text-blue-600 rounded-md hover:bg-blue-100"
+                      className="p-2 bg-primary/10 cursor-pointer text-primary rounded-md hover:bg-primary/20 transition"
                     >
-                      <FiEdit size={14} />
+                      <FiEdit size={16} />
                     </button>
 
-                    {/* Delete Btn */}
                     <button
                       onClick={() => setConfirmDeleteId(slab.otRateSlabId)}
-                      className="p-1.5 bg-red-50 cursor-pointer text-red-600 rounded-md hover:bg-red-100"
+                      className="p-2 bg-red-50 cursor-pointer text-red-600 rounded-md hover:bg-red-100 transition"
                     >
-                      <FiTrash2 size={14} />
+                      <FiTrash2 size={16} />
                     </button>
                   </div>
                 </div>
 
-                {/* Info Grid */}
-                <div className="grid grid-cols-2 gap-3 mt-4 text-xs text-gray-800">
-                  <CardItem
-                    label="Compliance"
-                    value={`${slab.complianceName} (ID ${slab.complianceId})`}
+                {/* MAIN INFO */}
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoItem
+                    label="Rate Per Hour"
+                    value={`₹ ${slab.ratePerHour}`}
                   />
-                  <CardItem
-                    label="Enabled"
-                    value={
-                      slab.isEnabled ? (
-                        <span className="text-green-600 font-semibold">
-                          Yes
-                        </span>
-                      ) : (
-                        <span className="text-red-600 font-semibold">No</span>
-                      )
-                    }
+                  <InfoItem label="Rate Type" value={slab.rateType} />
+                  <InfoItem
+                    label="Max OT Hours"
+                    value={slab.maxOTHours || "No Limit"}
                   />
-
-                  <CardItem label="From Hours" value={slab.fromHours} />
-                  <CardItem label="To Hours" value={slab.toHours} />
-                  <CardItem label="Rate / Hr" value={slab.ratePerHour} />
-                  <CardItem label="Rate Type" value={slab.rateType} />
-                  <CardItem label="Multiplier" value={slab.multiplierValue} />
-                  <CardItem
+                  <InfoItem
                     label="Grace Minutes"
                     value={slab.graceMinutesBeforeOT}
                   />
+                  <InfoItem
+                    label="Include Overflow"
+                    value={slab.includeOverflowInPayroll ? "Yes" : "No"}
+                  />
+                  <InfoItem
+                    label="Payment Component"
+                    value={`Adjustment ID ${slab.paymentAdjustmentId}`}
+                  />
+                </div>
 
-                  <CardItem
-                    label="Overflow Handling"
-                    value={slab.overflowHandlingType || "—"}
-                  />
-                  <CardItem
-                    label="Overflow Policy ID"
-                    value={slab.overflowPolicyId || "—"}
-                  />
-                  <div className="col-span-2">
-                    <div className="text-[10px] font-semibold text-gray-500">
-                      Calculation Formula
-                    </div>
-                    <div className="text-[11px] bg-gray-50 border border-gray-200 rounded-md p-2 mt-1 font-mono text-gray-800">
-                      {slab.calculationFormula || "—"}
-                    </div>
+                {/* FORMULA */}
+                <div className="mt-4">
+                  <p className="text-[10px] font-semibold text-gray-500">
+                    Calculation Rule
+                  </p>
+                  <div className="bg-gray-50 shadow-inner rounded-md p-2 text-[11px] font-mono">
+                    {slab.calculationFormula || "Fixed calculation"}
                   </div>
-                  <CardItem
+                </div>
+
+                {/* DATES */}
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <InfoItem
                     label="Effective From"
                     value={
                       slab.effectiveFrom
@@ -254,7 +211,7 @@ const OTSlabMaster = () => {
                         : "—"
                     }
                   />
-                  <CardItem
+                  <InfoItem
                     label="Effective To"
                     value={
                       slab.effectiveTo
@@ -264,11 +221,10 @@ const OTSlabMaster = () => {
                   />
                 </div>
 
-                {/* Notes */}
+                {/* NOTES */}
                 {slab.notes && (
-                  <div className="mt-3 border-t pt-2 text-[11px] text-gray-600">
-                    <span className="font-semibold">Notes: </span>
-                    {slab.notes}
+                  <div className="mt-3 text-[11px] text-gray-600 border-t pt-2">
+                    <strong>Notes:</strong> {slab.notes}
                   </div>
                 )}
               </div>
@@ -277,27 +233,26 @@ const OTSlabMaster = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* DELETE CONFIRMATION */}
       {confirmDeleteId && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-[360px] text-xs">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">
-              Confirm Deletion
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-[360px] text-sm shadow-lg">
+            <h3 className="font-semibold mb-2 text-gray-800">
+              Delete OT Slab?
             </h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this OT Rate Slab? This action
-              cannot be undone.
+            <p className="text-gray-600 mb-5">
+              This OT slab will be permanently removed.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setConfirmDeleteId(null)}
-                className="border px-4 py-1.5 rounded-md hover:bg-gray-50"
+                className="border px-4 py-2 rounded-lg hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(confirmDeleteId)}
-                className="bg-red-600 text-white px-4 py-1.5 rounded-md hover:bg-red-700"
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
               >
                 Delete
               </button>
@@ -306,27 +261,14 @@ const OTSlabMaster = () => {
         </div>
       )}
 
-      {/* Add/Edit Modal */}
+      {/* ADD / EDIT MODAL */}
       {showAddModal && (
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-[640px] p-6 relative max-h-[85vh] overflow-y-auto text-xs">
-            <button
-              className="absolute top-3 right-3 cursor-pointer text-gray-500 hover:text-red-600 transition"
-              onClick={closeModal}
-            >
-              <FiX size={16} />
-            </button>
-            <AddOTRateSlabMaster
-              isEdit={!!selectedSlab}
-              initialData={selectedSlab}
-              onClose={closeModal}
-              onSuccess={() => {
-                fetchSlabs();
-                closeModal();
-              }}
-            />
-          </div>
-        </div>
+        <AddOTRateSlabMaster
+          isEdit={!!selectedSlab}
+          initialData={selectedSlab}
+          onClose={() => setShowAddModal(false)}
+          onSuccess={fetchSlabs}
+        />
       )}
     </>
   );

@@ -21,9 +21,9 @@ const submenuMap = {
   Leave: [
     "Leave Types",
     "Leave Mapping",
+    "Leave Allocation",
     "Holiday List",
     "Employee Leave",
-    "Leave Allocation",
     "Advance Payments",
   ],
 
@@ -40,13 +40,10 @@ const submenuMap = {
   ],
 
   Compliance: [
-    "Compliance Details",
-    "Compliance Rules",
     "Payment Adjustment Policy",
     "OT Master",
-    "OT Rule",
     "OT Calculation",
-    "OT Permission"
+    "OT Permission",
   ],
 
   Attendance: [
@@ -68,8 +65,8 @@ const submenuMap = {
     "Appointment Letter",
     "Confirmation Letter",
     "Increment Letter",
-    // "Promotion Letter",
-    // "Relieving Letter",
+    "Promotion Letter",
+    "Relieving Letter",
     "Experience Cert.",
     "Full & Final Statement",
     "HR Dashboard",

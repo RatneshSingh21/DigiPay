@@ -1,377 +1,302 @@
-//Semi-ready
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Switch } from "@headlessui/react";
+import { FiX } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import WeekendRuleCard from "./WeekendRuleCard";
 
-const DayToggle = ({ label, value, onChange }) => (
-  <div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-lg shadow-sm">
-    <span className="text-gray-700 font-medium">{label}</span>
+/* ===================== TOGGLE ===================== */
+const Toggle = ({ label, value, onChange }) => (
+  <div className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-md">
+    <span className="text-sm font-medium text-gray-700">{label}</span>
     <Switch
       checked={value}
       onChange={onChange}
       className={`${
         value ? "bg-primary" : "bg-gray-300"
-      } relative inline-flex h-6 w-11 items-center rounded-full transition`}
+      } relative inline-flex h-5 w-10 items-center rounded-full transition`}
     >
       <span
         className={`${
-          value ? "translate-x-6" : "translate-x-1"
+          value ? "translate-x-5" : "translate-x-1"
         } inline-block h-4 w-4 transform bg-white rounded-full transition`}
       />
     </Switch>
   </div>
 );
 
-const AddWeekendPolicy = ({ onClose, onSuccess, initialData, isEdit }) => {
+/* ===================== COMPONENT ===================== */
+const AddWeekendPolicy = ({ onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
+  /* ===================== POLICY STATE ===================== */
+  const [policy, setPolicy] = useState({
     policyName: "",
-    isFixedWeekend: false,
-    sunday: false,
-    monday: false,
-    tuesday: false,
-    wednesday: false,
-    thursday: false,
-    friday: false,
-    saturday: false,
-    alternateSaturday: false,
+
+    sundayOff: true,
+    mondayOff: false,
+    tuesdayOff: false,
+    wednesdayOff: false,
+    thursdayOff: false,
+    fridayOff: false,
+    saturdayOff: false,
+
+    isAlternateSaturdayOff: false,
     firstSaturdayOff: false,
     secondSaturdayOff: false,
     thirdSaturdayOff: false,
     fourthSaturdayOff: false,
-    isHalfDayWeekend: false,
-    halfDayStartTime: "",
-    halfDayEndTime: "",
-    isRotationalWeekend: false,
-    rotationalRuleJson: "",
-    allowOverrideByShift: false,
-    remarks: "",
+    fifthSaturdayOff: false,
+
+    isHalfDayApplicable: false,
+    halfDayOn: null,
+    halfDayStartTime: null,
+    halfDayEndTime: null,
+
+    allowWeekendOverride: false,
+    allowShiftOverride: false,
+    allowEmployeeOverride: false,
+
     isActive: true,
-    createdOn: new Date().toISOString(),
-    createdBy: "",
   });
 
-  const handleChange = (key, value) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+  /* ===================== RULES ===================== */
+  const [rules, setRules] = useState([]);
+
+  const updatePolicy = (key, value) =>
+    setPolicy((p) => ({ ...p, [key]: value }));
+
+  /* ===================== ADD RULE ===================== */
+  const addRule = () => {
+    setRules((r) => [
+      ...r,
+      {
+        workDay: "Sunday",
+        targetType: "Shift",
+        targetId: 0,
+        useShiftTiming: true,
+        startTime: null,
+        endTime: null,
+        compensationType: "Salary",
+        workingDayCredit: 1,
+        isGovernmentApproved: true,
+        effectiveFrom: new Date().toISOString(),
+        effectiveTo: null,
+        isActive: true,
+      },
+    ]);
   };
 
-  const weekendDays = [
-    "sunday",
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday",
-  ];
-
-  const selectedWeekendDays = weekendDays.filter((day) => formData[day]);
-
-  const handleWeekendDayChange = (day) => {
-    const currentlySelected = weekendDays.filter((d) => formData[d]);
-    if (formData[day]) {
-      handleChange(day, false);
-    } else if (currentlySelected.length < 2) {
-      handleChange(day, true);
-    } else {
-      toast.warning("You can only select 2 weekend days.");
-    }
-  };
-
-  const allowedAltCombos = [
-    ["first", "third"],
-    ["second", "fourth"],
-  ];
-
-  const getAltDayFields = (day) => {
-    return allowedAltCombos.map((combo) => (
-      <div key={combo.join("-")} className="flex gap-4">
-        {combo.map((num) => (
-          <DayToggle
-            key={`${num}${day}`}
-            label={`${num.charAt(0).toUpperCase() + num.slice(1)} ${
-              day.charAt(0).toUpperCase() + day.slice(1)
-            } Off`}
-            value={
-              formData[
-                `${num}${day.charAt(0).toUpperCase() + day.slice(1)}Off`
-              ] || false
-            }
-            onChange={(val) => {
-              const update = {};
-              allowedAltCombos.forEach(([a, b]) => {
-                update[
-                  `${a}${day.charAt(0).toUpperCase() + day.slice(1)}Off`
-                ] = false;
-                update[
-                  `${b}${day.charAt(0).toUpperCase() + day.slice(1)}Off`
-                ] = false;
-              });
-              update[`${num}${day.charAt(0).toUpperCase() + day.slice(1)}Off`] =
-                val;
-              setFormData((prev) => ({ ...prev, ...update }));
-            }}
-          />
-        ))}
-      </div>
-    ));
-  };
-
-  const validateForm = () => {
-    if (!formData.policyName.trim()) {
+  /* ===================== VALIDATION ===================== */
+  const validate = () => {
+    if (!policy.policyName.trim()) {
       toast.error("Policy name is required");
       return false;
     }
-    if (formData.isFixedWeekend && selectedWeekendDays.length !== 2) {
-      toast.error("Exactly 2 weekend days must be selected");
+
+    if (policy.isHalfDayApplicable) {
+      if (!policy.halfDayOn) return toast.error("Select half-day day"), false;
+
+      if (!policy.halfDayStartTime || !policy.halfDayEndTime)
+        return toast.error("Half-day timings required"), false;
+    }
+
+    if (policy.allowWeekendOverride && rules.length === 0) {
+      toast.error("At least one weekend work rule is required");
       return false;
     }
-    if (formData.isHalfDayWeekend) {
-      if (!formData.halfDayStartTime || !formData.halfDayEndTime) {
-        toast.error("Start and end time are required for half-day");
-        return false;
-      }
-      if (formData.halfDayStartTime >= formData.halfDayEndTime) {
-        toast.error("Half-day end time must be after start time");
-        return false;
-      }
-    }
-    if (formData.isRotationalWeekend && formData.rotationalRuleJson.trim()) {
-      try {
-        JSON.parse(formData.rotationalRuleJson);
-      } catch (err) {
-        toast.error("Rotational Rule JSON is invalid");
-        return false;
-      }
-    }
+
     return true;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (loading) return;
-
-    if (!validateForm()) return;
+  /* ===================== SUBMIT ===================== */
+  const submit = async () => {
+    if (!validate()) return;
 
     setLoading(true);
-
-    const payload = {
-      ...formData,
-    };
-
     try {
-      await axiosInstance.post("WeekendPolicy/insert-or-update", payload);
-      toast.success("Weekend Policy saved successfully!");
+      await axiosInstance.post("/WeekendPolicy/insert-Weekend-policy", {
+        ...policy,
+        weekendWorkRules: rules,
+      });
+
+      toast.success("Weekend policy created successfully");
       onSuccess?.();
       onClose?.();
-    } catch (error) {
-      console.error(error);
-      if (error.response?.data?.message) {
-        toast.error(`Failed: ${error.response.data.message}`);
-      } else {
-        toast.error("Error submitting policy");
-      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Save failed");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (isEdit === "Edit" && initialData) {
-      setFormData((prev) => ({
-        ...prev,
-        ...initialData,
-      }));
-    }
-  }, [isEdit, initialData]);
-
+  /* ===================== UI ===================== */
   return (
-    <div
-      className="fixed inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white max-h-[95vh] overflow-y-auto p-6 rounded-lg shadow-lg max-w-3xl w-full relative"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          type="button"
-          className="absolute top-4 cursor-pointer right-4 text-gray-600 hover:text-red-500 text-2xl"
-          onClick={onClose}
-        >
-          &times;
-        </button>
+    <div className="fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center">
+      <div className="bg-white w-full max-w-5xl rounded-xl p-5 max-h-[95vh] overflow-y-auto">
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">Create Weekend Policy</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-red-600"
+          >
+            <FiX size={20} />
+          </button>
+        </div>
 
-        <h2 className="text-2xl font-bold mb-8 text-gray-800">
-          {isEdit === "Edit" ? "Edit" : "New"} Weekend Policy
-        </h2>
+        {/* POLICY NAME */}
+        <input
+          className="input w-full mb-4"
+          placeholder="Policy Name"
+          value={policy.policyName}
+          onChange={(e) => updatePolicy("policyName", e.target.value)}
+        />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Policy Name
-              </label>
-              <input
-                type="text"
-                value={formData.policyName}
-                onChange={(e) => handleChange("policyName", e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="e.g. Default Weekend"
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Remarks
-              </label>
-              <input
-                type="text"
-                value={formData.remarks}
-                onChange={(e) => handleChange("remarks", e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="Any additional notes"
-              />
-            </div>
-          </div>
-
-          <DayToggle
-            label="Is Fixed Weekend"
-            value={formData.isFixedWeekend}
-            onChange={(val) => handleChange("isFixedWeekend", val)}
-          />
-
-          {formData.isFixedWeekend && (
-            <div className="mt-4">
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">
-                Select 2 Weekend Days
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {weekendDays.map((day) => (
-                  <DayToggle
-                    key={day}
-                    label={day.charAt(0).toUpperCase() + day.slice(1)}
-                    value={formData[day]}
-                    onChange={() => handleWeekendDayChange(day)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {selectedWeekendDays.map((day) => (
-            <div key={day} className="mt-6">
-              <h3 className="text-lg mb-2 font-semibold text-gray-700">
-                Alternate {day.charAt(0).toUpperCase() + day.slice(1)} Off
-              </h3>
-              <DayToggle
-                label={`Enable Alternate ${
-                  day.charAt(0).toUpperCase() + day.slice(1)
-                }`}
-                value={
-                  formData[
-                    `alternate${day.charAt(0).toUpperCase() + day.slice(1)}`
-                  ] || false
-                }
-                onChange={(val) =>
-                  handleChange(
-                    `alternate${day.charAt(0).toUpperCase() + day.slice(1)}`,
-                    val
-                  )
-                }
-              />
-              {formData[
-                `alternate${day.charAt(0).toUpperCase() + day.slice(1)}`
-              ] && <div className="mt-4">{getAltDayFields(day)}</div>}
-            </div>
+        {/* WEEKLY OFF */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+          {[
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ].map((day) => (
+            <Toggle
+              key={day}
+              label={`${day} Off`}
+              value={policy[`${day.toLowerCase()}Off`]}
+              onChange={(v) => updatePolicy(`${day.toLowerCase()}Off`, v)}
+            />
           ))}
+        </div>
 
-          <DayToggle
-            label="Is Half Day Weekend"
-            value={formData.isHalfDayWeekend}
-            onChange={(val) => handleChange("isHalfDayWeekend", val)}
-          />
+        {/* HALF DAY */}
+        <Toggle
+          label="Half Day Applicable"
+          value={policy.isHalfDayApplicable}
+          onChange={(v) => updatePolicy("isHalfDayApplicable", v)}
+        />
 
-          {formData.isHalfDayWeekend && (
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="block font-medium mb-1">
-                  Half Day Start Time
-                </label>
-                <input
-                  type="time"
-                  value={formData.halfDayStartTime}
-                  onChange={(e) =>
-                    handleChange("halfDayStartTime", e.target.value)
-                  }
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">
-                  Half Day End Time
-                </label>
-                <input
-                  type="time"
-                  value={formData.halfDayEndTime}
-                  onChange={(e) =>
-                    handleChange("halfDayEndTime", e.target.value)
-                  }
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-            </div>
-          )}
-
-          <DayToggle
-            label="Is Rotational Weekend"
-            value={formData.isRotationalWeekend}
-            onChange={(val) => handleChange("isRotationalWeekend", val)}
-          />
-
-          {formData.isRotationalWeekend && (
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Rotational Rule JSON
-              </label>
-              <textarea
-                value={formData.rotationalRuleJson}
-                onChange={(e) =>
-                  handleChange("rotationalRuleJson", e.target.value)
-                }
-                className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="Paste or write JSON for rotational rules"
-                rows={3}
-              ></textarea>
-            </div>
-          )}
-
-          <DayToggle
-            label="Allow Override By Shift"
-            value={formData.allowOverrideByShift}
-            onChange={(val) => handleChange("allowOverrideByShift", val)}
-          />
-
-          <DayToggle
-            label="Is Active"
-            value={formData.isActive}
-            onChange={(val) => handleChange("isActive", val)}
-          />
-
-          <div className="pt-6 flex justify-end">
-            <button
-              type="submit"
-              disabled={loading}
-              className={`bg-primary hover:bg-secondary cursor-pointer  text-white px-8 py-3 rounded-full font-semibold shadow-lg transition ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+        {policy.isHalfDayApplicable && (
+          <div className="grid grid-cols-3 gap-3 mt-3">
+            <select
+              className="input"
+              onChange={(e) => updatePolicy("halfDayOn", e.target.value)}
             >
-              {loading ? "Saving..." : "Save Policy"}
-            </button>
+              <option value="">Select Day</option>
+              <option>Sunday</option>
+              <option>Saturday</option>
+            </select>
+
+            <input
+              type="time"
+              className="input"
+              onChange={(e) =>
+                updatePolicy("halfDayStartTime", `${e.target.value}:00`)
+              }
+            />
+
+            <input
+              type="time"
+              className="input"
+              onChange={(e) =>
+                updatePolicy("halfDayEndTime", `${e.target.value}:00`)
+              }
+            />
           </div>
-        </form>
+        )}
+
+        {/* ALTERNATE SATURDAY */}
+        <div className="mt-4">
+          <Toggle
+            label="Alternate Saturday Off"
+            value={policy.isAlternateSaturdayOff}
+            onChange={(v) => updatePolicy("isAlternateSaturdayOff", v)}
+          />
+
+          {policy.isAlternateSaturdayOff && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+              {[
+                ["firstSaturdayOff", "1st Saturday"],
+                ["secondSaturdayOff", "2nd Saturday"],
+                ["thirdSaturdayOff", "3rd Saturday"],
+                ["fourthSaturdayOff", "4th Saturday"],
+                ["fifthSaturdayOff", "5th Saturday"],
+              ].map(([key, label]) => (
+                <Toggle
+                  key={key}
+                  label={label}
+                  value={policy[key]}
+                  onChange={(v) => updatePolicy(key, v)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* OVERRIDES */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+          <Toggle
+            label="Weekend Override"
+            value={policy.allowWeekendOverride}
+            onChange={(v) => updatePolicy("allowWeekendOverride", v)}
+          />
+          <Toggle
+            label="Shift Override"
+            value={policy.allowShiftOverride}
+            onChange={(v) => updatePolicy("allowShiftOverride", v)}
+          />
+          <Toggle
+            label="Employee Override"
+            value={policy.allowEmployeeOverride}
+            onChange={(v) => updatePolicy("allowEmployeeOverride", v)}
+          />
+        </div>
+
+        {/* RULE ENGINE */}
+        {policy.allowWeekendOverride && (
+          <>
+            <button
+              type="button"
+              onClick={addRule}
+              className="mt-4 bg-primary text-white px-4 py-2 rounded-md"
+            >
+              + Add Weekend Rule
+            </button>
+
+            <div className="space-y-3 mt-4">
+              {rules.map((rule, idx) => (
+                <WeekendRuleCard
+                  key={idx}
+                  rule={rule}
+                  onChange={(r) =>
+                    setRules((all) => all.map((x, i) => (i === idx ? r : x)))
+                  }
+                  onRemove={() =>
+                    setRules((r) => r.filter((_, i) => i !== idx))
+                  }
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-3 mt-6">
+          <button onClick={onClose} className="px-4 py-2 border rounded-md">
+            Cancel
+          </button>
+          <button
+            disabled={loading}
+            onClick={submit}
+            className="bg-primary text-white px-6 py-2 rounded-md"
+          >
+            {loading ? "Saving..." : "Save Policy"}
+          </button>
+        </div>
       </div>
     </div>
   );

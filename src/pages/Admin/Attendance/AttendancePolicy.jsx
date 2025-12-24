@@ -1,195 +1,273 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import AttendancePolicyForm from "./AttendancePolicyForm";
-import { FiEdit2, FiPlus } from "react-icons/fi";
+import {
+  FiEdit2,
+  FiPlus,
+  FiClock,
+  FiSettings,
+  FiBell,
+  FiAlertTriangle,
+  FiUsers,
+  FiMapPin,
+  FiBriefcase,
+  FiDollarSign,
+  FiCheckCircle,
+} from "react-icons/fi";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
-import Pagination from "../../../components/Pagination";
+import AttendancePolicyForm from "./AttendancePolicyForm";
 
+// services
+import { fetchMasterLookups } from "../../Admin/Attendance/masterLookupService";
+import { idsToNames } from "../../Admin/Attendance/displayNames";
+
+/* -------------------- Helpers -------------------- */
+const safeArray = (arr) => (Array.isArray(arr) ? arr : []);
+
+const badgeColorMap = {
+  green: "bg-green-100 text-green-700",
+  red: "bg-red-100 text-red-700",
+  blue: "bg-blue-100 text-blue-700",
+  yellow: "bg-yellow-100 text-yellow-700",
+  purple: "bg-purple-100 text-purple-700",
+  teal: "bg-teal-100 text-teal-700",
+  gray: "bg-gray-100 text-gray-700",
+};
+
+const Badge = ({ children, color = "gray" }) => (
+  <span
+    className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+      badgeColorMap[color] || badgeColorMap.gray
+    }`}
+  >
+    {children}
+  </span>
+);
+
+const SectionTitle = ({ icon: Icon, children }) => (
+  <div className="flex items-center gap-2 mb-2 mt-4">
+    <Icon className="w-4 h-4 text-gray-500 shrink-0" />
+    <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wide">
+      {children}
+    </h4>
+  </div>
+);
+
+const ListItem = ({ icon: Icon, children }) => (
+  <li className="flex items-start gap-2">
+    <Icon className="w-3.5 h-3.5 text-gray-500 mt-[2px] shrink-0" />
+    <span>{children}</span>
+  </li>
+);
+
+/* -------------------- Component -------------------- */
 const AttendancePolicyList = () => {
   const [policies, setPolicies] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  const [lookups, setLookups] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState(null);
 
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [perPageData, setPerPageData] = useState(3);
-
   const fetchPolicies = async () => {
-    try {
-      const res = await axiosInstance.get("/AttendancePolicy/GetAll");
-      setPolicies(res.data.data || []);
-      setFilteredData(res.data.data || []);
-    } catch (err) {
-      // toast.error(err?.response?.data?.message || "Failed to fetch policies");
-      console.error(err);
-    }
+    const res = await axiosInstance.get("/AttendancePolicy/GetAll");
+    setPolicies(res.data?.data || []);
   };
 
   useEffect(() => {
     fetchPolicies();
+    fetchMasterLookups().then(setLookups);
   }, []);
-
-  // Pagination calculations
-  const totalDataLength = filteredData.length;
-  const totalPages = Math.ceil(totalDataLength / perPageData);
-  const indexOfLast = currentPage * perPageData;
-  const indexOfFirst = indexOfLast - perPageData;
-  const currentData = filteredData.slice(indexOfFirst, indexOfLast);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <>
-      {/* Header */}
-      <div className="px-4 py-3 shadow sticky top-14 bg-white flex items-center justify-between z-10">
-        <h2 className="font-semibold text-xl">Attendance Policies</h2>
+      {/* ---------- Header ---------- */}
+      <div className="px-6 py-2 bg-white shadow sticky top-14 z-10 flex justify-between items-center">
+        <h2 className="text-xl font-bold text-gray-800">Attendance Policies</h2>
+
         <button
           onClick={() => setShowModal(true)}
-          className="flex cursor-pointer text-sm items-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-secondary"
+          className="flex items-center text-sm cursor-pointer gap-2 px-4 py-2 bg-primary text-white rounded-lg shadow hover:scale-[1.03] transition"
         >
-          <FiPlus /> Add New
+          <FiPlus /> Create Policy
         </button>
       </div>
 
-      {/* Table Wrapper */}
-      <div className="overflow-x-auto shadow rounded-lg px-3">
-        <div className="p-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredData.length > 0 ? (
-            currentData.map((policy) => (
-              <div
-                key={policy.attendancePolicyId}
-                className="border rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="flex justify-between items-center mb-2 gap-2">
-                  <h3 className="font-semibold text-sm">{policy.policyName}</h3>
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${
-                      policy.isActive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {policy.isActive ? "Active" : "Inactive"}
-                  </span>
-                  <button
-                    onClick={() => {
-                      setEditData(policy);
-                      setShowModal(true);
-                    }}
-                    className="flex items-center text-xs cursor-pointer gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600  font-medium rounded-md transition duration-200"
-                    title="Edit"
-                  >
-                    <FiEdit2 size={10} />
-                    Edit
-                  </button>
-                </div>
-                <hr className="border-t my-2" />
-
-                <p className="text-xs text-gray-600 mb-2">
-                  {policy.description}
+      {/* ---------- Cards ---------- */}
+      <div className="p-4 space-y-4 text-sm">
+        {policies.map((p) => (
+          <div
+            key={p.attendancePolicyId}
+            className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden"
+          >
+            {/* Card Header */}
+            <div className="px-4 py-3 border-b border-gray-400 flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-gray-800 text-base">
+                  {p.policyName}
+                </h3>
+                <p className="text-xs text-gray-500">
+                  {new Date(p.effectiveFrom).toLocaleDateString("en-GB")} –{" "}
+                  {new Date(p.effectiveTo).toLocaleDateString("en-GB")}
                 </p>
+              </div>
 
-                <div className="text-xs space-y-1">
-                  <div>
-                    <strong>Effective:</strong>{" "}
-                    {policy.effectiveFrom
-                      ? new Date(policy.effectiveFrom).toLocaleDateString(
-                          "en-GB"
-                        )
-                      : "-"}{" "}
-                    →{" "}
-                    {policy.effectiveTo
-                      ? new Date(policy.effectiveTo).toLocaleDateString("en-GB")
-                      : "-"}
+              <div className="flex items-center gap-2">
+                <Badge color={p.isActive ? "green" : "red"}>
+                  {p.isActive ? "Active" : "Inactive"}
+                </Badge>
+
+                <button
+                  onClick={() => {
+                    setEditData(p);
+                    setShowModal(true);
+                  }}
+                  className="flex items-center cursor-pointer gap-1 px-2 py-1 text-xs bg-primary text-white rounded shadow-sm hover:scale-[1.02]"
+                >
+                  <FiEdit2 className="w-3.5 h-3.5" /> Edit
+                </button>
+              </div>
+            </div>
+
+            {/* Card Content: TWO COLUMNS */}
+            <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+              {/* LEFT COLUMN */}
+              <div className="space-y-4">
+                <div>
+                  <SectionTitle icon={FiUsers}>Applies To</SectionTitle>
+                  <ul className="space-y-0.5">
+                    <ListItem icon={FiClock}>
+                      <strong>Shifts:</strong>{" "}
+                      {idsToNames(p.shiftIds, lookups.shiftMap)}
+                    </ListItem>
+                    <ListItem icon={FiBriefcase}>
+                      <strong>Work Types:</strong>{" "}
+                      {idsToNames(p.workTypeIds, lookups.workTypeMap)}
+                    </ListItem>
+                    <ListItem icon={FiUsers}>
+                      <strong>Departments:</strong>{" "}
+                      {idsToNames(p.departmentIds, lookups.departmentMap)}
+                    </ListItem>
+                    <ListItem icon={FiMapPin}>
+                      <strong>Locations:</strong>{" "}
+                      {idsToNames(p.locationIds, lookups.locationMap)}
+                    </ListItem>
+                  </ul>
+                </div>
+
+                <div>
+                  <SectionTitle icon={FiClock}>Attendance Rules</SectionTitle>
+                  <ul className="space-y-0.5">
+                    <ListItem icon={FiCheckCircle}>
+                      <strong>Full Day:</strong> {p.fullDayHours} hrs
+                    </ListItem>
+                    <ListItem icon={FiCheckCircle}>
+                      <strong>Half Day:</strong> {p.halfDayHours} hrs
+                    </ListItem>
+                    <ListItem icon={FiCheckCircle}>
+                      <strong>Late Policy:</strong>{" "}
+                      {safeArray(p.latePolicyIds).length
+                        ? "Configured"
+                        : "None"}
+                    </ListItem>
+                    <ListItem icon={FiCheckCircle}>
+                      <strong>OT Rate Slabs:</strong>{" "}
+                      {safeArray(p.otRateSlabIds).length
+                        ? "Applicable"
+                        : "Not Applicable"}
+                    </ListItem>
+                  </ul>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN */}
+              <div className="space-y-4">
+                <div>
+                  <SectionTitle icon={FiDollarSign}>
+                    Payroll Impact
+                  </SectionTitle>
+                  <ul className="space-y-0.5">
+                    <ListItem icon={FiDollarSign}>
+                      <strong>Adjustments:</strong>{" "}
+                      {idsToNames(
+                        p.paymentAdjustmentIds,
+                        lookups.paymentAdjustmentMap
+                      )}
+                    </ListItem>
+                    <ListItem icon={FiDollarSign}>
+                      <strong>Leave Types:</strong>{" "}
+                      {idsToNames(p.leaveTypeIds, lookups.leaveTypeMap)}
+                    </ListItem>
+                    <ListItem icon={FiDollarSign}>
+                      <strong>Holidays:</strong>{" "}
+                      {idsToNames(p.holidayListIds, lookups.holidayMap)}
+                    </ListItem>
+                  </ul>
+                </div>
+
+                <div>
+                  <SectionTitle icon={FiSettings}>
+                    System Behaviour
+                  </SectionTitle>
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.attendanceInputConfig?.enableBiometric && (
+                      <Badge color="blue">Biometric</Badge>
+                    )}
+                    {p.attendanceInputConfig?.enableFaceRecognition && (
+                      <Badge color="purple">Face ID</Badge>
+                    )}
+                    {p.attendanceInputConfig?.allowMobilePunch && (
+                      <Badge color="teal">Mobile Punch</Badge>
+                    )}
+                    {p.attendanceInputConfig?.allowManualCorrection && (
+                      <Badge color="yellow">Manual Correction</Badge>
+                    )}
                   </div>
-                  <div>
-                    <strong>Full Day Hours:</strong> {policy.fullDayHours}
+                </div>
+
+                <div>
+                  <SectionTitle icon={FiBell}>Escalation & Alerts</SectionTitle>
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.escalationConfig?.notifyManager && (
+                      <Badge color="blue">Manager</Badge>
+                    )}
+                    {p.escalationConfig?.notifyHR && (
+                      <Badge color="purple">HR</Badge>
+                    )}
+                    {p.escalationConfig?.notifyPayroll && (
+                      <Badge color="teal">Payroll</Badge>
+                    )}
                   </div>
-                  <div>
-                    <strong>Half Day Hours:</strong> {policy.halfDayHours}
-                  </div>
-                  <div>
-                    <strong>Shifts Ids:</strong> {policy.shiftIds.join(", ")}
-                  </div>
-                  <div>
-                    <strong>Work Types Ids:</strong>{" "}
-                    {policy.workTypeIds.join(", ")}
-                  </div>
-                  <div>
-                    <strong>Departments Ids:</strong>{" "}
-                    {policy.departmentIds.join(", ")}
-                  </div>
-                  <div>
-                    <strong>Locations Ids:</strong>{" "}
-                    {policy.locationIds.join(", ")}
-                  </div>
-                  <div>
-                    <strong>Late Policy Ids:</strong>{" "}
-                    {policy.latePolicyIds.join(", ")}
-                  </div>
-                  <div>
-                    <strong>OT Policy Ids:</strong>{" "}
-                    {policy.otPolicyIds.join(", ") || "-"}
-                  </div>
-                  <div>
-                    <strong>Holidays Ids:</strong>{" "}
-                    {policy.holidayListIds.join(", ")}
-                  </div>
-                  <div>
-                    <strong>Leave Types Ids:</strong>{" "}
-                    {policy.leaveTypeIds.join(", ")}
-                  </div>
-                  <div>
-                    <strong>Created By:</strong> {policy.createdBy}
-                  </div>
-                  <div>
-                    <strong>Created On:</strong>{" "}
-                    {policy.createdOn
-                      ? new Date(policy.createdOn).toLocaleDateString("en-GB")
-                      : "-"}
-                  </div>
-                  <div>
-                    <strong>Updated On:</strong>{" "}
-                    {policy.updatedOn
-                      ? new Date(policy.updatedOn).toLocaleDateString("en-GB")
-                      : "-"}
+                </div>
+
+                <div>
+                  <SectionTitle icon={FiAlertTriangle}>Exceptions</SectionTitle>
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.exceptionHandling?.allowShiftSwap && (
+                      <Badge color="blue">Shift Swap</Badge>
+                    )}
+                    {p.exceptionHandling?.allowWFHAdjustment && (
+                      <Badge color="green">WFH</Badge>
+                    )}
+                    {p.exceptionHandling?.allowCompOffAdjustment && (
+                      <Badge color="purple">Comp Off</Badge>
+                    )}
+                    {p.exceptionHandling?.auditRequired && (
+                      <Badge color="red">Audit Required</Badge>
+                    )}
                   </div>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="col-span-full text-center text-gray-500 py-6 text-sm">
-              No policies found.
             </div>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {filteredData.length > 0 && (
-          <div className="flex justify-end py-2">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              paginate={paginate}
-              perPageData={perPageData}
-              setPerPageData={setPerPageData}
-              filteredData={filteredData}
-              totalDataLength={totalDataLength}
-            />
           </div>
-        )}
+        ))}
       </div>
 
-      {/* Modal Form */}
+      {/* Modal */}
       {showModal && (
         <AttendancePolicyForm
+          initialData={editData}
           onClose={() => {
             setShowModal(false);
             setEditData(null);
           }}
           onSuccess={fetchPolicies}
-          initialData={editData}
         />
       )}
     </>

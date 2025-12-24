@@ -4,74 +4,101 @@ import LeavePolicyForm from "./LeavePolicyForm";
 import { FiEdit2, FiPlus, FiRefreshCw } from "react-icons/fi";
 import assets from "../../../../assets/assets";
 
-const Field = ({ label, value }) => (
-  <div className="flex justify-between border-b pb-1">
-    <span className="font-semibold text-gray-600">{label}:</span>
-    <span className="text-gray-800">{value || "-"}</span>
+/* ---------- Helpers ---------- */
+const formatDate = (d) => (d ? new Date(d).toLocaleDateString("en-GB") : "-");
+
+const YesNo = ({ v }) => (
+  <span
+    className={`text-xs font-medium ${v ? "text-green-600" : "text-gray-400"}`}
+  >
+    {v ? "Yes" : "No"}
+  </span>
+);
+
+/* ---------- Reusable Row ---------- */
+const Row = ({ label, value }) => (
+  <div className="flex justify-between py-0.5 text-xs">
+    <span className="text-gray-500">{label}</span>
+    <span className="text-gray-800 font-medium">{value ?? "-"}</span>
   </div>
 );
 
+/* ---------- Main Component ---------- */
 const LeavePolicy = () => {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [leaveTypes, setLeaveTypes] = useState([]);
 
-  // Fetch Leave Policies
   const fetchPolicies = async () => {
+    setLoading(true);
     try {
       const res = await axiosInstance.get("/LeavePolicy/all");
-      if (res.data?.data) {
-        setPolicies(res.data.data);
-      }
+      setPolicies(res.data?.data || []);
     } catch (err) {
-      console.error("Error fetching leave policies", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  const leaveTypeMap = React.useMemo(() => {
+    const map = {};
+    leaveTypes.forEach((lt) => {
+      map[lt.leaveTypeId] = {
+        name: lt.leaveName,
+        code: lt.leaveCode,
+      };
+    });
+    return map;
+  }, [leaveTypes]);
+
   useEffect(() => {
     fetchPolicies();
+    axiosInstance.get("/LeaveType").then((res) => {
+      setLeaveTypes(res.data || []);
+    });
   }, []);
-
-  const openAddForm = () => {
-    setEditData(null);
-    setShowForm(true);
-  };
-
-  const openEditForm = (policy) => {
-    setEditData(policy);
-    setShowForm(true);
-  };
 
   return (
     <>
-      {/* ---------- Header with Add Button ---------- */}
-      <div className="sticky top-14 bg-white shadow-sm px-4 py-2 mb-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Leave Policies</h2>
-        <div className="flex gap-2 text-sm">
+      {/* ---------- Header ---------- */}
+      <div className="sticky top-14 z-10 bg-white px-5 py-3 mb-6 flex justify-between items-center shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-900">Leave Policies</h2>
+
+        <div className="flex gap-2">
           <button
             onClick={fetchPolicies}
-            className="flex items-center cursor-pointer gap-2 border px-3 py-1.5 rounded-md hover:bg-gray-50 text-gray-700"
+            className="flex items-center gap-2 
+                       px-3 py-1.5 text-xs rounded-lg 
+                       bg-gray-100 cursor-pointer hover:bg-gray-200 
+                       transition"
           >
-            <FiRefreshCw size={14} /> Refresh
+            <FiRefreshCw size={14} />
+            Refresh
           </button>
+
           <button
-            onClick={openAddForm}
-            className="flex items-center cursor-pointer gap-2 bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-md"
+            onClick={() => {
+              setEditData(null);
+              setShowForm(true);
+            }}
+            className="flex items-center gap-2 
+                       px-3 py-1.5 text-xs rounded-lg 
+                       bg-primary cursor-pointer hover:bg-secondary 
+                       text-white transition"
           >
-            <FiPlus size={18} />
+            <FiPlus size={14} />
             Add Policy
           </button>
         </div>
       </div>
 
-      {/* ---------- Popup Modal ---------- */}
+      {/* ---------- Modal ---------- */}
       {showForm && (
-        <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-[1000]">
-          <div className="bg-white max-w-3xl max-h-[85vh] overflow-y-auto rounded-lg shadow-lg p-4">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[1000]">
+          <div className="bg-white max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-xl p-5 shadow-xl">
             <LeavePolicyForm
               initialData={editData}
               isEdit={!!editData}
@@ -85,242 +112,191 @@ const LeavePolicy = () => {
         </div>
       )}
 
-      {/* ---------- Loading State ---------- */}
+      {/* ---------- Loading / Empty ---------- */}
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <div className="py-16 text-center text-sm text-gray-500">
+          Loading leave policies…
+        </div>
       ) : policies.length === 0 ? (
-        // ---------- Empty Illustration ----------
-        <div className="flex flex-col items-center mt-10">
-          <img src={assets.NoData} alt="No Data" className="w-60 opacity-80" />
-          <p className="text-gray-600 mt-4 text-lg">No Leave Policies Found</p>
+        <div
+          className="flex flex-col items-center justify-center 
+                     py-12 px-6 mx-4 rounded-2xl 
+                     bg-gradient-to-br from-white to-gray-50 
+                     shadow-sm"
+        >
+          <img
+            src={assets.NoData}
+            alt="No Leave Policies"
+            className="w-56 mb-6 opacity-90"
+          />
+
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            No Leave Policies Found
+          </h3>
+
+          <p className="text-sm text-gray-600 mb-6 max-w-md text-center">
+            Create leave policies to manage leave limits, carry forward,
+            comp-off rules, and blackout dates.
+          </p>
+
+          <button
+            onClick={() => {
+              setEditData(null);
+              setShowForm(true);
+            }}
+            className="flex items-center gap-2 
+                       bg-primary hover:bg-secondary 
+                       text-white px-6 py-2 
+                       rounded-full text-sm font-medium 
+                       shadow hover:shadow-md transition"
+          >
+            <FiPlus size={16} />
+            Create Leave Policy
+          </button>
         </div>
       ) : (
-        // ---------- Card Layout ----------
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 text-xs">
-          {policies.map((policy) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 px-5 pb-6">
+          {policies.map((p) => (
             <div
-              key={policy.leavePolicyId}
-              className="bg-white shadow-md rounded-lg p-4 border hover:shadow-lg transition"
+              key={p.leavePolicyId}
+              className="bg-white rounded-2xl p-5 
+                         shadow-sm hover:shadow-lg 
+                         hover:-translate-y-0.5 
+                         transition-all duration-300"
             >
-              <div className="flex justify-between items-start">
+              {/* ---------- Card Header ---------- */}
+              <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h3 className="text-lg font-semibold">{policy.policyName}</h3>
-                  <p className="text-gray-600 text-sm">{policy.description}</p>
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    {p.policyName}
+                  </h3>
+                  <p className="text-xs text-gray-500 line-clamp-2">
+                    {p.description}
+                  </p>
                 </div>
 
                 <FiEdit2
-                  onClick={() => openEditForm(policy)}
-                  className="text-blue-600 cursor-pointer text-xl"
-                  title="Edit"
+                  className="cursor-pointer text-blue-600 hover:scale-110 transition"
+                  onClick={() => {
+                    setEditData(p);
+                    setShowForm(true);
+                  }}
                 />
               </div>
 
-              {/* ---------- Show ALL API Fields in 2-Column Table ---------- */}
-              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-gray-700 text-sm">
-                <Field
-                  label="Effective From"
-                  value={
-                    policy.effectiveFrom
-                      ? new Date(policy.effectiveFrom).toLocaleDateString(
-                          "en-GB"
-                        )
-                      : "-"
-                  }
-                />
-                <Field
-                  label="Effective To"
-                  value={
-                    policy.effectiveTo
-                      ? new Date(policy.effectiveTo).toLocaleDateString("en-GB")
-                      : "-"
-                  }
-                />
-                <Field
+              {/* ---------- Summary ---------- */}
+              <div className="mt-3 space-y-0.5 text-xs">
+                <Row
                   label="Status"
-                  value={policy.isActive ? "Active" : "Inactive"}
-                />
-
-                <Field
-                  label="Leave Types"
-                  value={policy.applicableLeaveTypeIds.join(", ")}
-                />
-                <Field
-                  label="Holiday Lists"
-                  value={policy.applicableHolidayListIds.join(", ")}
-                />
-                <Field
-                  label="Weekend Policies"
-                  value={policy.applicableWeekendPolicyIds.join(", ")}
-                />
-                <Field
-                  label="Departments"
-                  value={policy.applicableDepartmentIds.join(", ")}
-                />
-                <Field
-                  label="Designations"
-                  value={policy.applicableDesignationIds.join(", ")}
-                />
-                <Field
-                  label="Grades"
-                  value={policy.applicableGradeIds.join(", ")}
-                />
-                <Field
-                  label="Roles"
-                  value={policy.applicableRoleIds.join(", ")}
-                />
-                <Field
-                  label="Work Locations"
-                  value={policy.applicableWorkLocationIds.join(", ")}
-                />
-                <Field
-                  label="Shifts"
-                  value={policy.applicableShiftIds.join(", ")}
-                />
-                <Field
-                  label="Employment Types"
-                  value={policy.applicableEmploymentTypeIds.join(", ")}
-                />
-
-                <Field
-                  label="Allow Backdated Leave"
-                  value={policy.allowBackdatedLeave ? "Yes" : "No"}
-                />
-                <Field
-                  label="Backdated Limit (Days)"
-                  value={policy.backdatedLimitInDays}
-                />
-
-                <Field
-                  label="Allow Future Leave"
-                  value={policy.allowFutureDatedLeave ? "Yes" : "No"}
-                />
-                <Field
-                  label="Future Limit (Days)"
-                  value={policy.futureDatedLimitInDays}
-                />
-
-                <Field
-                  label="Min Notice Period"
-                  value={policy.minNoticePeriodInDays}
-                />
-                <Field
-                  label="Max Days / Application"
-                  value={policy.maxDaysPerApplication}
-                />
-                <Field
-                  label="Min Days / Application"
-                  value={policy.minDaysPerApplication}
-                />
-
-                <Field
-                  label="Allow Mixed Leave Types"
                   value={
-                    policy.allowMixedLeaveTypesInSingleApplication
-                      ? "Yes"
-                      : "No"
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        p.isActive
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-600"
+                      }`}
+                    >
+                      {p.isActive ? "Active" : "Inactive"}
+                    </span>
                   }
                 />
-                <Field
-                  label="Include Holidays"
-                  value={policy.includeHolidaysInLeaveCount ? "Yes" : "No"}
+                <Row
+                  label="Effective From"
+                  value={formatDate(p.effectiveFrom)}
                 />
-                <Field
-                  label="Include Weekends"
-                  value={policy.includeWeekendsInLeaveCount ? "Yes" : "No"}
-                />
-
-                <Field
-                  label="Leave During Notice Period"
-                  value={policy.allowLeaveDuringNoticePeriod ? "Yes" : "No"}
-                />
-                <Field
-                  label="Block If Attendance Missing"
-                  value={policy.blockLeaveIfAttendanceMissing ? "Yes" : "No"}
-                />
-
-                <Field
-                  label="Min Service Months Required"
-                  value={policy.minServiceMonthsRequired}
-                />
-                <Field
-                  label="Allow Half Day"
-                  value={policy.allowHalfDayLeave ? "Yes" : "No"}
-                />
-                <Field
-                  label="Half Day Cutoff"
-                  value={policy.halfDayCutoffTime}
-                />
-
-                <Field
-                  label="Document Required After Days"
-                  value={policy.documentRequiredAfterDays}
-                />
-                <Field
-                  label="Document For Half Day"
-                  value={policy.requireDocumentForHalfDay ? "Yes" : "No"}
-                />
-                <Field
-                  label="Document For LOP"
-                  value={policy.requireDocumentForLOP ? "Yes" : "No"}
-                />
-
-                <Field
-                  label="Auto Deduct Unapproved"
-                  value={policy.autoDeductForUnapprovedAbsence ? "Yes" : "No"}
-                />
-                <Field
-                  label="Auto Deduct Priority"
-                  value={policy.autoDeductPriority.join(", ")}
-                />
-
-                <Field
-                  label="Convert Excess Leave to LOP"
-                  value={policy.autoConvertExcessLeaveToLOP ? "Yes" : "No"}
-                />
-
-                <Field
-                  label="Comp Off Enabled"
-                  value={policy.compOffEnabled ? "Yes" : "No"}
-                />
-                <Field
-                  label="Comp Off Expiry (Days)"
-                  value={policy.compOffExpiryInDays}
-                />
-                <Field
-                  label="Comp Off on Holiday"
-                  value={policy.allowCompOffOnHoliday ? "Yes" : "No"}
-                />
-                <Field
-                  label="Comp Off on Weekend"
-                  value={policy.allowCompOffOnWeekend ? "Yes" : "No"}
-                />
-
-                <Field
-                  label="Created On"
-                  value={
-                    policy.createdOn
-                      ? new Date(policy.createdOn).toLocaleDateString("en-GB")
-                      : "-"
-                  }
-                />
-                <Field label="Created By" value={policy.createdBy} />
-
-                {policy.updatedOn && (
-                  <>
-                    <Field
-                      label="Updated On"
-                      value={
-                        policy.updatedOn
-                          ? new Date(policy.updatedOn).toLocaleDateString(
-                              "en-GB"
-                            )
-                          : "-"
-                      }
-                    />
-                    <Field label="Updated By" value={policy.updatedBy} />
-                  </>
-                )}
+                <Row label="Effective To" value={formatDate(p.effectiveTo)} />
               </div>
+
+              {/* ---------- Leave Rules ---------- */}
+              {p.leaveTypeRules?.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">
+                    Leave Rules
+                  </h4>
+
+                  <div className="space-y-2">
+                    {p.leaveTypeRules.map((r) => (
+                      <div
+                        key={r.policyLeaveTypeRuleId}
+                        className="rounded-lg bg-gray-50 p-2 text-xs"
+                      >
+                        <Row
+                          label="Leave Type"
+                          value={
+                            leaveTypeMap[r.leaveTypeId]
+                              ? `${leaveTypeMap[r.leaveTypeId].name} (${
+                                  leaveTypeMap[r.leaveTypeId].code
+                                })`
+                              : `Leave #${r.leaveTypeId}`
+                          }
+                        />
+                        <Row label="Max / Year" value={r.maxLeavesPerYear} />
+                        <Row
+                          label="Half Day"
+                          value={<YesNo v={r.allowHalfDay} />}
+                        />
+                        <Row
+                          label="Carry Forward"
+                          value={<YesNo v={r.isCarryForwardAllowed} />}
+                        />
+                        <Row
+                          label="Document Required"
+                          value={<YesNo v={r.isDocumentRequired} />}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ---------- Comp Off ---------- */}
+              {p.compOffRule && (
+                <div className="mt-4">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">
+                    Comp Off
+                  </h4>
+                  <div className="rounded-lg bg-gray-50 p-2">
+                    <Row
+                      label="Enabled"
+                      value={<YesNo v={p.compOffRule.isEnabled} />}
+                    />
+                    <Row
+                      label="Expiry (Days)"
+                      value={p.compOffRule.expiryInDays}
+                    />
+                    <Row
+                      label="On Holiday"
+                      value={<YesNo v={p.compOffRule.allowOnHoliday} />}
+                    />
+                    <Row
+                      label="On Weekend"
+                      value={<YesNo v={p.compOffRule.allowOnWeekend} />}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* ---------- Blackout ---------- */}
+              {p.blackoutDates?.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">
+                    Blackout Dates
+                  </h4>
+
+                  <div className="space-y-2">
+                    {p.blackoutDates.map((b) => (
+                      <div
+                        key={b.blackoutId}
+                        className="rounded-lg bg-gray-50 p-2 text-xs"
+                      >
+                        <Row label="Title" value={b.title} />
+                        <Row label="From" value={formatDate(b.fromDate)} />
+                        <Row label="To" value={formatDate(b.toDate)} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -4,6 +4,32 @@ import { FiRefreshCw } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import AddLatePolicy from "./AddLatePolicy";
+import assets from "../../../../assets/assets";
+
+/* ---------- Rule Formatter ---------- */
+const formatRule = (r) => {
+  const range =
+    r.toLateMinutes != null
+      ? `${r.fromLateMinutes}–${r.toLateMinutes} mins`
+      : `${r.fromLateMinutes}+ mins`;
+
+  switch (r.resolutionType) {
+    case "Ignore":
+      return `${range} → Ignore`;
+    case "ApplyFine":
+      return `${range} → Fine ₹${r.amount} (${r.amountType})`;
+    case "DeductHalfDay":
+      return `${range} → Half Day`;
+    case "DeductFullDay":
+      return `${range} → Full Day`;
+    case "RequireMakeUpHours":
+      return `${range} → Make-up ${r.requiredMakeUpHours} hrs`;
+    case "AdjustLeave":
+      return `${range} → Leave (${r.leaveType})`;
+    default:
+      return `${range} → ${r.resolutionType}`;
+  }
+};
 
 const LatePolicy = () => {
   const [policies, setPolicies] = useState([]);
@@ -11,17 +37,13 @@ const LatePolicy = () => {
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState(null);
 
-  // Fetch all late policies
+  /* ---------- Fetch Policies ---------- */
   const fetchPolicies = async () => {
     setLoading(true);
     try {
       const res = await axiosInstance.get("/LatePolicy/all");
-      if (res.data && res.data.data) {
-        setPolicies(res.data.data);
-      } else {
-        setPolicies([]);
-      }
-    } catch (err) {
+      setPolicies(res.data?.data || []);
+    } catch {
       toast.error("Failed to fetch late policies");
     } finally {
       setLoading(false);
@@ -44,47 +66,97 @@ const LatePolicy = () => {
 
   return (
     <>
-      {/* Header */}
-      <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
-        <h2 className="font-semibold text-xl">Late Policies</h2>
+      {/* ---------- Header ---------- */}
+      <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
+        <h2 className="font-semibold text-lg text-gray-900">Late Policies</h2>
+
         <div className="flex gap-2">
           <button
             onClick={fetchPolicies}
-            className="flex cursor-pointer items-center text-sm gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg"
+            className="flex items-center gap-2 px-3 py-2 text-sm 
+                       bg-primary hover:bg-secondary cursor-pointer text-white rounded-lg"
           >
-            <FiRefreshCw /> Refresh
+            <FiRefreshCw />
+            Refresh
           </button>
+
           <button
             onClick={handleAdd}
-            className="flex items-center cursor-pointer gap-2 bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-md text-sm"
+            className="flex items-center gap-2 
+                       bg-primary hover:bg-secondary cursor-pointer text-white 
+                       px-3 py-2 rounded-lg text-sm"
           >
-            <Plus size={16} /> Add Policy
+            <Plus size={16} />
+            Add Policy
           </button>
         </div>
       </div>
 
-      {/* List */}
+      {/* ---------- List ---------- */}
       <div className="px-4 pb-6">
         {loading ? (
-          <div className="p-6 text-center text-gray-500">Loading...</div>
+          <div className="p-6 text-center text-sm text-gray-500">
+            Loading...
+          </div>
         ) : policies.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">
-            No late policies found.
+          <div
+            className="flex flex-col items-center justify-center 
+                py-10 px-6 rounded-2xl 
+                bg-gradient-to-br from-white to-gray-50 
+                border border-gray-100 shadow-sm"
+          >
+            {/* Illustration */}
+            <img
+              src={assets.NoData}
+              alt="No Late Policies"
+              className="w-56 mb-6 opacity-90"
+            />
+
+            {/* Title */}
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No Late Policies Found
+            </h3>
+
+            {/* Description */}
+            <p className="text-sm text-gray-600 mb-6 max-w-md text-center leading-relaxed">
+              Create late policies to automatically handle employee late
+              arrivals, apply grace time, fines, leave deductions, or make-up
+              hours.
+            </p>
+
+            {/* CTA */}
+            <button
+              onClick={handleAdd}
+              className="flex items-center gap-2 
+               bg-primary hover:bg-secondary 
+               text-white px-6 py-2.5 
+               rounded-full text-sm font-medium 
+               shadow hover:shadow-md 
+               transition-all duration-200"
+            >
+              <Plus size={16} />
+              Create Late Policy
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {policies.map((p) => (
               <div
                 key={p.latePolicyId}
-                className="border rounded-xl shadow-sm hover:shadow-md transition bg-white p-4 flex flex-col justify-between"
+                className="rounded-2xl bg-gradient-to-br from-white to-gray-50 
+                           shadow-sm hover:shadow-lg hover:-translate-y-0.5 
+                           transition-all duration-300 
+                           p-5 flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-lg text-gray-800">
+                  {/* Title */}
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-semibold text-sm text-gray-900">
                       {p.policyName}
                     </h3>
+
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         p.isActive
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-600"
@@ -94,63 +166,86 @@ const LatePolicy = () => {
                     </span>
                   </div>
 
+                  {/* Description */}
                   {p.description && (
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                    <p className="text-sm text-gray-600 mb-3 leading-snug line-clamp-2">
                       {p.description}
                     </p>
                   )}
 
+                  {/* Core Info */}
                   <div className="space-y-1 text-sm text-gray-700">
                     <p>
-                      <span className="font-bold">Effective From:</span>{" "}
-                      {p.effectiveFrom
-                        ? new Date(p.effectiveFrom).toLocaleDateString("en-GB")
-                        : "-"}
-                    </p>
-                    <p>
-                      <span className="font-bold">Effective To:</span>{" "}
+                      <span className="font-medium text-gray-800">
+                        Effective:
+                      </span>{" "}
+                      {new Date(p.effectiveFrom).toLocaleDateString("en-GB")}
+                      {" → "}
                       {p.effectiveTo
                         ? new Date(p.effectiveTo).toLocaleDateString("en-GB")
-                        : "-"}
+                        : "Open"}
                     </p>
+
                     <p>
-                      <span className="font-bold">Grace (mins/day):</span>{" "}
-                      {p.graceMinutesPerDay ?? "-"}
+                      <span className="font-medium text-gray-800">Grace:</span>{" "}
+                      {p.graceMinutesPerDay} mins/day ({p.maxGraceOccurrences}{" "}
+                      times)
                     </p>
+
                     <p>
-                      <span className="font-bold">Max Grace Occurrences:</span>{" "}
-                      {p.maxGraceOccurrences ?? "-"}
+                      <span className="font-medium text-gray-800">
+                        Late Threshold:
+                      </span>{" "}
+                      {p.lateThresholdMinutes} mins
                     </p>
+
                     <p>
-                      <span className="font-bold">Late Threshold (mins):</span>{" "}
-                      {p.lateThresholdMinutes ?? "-"}
+                      <span className="font-medium text-gray-800">
+                        Max Late / Month:
+                      </span>{" "}
+                      {p.maxLateAllowedPerMonth}
                     </p>
-                    <p>
-                      <span className="font-bold">Max Late/Month:</span>{" "}
-                      {p.maxLateAllowedPerMonth ?? "-"}
+                  </div>
+
+                  {/* Rules */}
+                  <div className="mt-4">
+                    <p className="font-semibold text-sm mb-2 text-gray-800">
+                      Resolution Rules
                     </p>
-                    <p>
-                      <span className="font-bold">Deduct Half Day:</span>{" "}
-                      {p.deductHalfDay ? "Yes" : "No"}
-                    </p>
-                    <p>
-                      <span className="font-bold">Deduct Full Day:</span>{" "}
-                      {p.deductFullDay ? "Yes" : "No"}
-                    </p>
-                    <p>
-                      <span className="font-bold">Deduction Type:</span>{" "}
-                      {p.deductionType || "-"}
-                    </p>
+
+                    <ul className="space-y-1 text-sm text-gray-700">
+                      {p.resolutionRules
+                        ?.sort((a, b) => a.priority - b.priority)
+                        .map((r, idx) => (
+                          <li
+                            key={idx}
+                            className="flex gap-2 items-start 
+                                       bg-white/80 rounded-md px-2 py-1"
+                          >
+                            <span className="w-1.5 h-1.5 mt-2 rounded-full bg-primary" />
+                            {formatRule(r)}
+                          </li>
+                        ))}
+                    </ul>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="mt-4 border-t pt-2 flex justify-end">
+                <div className="mt-4 pt-3 flex justify-end">
                   <button
                     onClick={() => handleEdit(p)}
-                    className="text-blue-600 hover:text-blue-800 cursor-pointer flex items-center gap-1 text-sm font-medium"
+                    className="group flex items-center gap-1.5 
+                               px-3 py-1.5 rounded-full 
+                               text-sm font-medium 
+                               text-primary bg-primary/10 
+                               hover:bg-primary hover:text-white 
+                               transition-all duration-200 cursor-pointer"
                   >
-                    <Edit size={15} /> Edit
+                    <Edit
+                      size={14}
+                      className="group-hover:rotate-12 transition-transform"
+                    />
+                    Edit
                   </button>
                 </div>
               </div>
@@ -159,7 +254,7 @@ const LatePolicy = () => {
         )}
       </div>
 
-      {/* Add/Edit Modal */}
+      {/* ---------- Modal ---------- */}
       {showForm && (
         <AddLatePolicy
           onClose={() => setShowForm(false)}

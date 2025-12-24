@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import Select from "react-select";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import Spinner from "../../../../components/Spinner";
+import { X } from "lucide-react";
+import Select from "react-select";
+import useAuthStore from "../../../../store/authStore";
 
 export default function PaymentAdjustmentForm({
   onClose,
@@ -10,134 +12,86 @@ export default function PaymentAdjustmentForm({
   isEdit,
   initialData,
 }) {
+  const { user } = useAuthStore();
+  const ORG_ID = user.userId;
+
   const initialFormData = {
     paymentType: "",
-    complianceId: "",
-    maxAllowedAmount: "",
+    maxAllowedAmount: 0,
     isActive: true,
     isUserSelectable: true,
     description: "",
     calculationFormula: "",
     additionalMetadataJson: "",
-    executionOrder: "",
+    executionOrder: 0,
     paymentCalculationType: "",
     isTaxable: true,
     isRecurring: true,
     effectiveFrom: "",
     effectiveTo: "",
-    linkedPaymentAdjustmentId: "",
+    linkedPaymentAdjustmentId: 0,
   };
 
-  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
-  const [showLinkedPayment, setShowLinkedPayment] = useState(false);
-
-  const [otOptions, setOtOptions] = useState([]);
-  const [complianceOptions, setComplianceOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [components, setComponents] = useState([]);
 
   const inputClass =
-    "w-full px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400";
+    "w-full border rounded-lg px-3 py-2 border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
 
-  const normalizeValue = (value) =>
-    value === null || value === undefined ? "" : value;
+  // ================= LOAD SALARY COMPONENTS =================
+  useEffect(() => {
+    axiosInstance
+      .get(`/OrgComponentConfig/by-org?orgId=${ORG_ID}`)
+      .then((res) => {
+        if (Array.isArray(res.data?.data)) {
+          setComponents(res.data.data.filter((c) => c.isEnabled));
+        }
+      })
+      .catch(() => toast.error("Failed to load salary components"));
+  }, []);
 
+  // ================= EDIT MODE =================
   useEffect(() => {
     if (isEdit === "Edit" && initialData) {
       setFormData({
         ...initialFormData,
-        ...Object.fromEntries(
-          Object.entries(initialData).map(([key, val]) => [
-            key,
-            normalizeValue(val),
-          ])
-        ),
-        effectiveFrom: initialData.effectiveFrom
-          ? new Date(initialData.effectiveFrom).toISOString().split("T")[0]
-          : "",
-        effectiveTo: initialData.effectiveTo
-          ? new Date(initialData.effectiveTo).toISOString().split("T")[0]
-          : "",
+        ...initialData,
+        effectiveFrom: initialData.effectiveFrom?.split("T")[0] || "",
+        effectiveTo: initialData.effectiveTo?.split("T")[0] || "",
       });
-
-      // 🔑 UI-only logic
-      setShowLinkedPayment(Number(initialData.linkedPaymentAdjustmentId) > 0);
     }
   }, [isEdit, initialData]);
 
-  useEffect(() => {
-    const fetchDropdownData = async () => {
-      try {
-        const [complianceRes, otRes] = await Promise.allSettled([
-          axiosInstance.get("/Compliance/get-all"),
-          axiosInstance.get("/OTRateSlabMaster/all"),
-        ]);
-
-        // ---------- COMPLIANCE ----------
-        if (
-          complianceRes.status === "fulfilled" &&
-          Array.isArray(complianceRes.value.data)
-        ) {
-          setComplianceOptions(
-            complianceRes.value.data.map((item) => ({
-              value: item.complianceId,
-              label: item.complianceName,
-            }))
-          );
-        } else {
-          setComplianceOptions([]); // fallback empty list
-        }
-
-        // ---------- OT RATE SLAB ----------
-        if (
-          otRes.status === "fulfilled" &&
-          otRes.value.data?.data &&
-          Array.isArray(otRes.value.data.data)
-        ) {
-          setOtOptions(
-            otRes.value.data.data.map((item) => ({
-              value: item.otRateSlabId,
-              label: `${item.rateType} - ₹${item.ratePerHour}/hr`,
-            }))
-          );
-        } else {
-          setOtOptions([]); // fallback empty list
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load dropdowns.");
-      }
-    };
-
-    fetchDropdownData();
-  }, []);
-
-  const handleSelectChange = (selected, field) => {
+  // ================= INPUT HANDLER =================
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [field]: selected ? selected.value : 0,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]:
-        type === "checkbox"
-          ? checked
-          : name === "maxAllowedAmount" ||
-            name === "executionOrder" ||
-            name === "linkedPaymentAdjustmentId"
-          ? Number(value)
-          : value,
-    });
+  // ================= REACT-SELECT HANDLERS =================
+  const handleComponentChange = (selectedOption) => {
+    setFormData((prev) => ({
+      ...prev,
+      paymentType: selectedOption ? selectedOption.value : "",
+    }));
   };
 
+  const handleCalculationTypeChange = (selectedOption) => {
+    setFormData((prev) => ({
+      ...prev,
+      paymentCalculationType: selectedOption ? selectedOption.value : "",
+    }));
+  };
+
+  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Prepare payload with proper date formatting
     const payload = {
       ...formData,
       effectiveFrom: formData.effectiveFrom
@@ -154,262 +108,257 @@ export default function PaymentAdjustmentForm({
           `/PaymentAdjustment/update/${initialData.paymentAdjustmentId}`,
           payload
         );
-        toast.success("Payment Adjustment updated successfully");
+        toast.success("Payment Adjustment updated");
       } else {
         await axiosInstance.post("/PaymentAdjustment/create", payload);
-        toast.success("Payment Adjustment created successfully");
+        toast.success("Payment Adjustment created");
       }
-
-      // Refresh list and close popup
       onSuccess();
       onClose();
-    } catch (error) {
-      console.error("Error submitting Payment Adjustment:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to save Payment Adjustment"
-      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save Payment Adjustment");
     } finally {
       setLoading(false);
     }
   };
 
+  // ================= REACT-SELECT OPTIONS =================
+  const componentOptions = components.map((c) => ({
+    value: c.componentName,
+    label: c.componentName,
+  }));
+
+  const calculationOptions = [
+    { value: "Addition", label: "Addition (adds money)" },
+    { value: "Deduction", label: "Deduction (cuts salary)" },
+    { value: "Override", label: "Override (replaces value)" },
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-6 max-h-[70vh] overflow-y-auto">
-      <h2 className="text-xl font-semibold text-gray-800 mb-6">
-        {isEdit === "Edit" ? "Edit" : "New"} Payment Adjustment
-      </h2>
-      <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-2 text-xs">
-        <div>
-          <label className="block text-gray-700">Payment Type</label>
-          <input
-            type="text"
-            name="paymentType"
-            value={formData.paymentType}
-            onChange={handleChange}
-            className={inputClass}
-            required
-            autoFocus
-          />
-        </div>
+    <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-start pt-12 z-50">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl relative overflow-y-auto max-h-[90vh] p-6">
+        {/* CLOSE BUTTON */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 cursor-pointer text-gray-500 hover:text-red-500 transition"
+        >
+          <X size={25} />
+        </button>
 
-        <div>
-          <label className="block text-gray-700">Max Allowed Amount</label>
-          <input
-            type="number"
-            name="maxAllowedAmount"
-            value={formData.maxAllowedAmount}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
+        {/* HEADER */}
+        <h2 className="text-xl font-semibold mb-1">
+          {isEdit === "Edit" ? "Edit" : "New"} Payment Adjustment
+        </h2>
+        <p className="text-sm text-gray-500 mb-6">
+          Configure how extra earnings or deductions affect employee salary.
+        </p>
 
-        <div className="col-span-2">
-          <label className="block text-gray-700">Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className={inputClass}
-            rows={2}
-          ></textarea>
-        </div>
+        {/* FORM */}
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 text-xs md:grid-cols-2 gap-4"
+        >
+          {/* SALARY COMPONENT */}
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">Salary Component</label>
+            <Select
+              options={componentOptions}
+              value={componentOptions.find(
+                (opt) => opt.value === formData.paymentType
+              )}
+              onChange={handleComponentChange}
+              placeholder="Select salary component"
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Example: Bonus, Overtime, TDS
+            </p>
+          </div>
 
-        {/* Compliance Dropdown */}
-        <div>
-          <label className="block text-gray-700">Compliance</label>
-          <Select
-            options={complianceOptions}
-            value={complianceOptions.find(
-              (opt) => opt.value === formData.complianceId
-            )}
-            onChange={(selected) =>
-              handleSelectChange(selected, "complianceId")
-            }
-            placeholder={
-              complianceOptions.length === 0
-                ? "No compliance available"
-                : "Select Compliance"
-            }
-            noOptionsMessage={() => "No compliance found"}
-            isClearable
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">Execution Order</label>
-          <input
-            type="number"
-            name="executionOrder"
-            value={formData.executionOrder}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">
-            Payment Calculation Type
-          </label>
-          <input
-            type="text"
-            name="paymentCalculationType"
-            value={formData.paymentCalculationType}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
-
-        <div className="col-span-2">
-          <label className="block text-gray-700">Calculation Formula</label>
-          <input
-            type="text"
-            name="calculationFormula"
-            value={formData.calculationFormula}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
-
-        <div className="col-span-2">
-          <label className="block text-gray-700">
-            Additional Metadata (JSON)
-          </label>
-          <input
-            type="text"
-            name="additionalMetadataJson"
-            value={formData.additionalMetadataJson}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">Effective From</label>
-          <input
-            type="date"
-            name="effectiveFrom"
-            value={formData.effectiveFrom}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700">Effective To</label>
-          <input
-            type="date"
-            name="effectiveTo"
-            value={formData.effectiveTo}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
-
-        {/* Link Payment Adjustment (UI only) */}
-        <div className="flex items-center space-x-2 col-span-2">
-          <input
-            type="checkbox"
-            checked={showLinkedPayment}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              setShowLinkedPayment(checked);
-
-              // keep API payload valid
-              if (!checked) {
-                setFormData((prev) => ({
-                  ...prev,
-                  linkedPaymentAdjustmentId: 0,
-                }));
-              }
-            }}
-            className="accent-primary"
-          />
-          <label className="text-gray-700">
-            Link another Payment Adjustment
-          </label>
-        </div>
-
-        {/* Show input ONLY when checkbox is checked */}
-        {showLinkedPayment && (
-          <div>
-            <label className="block text-gray-700">
-              Linked Payment Adjustment ID
+          {/* MAX AMOUNT */}
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">
+              Maximum Amount (Optional)
             </label>
             <input
               type="number"
-              name="linkedPaymentAdjustmentId"
-              value={formData.linkedPaymentAdjustmentId}
+              name="maxAllowedAmount"
+              value={formData.maxAllowedAmount}
               onChange={handleChange}
+              placeholder="Leave empty or 0 for no limit"
               className={inputClass}
-              min={1}
             />
           </div>
-        )}
-        <div></div>
 
-        {/* Boolean fields */}
-        <div className="flex items-center space-x-2">
+          {/* DESCRIPTION */}
+          <div className="flex flex-col col-span-1 md:col-span-2">
+            <label className="font-medium mb-1">Description</label>
+            <textarea
+              name="description"
+              rows={2}
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Explain why this adjustment exists"
+              className={inputClass}
+            />
+          </div>
+
+          {/* CALCULATION TYPE */}
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">Calculation Type</label>
+            <Select
+              options={calculationOptions}
+              value={calculationOptions.find(
+                (opt) => opt.value === formData.paymentCalculationType
+              )}
+              onChange={handleCalculationTypeChange}
+              placeholder="Select calculation type"
+              isClearable
+              className="react-select-container"
+              classNamePrefix="react-select"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              How this adjustment changes the final salary
+            </p>
+          </div>
+
+          {/* EXECUTION ORDER */}
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">Calculation Priority</label>
+            <input
+              type="number"
+              name="executionOrder"
+              value={formData.executionOrder}
+              onChange={handleChange}
+              placeholder="Lower runs first (e.g. 1, 5, 10)"
+              className={inputClass}
+            />
+          </div>
+
+          {/* FORMULA */}
+          <div className="flex flex-col col-span-1 md:col-span-2">
+            <label className="font-medium mb-1">Calculation Rule</label>
+            <input
+              type="text"
+              name="calculationFormula"
+              value={formData.calculationFormula}
+              onChange={handleChange}
+              placeholder="e.g. OT_HOURS * RATE | BASIC * 0.1"
+              className={inputClass}
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Leave empty if the amount is fixed
+            </p>
+          </div>
+
+          {/* ADVANCED JSON */}
+          <div className="flex flex-col col-span-1 md:col-span-2">
+            <label className="font-medium mb-1">
+              Advanced Settings (Optional)
+            </label>
+            <input
+              type="text"
+              name="additionalMetadataJson"
+              value={formData.additionalMetadataJson}
+              onChange={handleChange}
+              placeholder='{ "source": "OT_OVERFLOW" }'
+              className={inputClass}
+            />
+          </div>
+
+          {/* FLAGS */}
+          <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-3">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={formData.isActive}
+                onChange={handleChange}
+              />
+              Active
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="isUserSelectable"
+                checked={formData.isUserSelectable}
+                onChange={handleChange}
+              />
+              Visible to users
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="isTaxable"
+                checked={formData.isTaxable}
+                onChange={handleChange}
+              />
+              Taxable
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="isRecurring"
+                checked={formData.isRecurring}
+                onChange={handleChange}
+              />
+              Recurring
+            </label>
+          </div>
+
+          {/* EFFECTIVE DATES */}
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">Effective From</label>
+            <input
+              type="date"
+              name="effectiveFrom"
+              value={formData.effectiveFrom}
+              onChange={handleChange}
+              className={inputClass}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">Effective To</label>
+            <input
+              type="date"
+              name="effectiveTo"
+              value={formData.effectiveTo}
+              onChange={handleChange}
+              className={inputClass}
+            />
+          </div>
+
+          {/* HIDDEN FIELD */}
           <input
-            type="checkbox"
-            name="isActive"
-            checked={formData.isActive}
-            onChange={handleChange}
-            className="accent-primary"
+            type="hidden"
+            name="linkedPaymentAdjustmentId"
+            value={formData.linkedPaymentAdjustmentId}
           />
-          <label className="text-gray-700">Is Active</label>
-        </div>
 
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            name="isUserSelectable"
-            checked={formData.isUserSelectable}
-            onChange={handleChange}
-            className="accent-primary"
-          />
-          <label className="text-gray-700">User Selectable</label>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            name="isTaxable"
-            checked={formData.isTaxable}
-            onChange={handleChange}
-            className="accent-primary"
-          />
-          <label className="text-gray-700">Taxable</label>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            name="isRecurring"
-            checked={formData.isRecurring}
-            onChange={handleChange}
-            className="accent-primary"
-          />
-          <label className="text-gray-700">Recurring</label>
-        </div>
-
-        {/* Buttons */}
-        <div className="col-span-2 flex justify-end space-x-3 mt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="border px-5 py-2 cursor-pointer rounded"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary cursor-pointer"
-          >
-            {loading ? <Spinner size={20} /> : "Submit"}
-          </button>
-        </div>
-      </form>
+          {/* ACTIONS */}
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 mt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="border px-4 py-2 rounded cursor-pointer hover:bg-gray-100 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-primary text-white cursor-pointer px-4 py-2 rounded hover:bg-secondary transition flex items-center gap-2"
+            >
+              {loading && <Spinner size={16} />}
+              {isEdit === "Edit" ? "Update" : "Save"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

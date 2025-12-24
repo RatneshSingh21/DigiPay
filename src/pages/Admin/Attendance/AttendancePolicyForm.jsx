@@ -1,114 +1,53 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { FiX } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
-import useAuthStore from "../../../store/authStore";
 import { fetchAllAttendancePolicyOptions } from "../../../services/attendancePolicyService";
 
-const customSelectStyles = {
-  control: (provided) => ({
-    ...provided,
-    minHeight: "36px", // increased from 28px
-    height: "36px",
-    fontSize: "12px",
-    padding: "0 4px",
-    overflow: "hidden",
-  }),
-  valueContainer: (provided) => ({
-    ...provided,
-    padding: "0 4px",
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "2px",
-    maxHeight: "80px", // increased max height
-    overflowY: "auto",
-  }),
-  indicatorsContainer: (provided) => ({
-    ...provided,
-    height: "36px", // match control height
-  }),
-  option: (provided) => ({
-    ...provided,
-    fontSize: "12px",
-    padding: "6px 8px",
-  }),
-  multiValue: (provided) => ({
-    ...provided,
-    backgroundColor: "#e2e8f0",
-    borderRadius: "4px",
-    padding: "0 4px",
-    fontSize: "12px",
-  }),
-  multiValueLabel: (provided) => ({
-    ...provided,
-    padding: "0 2px",
-    fontSize: "12px",
-  }),
-  multiValueRemove: (provided) => ({
-    ...provided,
-    fontSize: "12px",
-    padding: "0 2px",
-    cursor: "pointer",
-  }),
-  menu: (provided) => ({
-    ...provided,
-    zIndex: 9999,
-    maxHeight: "200px",
-    overflowY: "auto",
-  }),
-  menuList: (provided) => ({
-    ...provided,
-    maxHeight: "200px",
-    overflowY: "auto",
-  }),
-  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+/* ===================== STYLES ===================== */
+const selectStyles = {
+  control: (p) => ({ ...p, minHeight: 36, fontSize: 12 }),
+  option: (p) => ({ ...p, fontSize: 12 }),
+  menuPortal: (b) => ({ ...b, zIndex: 9999 }),
 };
 
+const input =
+  "w-full border border-gray-300 rounded px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500";
+
+/* ===================== STEP META ===================== */
+const STEPS = [
+  {
+    title: "Basic Policy Details",
+    subtitle: "Give this policy a clear identity and time range",
+  },
+  {
+    title: "Who Does This Apply To?",
+    subtitle: "Define where and to whom this policy applies",
+  },
+  {
+    title: "Attendance Rules",
+    subtitle: "Working hours, late rules, overtime & weekends",
+  },
+  {
+    title: "Payroll & Leave Impact",
+    subtitle: "How attendance affects salary and leave",
+  },
+  {
+    title: "System Behaviour",
+    subtitle: "Automation, approvals and system controls",
+  },
+  {
+    title: "Advanced Rules",
+    subtitle: "Optional expert-level configuration",
+  },
+];
+
+/* ===================== COMPONENT ===================== */
 const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
-  const User = useAuthStore((state) => state.user);
-
-  const [options, setOptions] = useState({
-    shiftIds: [],
-    workTypeIds: [],
-    departmentIds: [],
-    locationIds: [],
-    latePolicyIds: [],
-    otPolicyIds: [],
-    otRateSlabIds: [],
-    bonusPolicyIds: [],
-    specialAllowancePolicyIds: [],
-    holidayListIds: [],
-    leaveTypeIds: [],
-    complianceIds: [],
-    complianceRuleIds: [],
-    weekendPolicyIds: [],
-    weekendPolicyMappingIds: [],
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      setForm({
-        ...initialData,
-        effectiveFrom: initialData.effectiveFrom?.split("T")[0],
-        effectiveTo: initialData.effectiveTo?.split("T")[0],
-        additionalMetadataJson: initialData.additionalMetadataJson || "{}",
-      });
-    }
-  }, [initialData]);
-
-  useEffect(() => {
-    const loadOptions = async () => {
-      try {
-        const data = await fetchAllAttendancePolicyOptions();
-        setOptions(data);
-      } catch (err) {
-        toast.error("Failed to load attendance policy options");
-        console.error(err);
-      }
-    };
-    loadOptions();
-  }, []);
+  const [step, setStep] = useState(0);
+  const [options, setOptions] = useState({});
+  const [showJson, setShowJson] = useState(false);
 
   const [form, setForm] = useState({
     policyName: "",
@@ -116,23 +55,22 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
     effectiveFrom: new Date().toISOString().split("T")[0],
     effectiveTo: new Date().toISOString().split("T")[0],
     isActive: true,
-    fullDayHours: 0,
-    halfDayHours: 0,
+
+    fullDayHours: 8,
+    halfDayHours: 4,
+
     shiftIds: [],
     workTypeIds: [],
     departmentIds: [],
     locationIds: [],
     latePolicyIds: [],
-    otPolicyIds: [],
     otRateSlabIds: [],
-    bonusPolicyIds: [],
-    specialAllowancePolicyIds: [],
+    paymentAdjustmentIds: [],
     holidayListIds: [],
     leaveTypeIds: [],
-    complianceIds: [],
-    complianceRuleIds: [],
     weekendPolicyIds: [],
     weekendPolicyMappingIds: [],
+
     attendanceInputConfig: {
       enableBiometric: true,
       enableFaceRecognition: true,
@@ -141,6 +79,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
       allowManualCorrection: true,
       manualCorrectionApprovalRequired: true,
     },
+
     escalationConfig: {
       lateEscalationLevel: 0,
       absentEscalationLevel: 0,
@@ -150,6 +89,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
       notifyPayroll: true,
       autoWorkflowTrigger: true,
     },
+
     salaryIntegration: {
       autoCalculateOT: true,
       autoCalculateLateDeduction: true,
@@ -157,6 +97,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
       autoApplyBonus: true,
       autoApplySpecialAllowance: true,
     },
+
     exceptionHandling: {
       allowShiftSwap: true,
       allowWFHAdjustment: true,
@@ -164,343 +105,366 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
       manualOverrideAllowed: true,
       auditRequired: true,
     },
+
     additionalMetadataJson: "{}",
   });
 
+  /* ================= LOAD OPTIONS ================= */
+  useEffect(() => {
+    fetchAllAttendancePolicyOptions()
+      .then(setOptions)
+      .catch(() => toast.error("Failed to load options"));
+  }, []);
+
+  useEffect(() => {
+    if (!initialData) return;
+    setForm({
+      ...initialData,
+      effectiveFrom: initialData.effectiveFrom?.split("T")[0],
+      effectiveTo: initialData.effectiveTo?.split("T")[0],
+      additionalMetadataJson: initialData.additionalMetadataJson || "{}",
+    });
+    if (initialData.additionalMetadataJson !== "{}") setShowJson(true);
+  }, [initialData]);
+
+  /* ================= HANDLERS ================= */
   const handleChange = (e) => {
-    const { name, type, value, checked } = e.target;
+    const { name, value, checked, type } = e.target;
     if (name.includes(".")) {
-      const [parent, child] = name.split(".");
-      setForm((prev) => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: type === "checkbox" ? checked : value,
-        },
+      const [p, c] = name.split(".");
+      setForm((f) => ({
+        ...f,
+        [p]: { ...f[p], [c]: type === "checkbox" ? checked : value },
       }));
     } else {
-      setForm((prev) => ({
-        ...prev,
+      setForm((f) => ({
+        ...f,
         [name]: type === "checkbox" ? checked : value,
       }));
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const submit = async () => {
     try {
-      let res;
+      const payload = {
+        ...form,
+        additionalMetadataJson: showJson ? form.additionalMetadataJson : "{}",
+      };
 
       if (initialData) {
-        // Update API (PUT)
-        res = await axiosInstance.put(
+        await axiosInstance.put(
           `/AttendancePolicy/${initialData.attendancePolicyId}`,
-          form
+          payload
         );
       } else {
-        // Create API (POST)
-        res = await axiosInstance.post("/AttendancePolicy", form);
+        await axiosInstance.post("/AttendancePolicy", payload);
       }
 
-      toast.success(res.data.message || "Saved successfully");
+      toast.success("Attendance Policy saved successfully");
       onSuccess();
       onClose();
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed");
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Save failed");
     }
   };
 
-  const inputClass =
-    "w-full border border-gray-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 outline-none";
+  const Multi = ({ field, label, hint }) => {
+    const fieldOptions = options[field] || [];
+    const selectedValues = form[field] || [];
 
+    const allSelected =
+      fieldOptions.length > 0 && selectedValues.length === fieldOptions.length;
+
+    const enhancedOptions = [
+      {
+        value: "__all__",
+        label: allSelected ? "Clear All" : "Select All",
+      },
+      ...fieldOptions,
+    ];
+
+    const selectedObjects = enhancedOptions.filter((o) =>
+      selectedValues.includes(o.value)
+    );
+
+    return (
+      <div>
+        <label className="text-xs font-medium text-gray-700 mb-1 block">
+          {label}
+        </label>
+
+        {hint && <p className="text-[11px] text-gray-500 mb-1">{hint}</p>}
+
+        <Select
+          isMulti
+          styles={selectStyles}
+          options={enhancedOptions}
+          value={selectedObjects}
+          menuPortalTarget={document.body}
+          onChange={(selected) => {
+            if (!selected) {
+              setForm((f) => ({ ...f, [field]: [] }));
+              return;
+            }
+
+            const hasAll = selected.some((s) => s.value === "__all__");
+
+            if (hasAll) {
+              setForm((f) => ({
+                ...f,
+                [field]: allSelected ? [] : fieldOptions.map((o) => o.value),
+              }));
+            } else {
+              setForm((f) => ({
+                ...f,
+                [field]: selected.map((s) => s.value),
+              }));
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
+  /* ===================== RENDER ===================== */
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-xl p-6 relative overflow-y-auto max-h-[90vh] animate-fadeIn">
+      <div className="bg-white w-full max-w-2xl rounded-xl shadow-lg p-6 relative max-h-[95vh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute cursor-pointer top-3 right-3 text-gray-500 hover:text-gray-800"
+          className="absolute top-2 cursor-pointer hover:text-red-500 right-4 text-gray-500"
         >
           <FiX size={20} />
         </button>
-        <h2 className="text-lg font-semibold mb-5 text-gray-800 text-center">
-          Add Attendance Policy
-        </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-2">
-          {/* Policy Name */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Policy Name *
-            </label>
-            <input
-              type="text"
-              name="policyName"
-              value={form.policyName}
-              onChange={handleChange}
-              placeholder="Policy Name..."
-              required
-              className={inputClass}
+        {/* PROGRESS */}
+        <div className="mb-4">
+          <div className="flex justify-between text-xs text-gray-500 mb-1">
+            <span>{STEPS[step].title}</span>
+            <span>
+              {step + 1} / {STEPS.length}
+            </span>
+          </div>
+          <div className="h-1 bg-gray-200 rounded">
+            <div
+              className="h-1 bg-blue-600 rounded transition-all"
+              style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
             />
           </div>
+        </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Policy Description..."
-              className={inputClass}
-              rows={2}
-            />
-          </div>
+        {/* HEADER */}
+        <h2 className="text-lg font-semibold">{STEPS[step].title}</h2>
+        <p className="text-sm text-gray-600 mb-4">{STEPS[step].subtitle}</p>
 
-          {/* Dates */}
-          <div className="flex gap-5">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-700">Effective From</label>
+        {/* STEP CONTENT */}
+        <div className="space-y-4">
+          {step === 0 && (
+            <>
               <input
-                type="date"
-                name="effectiveFrom"
-                value={form.effectiveFrom}
+                className={input}
+                name="policyName"
+                value={form.policyName}
                 onChange={handleChange}
-                className={inputClass}
+                placeholder="Policy name (e.g. Office Attendance Policy)"
               />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-700">Effective To</label>
-              <input
-                type="date"
-                name="effectiveTo"
-                value={form.effectiveTo}
+              <textarea
+                className={input}
+                rows={2}
+                name="description"
+                value={form.description}
                 onChange={handleChange}
-                className={inputClass}
+                placeholder="What does this policy do?"
               />
-            </div>
-          </div>
-
-          {/* Active */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="isActive"
-              checked={form.isActive}
-              onChange={handleChange}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-            />
-            <label className="text-xs text-gray-700">Active</label>
-          </div>
-          <div className="flex gap-5">
-            {/* Full Day Hours */}
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Full Day Hours *
-              </label>
-              <input
-                type="number"
-                name="fullDayHours"
-                value={form.fullDayHours}
-                onChange={handleChange}
-                className={inputClass}
-                required
-              />
-            </div>
-
-            {/* Half Day Hours */}
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Half Day Hours *
-              </label>
-              <input
-                type="number"
-                name="halfDayHours"
-                value={form.halfDayHours}
-                onChange={handleChange}
-                className={inputClass}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Multi-select fields */}
-
-          {[
-            "shiftIds",
-            "workTypeIds",
-            "departmentIds",
-            "locationIds",
-            "latePolicyIds",
-            "otPolicyIds",
-            "otRateSlabIds",
-            "bonusPolicyIds",
-            // "specialAllowancePolicyIds",
-            "holidayListIds",
-            "leaveTypeIds",
-            "complianceIds",
-            "complianceRuleIds",
-            "weekendPolicyIds",
-            "weekendPolicyMappingIds",
-          ].map((field) => {
-            const fieldOptions = options[field] || [];
-
-            // FIXED ↓↓↓ prevents crash
-            const selectedValuesArray = Array.isArray(form[field])
-              ? form[field]
-              : [];
-
-            const allSelected =
-              selectedValuesArray.length === fieldOptions.length &&
-              fieldOptions.length > 0;
-
-            const selectOptions = [
-              {
-                value: "__all__",
-                label: allSelected ? "Deselect All" : "Select All",
-              },
-              ...fieldOptions,
-            ];
-
-            const selectedValues = selectOptions.filter((opt) =>
-              selectedValuesArray.includes(opt.value)
-            );
-
-            return (
-              <div key={field}>
-                <label className="block text-xs font-medium capitalize text-gray-700 mb-1">
-                  {field}
-                </label>
-                <Select
-                  isMulti
-                  options={selectOptions}
-                  value={selectedValues}
-                  onChange={(selected) => {
-                    if (!selected) {
-                      setForm((prev) => ({ ...prev, [field]: [] }));
-                      return;
-                    }
-
-                    const hasSelectAll = selected.some(
-                      (s) => s.value === "__all__"
-                    );
-
-                    if (hasSelectAll) {
-                      if (allSelected) {
-                        // Deselect all
-                        setForm((prev) => ({ ...prev, [field]: [] }));
-                      } else {
-                        // Select all
-                        setForm((prev) => ({
-                          ...prev,
-                          [field]: fieldOptions.map((o) => o.value),
-                        }));
-                      }
-                    } else {
-                      setForm((prev) => ({
-                        ...prev,
-                        [field]: selected.map((s) => s.value),
-                      }));
-                    }
-                  }}
-                  placeholder={`Select ${field}`}
-                  styles={customSelectStyles}
-                  className="text-xs"
-                  menuPortalTarget={document.body}
-                  menuPosition="fixed"
+              <div className="flex gap-3">
+                <input
+                  type="date"
+                  className={input}
+                  name="effectiveFrom"
+                  value={form.effectiveFrom}
+                  onChange={handleChange}
+                />
+                <input
+                  type="date"
+                  className={input}
+                  name="effectiveTo"
+                  value={form.effectiveTo}
+                  onChange={handleChange}
                 />
               </div>
-            );
-          })}
+            </>
+          )}
 
-          {/* Checkbox groups for configs */}
-          {[
-            { key: "attendanceInputConfig", label: "Attendance Input Config" },
-            { key: "escalationConfig", label: "Escalation Config" },
-            { key: "salaryIntegration", label: "Salary Integration" },
-            { key: "exceptionHandling", label: "Exception Handling" },
-          ].map((config) => (
-            <div key={config.key} className="border-t border-gray-200 pt-2">
-              {/* Section Label */}
-              <p className="text-xs font-medium text-gray-700 mb-1">
-                {config.label}
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.keys(form[config.key]).map((key) => {
-                  const value = form[config.key][key];
-                  if (typeof value === "boolean") {
-                    return (
-                      <label
-                        key={key}
-                        className="flex items-center gap-2 capitalize text-xs"
-                      >
-                        <input
-                          type="checkbox"
-                          name={`${config.key}.${key}`}
-                          checked={value}
-                          onChange={handleChange}
-                          className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-                        />
-                        {key}
-                      </label>
-                    );
-                  } else if (typeof value === "number") {
-                    return (
-                      <label
-                        key={key}
-                        className="flex flex-col text-xs capitalize"
-                      >
-                        {key}
-                        <input
-                          type="number"
-                          name={`${config.key}.${key}`}
-                          value={value}
-                          onChange={handleChange}
-                          className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
-                        />
-                      </label>
-                    );
-                  } else {
-                    return null;
-                  }
-                })}
+          {step === 1 && (
+            <>
+              <Multi
+                field="shiftIds"
+                label="Applicable Shifts"
+                hint="Only employees working under these shifts will follow this policy."
+              />
+
+              <Multi
+                field="workTypeIds"
+                label="Work Types"
+                hint="Select employment types like Full Time, Part Time, Contractual, etc."
+              />
+
+              <Multi
+                field="departmentIds"
+                label="Departments"
+                hint="Restrict this policy to specific departments if required."
+              />
+
+              <Multi
+                field="locationIds"
+                label="Work Locations"
+                hint="Useful when attendance rules differ by branch or site."
+              />
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <div>
+                <label className="text-xs font-medium text-gray-700">
+                  Working Hours Definition
+                </label>
+                <p className="text-[11px] text-gray-500 mb-2">
+                  These values decide how the system marks Full Day and Half Day
+                  attendance.
+                </p>
+
+                <div className="flex gap-3">
+                  <input
+                    className={input}
+                    type="number"
+                    name="fullDayHours"
+                    value={form.fullDayHours}
+                    onChange={handleChange}
+                    placeholder="Full day hours"
+                  />
+                  <input
+                    className={input}
+                    type="number"
+                    name="halfDayHours"
+                    value={form.halfDayHours}
+                    onChange={handleChange}
+                    placeholder="Half day hours"
+                  />
+                </div>
               </div>
-            </div>
-          ))}
 
-          {/* Additional Metadata */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Additional Metadata (JSON)
-            </label>
-            <textarea
-              name="additionalMetadataJson"
-              value={form.additionalMetadataJson}
-              onChange={handleChange}
-              className={inputClass}
-              rows={2}
-            />
-          </div>
+              <Multi
+                field="latePolicyIds"
+                label="Late Arrival Rules"
+                hint="Controls penalties, grace periods, or half-day rules for late punches."
+              />
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+              <Multi
+                field="otRateSlabIds"
+                label="Overtime Rules"
+                hint="Defines how overtime is calculated and paid."
+              />
+
+              <Multi
+                field="weekendPolicyIds"
+                label="Weekend Policies"
+                hint="Determines weekly offs, alternate Saturdays, or weekend work rules."
+              />
+            </>
+          )}
+          {step === 3 && (
+            <>
+              <Multi
+                field="paymentAdjustmentIds"
+                label="Salary Adjustments"
+                hint="Bonuses, deductions, or attendance-based adjustments linked to payroll."
+              />
+
+              <Multi
+                field="holidayListIds"
+                label="Holiday Lists"
+                hint="Public or company holidays applicable under this policy."
+              />
+
+              <Multi
+                field="leaveTypeIds"
+                label="Leave Types"
+                hint="Leaves that interact with attendance calculations."
+              />
+            </>
+          )}
+
+          {step === 4 && (
+            <>
+              <p className="text-[11px] text-gray-500 mb-2">
+                These settings control how attendance data is captured and
+                processed by the system.
+              </p>
+
+              {Object.entries(form.attendanceInputConfig).map(([k, v]) => (
+                <label key={k} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name={`attendanceInputConfig.${k}`}
+                    checked={v}
+                    onChange={handleChange}
+                  />
+                  {k.replace(/([A-Z])/g, " $1")}
+                </label>
+              ))}
+            </>
+          )}
+
+          {step === 5 && (
+            <>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={showJson}
+                  onChange={(e) => setShowJson(e.target.checked)}
+                />
+                Enable advanced configuration (JSON)
+              </label>
+              {showJson && (
+                <textarea
+                  rows={4}
+                  className={`${input} font-mono`}
+                  name="additionalMetadataJson"
+                  value={form.additionalMetadataJson}
+                  onChange={handleChange}
+                />
+              )}
+            </>
+          )}
+        </div>
+
+        {/* FOOTER */}
+        <div className="flex justify-between items-center mt-6 border-t pt-4">
+          <button
+            disabled={step === 0}
+            onClick={() => setStep(step - 1)}
+            className="bg-gray-500 cursor-pointer text-white px-4 py-2 text-sm rounded"
+          >
+            Back
+          </button>
+
+          {step < STEPS.length - 1 ? (
             <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 cursor-pointer text-xs rounded-lg border border-gray-300 hover:bg-gray-100"
+              onClick={() => setStep(step + 1)}
+              className="bg-primary cursor-pointer text-white px-4 py-2 text-sm rounded"
             >
-              Cancel
+              Next
             </button>
+          ) : (
             <button
-              type="submit"
-              className="px-5 py-2 cursor-pointer text-xs bg-primary text-white rounded-lg hover:bg-secondary"
+              onClick={submit}
+              className="bg-green-600 text-white px-4 py-2 text-sm rounded"
             >
-              Save
+              Save Policy
             </button>
-          </div>
-        </form>
+          )}
+        </div>
       </div>
     </div>
   );

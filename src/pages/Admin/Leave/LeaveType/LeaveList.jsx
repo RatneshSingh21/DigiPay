@@ -16,10 +16,9 @@ const LeaveList = ({
   const handleDelete = async (id) => {
     try {
       await axiosInstance.delete(`/LeaveType/${id}`);
-      toast.success("Leave Type deleted successfully");
+      toast.success("Leave type deleted successfully");
       fetchLeaves();
     } catch (error) {
-      console.error("Error deleting leave type:", error);
       toast.error(
         error?.response?.data?.message || "Failed to delete leave type"
       );
@@ -29,72 +28,108 @@ const LeaveList = ({
   };
 
   return (
-    <div className="bg-white p-6 pt-0">
+    <div className="p-6 bg-gray-50 min-h-screen">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {leaves.length === 0 ? (
-          <p className="text-gray-500">No leave types found.</p>
+          <p className="text-gray-500 text-center col-span-full mt-10 font-semibold">
+            No leave types found.
+          </p>
         ) : (
           leaves.map((leave) => (
             <div
               key={leave.leaveTypeId}
-              className="bg-white rounded-xl shadow-md p-6 relative"
+              className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 p-6 relative"
             >
-              <div className="flex justify-between items-start">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {leave.leaveName}
-                </h2>
+              {/* Header */}
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-lg font-extrabold text-primary">
+                    {leave.leaveName}
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Code:{" "}
+                    <span className="font-semibold">{leave.leaveCode}</span>
+                  </p>
+                </div>
+
                 <div className="flex gap-2">
-                  {/* Edit Button */}
-                  <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 cursor-pointer">
-                    <FiEdit2
-                      size={16}
-                      onClick={() => {
-                        setIsEdit("Edit");
-                        setSelectedLeave(leave);
-                        openModal();
-                      }}
-                    />
+                  {/* Edit */}
+                  <button
+                    className="p-2 bg-indigo-100 text-primary cursor-pointer rounded-full hover:bg-indigo-200 transition-colors shadow-sm"
+                    onClick={() => {
+                      setIsEdit("Edit");
+                      setSelectedLeave(leave);
+                      openModal();
+                    }}
+                  >
+                    <FiEdit2 size={16} />
                   </button>
 
-                  {/* Delete Button */}
+                  {/* Delete */}
                   <button
-                    className="p-2 bg-gray-100 rounded-full hover:bg-red-100 cursor-pointer"
-                    onClick={() => setConfirmDeleteId(leave.leaveTypeId)}
+                    disabled={leave.isSystemDefined}
+                    className={`p-2 rounded-full ${
+                      leave.isSystemDefined
+                        ? "bg-gray-200 cursor-not-allowed"
+                        : "bg-red-100 text-red-600 cursor-pointer hover:bg-red-200 transition-colors shadow-sm"
+                    }`}
+                    onClick={() =>
+                      !leave.isSystemDefined &&
+                      setConfirmDeleteId(leave.leaveTypeId)
+                    }
                   >
-                    <FiTrash2 size={16} className="text-red-500" />
+                    <FiTrash2
+                      size={16}
+                      className={leave.isSystemDefined ? "text-gray-400" : ""}
+                    />
                   </button>
                 </div>
               </div>
 
               {/* Body */}
-              <p className="mt-4 text-gray-700">
-                <span className="font-semibold">Code:</span> {leave.leaveCode}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-semibold">Paid:</span>{" "}
-                {leave.isPaid ? "Yes" : "No"}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-semibold">Max Leaves/Year:</span>{" "}
-                {leave.maxLeavesPerYear}
-              </p>
+              <div className="space-y-2 text-sm">
+                <p className="flex items-center gap-2">
+                  <span className="font-semibold">Status:</span>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-bold ${
+                      leave.isActive
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {leave.isActive ? "Active" : "Inactive"}
+                  </span>
+                </p>
 
-              {/* Footer */}
-              <div className="flex justify-between items-center mt-6">
-                <span className="bg-secondary text-white text-xs px-3 py-1 rounded-md shadow-sm">
-                  {leave.isCarryForwardAllowed
-                    ? "Carry Forward"
-                    : "No Carry Forward"}
-                </span>
+                <p className="flex items-center gap-2">
+                  <span className="font-semibold">Type:</span>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-bold ${
+                      leave.isSystemDefined
+                        ? "bg-gray-100 text-gray-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}
+                  >
+                    {leave.isSystemDefined ? "System Defined" : "Custom"}
+                  </span>
+                </p>
+
+                <p className="flex items-center gap-2">
+                  <span className="font-semibold">Created On:</span>
+                  <span className="text-gray-800 font-medium">
+                    {new Date(leave.createdOn).toLocaleDateString()}
+                  </span>
+                </p>
               </div>
             </div>
           ))
         )}
       </div>
 
+      {/* Confirm delete */}
       {confirmDeleteId && (
         <ConfirmModal
-          title="Delete?"
+          title="Delete Leave Type?"
           message="Are you sure you want to delete this leave type? This action cannot be undone."
           onCancel={() => setConfirmDeleteId(null)}
           onConfirm={() => handleDelete(confirmDeleteId)}
