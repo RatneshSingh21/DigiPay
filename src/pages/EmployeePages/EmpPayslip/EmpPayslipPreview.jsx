@@ -26,6 +26,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
   } = config;
 
   const employee = data?.employees?.[0] || {};
+  console.log("Employee Data:", employee);
   const department = data?.department?.[0]?.name || "-";
   const location = data?.workLocations?.[0]?.name || "-";
   const bank = data?.bankDetail?.[0] || {};
@@ -37,19 +38,36 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
   });
 
   const earnings = [
-    { label: "Basic Salary", amount: salary.basicSalary ?? 0 },
-    { label: "House Rent Allowance (HRA)", amount: salary.hra ?? 0 },
-    { label: "Special Allowance", amount: salary.specialAllowance ?? 0 },
-    { label: "Fixed Allowance", amount: salary.fixedAllowance ?? 0 },
-    { label: "Other Allowances", amount: salary.otherAllowances ?? 0 },
-    { label: "Conveyance Allowance", amount: salary.conveyanceAllowance ?? 0 },
-    { label: "Bonus", amount: salary.bonus ?? 0 },
-    { label: "Leave Encashment", amount: salary.leaveEncashment ?? 0 },
-    { label: "Overtime", amount: salary.overtimeAmount ?? 0 },
-    { label: "Arrears", amount: salary.arrears ?? 0 },
+    { label: t.earningLabels.basicSalary, amount: salary.basicSalary ?? 0 },
+    { label: t.earningLabels.hra, amount: salary.hra ?? 0 },
+    {
+      label: t.earningLabels.specialAllowance,
+      amount: salary.specialAllowance ?? 0,
+    },
+    {
+      label: t.earningLabels.fixedAllowance,
+      amount: salary.fixedAllowance ?? 0,
+    },
+    {
+      label: t.earningLabels.otherAllowances,
+      amount: salary.otherAllowances ?? 0,
+    },
+    {
+      label: t.earningLabels.conveyanceAllowance,
+      amount: salary.conveyanceAllowance ?? 0,
+    },
+    { label: t.earningLabels.bonus, amount: salary.bonus ?? 0 },
+    {
+      label: t.earningLabels.leaveEncashment,
+      amount: salary.leaveEncashment ?? 0,
+    },
+    { label: t.earningLabels.overtime, amount: salary.overtimeAmount ?? 0 },
+    { label: t.earningLabels.arrears, amount: salary.arrears ?? 0 },
   ];
 
-  const deductions = [{ label: t.totalDeductions, amount: salary.deductions ?? 0 }];
+  const deductions = [
+    { label: t.totalDeductions, amount: salary.deductions ?? 0 },
+  ];
 
   return (
     <>
@@ -71,7 +89,9 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
       <div className="bg-white shadow-lg p-8 border rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
-          {logo && <img src={logo} alt="Logo" style={{ width: logoSize || 140 }} />}
+          {logo && (
+            <img src={logo} alt="Logo" style={{ width: logoSize || 140 }} />
+          )}
           <div className="text-right">
             {showOrgName && <p className="font-semibold text-lg">{orgName}</p>}
             {showOrgAddress && (
@@ -89,22 +109,58 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
 
         {/* Employee Info */}
         <div className="grid grid-cols-2 gap-2 mb-4">
-          <p><strong>{t.employeeName}:</strong> {employee.fullName || "-"}</p>
-          {showDesignation && <p><strong>{t.designation}:</strong> {employee.designation || "-"}</p>}
-          {showDepartment && <p><strong>{t.department}:</strong> {department}</p>}
-          {showWorkLocation && <p><strong>{t.workLocation}:</strong> {location}</p>}
-          <p><strong>{t.doj}:</strong> {employee.dateOfJoining ? new Date(employee.dateOfJoining).toLocaleDateString("en-GB") : "-"}</p>
-          <p><strong>{t.payDate}:</strong> {salary.paymentDate ? new Date(salary.paymentDate).toLocaleDateString("en-GB") : "-"}</p>
-          {showPAN && <p><strong>{t.pan}:</strong> {employee.panNumber || "-"}</p>}
-          {showBank && <p><strong>{t.bankAccount}:</strong> {bank.accountNumber || "-"}</p>}
+          <p>
+            <strong>{t.employeeName}:</strong> {employee.fullName || "-"}
+          </p>
+          {showDesignation && (
+            <p>
+              <strong>{t.designation}:</strong> {employee.designation || "-"}
+            </p>
+          )}
+          {showDepartment && (
+            <p>
+              <strong>{t.department}:</strong> {department}
+            </p>
+          )}
+          {showWorkLocation && (
+            <p>
+              <strong>{t.workLocation}:</strong> {location}
+            </p>
+          )}
+          <p>
+            <strong>{t.doj}:</strong>{" "}
+            {employee.dateOfJoining
+              ? new Date(employee.dateOfJoining).toLocaleDateString("en-GB")
+              : "-"}
+          </p>
+          <p>
+            <strong>{t.payDate}:</strong>{" "}
+            {salary.paymentDate
+              ? new Date(salary.paymentDate).toLocaleDateString("en-GB")
+              : "-"}
+          </p>
+          {showPAN && (
+            <p>
+              <strong>{t.pan}:</strong> {employee.panNumber || "-"}
+            </p>
+          )}
+          {showBank && (
+            <p>
+              <strong>{t.bankAccount}:</strong> {bank.accountNumber || "-"}
+            </p>
+          )}
         </div>
 
         {/* Net Pay */}
         <div className="flex justify-end my-4">
           <div className="border p-4 text-right rounded bg-green-50">
             <p>{t.totalNetPay}</p>
-            <p className="text-green-600 text-2xl font-bold">₹{salary.netPay?.toLocaleString("en-IN")}</p>
-            <p className="text-sm">{t.paidDays}: {salary.totalWorkingDays || "-"}</p>
+            <p className="text-green-600 text-2xl font-bold">
+              ₹{salary.netPay?.toLocaleString("en-IN")}
+            </p>
+            <p className="text-sm">
+              {t.paidDays}: {salary.totalWorkingDays || "-"}
+            </p>
           </div>
         </div>
 
@@ -120,10 +176,12 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
                 </tr>
               </thead>
               <tbody>
-                {earnings.map(e => (
+                {earnings.map((e) => (
                   <tr key={e.label} className="border-t">
                     <td className="p-1">{e.label}</td>
-                    <td className="p-1 text-right">₹{e.amount.toLocaleString("en-IN")}</td>
+                    <td className="p-1 text-right">
+                      ₹{e.amount.toLocaleString("en-IN")}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -134,10 +192,12 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
             <h3 className="font-semibold mb-2">{t.deductions}</h3>
             <table className="w-full border">
               <tbody>
-                {deductions.map(d => (
+                {deductions.map((d) => (
                   <tr key={d.label} className="border-t">
                     <td className="p-1">{d.label}</td>
-                    <td className="p-1 text-right">₹{d.amount.toLocaleString("en-IN")}</td>
+                    <td className="p-1 text-right">
+                      ₹{d.amount.toLocaleString("en-IN")}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -152,7 +212,11 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
         </div>
 
         {signature && (
-          <div className={`mt-6 ${signatureAlign === "right" ? "text-right" : "text-left"}`}>
+          <div
+            className={`mt-6 ${
+              signatureAlign === "right" ? "text-right" : "text-left"
+            }`}
+          >
             <img src={signature} alt="Signature" style={{ width: 90 }} />
             <p className="text-xs mt-1">{t.authorizedSignatory}</p>
           </div>

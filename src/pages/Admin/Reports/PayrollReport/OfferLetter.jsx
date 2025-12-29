@@ -24,7 +24,7 @@ export default function OfferLetter() {
 
   const [form, setForm] = useState({
     CandidateName: "Rahul Sharma",
-    Email: "ry027674@gmail.com",
+    Email: "rahul@yopmail.com",
     Phone: "9876543210",
     Address: "New Delhi, India",
     DateOfJoining: "2025-01-15",

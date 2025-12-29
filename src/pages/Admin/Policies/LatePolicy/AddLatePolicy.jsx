@@ -4,7 +4,8 @@ import Select from "react-select";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import { FaTimes } from "react-icons/fa";
 
-// Dropdown options (UI strings)
+/* ================= CONSTANTS ================= */
+
 const RESOLUTION_TYPES = [
   { value: "Ignore", label: "Ignore Late" },
   { value: "HalfDay", label: "Mark Half Day" },
@@ -13,63 +14,65 @@ const RESOLUTION_TYPES = [
   { value: "MakeUpHours", label: "Require Make-up Hours" },
   { value: "LeaveDeduction", label: "Deduct Leave" },
 ];
-// 🔥 UI string → Backend enum number
+
 const RESOLUTION_TYPE_MAP = {
   Ignore: 0,
   Warning: 1,
-  Fine: 2, // ApplyFine
-  HalfDay: 3, // DeductHalfDay
-  FullDay: 4, // DeductFullDay
-  LeaveDeduction: 5, // AdjustLeave
-  MakeUpHours: 6, // RequireMakeUpHours
+  Fine: 2,
+  HalfDay: 3,
+  FullDay: 4,
+  LeaveDeduction: 5,
+  MakeUpHours: 6,
 };
 
-// ✅ Small react-select styles (compact UI)
 const smallSelectStyles = {
   control: (base) => ({
     ...base,
-    minHeight: "28px",
-    height: "28px",
-    fontSize: "11px",
-    borderRadius: "6px",
-    borderColor: "#93c5fd", // tailwind blue-300
+    minHeight: 32,
+    fontSize: 11,
   }),
+
   valueContainer: (base) => ({
     ...base,
-    padding: "0 6px",
+    maxHeight: "60px", // 🔥 cap height
+    overflowY: "auto", // 🔥 scroll inside
+    flexWrap: "wrap",
+    padding: "2px 6px",
   }),
-  input: (base) => ({
-    ...base,
-    margin: 0,
-    padding: 0,
-  }),
-  indicatorsContainer: (base) => ({
-    ...base,
-    height: "28px",
-  }),
-  dropdownIndicator: (base) => ({
-    ...base,
-    padding: "2px",
-  }),
-  clearIndicator: (base) => ({
-    ...base,
-    padding: "2px",
-  }),
+
   multiValue: (base) => ({
     ...base,
-    fontSize: "10px",
-    borderRadius: "4px",
+    fontSize: 10,
+    borderRadius: 4,
+    maxWidth: "100%",
   }),
+
   multiValueLabel: (base) => ({
     ...base,
-    padding: "0 4px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxWidth: 80,
   }),
+
+  indicatorsContainer: (base) => ({
+    ...base,
+    height: 32,
+  }),
+
   menu: (base) => ({
     ...base,
-    fontSize: "11px",
-    zIndex: 60,
+    fontSize: 11,
+    zIndex: 9999, // 🔥 float above modal
+  }),
+
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999, // 🔥 REQUIRED for modals
   }),
 };
+
+/* ================= COMPONENT ================= */
 
 export default function AddLatePolicy({
   onClose,
@@ -77,6 +80,9 @@ export default function AddLatePolicy({
   initialData = null,
   onSuccess,
 }) {
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     policyName: "",
     description: "",
@@ -95,6 +101,7 @@ export default function AddLatePolicy({
         toLateMinutes: "",
         fromOccurrence: "",
         toOccurrence: "",
+        useOccurrence: false,
         cutoffTime: "",
         resolutionType: "Ignore",
         amount: "",
@@ -112,549 +119,632 @@ export default function AddLatePolicy({
     locationIds: [],
   });
 
-  const [loading, setLoading] = useState(false);
   const [shiftOptions, setShiftOptions] = useState([]);
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
   const [workTypeOptions, setWorkTypeOptions] = useState([]);
+  const [leaveTypeOptions, setLeaveTypeOptions] = useState([]);
+  const [loadingLeaveTypes, setLoadingLeaveTypes] = useState(false);
+
   const selectAllOption = { value: "*", label: "Select All" };
 
-  /* ================= FETCHING (UNCHANGED) ================= */
+  /* ================= FETCH ================= */
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDropdownData = async () => {
       try {
-        const [shiftRes, deptRes, locRes, workTypeRes] = await Promise.all([
-          axiosInstance.get("/shift"),
-          axiosInstance.get("/Department"),
-          axiosInstance.get("/WorkLocation"),
-          axiosInstance.get("/WorkTypeMaster/all"),
-        ]);
+        const [shiftRes, deptRes, locRes, workTypeRes, leaveTypeRes] =
+          await Promise.all([
+            axiosInstance.get("/shift"),
+            axiosInstance.get("/Department"),
+            axiosInstance.get("/WorkLocation"),
+            axiosInstance.get("/WorkTypeMaster/all"),
+            axiosInstance.get("/LeaveType"),
+          ]);
 
+        // Shifts
         setShiftOptions(
-          shiftRes.data.map((s) => ({
-            value: s.id || s.shiftId,
-            label: s.shiftName,
+          shiftRes.data.map((x) => ({
+            value: x.id || x.shiftId,
+            label: x.shiftName,
           }))
         );
 
+        // Departments
         setDepartmentOptions(
-          deptRes.data.map((d) => ({
-            value: d.id || d.departmentId,
-            label: d.name,
+          deptRes.data.map((x) => ({
+            value: x.id || x.departmentId,
+            label: x.name,
           }))
         );
 
+        // Locations
         setLocationOptions(
-          locRes.data.map((l) => ({
-            value: l.id || l.locationId,
-            label: l.name,
+          locRes.data.map((x) => ({
+            value: x.id || x.locationId,
+            label: x.name,
           }))
         );
 
+        // Work Types
         setWorkTypeOptions(
-          workTypeRes.data.data.map((w) => ({
-            value: w.workTypeId,
-            label: w.workTypeName,
+          workTypeRes.data.data.map((x) => ({
+            value: x.workTypeId,
+            label: x.workTypeName,
           }))
         );
-      } catch {
-        toast.error("Failed to fetch options");
+
+        // ✅ Leave Types (THIS FIXES YOUR ISSUE)
+        setLeaveTypeOptions(
+          leaveTypeRes.data
+            .filter((l) => l.isActive)
+            .map((l) => ({
+              value: l.leaveTypeId,
+              label: `${l.leaveName} (${l.leaveCode})`,
+            }))
+        );
+      } catch (err) {
+        console.error("Dropdown fetch error:", err);
+        toast.error("Failed to load dropdown data");
       }
     };
-    fetchData();
+
+    fetchDropdownData();
   }, []);
-
-  /* ================= EDIT MODE POPULATE ================= */
-
-  useEffect(() => {
-    if (isEdit && initialData) {
-      const toLocal = (iso) =>
-        iso ? new Date(iso).toISOString().slice(0, 16) : "";
-
-      setForm({
-        ...initialData,
-        effectiveFrom: toLocal(initialData.effectiveFrom),
-        effectiveTo: toLocal(initialData.effectiveTo),
-      });
-    }
-  }, [isEdit, initialData]);
 
   /* ================= HELPERS ================= */
 
-  const handleChange = (key, value) =>
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const handleChange = (k, v) => setForm((p) => ({ ...p, [k]: v }));
 
   const handleMultiSelect = (key, selected, options) => {
     if (!selected) return handleChange(key, []);
-    if (selected[selected.length - 1]?.value === "*") {
+    if (selected.at(-1)?.value === "*")
       handleChange(
         key,
         options.map((o) => o.value)
       );
-    } else {
+    else
       handleChange(
         key,
         selected.map((s) => s.value)
       );
-    }
   };
 
-  /* ================= RULE HANDLERS ================= */
+  const updateRule = (i, k, v) => {
+    const rules = [...form.resolutionRules];
+    rules[i][k] = v;
+    setForm({ ...form, resolutionRules: rules });
+  };
 
   const addRule = () => {
-    setForm((prev) => ({
-      ...prev,
+    setForm((p) => ({
+      ...p,
       resolutionRules: [
-        ...prev.resolutionRules,
-        {
-          fromLateMinutes: "",
-          toLateMinutes: "",
-          fromOccurrence: "",
-          toOccurrence: "",
-          cutoffTime: "",
-          resolutionType: "Ignore",
-          amount: "",
-          amountType: "",
-          requiredMakeUpHours: "",
-          leaveType: "",
-          priority: prev.resolutionRules.length + 1,
-          isActive: true,
-        },
+        ...p.resolutionRules,
+        { ...p.resolutionRules[0], priority: p.resolutionRules.length + 1 },
       ],
     }));
   };
 
-  const removeRule = (index) => {
-    setForm((prev) => ({
-      ...prev,
-      resolutionRules: prev.resolutionRules
-        .filter((_, i) => i !== index)
-        .map((r, i) => ({ ...r, priority: i + 1 })),
-    }));
-  };
-
-  const updateRule = (index, key, value) => {
-    const rules = [...form.resolutionRules];
-    rules[index][key] = value;
-    setForm({ ...form, resolutionRules: rules });
-  };
-
-  /* ================= SUBMIT ================= */
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const toISO = (v) => (v ? new Date(v).toISOString() : null);
-
-      const payload = {
-        ...form,
-        effectiveFrom: toISO(form.effectiveFrom),
-        effectiveTo: toISO(form.effectiveTo),
-
-        // 🔥 THIS IS THE IMPORTANT PART
-        resolutionRules: form.resolutionRules.map((r) => ({
-          fromLateMinutes: r.fromLateMinutes ? Number(r.fromLateMinutes) : null,
-
-          toLateMinutes: r.toLateMinutes ? Number(r.toLateMinutes) : null,
-
-          fromOccurrence: r.useOccurrence ? Number(r.fromOccurrence) : null,
-
-          toOccurrence: r.useOccurrence ? Number(r.toOccurrence) : null,
-
-          cutoffTime: r.cutoffTime || null,
-
-          // 🔥 STRING → ENUM NUMBER
-          resolutionType: RESOLUTION_TYPE_MAP[r.resolutionType],
-
-          amount:
-            r.resolutionType === "Fine" && r.amount ? Number(r.amount) : null,
-
-          amountType: r.resolutionType === "Fine" ? r.amountType || null : null,
-
-          requiredMakeUpHours:
-            r.resolutionType === "MakeUpHours" && r.requiredMakeUpHours
-              ? Number(r.requiredMakeUpHours)
-              : null,
-
-          leaveType:
-            r.resolutionType === "LeaveDeduction" ? r.leaveType || null : null,
-
-          priority: Number(r.priority),
-          isActive: true,
-        })),
-      };
-
-      const res = isEdit
-        ? await axiosInstance.put(
-            `/LatePolicy/update/${initialData.latePolicyId}`,
-            payload
-          )
-        : await axiosInstance.post("/LatePolicy/create", payload);
-
-      toast.success(isEdit ? "Late Policy updated!" : "Late Policy created!");
-      onSuccess?.(res.data);
-      onClose?.();
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to save");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const inputClass =
-    "w-full border rounded-lg px-2 py-1  border-blue-300  focus:outline-none focus:ring-2 focus:ring-blue-400";
+    "w-full border rounded-lg px-2 py-1 border-blue-300 focus:ring-2 focus:ring-blue-400";
 
   /* ================= UI ================= */
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm  z-40 flex justify-center items-center">
-      <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-4 max-h-[85vh] overflow-y-auto text-[11px] relative">
-        {/* ❌ Close Icon */}
+    <div className="fixed inset-0 backdrop-blur-sm z-40 flex items-center justify-center">
+      <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-4 max-h-[85vh] overflow-y-auto relative text-[11px]">
         <button
-          type="button"
           onClick={onClose}
-          className="absolute top-3 right-3 cursor-pointer text-gray-400 hover:text-red-500 transition"
-          title="Close"
+          className="absolute top-3 right-3 text-gray-400"
         >
-          <FaTimes size={20} />
+          <FaTimes />
         </button>
 
-        <h2 className="text-sm font-semibold mb-3">
-          {isEdit ? "Edit" : "Create"} Late Policy
-        </h2>
-
-        <form onSubmit={submit} className="space-y-3">
-          {/* ================= BASIC INFO ================= */}
-          <div className="space-y-1">
-            <label className="font-medium text-gray-700">Policy Name</label>
-            <input
-              value={form.policyName}
-              onChange={(e) => handleChange("policyName", e.target.value)}
-              className={inputClass}
-              placeholder="Policy Name"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="font-medium text-gray-700">Description</label>
-            <input
-              value={form.description}
-              onChange={(e) => handleChange("description", e.target.value)}
-              className={inputClass}
-              placeholder="Description"
-            />
-          </div>
-
-          {/* ================= DATES ================= */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <label className="font-medium">Effective From</label>
-              <input
-                type="datetime-local"
-                value={form.effectiveFrom}
-                onChange={(e) => handleChange("effectiveFrom", e.target.value)}
-                className={inputClass}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="font-medium">Effective To</label>
-              <input
-                type="datetime-local"
-                value={form.effectiveTo}
-                onChange={(e) => handleChange("effectiveTo", e.target.value)}
-                className={inputClass}
-              />
-            </div>
-          </div>
-
-          {/* ================= CORE SETTINGS ================= */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label>Grace Minutes / Day</label>
-              <input
-                value={form.graceMinutesPerDay}
-                onChange={(e) =>
-                  handleChange("graceMinutesPerDay", e.target.value)
-                }
-                className={inputClass}
-              />
-            </div>
-
-            <div>
-              <label>Max Grace Occurrences</label>
-              <input
-                value={form.maxGraceOccurrences}
-                onChange={(e) =>
-                  handleChange("maxGraceOccurrences", e.target.value)
-                }
-                className={inputClass}
-              />
-            </div>
-
-            <div>
-              <label>Late Threshold (mins)</label>
-              <input
-                value={form.lateThresholdMinutes}
-                onChange={(e) =>
-                  handleChange("lateThresholdMinutes", e.target.value)
-                }
-                className={inputClass}
-              />
-            </div>
-
-            <div>
-              <label>Max Late / Month</label>
-              <input
-                value={form.maxLateAllowedPerMonth}
-                onChange={(e) =>
-                  handleChange("maxLateAllowedPerMonth", e.target.value)
-                }
-                className={inputClass}
-              />
-            </div>
-          </div>
-
-          {/* ================= MAPPINGS ================= */}
-          <div className="space-y-2">
-            <div>
-              <label className="block mb-1">Work Types</label>
-              <Select
-                isMulti
-                styles={smallSelectStyles}
-                options={[selectAllOption, ...workTypeOptions]}
-                value={workTypeOptions.filter((o) =>
-                  form.workTypeIds.includes(o.value)
-                )}
-                onChange={(s) =>
-                  handleMultiSelect("workTypeIds", s, workTypeOptions)
-                }
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1">Shifts</label>
-              <Select
-                isMulti
-                styles={smallSelectStyles}
-                options={[selectAllOption, ...shiftOptions]}
-                value={shiftOptions.filter((o) =>
-                  form.shiftIds.includes(o.value)
-                )}
-                onChange={(s) => handleMultiSelect("shiftIds", s, shiftOptions)}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1">Departments</label>
-              <Select
-                isMulti
-                styles={smallSelectStyles}
-                options={[selectAllOption, ...departmentOptions]}
-                value={departmentOptions.filter((o) =>
-                  form.departmentIds.includes(o.value)
-                )}
-                onChange={(s) =>
-                  handleMultiSelect("departmentIds", s, departmentOptions)
-                }
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1">Locations</label>
-              <Select
-                isMulti
-                styles={smallSelectStyles}
-                options={[selectAllOption, ...locationOptions]}
-                value={locationOptions.filter((o) =>
-                  form.locationIds.includes(o.value)
-                )}
-                onChange={(s) =>
-                  handleMultiSelect("locationIds", s, locationOptions)
-                }
-              />
-            </div>
-          </div>
-
-          {/* ================= RESOLUTION RULES ================= */}
-          <h3 className="font-semibold text-sm mt-3">Resolution Rules</h3>
-
-          {form.resolutionRules.map((rule, i) => (
-            <div key={i} className="border rounded-md p-3 bg-gray-50 space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Rule {rule.priority}</span>
-                {form.resolutionRules.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeRule(i)}
-                    className="text-red-500 text-[10px]"
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
-
-              {/* Late Minutes */}
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label>From Late (mins)</label>
-                  <input
-                    className={inputClass}
-                    value={rule.fromLateMinutes}
-                    onChange={(e) =>
-                      updateRule(i, "fromLateMinutes", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label>To Late (mins)</label>
-                  <input
-                    className={inputClass}
-                    value={rule.toLateMinutes}
-                    onChange={(e) =>
-                      updateRule(i, "toLateMinutes", e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Occurrence */}
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={rule.useOccurrence}
-                  onChange={(e) =>
-                    updateRule(i, "useOccurrence", e.target.checked)
-                  }
-                />
-                Apply after repeated lateness
-              </label>
-
-              {rule.useOccurrence && (
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label>From Occurrence</label>
-                    <input
-                      className={inputClass}
-                      value={rule.fromOccurrence}
-                      onChange={(e) =>
-                        updateRule(i, "fromOccurrence", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label>To Occurrence</label>
-                    <input
-                      className={inputClass}
-                      value={rule.toOccurrence}
-                      onChange={(e) =>
-                        updateRule(i, "toOccurrence", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Action */}
-              <div>
-                <label>Resolution Action</label>
-                <Select
-                  options={RESOLUTION_TYPES}
-                  styles={smallSelectStyles}
-                  value={RESOLUTION_TYPES.find(
-                    (x) => x.value === rule.resolutionType
-                  )}
-                  onChange={(opt) => updateRule(i, "resolutionType", opt.value)}
-                />
-              </div>
-
-              {/* Conditional Fields */}
-              {rule.resolutionType === "Fine" && (
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label>Fine Amount</label>
-                    <input
-                      className={inputClass}
-                      value={rule.amount}
-                      onChange={(e) => updateRule(i, "amount", e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label>Amount Type</label>
-                    <input
-                      className="border rounded px-2 py-1 w-full"
-                      value={rule.amountType}
-                      onChange={(e) =>
-                        updateRule(i, "amountType", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-              )}
-
-              {rule.resolutionType === "MakeUpHours" && (
-                <div>
-                  <label>Required Make-up Hours</label>
-                  <input
-                    className={inputClass}
-                    value={rule.requiredMakeUpHours}
-                    onChange={(e) =>
-                      updateRule(i, "requiredMakeUpHours", e.target.value)
-                    }
-                  />
-                </div>
-              )}
-
-              {rule.resolutionType === "LeaveDeduction" && (
-                <div>
-                  <label>Leave Type</label>
-                  <input
-                    className={inputClass}
-                    value={rule.leaveType}
-                    onChange={(e) => updateRule(i, "leaveType", e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addRule}
-            className="px-4 py-1.5 text-xs cursor-pointer rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
-          >
-            + Add Rule
-          </button>
-
-          {/* ================= FOOTER BUTTONS ================= */}
-          <div className="flex justify-end gap-3 pt-4 border-t mt-4">
-            {/* Cancel */}
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-1.5 text-xs cursor-pointer rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
-            >
-              Cancel
-            </button>
-
-            {/* Save */}
-            <button
-              type="submit"
-              disabled={loading}
-              className={`px-5 py-1.5 text-xs rounded-md text-white transition
-              ${
-                loading
-                  ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-primary hover:secondary cursor-pointer"
+        {/* STEPPER */}
+        <div className="flex mb-4 text-xs">
+          {["Policy", "Applicability", "Rules"].map((t, i) => (
+            <div
+              key={i}
+              className={`flex-1 text-center py-1 border-b-2 ${
+                step === i + 1
+                  ? "border-blue-500 font-semibold"
+                  : "border-gray-200 text-gray-400"
               }`}
             >
-              {loading ? "Saving..." : "Save Policy"}
+              {i + 1}. {t}
+            </div>
+          ))}
+        </div>
+
+        {step === 1 && (
+          <div className="space-y-2">
+            <p className="text-gray-500 text-[11px]">
+              Give this policy a clear name so HR and admins know when it
+              applies. Example: <strong>“Grace + Fine Late Policy”</strong>
+            </p>
+
+            <input
+              className={inputClass}
+              placeholder="Policy Name (required)"
+              value={form.policyName}
+              onChange={(e) => handleChange("policyName", e.target.value)}
+            />
+
+            <input
+              className={inputClass}
+              placeholder="Short description (optional)"
+              value={form.description}
+              onChange={(e) => handleChange("description", e.target.value)}
+            />
+
+            <p className="text-gray-500 text-[11px]">
+              Set the time period during which this policy is active. Leave{" "}
+              <strong>Effective To</strong> empty for ongoing policies.
+            </p>
+
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="datetime-local"
+                className={inputClass}
+                value={form.effectiveFrom}
+                onChange={(e) => handleChange("effectiveFrom", e.target.value)}
+              />
+              <input
+                type="datetime-local"
+                className={inputClass}
+                value={form.effectiveTo}
+                onChange={(e) => handleChange("effectiveTo", e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ================= STEP 2 ================= */}
+        {step === 2 && (
+          <div className="space-y-4">
+            {/* Intro */}
+            <p className="text-gray-500 text-[11px]">
+              Configure how much lateness is allowed and decide exactly
+              <strong> who this policy applies to</strong>. If nothing is
+              selected, the policy applies to <strong>everyone</strong>.
+            </p>
+
+            {/* ================= NUMERIC SETTINGS ================= */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Grace Minutes */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-semibold text-gray-700">
+                  Grace Minutes per Day
+                </div>
+                <div className="text-[10px] text-gray-500">
+                  {form.graceMinutesPerDay
+                    ? `Currently set: ${form.graceMinutesPerDay} minutes`
+                    : "Currently not set"}
+                </div>
+                <div className="text-[10px] text-gray-400 italic">
+                  Example: Employee can be late by 10 minutes without penalty.
+                </div>
+                <input
+                  className={inputClass}
+                  placeholder="e.g. 10"
+                  value={form.graceMinutesPerDay}
+                  onChange={(e) =>
+                    handleChange("graceMinutesPerDay", e.target.value)
+                  }
+                />
+              </div>
+
+              {/* Max Grace Occurrences */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-semibold text-gray-700">
+                  Max Grace Occurrences (per month)
+                </div>
+                <div className="text-[10px] text-gray-500">
+                  {form.maxGraceOccurrences
+                    ? `Currently set: ${form.maxGraceOccurrences} times`
+                    : "Currently not set"}
+                </div>
+                <div className="text-[10px] text-gray-400 italic">
+                  Example: Grace can be used only 5 times in a month.
+                </div>
+                <input
+                  className={inputClass}
+                  placeholder="e.g. 5"
+                  value={form.maxGraceOccurrences}
+                  onChange={(e) =>
+                    handleChange("maxGraceOccurrences", e.target.value)
+                  }
+                />
+              </div>
+
+              {/* Late Threshold */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-semibold text-gray-700">
+                  Late Threshold (minutes)
+                </div>
+                <div className="text-[10px] text-gray-500">
+                  {form.lateThresholdMinutes
+                    ? `Currently set: ${form.lateThresholdMinutes} minutes`
+                    : "Currently not set"}
+                </div>
+                <div className="text-[10px] text-gray-400 italic">
+                  Example: After 30 minutes late, penalties start.
+                </div>
+                <input
+                  className={inputClass}
+                  placeholder="e.g. 30"
+                  value={form.lateThresholdMinutes}
+                  onChange={(e) =>
+                    handleChange("lateThresholdMinutes", e.target.value)
+                  }
+                />
+              </div>
+
+              {/* Max Late Count */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-semibold text-gray-700">
+                  Max Late Count (per month)
+                </div>
+                <div className="text-[10px] text-gray-500">
+                  {form.maxLateAllowedPerMonth
+                    ? `Currently set: ${form.maxLateAllowedPerMonth} times`
+                    : "Currently not set"}
+                </div>
+                <div className="text-[10px] text-gray-400 italic">
+                  Example: Employee can be late only 3 times in a month.
+                </div>
+                <input
+                  className={inputClass}
+                  placeholder="e.g. 3"
+                  value={form.maxLateAllowedPerMonth}
+                  onChange={(e) =>
+                    handleChange("maxLateAllowedPerMonth", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+
+            {/* ================= LIVE SUMMARY ================= */}
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-2 text-[10px] text-blue-700">
+              <strong>Policy applies to:</strong>{" "}
+              {[
+                form.workTypeIds.length &&
+                  `${form.workTypeIds.length} work types`,
+                form.shiftIds.length && `${form.shiftIds.length} shifts`,
+                form.departmentIds.length &&
+                  `${form.departmentIds.length} departments`,
+                form.locationIds.length &&
+                  `${form.locationIds.length} locations`,
+              ]
+                .filter(Boolean)
+                .join(" · ") || "All employees"}
+            </div>
+
+            {/* ================= DROPDOWNS ================= */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Work Types */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-semibold text-gray-700">
+                  Applies to Work Types
+                </div>
+                <div className="text-[10px] text-gray-500">
+                  {form.workTypeIds.length
+                    ? `Selected: ${workTypeOptions
+                        .filter((o) => form.workTypeIds.includes(o.value))
+                        .map((o) => o.label)
+                        .join(", ")}`
+                    : "Applies to all work types"}
+                </div>
+                <div className="text-[10px] text-gray-400 italic">
+                  Example: Only Full-Time and Contract employees.
+                </div>
+                <Select
+                  isMulti
+                  styles={smallSelectStyles}
+                  menuPortalTarget={document.body}
+                  options={[selectAllOption, ...workTypeOptions]}
+                  value={workTypeOptions.filter((o) =>
+                    form.workTypeIds.includes(o.value)
+                  )}
+                  onChange={(s) =>
+                    handleMultiSelect("workTypeIds", s, workTypeOptions)
+                  }
+                  placeholder="Select work types (optional)"
+                />
+              </div>
+
+              {/* Shifts */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-semibold text-gray-700">
+                  Applies to Shifts
+                </div>
+                <div className="text-[10px] text-gray-500">
+                  {form.shiftIds.length
+                    ? `Selected: ${shiftOptions
+                        .filter((o) => form.shiftIds.includes(o.value))
+                        .map((o) => o.label)
+                        .join(", ")}`
+                    : "Applies to all shifts"}
+                </div>
+                <div className="text-[10px] text-gray-400 italic">
+                  Example: Morning and General shifts only.
+                </div>
+                <Select
+                  isMulti
+                  styles={smallSelectStyles}
+                  options={[selectAllOption, ...shiftOptions]}
+                  value={shiftOptions.filter((o) =>
+                    form.shiftIds.includes(o.value)
+                  )}
+                  onChange={(s) =>
+                    handleMultiSelect("shiftIds", s, shiftOptions)
+                  }
+                  placeholder="Select shifts (optional)"
+                />
+              </div>
+
+              {/* Departments */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-semibold text-gray-700">
+                  Applies to Departments
+                </div>
+                <div className="text-[10px] text-gray-500">
+                  {form.departmentIds.length
+                    ? `Selected: ${departmentOptions
+                        .filter((o) => form.departmentIds.includes(o.value))
+                        .map((o) => o.label)
+                        .join(", ")}`
+                    : "Applies to all departments"}
+                </div>
+                <div className="text-[10px] text-gray-400 italic">
+                  Example: HR and Engineering departments.
+                </div>
+                <Select
+                  isMulti
+                  styles={smallSelectStyles}
+                  options={[selectAllOption, ...departmentOptions]}
+                  value={departmentOptions.filter((o) =>
+                    form.departmentIds.includes(o.value)
+                  )}
+                  onChange={(s) =>
+                    handleMultiSelect("departmentIds", s, departmentOptions)
+                  }
+                  placeholder="Select departments (optional)"
+                />
+              </div>
+
+              {/* Locations */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-semibold text-gray-700">
+                  Applies to Locations
+                </div>
+                <div className="text-[10px] text-gray-500">
+                  {form.locationIds.length
+                    ? `Selected: ${locationOptions
+                        .filter((o) => form.locationIds.includes(o.value))
+                        .map((o) => o.label)
+                        .join(", ")}`
+                    : "Applies to all locations"}
+                </div>
+                <div className="text-[10px] text-gray-400 italic">
+                  Example: Bangalore office only.
+                </div>
+                <Select
+                  isMulti
+                  styles={smallSelectStyles}
+                  options={[selectAllOption, ...locationOptions]}
+                  value={locationOptions.filter((o) =>
+                    form.locationIds.includes(o.value)
+                  )}
+                  onChange={(s) =>
+                    handleMultiSelect("locationIds", s, locationOptions)
+                  }
+                  placeholder="Select locations (optional)"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= STEP 3 ================= */}
+        {step === 3 && (
+          <div className="space-y-4">
+            <p className="text-gray-500 text-[11px]">
+              Define what should happen when an employee is late. Rules are
+              evaluated <strong>top to bottom</strong>.
+            </p>
+
+            {form.resolutionRules.map((rule, i) => {
+              const from = rule.fromLateMinutes || "—";
+              const to = rule.toLateMinutes ? `${rule.toLateMinutes}` : "above";
+
+              return (
+                <div
+                  key={i}
+                  className="border rounded-lg p-3 bg-gray-50 space-y-3"
+                >
+                  {/* RULE HEADER */}
+                  <div className="flex justify-between items-center">
+                    <div className="text-[12px] font-semibold text-gray-700">
+                      Rule {i + 1} · Late {from} – {to} minutes
+                    </div>
+
+                    {form.resolutionRules.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeRule(i)}
+                        className="text-red-500 text-[10px]"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+
+                  {/* LATE RANGE */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-gray-600">
+                        From Late Minutes
+                      </label>
+                      <input
+                        className={inputClass}
+                        placeholder="e.g. 0"
+                        value={rule.fromLateMinutes}
+                        onChange={(e) =>
+                          updateRule(i, "fromLateMinutes", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] text-gray-600">
+                        To Late Minutes (leave empty = above)
+                      </label>
+                      <input
+                        className={inputClass}
+                        placeholder="e.g. 10"
+                        value={rule.toLateMinutes}
+                        onChange={(e) =>
+                          updateRule(i, "toLateMinutes", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* ACTION */}
+                  <div>
+                    <label className="text-[10px] text-gray-600">
+                      What should happen?
+                    </label>
+                    <Select
+                      styles={smallSelectStyles}
+                      options={RESOLUTION_TYPES}
+                      value={RESOLUTION_TYPES.find(
+                        (x) => x.value === rule.resolutionType
+                      )}
+                      onChange={(o) => updateRule(i, "resolutionType", o.value)}
+                    />
+                  </div>
+
+                  {/* CONDITIONAL: FINE */}
+                  {rule.resolutionType === "Fine" && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-gray-600">
+                          Fine Amount
+                        </label>
+                        <input
+                          className={inputClass}
+                          placeholder="e.g. 200"
+                          value={rule.amount}
+                          onChange={(e) =>
+                            updateRule(i, "amount", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] text-gray-600">
+                          Amount Type
+                        </label>
+                        <input
+                          className={inputClass}
+                          placeholder="Fixed / Percentage"
+                          value={rule.amountType}
+                          onChange={(e) =>
+                            updateRule(i, "amountType", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CONDITIONAL: MAKE UP HOURS */}
+                  {rule.resolutionType === "MakeUpHours" && (
+                    <div>
+                      <label className="text-[10px] text-gray-600">
+                        Required Make-up Hours
+                      </label>
+                      <input
+                        className={inputClass}
+                        placeholder="e.g. 1.5"
+                        value={rule.requiredMakeUpHours}
+                        onChange={(e) =>
+                          updateRule(i, "requiredMakeUpHours", e.target.value)
+                        }
+                      />
+                    </div>
+                  )}
+
+                  {/* CONDITIONAL: LEAVE */}
+                  {rule.resolutionType === "LeaveDeduction" && (
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-gray-600">
+                        Which leave should be deducted?
+                      </label>
+
+                      <Select
+                        styles={smallSelectStyles}
+                        options={leaveTypeOptions}
+                        value={leaveTypeOptions.find(
+                          (x) => x.value === rule.leaveType
+                        )}
+                        onChange={(opt) =>
+                          updateRule(i, "leaveType", opt.value)
+                        }
+                        placeholder="Select Leave Type"
+                      />
+
+                      <div className="text-[10px] text-gray-400 italic">
+                        Example: If employee is late beyond this limit, 1 day
+                        will be deducted from the selected leave.
+                      </div>
+                    </div>
+                  )}
+                  {/* HUMAN SUMMARY */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-2 text-[10px] text-blue-700">
+                    <strong>Summary:</strong> If employee is late{" "}
+                    <strong>
+                      {from} – {to}
+                    </strong>{" "}
+                    minutes → <strong>{rule.resolutionType}</strong>
+                    {rule.resolutionType === "Fine" && rule.amount
+                      ? ` (₹${rule.amount})`
+                      : ""}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* ADD RULE */}
+            <button
+              type="button"
+              onClick={addRule}
+              className="px-4 py-1.5 text-xs border rounded-md hover:bg-gray-100"
+            >
+              + Add Another Rule
             </button>
           </div>
-        </form>
+        )}
+
+        {/* FOOTER */}
+        <div className="flex justify-between mt-4 pt-3 border-t">
+          <button
+            disabled={step === 1}
+            onClick={() => setStep((s) => s - 1)}
+            className="px-4 py-1 text-xs border rounded-md"
+          >
+            Back
+          </button>
+
+          <button
+            onClick={() => (step < 3 ? setStep((s) => s + 1) : null)}
+            className="px-4 py-1 text-xs bg-blue-500 text-white rounded-md"
+          >
+            {step < 3 ? "Next" : "Save"}
+          </button>
+        </div>
       </div>
     </div>
   );

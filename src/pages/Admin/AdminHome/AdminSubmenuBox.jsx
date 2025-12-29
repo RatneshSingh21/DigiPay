@@ -44,6 +44,7 @@ import {
   TbCurrencyRupee,
   TbReportMoney,
   TbMathFunction,
+  TbDeviceWatch,
 } from "react-icons/tb";
 import { FaGears } from "react-icons/fa6";
 import { BsBriefcase, BsCashStack, BsPeople } from "react-icons/bs";
@@ -77,6 +78,9 @@ const labelToPath = {
   "Attendance Record": "atten-record",
   "Attendance Calculation": "atten-calculation",
   "Attendance Report": "attendance-report",
+  "Attendance Machine": "attendance-machine",
+  "Emp Machine Mapping": "emp-machine-mapping",
+  "Machine Data Log": "machine-data-log",
 
   // Settings
   "Organisation Profile": "organisation-profile",
@@ -176,6 +180,9 @@ const labelToIcon = {
   "Attendance Record": <FaCalendarCheck className="mr-2" />,
   "Attendance Calculation": <FaCalculator className="mr-2" />,
   "Attendance Report": <FaCalendarCheck className="mr-2" />,
+  "Attendance Machine": <TbDeviceWatch className="mr-2" />,
+  "Emp Machine Mapping": <TbDeviceWatch className="mr-2" />,
+  "Machine Data Log": <TbDeviceWatch className="mr-2" />,
 
   // Documents
   "Expense Header": <FaFileAlt className="mr-2" />,

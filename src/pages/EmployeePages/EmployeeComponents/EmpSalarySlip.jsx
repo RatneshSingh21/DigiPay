@@ -110,7 +110,10 @@ const EmpSalarySlip = () => {
             month,
           },
         });
+        console.log("Fetched Payslip Data:", res.data[0]);
         if (res.data?.length > 0) setData(res.data[0]);
+      
+        
         else setData(null);
       } catch (err) {
         console.error("Error fetching payslip:", err);

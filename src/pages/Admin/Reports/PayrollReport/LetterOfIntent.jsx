@@ -27,7 +27,7 @@ export default function LetterOfIntent() {
     CandidateName: "Rahul Sharma",
     FatherName: "Shyam",
     Address: "New Delhi, India",
-    Email: "ry027674@gmail.com",
+    Email: "rahul@yopmail.com",
     Phone: "9876543210",
     Position: "Software Engineer",
     Department: "IT Department",

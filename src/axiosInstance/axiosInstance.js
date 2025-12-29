@@ -9,9 +9,10 @@ import { toast } from "react-toastify";
 //baseURL: "https://starpayapi.digicodesoftware.com/api",
 //baseURL :"https://medisyspayapi.digicodesoftware.com/api",
 //baseURL: "https://richpayapi.digicodesoftware.com/api",
+//baseURL :"http://digipaystaticapi.digicodesoftware.com:83/api",
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5023/api",
+  baseURL : "http://localhost:5023/api",
 });
 
 // IMPORTANT FIX FOR FILE UPLOAD

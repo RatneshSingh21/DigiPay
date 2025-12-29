@@ -1,260 +1,680 @@
-
-import React, { useRef, useState } from "react";
-import { useReactToPrint } from "react-to-print";
-import assets from "../../../../assets/assets";
+import React, { useEffect, useRef, useState } from "react";
+import Select from "react-select";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
+import { generateLetterPdf } from "../PdfUtils";
+import ReactMarkdown from "react-markdown";
 
-const ConfirmationLetter = () => {
-  const certificateRef = useRef();
-  const [useDefaultHeader, setUseDefaultHeader] = useState(true);
-  const [useDefaultFooter, setUseDefaultFooter] = useState(true);
-  const [customHeader, setCustomHeader] = useState(null);
-  const [customFooter, setCustomFooter] = useState(null);
+export default function AppointmentLetter() {
+  const certificateRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    logoUrl: assets.Digicode,
-    logoSize: 50,
-    employeeId: 101,
-    employeeName: "Santosh Kumar",
-    designation: "Sr. Supervisor",
-    department: "Production - Welding Shop",
-    dateOfJoining: "04-04-2021",
-    confirmationDate: new Date().toISOString().slice(0, 10),
-    employmentType: "Permanent",
-    remarks: "Employee has satisfactorily completed the probation period.",
-    issuedDate: new Date().toISOString().slice(0, 10),
-    authorizedBy: "Ramesh Verma",
+  /* ================= MASTER DATA ================= */
+  const [employees, setEmployees] = useState([]);
+
+  const [designations, setDesignations] = useState([]);
+
+  /* ================= ORG ================= */
+  const [org, setOrg] = useState({});
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  /* ================= PARAGRAPHS ================= */
+  const [paragraphs, setParagraphs] = useState([
+    "We are pleased to confirm the employment of **{EmployeeName}** as **{Designation}** with **{CompanyName}**, effective from **{ConfirmationDate}**.",
+    "Your employment type will be **{EmploymentType}** and your services will continue to be governed by company rules and policies.",
+    "We look forward to your continued contribution and wish you success with **{CompanyName}**.",
+  ]);
+
+  /* ================= FORM ================= */
+  const [form, setForm] = useState({
+    EmployeeId: null,
+    EmployeeName: "",
+    Email: "",
+    Designation: "",
+    DateOfJoining: "",
+    ConfirmationDate: "",
+    EmploymentType: "",
+    Remarks: "",
+    AuthorizedBy: "",
   });
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  /* ================= UI SETTINGS ================= */
+  const [uiSettings, setUiSettings] = useState({
+    showLogo: true,
+    showAddress: true,
+    showCompanyName: true,
+    logoSize: 30,
+    signatureSize: 56,
+    signatureAlign: "left",
+    companyNameColor: "#000000",
+    addressColor: "#000000",
+  });
 
-  const handleFileUpload = (e, field) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (field === "logo")
-        setFormData({ ...formData, logoUrl: reader.result });
-      else if (field === "header") setCustomHeader(reader.result);
-      else if (field === "footer") setCustomFooter(reader.result);
-    };
-    reader.readAsDataURL(file);
+  /* ================= LOAD DATA ================= */
+  useEffect(() => {
+    axiosInstance.get("/Employee").then((r) => setEmployees(r.data));
+    axiosInstance.get("/Designation").then((r) => setDesignations(r.data));
+    axiosInstance.get("/OrganizationProfile/full").then((r) => setOrg(r.data));
+  }, []);
+
+  /* ================= VAR REPLACER ================= */
+  const replaceVars = (text) =>
+    text
+      .replaceAll("{EmployeeName}", form.EmployeeName || "")
+      .replaceAll("{Designation}", form.Designation || "")
+      .replaceAll("{CompanyName}", org.company?.companyName || "")
+      .replaceAll(
+        "{ConfirmationDate}",
+        form.ConfirmationDate
+          ? new Date(form.ConfirmationDate).toLocaleDateString("en-GB")
+          : ""
+      )
+      .replaceAll(
+        "{DateOfJoining}",
+        form.DateOfJoining
+          ? new Date(form.DateOfJoining).toLocaleDateString("en-GB")
+          : ""
+      )
+      .replaceAll("{EmploymentType}", form.EmploymentType || "");
+
+  /* ================= EMPLOYEE SELECT ================= */
+  const handleEmployeeSelect = (emp) => {
+    setForm({
+      ...form,
+      EmployeeId: emp.id,
+      EmployeeName: emp.fullName,
+      Email: emp.workEmail,
+      DateOfJoining: emp.dateOfJoining?.slice(0, 10),
+      Designation:
+        designations.find((d) => d.id === emp.designationId)?.title || "",
+    });
   };
 
-  const handlePrint = useReactToPrint({
-   contentRef: certificateRef,
-   pageStyle: `
-     @page { 
-       size: A4;
-       margin: 0;         /* remove default print margin */
-     }
-     body {
-       margin: 0;
-       padding: 0;
-       -webkit-print-color-adjust: exact !important;
-       print-color-adjust: exact !important;
-     }
-     .print-container {
-       width: 210mm;       /* full A4 width */
-       min-width: 210mm;
-       height: 297mm;      /* full A4 height */
-       min-height: 297mm;
-       margin: 0;
-       padding: 0;
-       box-sizing: border-box;
-     }
-   `,
- });
+  /* ================= PARAGRAPH CONTROLS ================= */
+  const updatePara = (i, val) => {
+    const copy = [...paragraphs];
+    copy[i] = val;
+    setParagraphs(copy);
+  };
 
+  const addPara = () => setParagraphs([...paragraphs, ""]);
+  const removePara = (i) =>
+    setParagraphs(paragraphs.filter((_, idx) => idx !== i));
+
+  /* ================= SUBMIT ================= */
   const handleSubmit = async () => {
     try {
-      const payload = { ...formData };
-      Object.keys(payload).forEach((key) => {
-        if (!payload[key]) delete payload[key];
-      });
+      if (!certificateRef.current) {
+        toast.error("Preview not ready");
+        return;
+      }
 
-      await axiosInstance.post("/ConfirmationLetter", payload, {
-        headers: { "Content-Type": "application/json" },
-      });
+      if (!form.DateOfJoining || !form.ConfirmationDate) {
+        toast.error("Please select Date of Joining and Confirmation Date");
+        return;
+      }
 
-      toast.success("Confirmation Letter submitted successfully");
+      const doj = new Date(form.DateOfJoining);
+      const confDate = new Date(form.ConfirmationDate);
+
+      if (isNaN(doj.getTime()) || isNaN(confDate.getTime())) {
+        toast.error("Invalid date selected");
+        return;
+      }
+
+      // 🔥 Let toast render FIRST
+      toast.info("Generating confirmation letter...");
+
+      setTimeout(async () => {
+        try {
+          const result = await generateLetterPdf(certificateRef);
+
+          if (!result?.blob) throw new Error("PDF generation failed");
+
+          const fd = new FormData();
+          fd.append("EmployeeId", form.EmployeeId);
+          fd.append("EmployeeName", form.EmployeeName);
+          fd.append("Email", form.Email);
+          fd.append("Designation", form.Designation);
+          fd.append("DateOfJoining", doj.toISOString());
+          fd.append("ConfirmationDate", confDate.toISOString());
+          fd.append("EmploymentType", form.EmploymentType);
+          fd.append("Remarks", form.Remarks);
+          fd.append("AuthorizedBy", form.AuthorizedBy);
+          fd.append("File", result.blob, "ConfirmationLetter.pdf");
+
+          await axiosInstance.post("/ConfirmationLetter/create", fd);
+
+          toast.success("Confirmation Letter created successfully");
+        } catch (err) {
+          console.error(err);
+          toast.error("Failed to upload Confirmation Letter");
+        }
+      }, 0);
     } catch (err) {
-      console.error(err.response?.data || err);
-      toast.error("Failed to submit Confirmation Letter");
+      console.error(err);
+      toast.error("Something went wrong");
     }
   };
 
-  const Header = () => (
-    <div className="print-header relative w-full">
-      <div className="relative w-full">
-        <img
-          src={useDefaultHeader || !customHeader ? assets.Header : customHeader}
-          alt="Header"
-          className="w-full object-cover"
-        />
-        <div className="absolute inset-0 flex items-center justify-between p-6">
-          <img
-            src={formData.logoUrl}
-            alt="Logo"
-            className="object-contain bg-white p-1 rounded shadow"
-            style={{ height: formData.logoSize }}
-          />
-          <div className="text-right">
-            <h2 className="font-bold text-xl">{formData.organizationName || "DigiCode Software Pvt. Ltd."}</h2>
-            <p className="text-sm">{formData.organizationAddress || "123 Main Street City, State ZIP"}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const inputClass =
+    "w-full border border-gray-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 outline-none";
 
-  const Footer = () => (
-    <div className="print-footer bottom-0 w-full">
-      <img
-        src={useDefaultFooter || !customFooter ? assets.Footer : customFooter}
-        alt="Footer"
-        className="w-full object-cover"
-      />
-    </div>
-  );
-
+  /* ================= UI ================= */
   return (
-    <div className="flex bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-1/3 bg-white shadow-md p-6 overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4">Edit Confirmation Letter</h2>
+    <div className="flex bg-gray-100 min-h-screen gap-4">
+      {/* ================= FORM ================= */}
+      <div className="w-1/3 bg-white shadow p-6 overflow-y-auto relative">
+        <h2 className="text-lg font-bold mb-4">Confirmation Letter Details</h2>
 
-        {/* Header/Footer Options */}
-        {["header", "footer"].map((type) => (
-          <div key={type} className="mb-4">
-            <label className="block font-semibold mb-1">{type.toUpperCase()} Options</label>
-            <div className="flex items-center space-x-2 mb-2">
-              <input
-                type="checkbox"
-                checked={type === "header" ? useDefaultHeader : useDefaultFooter}
-                onChange={() =>
-                  type === "header"
-                    ? setUseDefaultHeader(!useDefaultHeader)
-                    : setUseDefaultFooter(!useDefaultFooter)
-                }
-              />
-              <span>Use Default {type}</span>
-            </div>
-            {((type === "header" && !useDefaultHeader) ||
-              (type === "footer" && !useDefaultFooter)) && (
-              <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileUpload(e, type)}
-                />
-                {(type === "header" ? customHeader : customFooter) && (
-                  <img
-                    src={type === "header" ? customHeader : customFooter}
-                    alt={`${type} preview`}
-                    className="h-16 mt-2 object-contain"
-                  />
-                )}
-              </>
-            )}
-          </div>
-        ))}
-
-        {/* Logo Upload */}
-        <div className="mb-4">
-          <label className="block font-semibold mb-1">Company Logo</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileUpload(e, "logo")}
-          />
-          <input
-            type="range"
-            min="30"
-            max="120"
-            value={formData.logoSize}
-            onChange={(e) =>
-              setFormData({ ...formData, logoSize: +e.target.value })
-            }
-            className="w-full mt-2"
-          />
-          <p className="text-xs text-gray-500">Logo Size: {formData.logoSize}px</p>
-        </div>
-
-        {/* Form Fields */}
+        <label className="text-xs font-medium">Employee</label>
+        <Select
+          options={employees}
+          getOptionLabel={(e) => `${e.employeeCode} - ${e.fullName}`}
+          getOptionValue={(e) => e.id}
+          onChange={handleEmployeeSelect}
+        />
         {[
-          "employeeId",
-          "employeeName",
-          "designation",
-          "department",
-          "dateOfJoining",
-          "confirmationDate",
-          "employmentType",
-          "remarks",
-          "issuedDate",
-          "authorizedBy",
-        ].map((field) => (
-          <div key={field} className="mb-4">
-            <label className="block font-semibold capitalize">{field.replace(/([A-Z])/g, " $1")}</label>
+          ["Designation", "Designation"],
+          ["EmploymentType", "Employment Type"],
+          ["Remarks", "Remarks"],
+          ["AuthorizedBy", "Authorized By"],
+        ].map(([k, label]) => (
+          <div key={k} className="text-xs mb-1">
+            <label className="block font-medium">{label}</label>
             <input
-              type={field.includes("Date") ? "date" : "text"}
-              name={field}
-              value={formData[field]}
-              onChange={handleChange}
-              className="border p-2 rounded w-full"
+              className={inputClass}
+              value={form[k] ?? ""}
+              onChange={(e) => setForm({ ...form, [k]: e.target.value })}
             />
           </div>
         ))}
 
+        <label className="text-xs font-medium mt-2">Date of Joining</label>
+        <input
+          type="date"
+          className={inputClass}
+          value={form.DateOfJoining}
+          onChange={(e) => setForm({ ...form, DateOfJoining: e.target.value })}
+        />
+
+        <label className="text-xs font-medium mt-2">Confirmation Date</label>
+        <input
+          type="date"
+          className={inputClass}
+          value={form.ConfirmationDate}
+          onChange={(e) =>
+            setForm({ ...form, ConfirmationDate: e.target.value })
+          }
+        />
+
+        {paragraphs.map((p, i) => (
+          <div key={i} className="mb-2">
+            <textarea
+              className="w-full border rounded p-2 text-xs"
+              rows={3}
+              value={p}
+              onChange={(e) => updatePara(i, e.target.value)}
+            />
+            <button
+              type="button"
+              className="text-red-500 text-xs mt-1"
+              onClick={() => removePara(i)}
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+
+        <button
+          onClick={addPara}
+          className="text-primary text-sm cursor-pointer font-medium mb-2"
+        >
+          + Add Paragraph
+        </button>
+
+        <h3 className="font-semibold my-3 text-sm">
+          Header & Signature Settings
+        </h3>
+
+        <div className="grid grid-cols-2 gap-3 text-xs border rounded-md p-3 bg-gray-50 my-2">
+          {/* Show Logo */}
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={uiSettings.showLogo}
+              onChange={(e) =>
+                setUiSettings({ ...uiSettings, showLogo: e.target.checked })
+              }
+            />
+            Show Logo
+          </label>
+
+          {/* Show Company Name */}
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={uiSettings.showCompanyName}
+              onChange={(e) =>
+                setUiSettings({
+                  ...uiSettings,
+                  showCompanyName: e.target.checked,
+                })
+              }
+            />
+            Show Company Name
+          </label>
+
+          {/* Show Address */}
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={uiSettings.showAddress}
+              onChange={(e) =>
+                setUiSettings({ ...uiSettings, showAddress: e.target.checked })
+              }
+            />
+            Show Address
+          </label>
+          {/* Logo Size */}
+          <div>
+            <label className="block font-medium mb-1">
+              Logo Size ({uiSettings.logoSize}px)
+            </label>
+            <input
+              type="range"
+              min="20"
+              max="80"
+              value={uiSettings.logoSize}
+              onChange={(e) =>
+                setUiSettings({
+                  ...uiSettings,
+                  logoSize: Number(e.target.value),
+                })
+              }
+            />
+          </div>
+
+          {/* Signature Size */}
+          <div>
+            <label className="block font-medium mb-1">
+              Signature Size ({uiSettings.signatureSize}px)
+            </label>
+            <input
+              type="range"
+              min="40"
+              max="120"
+              value={uiSettings.signatureSize}
+              onChange={(e) =>
+                setUiSettings({
+                  ...uiSettings,
+                  signatureSize: Number(e.target.value),
+                })
+              }
+            />
+          </div>
+
+          {/* Signature Alignment */}
+          <div>
+            <label className="block font-medium mb-1">
+              Signature Alignment
+            </label>
+            <select
+              className={inputClass}
+              value={uiSettings.signatureAlign}
+              onChange={(e) =>
+                setUiSettings({
+                  ...uiSettings,
+                  signatureAlign: e.target.value,
+                })
+              }
+            >
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+
+          {/* Company Name Color */}
+          <div>
+            <label className="block font-medium mb-1">Company Name Color</label>
+            <select
+              className={inputClass}
+              value={uiSettings.companyNameColor}
+              onChange={(e) =>
+                setUiSettings({
+                  ...uiSettings,
+                  companyNameColor: e.target.value,
+                })
+              }
+            >
+              <option value="#000000">Black</option>
+              <option value="#ffffff">White</option>
+            </select>
+          </div>
+
+          {/* Address Color */}
+          <div>
+            <label className="block font-medium mb-1">Address Text Color</label>
+            <select
+              className={inputClass}
+              value={uiSettings.addressColor}
+              onChange={(e) =>
+                setUiSettings({
+                  ...uiSettings,
+                  addressColor: e.target.value,
+                })
+              }
+            >
+              <option value="#000000">Black</option>
+              <option value="#ffffff">White</option>
+            </select>
+          </div>
+        </div>
+        {uploadProgress > 0 && (
+          <div className="absolute bottom-0 left-6 right-6">
+            <div className="w-full bg-gray-200 rounded">
+              <div
+                className="bg-green-600 text-white text-xs p-1 rounded"
+                style={{ width: `${uploadProgress}%` }}
+              >
+                {uploadProgress}%
+              </div>
+            </div>
+          </div>
+        )}
+
         <button
           onClick={handleSubmit}
-          className="mt-4 bg-primary text-white px-4 py-2 rounded-md hover:bg-secondary w-full mb-2"
+          disabled={
+            !form.DateOfJoining || !form.ConfirmationDate || uploadProgress > 0
+          }
+          className="bg-primary text-white text-sm w-full py-2 rounded-md cursor-pointer font-semibold mt-4 disabled:opacity-50"
         >
-          Submit to API
-        </button>
-        <button
-          onClick={handlePrint}
-          className="mt-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-secondary w-full"
-        >
-          Print / Save PDF
+          Save & Upload PDF
         </button>
       </div>
 
-      {/* Preview */}
+      <style>
+        {`
+/* =========================
+   PDF / PREVIEW SAFE (PX)
+   A4 @ 96 DPI
+========================= */
+
+.print-container {
+  width: 794px; /* 210mm */
+  position: relative;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+}
+
+.print-page {
+  min-height: 1123px; /* 297mm */
+  padding-top: 227px; /* 60mm */
+  padding-bottom: 151px; /* 40mm */
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* ================= HEADER ================= */
+
+.print-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 151px; /* 40mm */
+  overflow: hidden;
+}
+
+.header-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+
+.header-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  flex: 0 0 auto;
+}
+
+.header-right {
+  text-align: right;
+  max-width: 50%;
+}
+
+.header-logo {
+  height: 30px;
+  display: block;
+}
+
+.header-company-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.header-company-address {
+  font-size: 12px;
+}
+
+/* ================= BODY ================= */
+
+.print-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 24px 0;
+}
+
+.print-page p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.print-page h1 {
+  font-size: 22px;
+  margin: 24px 0;
+}
+
+/* ================= FOOTER ================= */
+
+.print-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 113px; /* 30mm */
+}
+
+.print-footer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.footer-text {
+  position: absolute;
+  bottom: 12px;
+  width: 100%;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  color: #000;
+}
+
+/* ================= BODY SPACING ================= */
+
+.print-body {
+  padding: 24px 40px;
+}
+  .paragraphs{
+  text-align: justify;
+  }
+
+  .paragraphs strong {
+  font-weight: bold;
+}
+
+.paragraphs em {
+  font-style: italic;
+}
+
+.paragraphs del {
+  text-decoration: line-through;
+}
+
+.print-to {
+  margin-top: 16px;
+}
+
+.print-signature {
+  margin-top: 40px;
+}
+
+/* ================= SIGNATURE ================= */
+
+.signature-img {
+  height: 56px; /* h-14 */
+  margin-top: 8px;
+  display: block;
+}
+
+.print-body table,
+.print-body th,
+.print-body td {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+`}
+      </style>
+
+      {/* ================= PREVIEW (SAME AS LOI) ================= */}
       <div
         ref={certificateRef}
-        className="w-2/3 bg-white m-6 print-container flex flex-col"
+        className="print-container"
+        style={{
+          color: "#000",
+          backgroundColor: "#fff",
+          borderColor: "#000",
+        }}
       >
-        <Header />
-        <div className="flex-1 px-10 py-4">
-          <p className="text-right text-sm mb-6">
-            <strong>Issued Date:</strong> {formData.issuedDate}
-          </p>
-          <h1 className="text-center text-2xl font-bold mb-6">
-            Confirmation Letter
-          </h1>
-          <p className="mb-4">
-            Dear <strong>{formData.employeeName}</strong>,
-          </p>
-          <p className="mb-4 text-justify leading-relaxed">
-            This is to confirm that <strong>{formData.employeeName}</strong> has been employed as a/an <strong>{formData.designation}</strong> in <strong>{formData.department}</strong> department since <strong>{formData.dateOfJoining}</strong>. The employment type is <strong>{formData.employmentType}</strong>.
-          </p>
-          <p className="mb-4 text-justify leading-relaxed">
-            {formData.remarks}
-          </p>
-          <p className="mb-8 text-justify leading-relaxed">
-            We are pleased to confirm his employment effective from <strong>{formData.confirmationDate}</strong>.
-          </p>
-          <div className="mt-12 text-left">
-            <p className="font-semibold">{formData.authorizedBy}</p>
+        <div className="print-page">
+          {/* HEADER */}
+          {org.orgHeaderImage && (
+            <div className="print-header">
+              <img
+                src={org.orgHeaderImage}
+                className="header-bg"
+                crossOrigin="anonymous"
+                onError={(e) => (e.currentTarget.style.display = "none")}
+              />
+              <div className="header-overlay header-split">
+                <div className="header-left">
+                  {uiSettings.showLogo && org.orgLogo && (
+                    <img
+                      src={org.orgLogo}
+                      crossOrigin="anonymous"
+                      style={{
+                        height: `${uiSettings.logoSize}px`,
+                        objectFit: "contain",
+                      }}
+                      onError={(e) => (e.currentTarget.style.display = "none")}
+                    />
+                  )}
+                </div>
+                <div className="header-right">
+                  {uiSettings.showCompanyName && (
+                    <h2
+                      className="header-company-name"
+                      style={{ color: uiSettings.companyNameColor }}
+                    >
+                      {org.company?.companyName}
+                    </h2>
+                  )}
+                  {uiSettings.showAddress && (
+                    <p
+                      className="header-company-address"
+                      style={{ color: uiSettings.addressColor }}
+                    >
+                      {org.workLocation?.addressLine1},
+                      {org.workLocation?.addressLine2},{org.workLocation?.city},
+                      {org.workLocation?.state} - {org.workLocation?.pinCode}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="print-body">
+            <h1 className="print-title">CONFIRMATION LETTER</h1>
+
+            {paragraphs.map((p, i) => (
+              <div key={i} className="paragraphs">
+                <ReactMarkdown>{replaceVars(p)}</ReactMarkdown>
+              </div>
+            ))}
+
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                marginTop: 20,
+                tableLayout: "fixed", // important for even columns
+              }}
+            ></table>
+            <div
+              className="print-signature"
+              style={{
+                textAlign: uiSettings.signatureAlign,
+              }}
+            >
+              {org.orgSignature && (
+                <img
+                  src={org.orgSignature}
+                  crossOrigin="anonymous"
+                  style={{
+                    height: `${uiSettings.signatureSize}px`,
+                    objectFit: "contain",
+                    display: "inline-block",
+                  }}
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+              )}
+              <p>
+                Authorized Signatory
+                <br />
+                {form.AuthorizedBy}
+              </p>
+            </div>
+          </div>
+
+          {/* FOOTER */}
+          <div className="print-footer">
+            {org.orgFooterImage && (
+              <img
+                src={org.orgFooterImage}
+                crossOrigin="anonymous"
+                onError={(e) => (e.currentTarget.style.display = "none")}
+              />
+            )}
+            <div className="footer-text">
+              This is a system generated document
+            </div>
           </div>
         </div>
-        <Footer />
       </div>
     </div>
   );
-};
-
-export default ConfirmationLetter;
+}

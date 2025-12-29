@@ -55,6 +55,10 @@ const submenuMap = {
     "Attendance Record",
     "Attendance Calculation",
     "Attendance Report",
+    "Attendance Machine",
+    "Emp Machine Mapping",
+    "Machine Data Log",
+    
   ],
 
   Reports: [

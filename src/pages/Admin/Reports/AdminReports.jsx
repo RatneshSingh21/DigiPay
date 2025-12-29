@@ -6,6 +6,7 @@ import {
   Layers,
   Calendar,
   PieChart as PieChartIcon,
+  ExternalLink,
 } from "lucide-react";
 import {
   PieChart,
@@ -274,36 +275,55 @@ const AdminReports = () => {
                 <th className="px-4 py-3 font-semibold">Issued To</th>
                 <th className="px-4 py-3 font-semibold">Description</th>
                 <th className="px-4 py-3 font-semibold">Reason</th>
+                <th className="px-4 py-3 font-semibold">Action</th>
               </tr>
             </thead>
             <tbody>
               {filteredData.map((item, index) => (
                 <tr
                   key={index}
-                  className="transition-all duration-200 hover:bg-blue-50/70 hover:shadow-sm cursor-pointer"
-                  onClick={() =>
-                    item.pdfUrl && window.open(item.pdfUrl, "_blank")
-                  }
+                  className="transition-all duration-200 hover:bg-blue-50/70 hover:shadow-sm"
                 >
                   <td className="px-4 py-3 border-b border-gray-100">
                     {index + 1}
                   </td>
+
                   <td className="px-4 py-3 border-b border-gray-100 font-medium">
                     {item.letterType}
                   </td>
+
                   <td className="px-4 py-3 border-b border-gray-100">
                     {item.issueDate
                       ? new Date(item.issueDate).toLocaleDateString("en-GB")
                       : "-"}
                   </td>
+
                   <td className="px-4 py-3 border-b border-gray-100">
                     {item.issuedTo}
                   </td>
+
                   <td className="px-4 py-3 border-b border-gray-100">
                     {item.description}
                   </td>
+
                   <td className="px-4 py-3 border-b border-gray-100">
                     {item.reason}
+                  </td>
+
+                  {/* ✅ Action Column */}
+                  <td className="px-4 py-3 border-b border-gray-100">
+                    {item.pdfUrl ? (
+                      <a
+                        href={item.pdfUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium underline"
+                      >
+                        <ExternalLink size={16} /> View PDF
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 italic">N/A</span>
+                    )}
                   </td>
                 </tr>
               ))}

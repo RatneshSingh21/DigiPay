@@ -74,6 +74,9 @@ import AttendancePunch from "./pages/Admin/Attendance/AttendancePunch";
 import AttendancePolicy from "./pages/Admin/Attendance/AttendancePolicy";
 import AttendanceRecord from "./pages/Admin/Attendance/AttendanceRecord";
 import AttendanceCalculationResult from "./pages/Admin/Attendance/AttendanceCalculationResult/AttendanceCalculationResult";
+import AttendanceMachine from "./pages/Admin/Attendance/AttendanceMachine/AttendanceMachine";
+import BiometricEmployeeMapping from "./pages/Admin/Attendance/AttendanceMachine/BiometricEmployeeMapping";
+import AttendanceMachineData from "./pages/Admin/Attendance/AttendanceMachine/AttendanceMachineData";
 
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
@@ -86,7 +89,7 @@ import ConfirmationLetter from "./pages/Admin/Reports/PayrollReport/Confirmation
 import IncrementLetter from "./pages/Admin/Reports/PayrollReport/IncrementLetter";
 import PromotionLetter from "./pages/Admin/Reports/PayrollReport/PromotionLetter";
 import RelievingLetter from "./pages/Admin/Reports/PayrollReport/RelievingLetter";
-import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificateEditor";
+import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificate";
 import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalStatement";
 import JobPosting from "./pages/Admin/Reports/PayrollReport/JobPosting";
 import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/NominationDeclaration";
@@ -139,6 +142,8 @@ import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
+
+
 
 
 
@@ -298,6 +303,9 @@ const App = () => {
                       path="attendance-report"
                       element={<AttendanceReport />}
                     />
+                    <Route path="attendance-machine" element={<AttendanceMachine />} />
+                    <Route path="emp-machine-mapping" element={<BiometricEmployeeMapping />} />
+                    <Route path="machine-data-log" element={<AttendanceMachineData />} />
                   </Route>
 
                   {/* Reports SubRoutes */}

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { generateLetterPdf } from "../PdfUtils";
 import ReactMarkdown from "react-markdown";
 
-export default function IncrementLetter() {
+export default function ExperienceLetter() {
   const certificateRef = useRef(null);
 
   /* ================= MASTER DATA ================= */
@@ -18,25 +18,27 @@ export default function IncrementLetter() {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   /* ================= PARAGRAPHS ================= */
- const [paragraphs, setParagraphs] = useState([
-  "We are pleased to inform **{EmployeeName}** that your salary has been revised.",
-  "Your current salary of **₹{CurrentSalary}** has been increased by **₹{IncrementAmount}**, effective from **{EffectiveFrom}**.",
-  "This increment is in recognition of your performance and contribution to **{CompanyName}**.",
+const [paragraphs, setParagraphs] = useState([
+  "This is to certify that **{EmployeeName}** son/daughter of **{FatherName}** was employed with **{CompanyName}** as **{Designation}** in the **{Department}** department.",
+  "The employee joined the organization on **{DateOfJoining}** and worked with us until **{LastWorkingDay}**.",
+  "We hereby certify his/her experience with our organization.",
 ]);
 
   /* ================= FORM ================= */
- const [form, setForm] = useState({
+const [form, setForm] = useState({
   EmployeeId: null,
   EmployeeName: "",
   Email: "",
-  Designation: "",
+  FatherName: "",
   Department: "",
-  CurrentSalary: "",
-  IncrementAmount: "",
-  EffectiveFrom: "",
+  Designation: "",
+  DateOfJoining: "",
+  LastWorkingDay: "",
+  Remarks: "",
+  ClosingRemarks: "",
+  FinalWish: "",
   IssueDate: new Date().toISOString(),
-  Reason: "",
-  TermsAndConditions: "",
+  AuthorizedPersonName: "",
 });
 
   /* ================= UI SETTINGS ================= */
@@ -64,52 +66,38 @@ export default function IncrementLetter() {
 const replaceVars = (text) =>
   text
     .replaceAll("{EmployeeName}", form.EmployeeName || "")
-    .replaceAll("{Designation}", form.Designation || "")
+    .replaceAll("{FatherName}", form.FatherName || "")
     .replaceAll("{Department}", form.Department || "")
+    .replaceAll("{Designation}", form.Designation || "")
     .replaceAll("{CompanyName}", org.company?.companyName || "")
-    .replaceAll("{CurrentSalary}", form.CurrentSalary || "")
-    .replaceAll("{IncrementAmount}", form.IncrementAmount || "")
     .replaceAll(
-      "{EffectiveFrom}",
-      form.EffectiveFrom
-        ? new Date(form.EffectiveFrom).toLocaleDateString("en-GB")
+      "{DateOfJoining}",
+      form.DateOfJoining
+        ? new Date(form.DateOfJoining).toLocaleDateString("en-GB")
+        : ""
+    )
+    .replaceAll(
+      "{LastWorkingDay}",
+      form.LastWorkingDay
+        ? new Date(form.LastWorkingDay).toLocaleDateString("en-GB")
         : ""
     );
 
   /* ================= EMPLOYEE SELECT ================= */
-const handleEmployeeSelect = async (emp) => {
-  try {
-    // 1️⃣ set employee basic info
-    setForm((prev) => ({
-      ...prev,
-      EmployeeId: emp.id,
-      EmployeeName: emp.fullName,
-      Email: emp.workEmail,
-      Department:
-        departments.find((d) => d.id === emp.departmentId)?.name || "",
-      Designation:
-        designations.find((d) => d.id === emp.designationId)?.title || "",
-      CurrentSalary: "",
-    }));
-
-    // 2️⃣ fetch salary
-    const res = await axiosInstance.get(
-      `/EmployeeSalary/employee/${emp.id}`
-    );
-
-    console.log("Salary API Response:", res.data);
-
-    // 3️⃣ set GROSS SALARY
-    setForm((prev) => ({
-      ...prev,
-      CurrentSalary: res.data?.data?.grossEarnings ?? "",
-    }));
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch employee salary");
-  }
+const handleEmployeeSelect = (emp) => {
+  setForm((prev) => ({
+    ...prev,
+    EmployeeId: emp.id,
+    EmployeeName: emp.fullName,
+    Email: emp.workEmail,
+    FatherName: emp.fatherName || "",
+    Department:
+      departments.find((d) => d.id === emp.departmentId)?.name || "",
+    Designation:
+      designations.find((d) => d.id === emp.designationId)?.title || "",
+    DateOfJoining: emp.dateOfJoining || "",
+  }));
 };
-
 
   /* ================= PARAGRAPH CONTROLS ================= */
   const updatePara = (i, val) => {
@@ -135,33 +123,31 @@ const handleEmployeeSelect = async (emp) => {
       if (!result?.blob) throw new Error("PDF generation failed");
 
       // Prepare FormData
-     const fd = new FormData();
+const fd = new FormData();
 fd.append("EmployeeId", form.EmployeeId);
 fd.append("EmployeeName", form.EmployeeName);
 fd.append("Email", form.Email);
-fd.append("Designation", form.Designation);
+fd.append("FatherName", form.FatherName || "");
 fd.append("Department", form.Department);
-fd.append("CurrentSalary", Number(form.CurrentSalary));
-fd.append("IncrementAmount", Number(form.IncrementAmount));
-fd.append(
-  "EffectiveFrom",
-  new Date(form.EffectiveFrom).toISOString()
-);
+fd.append("Designation", form.Designation);
+fd.append("DateOfJoining", new Date(form.DateOfJoining).toISOString());
+fd.append("LastWorkingDay", new Date(form.LastWorkingDay).toISOString());
+fd.append("Remarks", form.Remarks || "");
+fd.append("ClosingRemarks", form.ClosingRemarks || "");
+fd.append("FinalWish", form.FinalWish || "");
 fd.append("IssueDate", new Date(form.IssueDate).toISOString());
-fd.append("Reason", form.Reason || "");
-fd.append("TermsAndConditions", form.TermsAndConditions || "");
-fd.append("File", result.blob, "IncrementLetter.pdf");
-
+fd.append("AuthorizedPersonName", form.AuthorizedPersonName || "");
+fd.append("File", result.blob, "ExperienceLetter.pdf");
 
       // Upload
-      await axiosInstance.post("/IncrementLetter/create", fd, {
+      await axiosInstance.post("/ExperienceLetter/create", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      toast.success("Increment Letter created successfully");
+      toast.success("Experience Letter created successfully");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to upload Increment Letter");
+      toast.error("Failed to upload Experience Letter");
     }
   };
 
@@ -173,7 +159,7 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
     <div className="flex bg-gray-100 min-h-screen gap-4">
       {/* ================= FORM ================= */}
       <div className="w-1/3 bg-white shadow p-6 overflow-y-auto relative">
-        <h2 className="text-lg font-bold mb-4">Increment Letter Details</h2>
+        <h2 className="text-lg font-bold mb-4">Experience Letter Details</h2>
 
         <label className="text-xs font-medium">Employee</label>
         <Select
@@ -182,39 +168,33 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
           getOptionValue={(e) => e.id}
           onChange={handleEmployeeSelect}
         />
-    {[
-  ["CurrentSalary", "Current Salary"],
-  ["IncrementAmount", "Increment Amount"],
-  ["Reason", "Reason"],
-  ["TermsAndConditions", "Terms & Conditions"],
+  {[
+["FatherName", "Father Name"],
+["Designation", "Designation"],
+["Department", "Department"],
+["DateOfJoining", "Date Of Joining"],
+["LastWorkingDay", "Last Working Day"],
+["Remarks", "Remarks"],
+["ClosingRemarks", "Closing Remarks"],
+["FinalWish", "Final Wish"],
+["AuthorizedPersonName", "Authorized Person Name"],
 ].map(([k, label]) => (
   <div key={k} className="text-xs mb-1">
     <label className="block font-medium">{label}</label>
     <input
-      type={
-        k === "CurrentSalary" || k === "IncrementAmount"
-          ? "number"
-          : "text"
-      }
-      className={inputClass}
-      value={form[k]}
-      onChange={(e) =>
-        setForm({ ...form, [k]: e.target.value })
-      }
-    />
+  type={["LastWorkingDay"].includes(k) ? "date" : "text"}
+  className={inputClass}
+  value={k === "DateOfJoining" || k === "LastWorkingDay"
+      ? form[k]
+        ? form[k].split("T")[0]
+        : ""
+      : form[k]}
+  onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+/>
+
   </div>
 ))}
 
-
-<label className="text-xs font-medium mt-2">Effective From</label>
-<input
-  type="date"
-  className={inputClass}
-  value={form.EffectiveFrom}
-  onChange={(e) =>
-    setForm({ ...form, EffectiveFrom: e.target.value })
-  }
-/>
         <h3 className="font-semibold my-2">Letter Content</h3>
         {paragraphs.map((p, i) => (
           <div key={i} className="mb-2">
@@ -652,7 +632,8 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
               <b>Date:</b> {new Date(form.IssueDate).toLocaleDateString("en-GB")}
             </p>
 
-            <h1 className="print-title">INCREMENT LETTER</h1>
+            <h1 className="print-title">EXPERIENCE LETTER</h1>
+
 
             {paragraphs.map((p, i) => (
               <div key={i} className="paragraphs">
@@ -660,13 +641,26 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
               </div>
             ))}
 
-            {form.Reason && (
+  {form.Remarks && (
   <div className="paragraphs" style={{ marginTop: 20 }}>
-    <h2>Reason</h2>
-    <ReactMarkdown>{form.Reason}</ReactMarkdown>
+    <h2>Remarks</h2>
+    <ReactMarkdown>{form.Remarks}</ReactMarkdown>
   </div>
 )}
 
+{form.ClosingRemarks && (
+  <div className="paragraphs" style={{ marginTop: 20 }}>
+    <h2>Closing Remarks</h2>
+    <ReactMarkdown>{form.ClosingRemarks}</ReactMarkdown>
+  </div>
+)}
+
+{form.FinalWish && (
+  <div className="paragraphs" style={{ marginTop: 20 }}>
+    <h2>Final Wish</h2>
+    <ReactMarkdown>{form.FinalWish}</ReactMarkdown>
+  </div>
+)}
 
             <table
               style={{
