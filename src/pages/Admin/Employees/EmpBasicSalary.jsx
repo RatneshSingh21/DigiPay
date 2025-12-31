@@ -123,7 +123,7 @@ const EmpBasicSalary = () => {
           <Spinner />
         </div>
       ) : filteredSalaries.length > 0 ? (
-        <div className="mt-4 mx-auto p-4 border max-w-xl md:max-w-5xl xl:max-w-6xl 2xl:max-w-full overflow-x-scroll border-gray-200 rounded-lg max-h-[80vh]">
+        <div className="mt-4 mx-auto p-4 border max-w-xl md:max-w-5xl xl:min-w-5xl 2xl:min-w-full overflow-x-scroll border-gray-200 rounded-lg max-h-[80vh]">
           <table className="min-w-full divide-y divide-gray-200 text-xs">
             <thead className="bg-gray-100 text-gray-600 text-center">
               <tr>

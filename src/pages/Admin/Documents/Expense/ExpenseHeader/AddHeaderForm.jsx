@@ -155,7 +155,7 @@ const AddHeaderForm = ({ onClose, onSuccess, headerId }) => {
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
+          className="absolute top-3 right-3 cursor-pointer text-gray-600 hover:text-gray-800"
         >
           <FiX size={20} />
         </button>
@@ -169,7 +169,7 @@ const AddHeaderForm = ({ onClose, onSuccess, headerId }) => {
             <Spinner />
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-3 max-h-[70vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="space-y-2 max-h-[70vh] p-2 overflow-y-auto">
 
             {/* HEADER NAME — TYPEAHEAD + CREATE */}
             <div>
@@ -265,13 +265,13 @@ const AddHeaderForm = ({ onClose, onSuccess, headerId }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-gray-200 text-sm rounded"
+                className="px-4 py-2 cursor-pointer bg-gray-200 text-sm rounded"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary text-white text-sm rounded"
+                className="px-4 py-2 bg-primary cursor-pointer text-white text-sm rounded"
               >
                 {isEdit ? "Update" : "Save"}
               </button>

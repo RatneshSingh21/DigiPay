@@ -26,6 +26,8 @@ const CreateAdminFromEmployee = () => {
         axiosInstance.get("/Employee"),
         axiosInstance.get("/EmployeeRoleMapping"),
       ]);
+      console.log("Employee Data ", empRes.data);
+      console.log("Role Data ", roleRes.data);
 
       setEmployees(empRes.data || []);
       setRoleMappings(roleRes.data || []);
@@ -50,6 +52,16 @@ const CreateAdminFromEmployee = () => {
         emp.portalAccessEnabled === true
     );
   }, [search, employees]);
+
+  const employeeOptions = useMemo(() => {
+    return employees
+      .filter((emp) => emp.portalAccessEnabled === true)
+      .map((emp) => ({
+        value: emp.id,
+        label: `${emp.fullName} (${emp.employeeCode})`,
+        emp,
+      }));
+  }, [employees]);
 
   const getDepartmentName = async (deptId) => {
     if (!deptId) return "N/A";
@@ -152,53 +164,48 @@ const CreateAdminFromEmployee = () => {
       ) : (
         <div className="p-5">
           {/* Search Box + Form Card */}
-          <div className="bg-white shadow-lg p-6 rounded-xl border mb-8 w-full max-w-lg">
+          <div className="bg-white shadow-xl p-6 rounded-2xl border border-gray-100 mb-8 w-full max-w-lg">
             <h3 className="text-lg font-semibold mb-4 text-gray-700">
               Assign Role to Employee
             </h3>
 
             {/* Search */}
-            <div className="relative mb-5">
+            <div>
               <label className="text-sm font-medium text-gray-700">
-                Search Employee
+                Select Employee
               </label>
-              <input
-                type="text"
-                className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Type employee name..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setSelectedEmployee("");
-                  setShowDropdown(true);
+
+              <Select
+                options={employeeOptions}
+                placeholder="Search & select employee..."
+                isClearable
+                isSearchable
+                value={
+                  selectedEmployee
+                    ? employeeOptions.find(
+                        (opt) => opt.value === selectedEmployee
+                      )
+                    : null
+                }
+                onChange={(selected) => {
+                  if (!selected) {
+                    setSelectedEmployee("");
+                    setRole("");
+                    return;
+                  }
+
+                  setSelectedEmployee(selected.value);
+
+                  const mapping = roleMappings.find(
+                    (r) => r.employeeId === selected.value
+                  );
+
+                  setRole(mapping ? mapping.roleName : "");
                 }}
+                className="react-select-container"
+                classNamePrefix="react-select"
               />
-
-              {/* Dropdown */}
-              {showDropdown && search.trim() !== "" && (
-                <div className="absolute z-30 w-full bg-white shadow-xl border rounded-lg mt-1 max-h-60 overflow-y-auto transition-all duration-300">
-                  {filteredEmployees.length > 0 ? (
-                    filteredEmployees.map((emp) => (
-                      <div
-                        key={emp.id}
-                        className="p-2 hover:bg-blue-50 cursor-pointer"
-                        onClick={() => handleEmployeeSelect(emp)}
-                      >
-                        <span className="font-medium">{emp.fullName}</span>{" "}
-                        <span className="text-gray-600 text-sm">
-                          ({emp.employeeCode})
-                        </span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-2 text-gray-500 text-sm">
-                      No employees found
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
-
             {/* Role Form */}
             <form onSubmit={handleSubmit} className="grid gap-4">
               <div>
@@ -217,7 +224,10 @@ const CreateAdminFromEmployee = () => {
               </div>
 
               <button
-                className="bg-primary hover:bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg shadow-md transition disabled:opacity-50"
+                className="bg-gradient-to-r cursor-pointer from-blue-600 to-indigo-600
+             hover:from-indigo-600 hover:to-blue-600
+             text-white px-4 py-2 rounded-xl shadow-md
+             transition disabled:opacity-50"
                 type="submit"
                 disabled={submitting}
               >
@@ -246,7 +256,15 @@ const CreateAdminFromEmployee = () => {
               </p>
               <p className="mt-2">
                 <strong>Current Role:</strong>{" "}
-                <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium
+                  ${
+                    role
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-200 text-gray-600"
+                  }
+                `}
+                >
                   {role || "Not Assigned"}
                 </span>
               </p>
@@ -256,7 +274,7 @@ const CreateAdminFromEmployee = () => {
           <div className="overflow-x-auto shadow rounded-lg h-[250px] overflow-y-scroll mt-6">
             <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-100 text-gray-700 text-center sticky top-0 z-10">
-                <tr className="border-b">
+                <tr>
                   <th className="px-4 py-3 font-semibold">Name</th>
                   <th className="px-4 py-3 font-semibold">Email</th>
                   <th className="px-4 py-3 font-semibold">Dept</th>
@@ -274,7 +292,7 @@ const CreateAdminFromEmployee = () => {
                   return (
                     <tr
                       key={emp.id}
-                      className="hover:bg-blue-50 transition cursor-pointer border-b"
+                      className="hover:bg-blue-50 transition cursor-pointer"
                     >
                       <td className="px-4 py-3">{emp.fullName}</td>
                       <td className="px-4 py-3">{emp.workEmail}</td>

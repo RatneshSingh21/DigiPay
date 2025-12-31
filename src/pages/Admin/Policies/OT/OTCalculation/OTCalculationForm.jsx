@@ -40,7 +40,8 @@ const OTCalculationForm = ({ onClose, onSuccess }) => {
         );
         setAllRecords(res.data.data || []);
       } catch (error) {
-        toast.error("Failed to fetch attendance records");
+        console.log(error)
+        // toast.error("Failed to fetch attendance records");
       }
     };
 

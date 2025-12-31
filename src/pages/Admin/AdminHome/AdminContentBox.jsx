@@ -54,7 +54,7 @@ const submenuMap = {
     "Attendance Policy",
     "Attendance Record",
     "Attendance Calculation",
-    "Attendance Report",
+    // "Attendance Report",
     "Attendance Machine",
     "Emp Machine Mapping",
     "Machine Data Log",
@@ -62,7 +62,7 @@ const submenuMap = {
   ],
 
   Reports: [
-    "Salary Register",
+    // "Salary Register",
     "Payslip Templates",
     "Letter of Intent",
     "Offer Letter",

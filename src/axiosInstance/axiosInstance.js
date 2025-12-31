@@ -3,7 +3,7 @@ import useAuthStore from "../store/authStore";
 import { toast } from "react-toastify";
 
 // Create base Axios instance
-//baseURL: "https://marigoldapi.digicodesoftware.com/api",
+//baseURL: "https://marigoldpayapi.digicodesoftware.com/api",
 //baseURL: "https://digipaydevops.digicodesoftware.com/api",
 //baseURL: "https://digipaystaggingapi.digicodesoftware.com/api",
 //baseURL: "https://starpayapi.digicodesoftware.com/api",
@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 //baseURL :"http://digipaystaticapi.digicodesoftware.com:83/api",
 
 const axiosInstance = axios.create({
-  baseURL : "http://localhost:5023/api",
+  baseURL: "http://localhost:5023/api",
 });
 
 // IMPORTANT FIX FOR FILE UPLOAD

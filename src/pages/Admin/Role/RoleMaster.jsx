@@ -2,6 +2,15 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import Spinner from "../../../components/Spinner";
+import Select from "react-select";
+
+const ROLE_OPTIONS = [
+  { value: "Admin", label: "Admin" },
+  { value: "User", label: "User" },
+  { value: "Hod", label: "HOD" },
+  { value: "Manager", label: "Manager" },
+  { value: "SuperAdmin", label: "Super Admin" },
+];
 
 const RoleMaster = () => {
   const [roles, setRoles] = useState([]);
@@ -32,8 +41,19 @@ const RoleMaster = () => {
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.roleName.trim() || !formData.description.trim()) {
+
+    if (!formData.roleName || !formData.description.trim()) {
       toast.error("Both fields are required!");
+      return;
+    }
+
+    // 🔐 Check if role already exists (case-insensitive)
+    const roleExists = roles.some(
+      (r) => r.roleName.toLowerCase() === formData.roleName.toLowerCase()
+    );
+
+    if (roleExists) {
+      toast.warn(`Role "${formData.roleName}" already exists!`);
       return;
     }
 
@@ -43,6 +63,7 @@ const RoleMaster = () => {
         roleName: formData.roleName.trim(),
         description: formData.description.trim(),
       });
+
       toast.success("Role added successfully!");
       setFormData({ roleName: "", description: "" });
       fetchRoles();
@@ -73,18 +94,21 @@ const RoleMaster = () => {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-1 gap-3"
         >
-          <input
-            type="text"
-            placeholder="Role Name"
-            value={formData.roleName}
-            onChange={(e) =>
-              setFormData({ ...formData, roleName: e.target.value })
+          <Select
+            options={ROLE_OPTIONS}
+            placeholder="Select Role"
+            value={ROLE_OPTIONS.find((opt) => opt.value === formData.roleName)}
+            onChange={(selected) =>
+              setFormData({
+                ...formData,
+                roleName: selected.value,
+              })
             }
-            required
-            autoFocus
-            minLength={2}
-            className="w-72 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            isClearable={false}
+            className="w-72"
+            classNamePrefix="react-select"
           />
+
           <input
             type="text"
             placeholder="Description"

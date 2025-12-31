@@ -267,7 +267,7 @@ const EmployeeList = () => {
 
           {/* Employee Table */}
           {filteredEmployees.length > 0 ? (
-            <div className="border mx-auto max-w-xl md:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl overflow-auto border-gray-200 rounded-lg max-h-[70vh]">
+            <div className="border mx-auto max-w-xl md:max-w-5xl xl:min-w-5xl 2xl:min-w-full overflow-auto border-gray-200 rounded-lg max-h-[70vh]">
               <table className="text-xs">
                 <thead className="bg-gray-100 text-gray-700 sticky top-0">
                   <tr className="text-center">

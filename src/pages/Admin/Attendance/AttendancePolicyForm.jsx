@@ -459,7 +459,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
           ) : (
             <button
               onClick={submit}
-              className="bg-green-600 text-white px-4 py-2 text-sm rounded"
+              className="bg-primary cursor-pointer text-white px-4 py-2 text-sm rounded"
             >
               Save Policy
             </button>

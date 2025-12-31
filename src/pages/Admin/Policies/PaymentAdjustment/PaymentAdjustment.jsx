@@ -21,7 +21,7 @@ export default function PaymentAdjustment() {
       setAdjustments(Array.isArray(res.data?.data) ? res.data.data : []);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to load payment adjustments");
+      // toast.error("Failed to load payment adjustments");
     } finally {
       setLoading(false);
     }

@@ -310,7 +310,7 @@ const App = () => {
 
                   {/* Reports SubRoutes */}
                   <Route path="reports/*" element={<AdminContentBox />}>
-                    <Route index element={<Navigate to="salary-register" />} />
+                    <Route index element={<Navigate to="payslip-templates" />} />
                     <Route
                       path="payslip-templates"
                       element={<PayslipTemplates />}

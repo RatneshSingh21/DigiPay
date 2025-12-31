@@ -116,7 +116,7 @@ const SalaryConfig = () => {
 
                       <button
                         className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition"
-                        onClick={() => setConfirmDeleteId(item)}
+                        onClick={() => setConfirmDeleteId(item.componentConfigId)}
                       >
                         <FiTrash2 size={14} />
                         <span>Delete</span>

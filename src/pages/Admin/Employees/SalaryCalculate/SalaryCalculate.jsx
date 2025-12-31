@@ -185,7 +185,7 @@ const SalaryCalculate = () => {
         </div>
       </div>
 
-      <div className="border mx-auto max-w-xl md:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
+      <div className="border mx-auto max-w-xl md:max-w-5xl xl:min-w-5xl 2xl:min-w-full overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
         <table className="divide-y divide-gray-200 text-xs text-center">
           <thead className="bg-gray-100 text-gray-600 sticky top-0">
             <tr>

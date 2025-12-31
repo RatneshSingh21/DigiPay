@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Switch } from "@headlessui/react";
+import Select from "react-select";
 import { FiX, FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
@@ -46,7 +47,7 @@ const Toggle = ({ label, value, onChange, hint }) => (
 );
 
 /* ===================== COMPONENT ===================== */
-const AddWeekendPolicy = ({ onClose, onSuccess }) => {
+const AddWeekendPolicy = ({ onClose, onSuccess, isEdit, initialData }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [govtApproved, setGovtApproved] = useState(false);
@@ -98,8 +99,9 @@ const AddWeekendPolicy = ({ onClose, onSuccess }) => {
       return toast.error("At least one weekend rule is required");
 
     setLoading(true);
+
     try {
-      await axiosInstance.post("/WeekendPolicy/insert-Weekend-policy", {
+      const payload = {
         ...policy,
         weekendWorkRules: rules.map((r) => ({
           ...r,
@@ -107,20 +109,67 @@ const AddWeekendPolicy = ({ onClose, onSuccess }) => {
             ? halfDayCredit
             : r.workingDayCredit,
         })),
-      });
-      toast.success("Weekend policy activated successfully");
+      };
+
+      if (isEdit === "Edit" && initialData?.weekendPolicyId) {
+        // ✅ UPDATE
+        await axiosInstance.put(
+          `/WeekendPolicy/${initialData.weekendPolicyId}`,
+          payload
+        );
+        toast.success("Weekend policy updated successfully");
+      } else {
+        // ✅ CREATE
+        await axiosInstance.post(
+          "/WeekendPolicy/insert-Weekend-policy",
+          payload
+        );
+        toast.success("Weekend policy activated successfully");
+      }
+
       onSuccess?.();
       onClose?.();
-    } catch {
+    } catch (err) {
       toast.error("Failed to save policy");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (isEdit === "Edit" && initialData) {
+      setPolicy({
+        policyName: initialData.policyName || "",
+        sundayOff: initialData.sundayOff,
+        mondayOff: initialData.mondayOff,
+        tuesdayOff: initialData.tuesdayOff,
+        wednesdayOff: initialData.wednesdayOff,
+        thursdayOff: initialData.thursdayOff,
+        fridayOff: initialData.fridayOff,
+        saturdayOff: initialData.saturdayOff,
+        isHalfDayApplicable: initialData.isHalfDayApplicable,
+        allowWeekendOverride: initialData.allowWeekendOverride,
+        allowShiftOverride: initialData.allowShiftOverride,
+        allowEmployeeOverride: initialData.allowEmployeeOverride,
+        isActive: initialData.isActive,
+      });
+
+      setRules(initialData.weekendWorkRules || []);
+
+      // restore half-day credit safely
+      const credit = initialData.weekendWorkRules?.[0]?.workingDayCredit;
+      if (credit) setHalfDayCredit(credit);
+
+      setGovtApproved(
+        initialData.weekendWorkRules?.some((r) => r.isGovernmentApproved) ||
+          false
+      );
+    }
+  }, [isEdit, initialData]);
+
   return (
     <div className="fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center">
-      <div className="bg-white w-full max-w-4xl rounded-xl p-6 space-y-6">
+      <div className="bg-white w-full max-w-4xl rounded-xl relative p-6 space-y-6 max-h-[80vh] overflow-y-scroll">
         {/* HEADER */}
         <div className="flex justify-between">
           <div>
@@ -129,7 +178,7 @@ const AddWeekendPolicy = ({ onClose, onSuccess }) => {
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-red-600"
+            className="absolute top-4 cursor-pointer hover:text-red-500 right-4 text-gray-500"
           >
             <FiX size={20} />
           </button>
@@ -142,8 +191,8 @@ const AddWeekendPolicy = ({ onClose, onSuccess }) => {
             description="Define which days are considered non-working by default."
           >
             <input
-              className="input w-full"
-              placeholder="Policy Name (e.g. IT Support – Sunday Allowed)"
+              className="w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm"
+              placeholder="Policy Name (e.g. IT Support - Sunday Allowed)"
               value={policy.policyName}
               onChange={(e) => updatePolicy("policyName", e.target.value)}
             />
@@ -183,14 +232,33 @@ const AddWeekendPolicy = ({ onClose, onSuccess }) => {
             />
 
             {policy.isHalfDayApplicable && (
-              <select
-                className="input"
-                value={halfDayCredit}
-                onChange={(e) => setHalfDayCredit(Number(e.target.value))}
-              >
-                <option value={0.5}>Count as Half Day (0.5)</option>
-                <option value={1}>Count as Full Day</option>
-              </select>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700">
+                  Half-Day Credit Calculation
+                </label>
+
+                <Select
+                  value={[
+                    { value: 0.5, label: "Count as Half Day (0.5)" },
+                    { value: 1, label: "Count as Full Day (1.0)" },
+                  ].find((opt) => opt.value === halfDayCredit)}
+                  onChange={(opt) => setHalfDayCredit(Number(opt.value))}
+                  options={[
+                    { value: 0.5, label: "Count as Half Day (0.5)" },
+                    { value: 1, label: "Count as Full Day (1.0)" },
+                  ]}
+                  isSearchable={false}
+                  classNames={{
+                    control: () =>
+                      "border border-blue-300 min-h-[36px] text-sm rounded",
+                  }}
+                />
+
+                <p className="text-xs text-gray-500">
+                  Defines how attendance is credited when half-day working is
+                  enabled.
+                </p>
+              </div>
             )}
 
             <Toggle
@@ -239,7 +307,7 @@ const AddWeekendPolicy = ({ onClose, onSuccess }) => {
               <>
                 <button
                   onClick={addRule}
-                  className="bg-primary text-white px-4 py-2 rounded-md"
+                  className="bg-primary cursor-pointer text-white px-4 py-2 text-sm rounded"
                 >
                   + Add Weekend Rule
                 </button>
@@ -271,7 +339,10 @@ const AddWeekendPolicy = ({ onClose, onSuccess }) => {
         {/* FOOTER */}
         <div className="flex justify-between pt-4">
           {step > 1 ? (
-            <button onClick={() => setStep(step - 1)} className="btn">
+            <button
+              onClick={() => setStep(step - 1)}
+              className="bg-gray-500 cursor-pointer text-white px-4 py-2 text-sm rounded"
+            >
               Back
             </button>
           ) : (
@@ -281,7 +352,7 @@ const AddWeekendPolicy = ({ onClose, onSuccess }) => {
           {step < 3 ? (
             <button
               onClick={() => setStep(step + 1)}
-              className="bg-primary text-white px-6 py-2 rounded-md"
+              className="bg-primary cursor-pointer text-white px-4 py-2 text-sm rounded"
             >
               Next
             </button>
@@ -289,7 +360,7 @@ const AddWeekendPolicy = ({ onClose, onSuccess }) => {
             <button
               onClick={submit}
               disabled={loading}
-              className="bg-primary text-white px-6 py-2 rounded-md"
+              className="bg-primary cursor-pointer text-white px-4 py-2 text-sm rounded"
             >
               {loading ? "Activating..." : "Activate Policy"}
             </button>

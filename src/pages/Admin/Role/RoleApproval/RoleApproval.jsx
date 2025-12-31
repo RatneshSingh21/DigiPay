@@ -71,10 +71,32 @@ const RoleApproval = () => {
       toast.error("Request Type is required");
       return;
     }
+
+    // 🔐 Duplicate rule validation (case-insensitive)
+    const ruleExists = rules.some(
+      (r) =>
+        r.requestType.toLowerCase() ===
+        formData.requestType.trim().toLowerCase()
+    );
+
+    if (ruleExists) {
+      toast.warn(`Rule "${formData.requestType}" already exists`);
+      return;
+    }
+
     try {
-      await axiosInstance.post("/ApprovalRule", formData);
+      await axiosInstance.post("/ApprovalRule", {
+        requestType: formData.requestType.trim(),
+        allowCustomApprover: formData.allowCustomApprover,
+      });
+
       toast.success("Rule created successfully");
-      setFormData({ requestType: "", allowCustomApprover: false });
+
+      setFormData({
+        requestType: "",
+        allowCustomApprover: false,
+      });
+
       setIsRuleModalOpen(false);
       fetchRules();
     } catch (error) {
