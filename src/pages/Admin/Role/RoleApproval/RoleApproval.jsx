@@ -175,7 +175,7 @@ const RoleApproval = () => {
               <p className="italic">No rules created yet.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto shadow h-[150px] overflow-y-scroll">
+            <div className="overflow-x-auto shadow h-[30vh] overflow-y-scroll">
               <table className="min-w-full divide-y text-xs divide-gray-200">
                 <thead className="bg-gray-100 text-gray-600 text-center">
                   <tr>
@@ -235,7 +235,7 @@ const RoleApproval = () => {
               <p className="italic">No roles assigned yet.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto shadow h-[150px] overflow-y-scroll">
+            <div className="overflow-x-auto shadow h-[30vh] overflow-y-scroll">
               <table className="min-w-full divide-y text-xs divide-gray-200 text-center ">
                 <thead className="bg-gray-100 text-gray-600">
                   <tr>

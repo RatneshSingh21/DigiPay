@@ -212,7 +212,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
         <button
           type="button"
           onClick={onRemove}
-          className="text-red-600 text-sm hover:underline"
+          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 hover:text-red-700 transition cursor-pointer"
         >
           Remove Rule
         </button>

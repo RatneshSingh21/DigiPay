@@ -41,13 +41,26 @@ export default function SignInForm({ switchToSignUp }) {
         password,
       });
 
-      const { user, token, refreshToken } = response.data.data;
-      useAuthStore.getState().login(user, token, refreshToken);
+      const u = response.data.data.user;
 
+      useAuthStore.getState().login(
+        {
+          userId: u.userId, // ✅ primary
+          id: u.userId, // ✅ alias
+          name: u.name,
+          fullName: u.name,
+          emailOrPhone: u.emailOrPhone,
+          role: u.role,
+          profileImageUrl: u.profileImageUrl,
+          companyId: u.companyId,
+        },
+        response.data.data.token,
+        response.data.data.refreshToken
+      );
       toast.success("Login successful!");
 
       // Direct role-based navigation
-      if (user.role === "SuperAdmin" || user.role === "Admin") {
+      if (u.role === "SuperAdmin" || u.role === "Admin") {
         navigate("/admin-dashboard");
       } else {
         navigate("/unauthorized");

@@ -241,7 +241,10 @@ const EmployeeLeaveForm = ({ onClose }) => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-primary cursor-pointer text-white py-2 rounded hover:bg-secondary transition disabled:opacity-50"
+          className="w-full bg-primary text-white rounded
+             hover:bg-secondary transition disabled:opacity-50
+             flex items-center justify-center
+             h-10 leading-none"
         >
           {loading ? <Spinner /> : "Submit Leave"}
         </button>

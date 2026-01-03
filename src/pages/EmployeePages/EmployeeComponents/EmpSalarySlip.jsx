@@ -3,6 +3,7 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 import { useReactToPrint } from "react-to-print";
 import { payslipTemplateMap } from "../EmpPayslip/payslipTemplateRegistry";
+import assets from "../../../assets/assets";
 
 const EmpSalarySlip = () => {
   const { user } = useAuthStore();
@@ -10,8 +11,15 @@ const EmpSalarySlip = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const currentDate = new Date();
-  const [month, setMonth] = useState(currentDate.getMonth() + 1);
-  const [year, setYear] = useState(currentDate.getFullYear());
+
+  const prevMonthDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() - 1,
+    1
+  );
+
+  const [month, setMonth] = useState(prevMonthDate.getMonth() + 1);
+  const [year, setYear] = useState(prevMonthDate.getFullYear());
 
   const months = [
     "January",
@@ -112,8 +120,6 @@ const EmpSalarySlip = () => {
         });
         console.log("Fetched Payslip Data:", res.data[0]);
         if (res.data?.length > 0) setData(res.data[0]);
-      
-        
         else setData(null);
       } catch (err) {
         console.error("Error fetching payslip:", err);
@@ -139,10 +145,10 @@ const EmpSalarySlip = () => {
   // Extract data safely
 
   return (
-    <div className="p-4">
+    <>
       {/* Header with filter on right */}
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-lg font-semibold text-gray-700">
+      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+        <h2 className="font-semibold text-xl flex items-center gap-2">
           Employee Salary Slip
         </h2>
 
@@ -189,33 +195,21 @@ const EmpSalarySlip = () => {
 
       {/* No Slip Available */}
       {!loading && !data && (
-        <div className="bg-white p-8 my-10 shadow-md max-w-md mx-auto text-center border rounded-md">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="bg-red-100 text-red-500 p-4 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.5"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L4.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-            </div>
-            <h2 className="text-lg font-semibold text-gray-700">
-              No Payslip Available
-            </h2>
-            <p className="text-sm text-gray-500">
-              No salary slip found for the selected month/year.
-            </p>
-          </div>
+        <div className="bg-white p-8 my-10 shadow-md max-w-md mx-auto text-center rounded-md">
+          <img
+            src={assets.NoSalarySlip}
+            alt="No Salary Slip Found"
+            className="w-64 h-auto mx-auto mb-6"
+          />
+          <h2 className="text-lg font-semibold text-gray-700">
+            No Payslip Available
+          </h2>
+          <p className="text-sm text-gray-500">
+            No salary slip found for the selected month/year.
+          </p>
         </div>
       )}
+
       {/* Slip Display */}
       {!loading && data && (
         <div ref={slipRef}>
@@ -227,7 +221,7 @@ const EmpSalarySlip = () => {
           />
         </div>
       )}
-    </div>
+    </>
   );
 };
 

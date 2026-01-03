@@ -109,13 +109,13 @@ const WeekendPolicyList = ({
                   setSelectedWeekendPolicy(policy);
                   openModal();
                 }}
-                className="flex items-center gap-1 px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded text-xs"
+                className="flex items-center gap-1 px-2.5 py-1 cursor-pointer bg-blue-100 hover:bg-blue-200 text-blue-600 rounded text-xs"
               >
                 <FiEdit2 size={12} /> Edit
               </button>
               <button
                 onClick={() => setConfirmDeleteId(policy.weekendPolicyId)}
-                className="flex items-center gap-1 px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-600 rounded text-xs"
+                className="flex items-center gap-1 px-2.5 py-1 cursor-pointer bg-red-100 hover:bg-red-200 text-red-600 rounded text-xs"
               >
                 <FiTrash2 size={12} /> Delete
               </button>

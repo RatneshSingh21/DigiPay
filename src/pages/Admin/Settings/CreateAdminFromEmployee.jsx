@@ -153,7 +153,7 @@ const CreateAdminFromEmployee = () => {
   return (
     <div>
       {/* Header */}
-      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-3 shadow sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl"> Create Admin from Employee</h2>
       </div>
 
@@ -164,7 +164,7 @@ const CreateAdminFromEmployee = () => {
       ) : (
         <div className="p-5">
           {/* Search Box + Form Card */}
-          <div className="bg-white shadow-xl p-6 rounded-2xl border border-gray-100 mb-8 w-full max-w-lg">
+          <div className="bg-white shadow-xl p-6 rounded-2xl border border-gray-100 mb-4 w-full max-w-lg">
             <h3 className="text-lg font-semibold mb-4 text-gray-700">
               Assign Role to Employee
             </h3>
@@ -271,7 +271,7 @@ const CreateAdminFromEmployee = () => {
             </div>
           )}
 
-          <div className="overflow-x-auto shadow rounded-lg h-[250px] overflow-y-scroll mt-6">
+          <div className="overflow-x-auto shadow rounded-lg h-[40vh] overflow-y-scroll mt-6">
             <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-100 text-gray-700 text-center sticky top-0 z-10">
                 <tr>

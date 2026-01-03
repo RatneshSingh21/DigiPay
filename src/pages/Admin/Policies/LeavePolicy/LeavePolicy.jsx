@@ -1,35 +1,60 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import LeavePolicyForm from "./LeavePolicyForm";
-import { FiEdit2, FiPlus, FiRefreshCw } from "react-icons/fi";
+import { FiPlus, FiRefreshCw } from "react-icons/fi";
 import assets from "../../../../assets/assets";
+import { Edit } from "lucide-react";
 
-/* ---------- Helpers ---------- */
+/* ================= HELPERS ================= */
+
 const formatDate = (d) => (d ? new Date(d).toLocaleDateString("en-GB") : "-");
 
 const YesNo = ({ v }) => (
   <span
-    className={`text-xs font-medium ${v ? "text-green-600" : "text-gray-400"}`}
+    className={`text-xs font-semibold ${
+      v ? "text-green-600" : "text-gray-400"
+    }`}
   >
     {v ? "Yes" : "No"}
   </span>
 );
 
-/* ---------- Reusable Row ---------- */
 const Row = ({ label, value }) => (
-  <div className="flex justify-between py-0.5 text-xs">
+  <div className="flex justify-between text-xs py-0.5">
     <span className="text-gray-500">{label}</span>
-    <span className="text-gray-800 font-medium">{value ?? "-"}</span>
+    <span className="text-gray-800 font-medium text-right">{value ?? "-"}</span>
   </div>
 );
 
-/* ---------- Main Component ---------- */
+/* ================= MAIN ================= */
+const groupBlackoutDates = (blackouts = []) => {
+  const map = {};
+
+  blackouts.forEach((b) => {
+    const key = `${b.title}_${b.fromDate}_${b.toDate}`;
+
+    if (!map[key]) {
+      map[key] = {
+        title: b.title,
+        fromDate: b.fromDate,
+        toDate: b.toDate,
+        count: 0,
+      };
+    }
+
+    map[key].count += 1;
+  });
+
+  return Object.values(map);
+};
 const LeavePolicy = () => {
   const [policies, setPolicies] = useState([]);
+  const [leaveTypes, setLeaveTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState(null);
-  const [leaveTypes, setLeaveTypes] = useState([]);
+
+  /* ---------- DATA ---------- */
 
   const fetchPolicies = async () => {
     setLoading(true);
@@ -43,17 +68,6 @@ const LeavePolicy = () => {
     }
   };
 
-  const leaveTypeMap = React.useMemo(() => {
-    const map = {};
-    leaveTypes.forEach((lt) => {
-      map[lt.leaveTypeId] = {
-        name: lt.leaveName,
-        code: lt.leaveCode,
-      };
-    });
-    return map;
-  }, [leaveTypes]);
-
   useEffect(() => {
     fetchPolicies();
     axiosInstance.get("/LeaveType").then((res) => {
@@ -61,19 +75,26 @@ const LeavePolicy = () => {
     });
   }, []);
 
+  const leaveTypeMap = useMemo(() => {
+    const map = {};
+    leaveTypes.forEach((lt) => {
+      map[lt.leaveTypeId] = `${lt.leaveName} (${lt.leaveCode})`;
+    });
+    return map;
+  }, [leaveTypes]);
+
+  /* ================= UI ================= */
+
   return (
     <>
-      {/* ---------- Header ---------- */}
+      {/* ================= HEADER ================= */}
       <div className="sticky top-14 z-10 bg-white px-5 py-3 mb-6 flex justify-between items-center shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900">Leave Policies</h2>
 
         <div className="flex gap-2">
           <button
             onClick={fetchPolicies}
-            className="flex items-center gap-2 
-                       px-3 py-1.5 text-xs rounded-lg 
-                       bg-gray-100 cursor-pointer hover:bg-gray-200 
-                       transition"
+            className="flex items-center gap-2 px-3 py-2 text-xs cursor-pointer rounded-md bg-gray-100 hover:bg-gray-200"
           >
             <FiRefreshCw size={14} />
             Refresh
@@ -84,10 +105,7 @@ const LeavePolicy = () => {
               setEditData(null);
               setShowForm(true);
             }}
-            className="flex items-center gap-2 
-                       px-3 py-1.5 text-xs rounded-lg 
-                       bg-primary cursor-pointer hover:bg-secondary 
-                       text-white transition"
+            className="flex items-center gap-2 px-3 py-2 cursor-pointer text-xs rounded-md bg-primary text-white hover:bg-secondary"
           >
             <FiPlus size={14} />
             Add Policy
@@ -95,13 +113,12 @@ const LeavePolicy = () => {
         </div>
       </div>
 
-      {/* ---------- Modal ---------- */}
+      {/* ================= MODAL ================= */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[1000]">
-          <div className="bg-white max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-xl p-5 shadow-xl">
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-[50]">
+          <div className="bg-white max-w-4xl w-full max-h-[85vh] overflow-y-auto rounded-xl p-5 shadow-xl">
             <LeavePolicyForm
-              initialData={editData}
-              isEdit={!!editData}
+              policyId={editData?.leavePolicyId || null}
               onClose={() => setShowForm(false)}
               onSuccess={() => {
                 setShowForm(false);
@@ -112,59 +129,24 @@ const LeavePolicy = () => {
         </div>
       )}
 
-      {/* ---------- Loading / Empty ---------- */}
+      {/* ================= STATES ================= */}
       {loading ? (
         <div className="py-16 text-center text-sm text-gray-500">
           Loading leave policies…
         </div>
       ) : policies.length === 0 ? (
-        <div
-          className="flex flex-col items-center justify-center 
-                     py-12 px-6 mx-4 rounded-2xl 
-                     bg-gradient-to-br from-white to-gray-50 
-                     shadow-sm"
-        >
-          <img
-            src={assets.NoData}
-            alt="No Leave Policies"
-            className="w-56 mb-6 opacity-90"
-          />
-
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No Leave Policies Found
-          </h3>
-
-          <p className="text-sm text-gray-600 mb-6 max-w-md text-center">
-            Create leave policies to manage leave limits, carry forward,
-            comp-off rules, and blackout dates.
-          </p>
-
-          <button
-            onClick={() => {
-              setEditData(null);
-              setShowForm(true);
-            }}
-            className="flex items-center gap-2 
-                       bg-primary hover:bg-secondary 
-                       text-white px-6 py-2 
-                       rounded-full text-sm font-medium 
-                       shadow hover:shadow-md transition"
-          >
-            <FiPlus size={16} />
-            Create Leave Policy
-          </button>
+        <div className="flex flex-col items-center py-12">
+          <img src={assets.NoData} className="w-56 mb-4" />
+          <p className="text-sm text-gray-500">No leave policies found</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 px-5 pb-6">
+        <div className="flex gap-5 px-5 pb-6 overflow-x-auto">
           {policies.map((p) => (
             <div
               key={p.leavePolicyId}
-              className="bg-white rounded-2xl p-5 
-                         shadow-sm hover:shadow-lg 
-                         hover:-translate-y-0.5 
-                         transition-all duration-300"
+              className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-lg transition min-w-[300px]"
             >
-              {/* ---------- Card Header ---------- */}
+              {/* ================= TITLE ================= */}
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900">
@@ -175,39 +157,62 @@ const LeavePolicy = () => {
                   </p>
                 </div>
 
-                <FiEdit2
-                  className="cursor-pointer text-blue-600 hover:scale-110 transition"
+                <button
                   onClick={() => {
                     setEditData(p);
                     setShowForm(true);
                   }}
-                />
+                  className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-primary bg-primary/10 border border-primary/30 rounded-md hover:bg-primary hover:text-white transition cursor-pointer"
+                >
+                  <Edit size={12} /> Edit
+                </button>
               </div>
 
-              {/* ---------- Summary ---------- */}
-              <div className="mt-3 space-y-0.5 text-xs">
+              {/* ================= SUMMARY STRIP ================= */}
+              <div className="mt-3 bg-blue-50 rounded-lg p-3 grid grid-cols-2 gap-2 text-xs">
                 <Row
                   label="Status"
                   value={
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        p.isActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {p.isActive ? "Active" : "Inactive"}
-                    </span>
+                    p.isActive ? (
+                      <span className="text-green-700 font-semibold">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="text-red-600 font-semibold">
+                        Inactive
+                      </span>
+                    )
                   }
                 />
                 <Row
-                  label="Effective From"
-                  value={formatDate(p.effectiveFrom)}
+                  label="Effective Period"
+                  value={`${formatDate(p.effectiveFrom)} → ${formatDate(
+                    p.effectiveTo
+                  )}`}
                 />
-                <Row label="Effective To" value={formatDate(p.effectiveTo)} />
+                <Row
+                  label="Leave Types"
+                  value={p.leaveTypeRules?.length || 0}
+                />
+                <Row
+                  label="Backdated Leave"
+                  value={
+                    p.allowBackdatedLeave
+                      ? `Yes (≤ ${p.backdatedLimitInDays} days)`
+                      : "No"
+                  }
+                />
+                <Row
+                  label="Future Dated Leave"
+                  value={
+                    p.allowFutureDatedLeave
+                      ? `Yes (≤ ${p.futureDatedLimitInDays} days)`
+                      : "No"
+                  }
+                />
               </div>
 
-              {/* ---------- Leave Rules ---------- */}
+              {/* ================= LEAVE RULES ================= */}
               {p.leaveTypeRules?.length > 0 && (
                 <div className="mt-4">
                   <h4 className="text-xs font-semibold text-gray-700 mb-2">
@@ -218,80 +223,112 @@ const LeavePolicy = () => {
                     {p.leaveTypeRules.map((r) => (
                       <div
                         key={r.policyLeaveTypeRuleId}
-                        className="rounded-lg bg-gray-50 p-2 text-xs"
+                        className="rounded-lg bg-gray-50 p-3 text-xs"
                       >
-                        <Row
-                          label="Leave Type"
-                          value={
-                            leaveTypeMap[r.leaveTypeId]
-                              ? `${leaveTypeMap[r.leaveTypeId].name} (${
-                                  leaveTypeMap[r.leaveTypeId].code
-                                })`
-                              : `Leave #${r.leaveTypeId}`
-                          }
-                        />
-                        <Row label="Max / Year" value={r.maxLeavesPerYear} />
-                        <Row
-                          label="Half Day"
-                          value={<YesNo v={r.allowHalfDay} />}
-                        />
-                        <Row
-                          label="Carry Forward"
-                          value={<YesNo v={r.isCarryForwardAllowed} />}
-                        />
-                        <Row
-                          label="Document Required"
-                          value={<YesNo v={r.isDocumentRequired} />}
-                        />
+                        <div className="font-semibold text-gray-800 mb-1">
+                          {leaveTypeMap[r.leaveTypeId] ||
+                            `Leave #${r.leaveTypeId}`}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                          <Row label="Max / Year" value={r.maxLeavesPerYear} />
+                          <Row
+                            label="Per Application"
+                            value={`${r.minDaysPerApplication} – ${r.maxDaysPerApplication}`}
+                          />
+                          <Row
+                            label="Eligibility"
+                            value={
+                              r.minServiceMonthsRequired
+                                ? `${r.minServiceMonthsRequired} months`
+                                : "Immediate"
+                            }
+                          />
+                          <Row
+                            label="Half Day"
+                            value={<YesNo v={r.allowHalfDay} />}
+                          />
+                          <Row
+                            label="Weekends Counted"
+                            value={<YesNo v={r.includeWeekends} />}
+                          />
+                          <Row
+                            label="Holidays Counted"
+                            value={<YesNo v={r.includeHolidays} />}
+                          />
+                          <Row
+                            label="Carry Forward"
+                            value={
+                              r.isCarryForwardAllowed
+                                ? `Yes (≤ ${r.carryForwardLimit})`
+                                : "No"
+                            }
+                          />
+                          <Row
+                            label="Document Required"
+                            value={
+                              r.isDocumentRequired
+                                ? `After ${r.documentRequiredAfterDays} days`
+                                : "No"
+                            }
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* ---------- Comp Off ---------- */}
-              {p.compOffRule && (
+              {/* ================= COMP OFF ================= */}
+              {p.compOffRule?.isEnabled && (
                 <div className="mt-4">
                   <h4 className="text-xs font-semibold text-gray-700 mb-2">
                     Comp Off
                   </h4>
-                  <div className="rounded-lg bg-gray-50 p-2">
+                  <div className="rounded-lg bg-green-50 p-3 text-xs">
                     <Row
-                      label="Enabled"
-                      value={<YesNo v={p.compOffRule.isEnabled} />}
+                      label="Expiry"
+                      value={`${p.compOffRule.expiryInDays} days`}
                     />
                     <Row
-                      label="Expiry (Days)"
-                      value={p.compOffRule.expiryInDays}
-                    />
-                    <Row
-                      label="On Holiday"
+                      label="On Holidays"
                       value={<YesNo v={p.compOffRule.allowOnHoliday} />}
                     />
                     <Row
-                      label="On Weekend"
+                      label="On Weekends"
                       value={<YesNo v={p.compOffRule.allowOnWeekend} />}
                     />
                   </div>
                 </div>
               )}
 
-              {/* ---------- Blackout ---------- */}
+              {/* ================= BLACKOUT DATES ================= */}
               {p.blackoutDates?.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="text-xs font-semibold text-gray-700 mb-2">
-                    Blackout Dates
+                  <h4 className="text-xs font-semibold text-red-700 mb-2">
+                    Blackout Periods
                   </h4>
 
                   <div className="space-y-2">
-                    {p.blackoutDates.map((b) => (
+                    {groupBlackoutDates(p.blackoutDates).map((b, idx) => (
                       <div
-                        key={b.blackoutId}
-                        className="rounded-lg bg-gray-50 p-2 text-xs"
+                        key={idx}
+                        className="rounded-lg bg-red-50 border border-red-100 p-3 text-xs"
                       >
-                        <Row label="Title" value={b.title} />
-                        <Row label="From" value={formatDate(b.fromDate)} />
-                        <Row label="To" value={formatDate(b.toDate)} />
+                        <div className="font-semibold text-red-800 flex items-center gap-2">
+                          ⛔ {b.title}
+                        </div>
+
+                        <div className="mt-1 text-gray-700">
+                          <span className="font-medium">Period:</span>{" "}
+                          {formatDate(b.fromDate)} → {formatDate(b.toDate)}
+                        </div>
+
+                        {b.count > 1 && (
+                          <div className="mt-1 text-[11px] text-gray-500 italic">
+                            Applies to multiple leave types
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

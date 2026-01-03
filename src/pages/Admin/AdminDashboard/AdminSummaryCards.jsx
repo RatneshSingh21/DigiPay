@@ -70,7 +70,7 @@ const AdminSummaryCards = () => {
       setSalaries(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch salaries");
+      // toast.error("Failed to fetch salaries");
     }
   };
 
@@ -119,7 +119,7 @@ const AdminSummaryCards = () => {
         const [m, y] = e.target.value.split("-");
         onChange(MONTH_OPTIONS.find((opt) => opt.month == m && opt.year == y));
       }}
-      className="text-xs font-semibold text-primary bg-gray-50 border border-gray-200 rounded-lg px-2 py-1"
+      className="text-xs font-semibold text-primary bg-gray-50 border border-gray-200 cursor-pointer rounded-lg px-2 py-1"
     >
       {MONTH_OPTIONS.map((opt) => (
         <option

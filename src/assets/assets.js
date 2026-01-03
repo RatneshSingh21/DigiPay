@@ -49,6 +49,7 @@ import Landscape from "./Landscape.jpg";
 import NotificationGif from "./NotificationGif.gif";
 import MagnifyGif from "./MagnifyGif.gif";
 import NoData from "./NoData.png";
+import NoSalarySlip from "./NoSalarySlip.png";
 
 const assets = {
   bg: bg,
@@ -102,6 +103,7 @@ const assets = {
   MagnifyGif: MagnifyGif,
   NotificationGif: NotificationGif,
   NoData: NoData,
+  NoSalarySlip: NoSalarySlip,
 };
 
 export default assets;

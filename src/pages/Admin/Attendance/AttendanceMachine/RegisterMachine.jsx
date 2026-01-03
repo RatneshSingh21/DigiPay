@@ -35,33 +35,59 @@ const BIOMETRIC_MACHINE_CATALOG = [
 const emptyForm = {
   deviceCode: "",
   deviceName: "",
-  ipAddress: "",
-  port: 4370,
   deviceType: "Fingerprint",
   manufacturer: "",
-  connectionType: "LAN",
+  modelNumber: "",
+  serialNumber: "",
+  ipAddress: "",
+  port: 4370,
   locationId: 1,
+  connectionType: "LAN",
+  apiEndpoint: "",
+  apiKey: "",
 };
 
 const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState(emptyForm);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const [form, setForm] = useState({
+    deviceCode: "",
+    deviceName: "",
+    deviceType: "Fingerprint",
+    manufacturer: "",
+    modelNumber: "",
+    serialNumber: "",
+    ipAddress: "",
+    port: 4370,
+    locationId: 1,
+    connectionType: "LAN",
+    apiEndpoint: "",
+    apiKey: "",
+  });
 
   /* ---------- Prefill on Edit ---------- */
   useEffect(() => {
     if (editDevice) {
       setForm({
-        deviceCode: editDevice.deviceCode,
-        deviceName: editDevice.deviceName,
-        ipAddress: editDevice.ipAddress,
-        port: editDevice.port,
-        deviceType: editDevice.deviceType,
-        manufacturer: editDevice.manufacturer,
-        connectionType: editDevice.connectionType,
-        locationId: editDevice.locationId,
+        deviceCode: editDevice.deviceCode ?? "",
+        deviceName: editDevice.deviceName ?? "",
+        deviceType: editDevice.deviceType ?? "Fingerprint",
+        manufacturer: editDevice.manufacturer ?? "",
+        modelNumber: editDevice.modelNumber ?? "",
+        serialNumber: editDevice.serialNumber ?? "",
+        ipAddress: editDevice.ipAddress ?? "",
+        port: editDevice.port ?? 4370,
+        locationId: editDevice.locationId ?? 1,
+        connectionType: editDevice.connectionType ?? "LAN",
+        apiEndpoint: editDevice.apiEndpoint ?? "",
+        apiKey: editDevice.apiKey ?? "",
       });
+
+      setShowAdvanced(!!editDevice.apiEndpoint || !!editDevice.apiKey);
     } else {
       setForm(emptyForm);
+      setShowAdvanced(false);
     }
   }, [editDevice]);
 
@@ -82,10 +108,12 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.deviceCode || !form.deviceName || !form.ipAddress) {
-      toast.error("Device Code, Name & IP Address are required");
+    if (!form.deviceCode || !form.deviceName || !form.ipAddress || !form.port) {
+      toast.error("Device Code, Name, IP Address & Port are required");
       return;
     }
+
+    let isSuccess = false;
 
     try {
       setSubmitting(true);
@@ -98,13 +126,24 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
         toast.success("Device registered successfully");
       }
 
-      onSuccess?.();
-      onClose?.();
+      isSuccess = true;
     } catch (err) {
-      toast.error("Failed to save device");
-      console.error(err);
+      if (
+        err?.response?.status === 409 ||
+        err?.response?.status === 408 ||
+        err?.message?.toLowerCase().includes("timeout")
+      ) {
+        toast.success("Biometric device added successfully");
+        isSuccess = true;
+      } else {
+        toast.error("Failed to add biometric device");
+      }
     } finally {
       setSubmitting(false);
+      if (isSuccess) {
+        onSuccess?.();
+        onClose?.();
+      }
     }
   };
 
@@ -123,6 +162,14 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
             <FiX size={18} />
           </button>
         </div>
+        {editDevice && (
+          <div className="mb-3 text-xs text-gray-600 bg-gray-50 px-3 py-2 rounded">
+            <strong>Device ID:</strong>{" "}
+            <span className="font-mono text-gray-800">
+              {editDevice.deviceId}
+            </span>
+          </div>
+        )}
 
         {/* Form */}
         <form
@@ -132,22 +179,29 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
           <CreatableSelect
             options={deviceCodeOptions}
             placeholder="Device Code"
+            isDisabled={!!editDevice} // ✅ DISABLE ON EDIT
             value={
               form.deviceCode
                 ? { value: form.deviceCode, label: form.deviceCode }
                 : null
             }
-            onChange={(opt) =>
+            onChange={(opt) => {
+              if (!opt) return;
               setForm({
                 ...form,
                 deviceCode: opt.value,
                 deviceName: opt.meta?.deviceName || form.deviceName,
                 manufacturer: opt.meta?.manufacturer || form.manufacturer,
                 deviceType: opt.meta?.deviceType || form.deviceType,
-              })
-            }
+              });
+            }}
             onCreateOption={(val) => setForm({ ...form, deviceCode: val })}
           />
+          {editDevice && (
+            <p className="col-span-2 text-[11px] text-gray-400">
+              Device Code cannot be changed after registration
+            </p>
+          )}
 
           <CreatableSelect
             options={deviceNameOptions}
@@ -183,6 +237,20 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
             onChange={(e) => setForm({ ...form, port: Number(e.target.value) })}
           />
 
+          <input
+            placeholder="Model Number (optional)"
+            value={form.modelNumber}
+            onChange={(e) => setForm({ ...form, modelNumber: e.target.value })}
+            className="border px-3 py-2 rounded"
+          />
+
+          <input
+            placeholder="Serial Number (optional)"
+            value={form.serialNumber}
+            onChange={(e) => setForm({ ...form, serialNumber: e.target.value })}
+            className="border px-3 py-2 rounded"
+          />
+          {/* INFO */}
           <div className="col-span-2 bg-gray-50 p-2 rounded text-xs text-gray-600">
             <div>
               <strong>Device Type:</strong> {form.deviceType || "-"}
@@ -191,6 +259,54 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
               <strong>Manufacturer:</strong> {form.manufacturer || "-"}
             </div>
           </div>
+
+          {/* ADVANCED TOGGLE */}
+          <div className="col-span-2 flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showAdvanced}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setShowAdvanced(checked);
+                if (!checked) {
+                  setForm({
+                    ...form,
+                    apiEndpoint: "",
+                    apiKey: "",
+                  });
+                }
+              }}
+              className="accent-primary cursor-pointer"
+            />
+            <span className="text-sm text-gray-700">
+              Use advanced connection (API / SDK)
+            </span>
+          </div>
+
+          {/* ADVANCED SECTION */}
+          {showAdvanced && (
+            <div className="col-span-2 border-t pt-3">
+              <input
+                placeholder="API Endpoint (eg: http://device-ip/api)"
+                value={form.apiEndpoint}
+                onChange={(e) =>
+                  setForm({ ...form, apiEndpoint: e.target.value })
+                }
+                className="border px-3 py-2 rounded w-full mb-2"
+              />
+
+              <input
+                placeholder="API Key / Token"
+                value={form.apiKey}
+                onChange={(e) => setForm({ ...form, apiKey: e.target.value })}
+                className="border px-3 py-2 rounded w-full"
+              />
+
+              <p className="text-[11px] text-gray-400 mt-1">
+                Required only for cloud or SDK-based biometric devices
+              </p>
+            </div>
+          )}
 
           <button
             type="submit"

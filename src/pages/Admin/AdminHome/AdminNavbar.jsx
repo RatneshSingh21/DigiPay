@@ -161,9 +161,9 @@ const AdminNavbar = () => {
               className="flex items-center cursor-pointer gap-2 group"
             >
               <img
-                src={user?.profilePicture || "https://i.pravatar.cc/300"}
+                src={user?.profileImageUrl || "https://i.pravatar.cc/300"}
                 alt="Profile"
-                className="w-9 h-9 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition"
+                className="w-9 h-9 rounded-full object-contain bg-gray-300 border-2 border-transparent group-hover:border-primary transition"
               />
               <FaChevronDown className="text-sm text-gray-600 group-hover:text-primary transition" />
             </button>

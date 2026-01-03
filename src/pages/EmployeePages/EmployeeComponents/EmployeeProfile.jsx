@@ -27,31 +27,43 @@ const EmployeeProfile = () => {
     const fetchEmployee = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get(`/Employee/${User.userId}`);
-        const emp = res.data.data;
 
-        // fetch related names
+        // ✅ GET /api/Employee/{id}
+        const res = await axiosInstance.get(`/Employee/${User.userId}`);
+        const emp = res.data?.data;
+
+        if (!emp) {
+          toast.error("Employee not found");
+          return;
+        }
+
+        // ✅ Fetch related master data in parallel
         const [deptRes, desigRes, payRes, locRes] = await Promise.all([
           emp.departmentId
             ? axiosInstance.get(`/Department/${emp.departmentId}`)
             : Promise.resolve({ data: null }),
+
           emp.designationId
             ? axiosInstance.get(`/Designation/${emp.designationId}`)
             : Promise.resolve({ data: null }),
+
           emp.payScheduleId
             ? axiosInstance.get(`/PaySchedule/${emp.payScheduleId}`)
             : Promise.resolve({ data: null }),
+
           emp.workLocationId
             ? axiosInstance.get(`/WorkLocation/${emp.workLocationId}`)
             : Promise.resolve({ data: null }),
         ]);
 
+        // ✅ Set employee with image
         setEmployee({
           ...emp,
-          departmentName: deptRes.data?.name || "N/A",
-          designationName: desigRes.data?.title || "N/A",
-          payScheduleName: payRes.data?.name || "N/A",
-          workLocationName: locRes.data?.name || "N/A",
+          departmentName: deptRes?.data?.name || "N/A",
+          designationName: desigRes?.data?.title || "N/A",
+          payScheduleName: payRes?.data?.name || "N/A",
+          workLocationName: locRes?.data?.name || "N/A",
+          profileImageUrl: emp.profileImageUrl || "",
         });
       } catch (error) {
         console.error("Failed to fetch employee:", error);
@@ -61,7 +73,9 @@ const EmployeeProfile = () => {
       }
     };
 
-    if (User?.userId) fetchEmployee();
+    if (User?.userId) {
+      fetchEmployee();
+    }
   }, [User?.userId]);
 
   // Load config once
@@ -262,7 +276,7 @@ ${employee.departmentName}
 
             <div class="photo-wrapper">
               <img src="${
-                employee.profileImage || assets.UserDummy
+                employee.profileImageUrl || assets.UserDummy
               }" class="user-photo" />
             </div>
           </div>
@@ -405,11 +419,17 @@ ${employee.departmentName}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
             {/* Profile Left */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-              <img
-                src={employee.profileImage || assets.UserDummy}
-                alt="Profile"
-                className="w-28 h-28 rounded-full border-4 border-gray-200 shadow-md object-cover"
-              />
+              {employee?.profileImageUrl ? (
+                <img
+                  src={employee.profileImageUrl}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover border"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-xl font-bold">
+                  {employee?.fullName?.charAt(0)}
+                </div>
+              )}
 
               <div className="text-center sm:text-left space-y-1">
                 <h2 className="text-3xl font-semibold text-gray-800">

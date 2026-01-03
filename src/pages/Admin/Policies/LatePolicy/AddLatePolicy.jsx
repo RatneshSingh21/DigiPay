@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
-import { FaTimes } from "react-icons/fa";
+import { FiX } from "react-icons/fi";
 
 /* ================= CONSTANTS ================= */
 
@@ -210,6 +210,134 @@ export default function AddLatePolicy({
       );
   };
 
+  useEffect(() => {
+    if (isEdit && initialData) {
+      setForm({
+        policyName: initialData.policyName || "",
+        description: initialData.description || "",
+        effectiveFrom: initialData.effectiveFrom
+          ? new Date(initialData.effectiveFrom).toISOString().slice(0, 16)
+          : "",
+        effectiveTo: initialData.effectiveTo
+          ? new Date(initialData.effectiveTo).toISOString().slice(0, 16)
+          : "",
+        isActive: initialData.isActive ?? true,
+
+        graceMinutesPerDay: initialData.graceMinutesPerDay ?? "",
+        maxGraceOccurrences: initialData.maxGraceOccurrences ?? "",
+        lateThresholdMinutes: initialData.lateThresholdMinutes ?? "",
+        maxLateAllowedPerMonth: initialData.maxLateAllowedPerMonth ?? "",
+
+        resolutionRules: initialData.resolutionRules?.map((r, i) => ({
+          fromLateMinutes: r.fromLateMinutes ?? "",
+          toLateMinutes: r.toLateMinutes ?? "",
+          fromOccurrence: r.fromOccurrence ?? "",
+          toOccurrence: r.toOccurrence ?? "",
+          useOccurrence: r.useOccurrence ?? false,
+          cutoffTime: r.cutoffTime || "00:00",
+          resolutionType:
+            Object.keys(RESOLUTION_TYPE_MAP).find(
+              (k) => RESOLUTION_TYPE_MAP[k] === r.resolutionType
+            ) || "Ignore",
+          amount: r.amount ?? "",
+          amountType: r.amountType || "Fixed",
+          requiredMakeUpHours: r.requiredMakeUpHours ?? "",
+          leaveType: r.leaveType || "",
+          priority: i + 1,
+          isActive: r.isActive ?? true,
+        })) || [
+          {
+            fromLateMinutes: "",
+            toLateMinutes: "",
+            fromOccurrence: "",
+            toOccurrence: "",
+            useOccurrence: false,
+            cutoffTime: "",
+            resolutionType: "Ignore",
+            amount: "",
+            amountType: "",
+            requiredMakeUpHours: "",
+            leaveType: "",
+            priority: 1,
+            isActive: true,
+          },
+        ],
+
+        workTypeIds: initialData.workTypeIds || [],
+        shiftIds: initialData.shiftIds || [],
+        departmentIds: initialData.departmentIds || [],
+        locationIds: initialData.locationIds || [],
+      });
+    }
+  }, [isEdit, initialData]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // STEP NAVIGATION
+    if (step < 3) {
+      setStep((s) => s + 1);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        policyName: form.policyName,
+        description: form.description,
+        effectiveFrom: new Date(form.effectiveFrom).toISOString(),
+        effectiveTo: form.effectiveTo
+          ? new Date(form.effectiveTo).toISOString()
+          : null,
+        isActive: form.isActive,
+        graceMinutesPerDay: Number(form.graceMinutesPerDay),
+        maxGraceOccurrences: Number(form.maxGraceOccurrences),
+        lateThresholdMinutes: Number(form.lateThresholdMinutes),
+        maxLateAllowedPerMonth: Number(form.maxLateAllowedPerMonth),
+        resolutionRules: form.resolutionRules.map((r, i) => ({
+          fromLateMinutes: Number(r.fromLateMinutes),
+          toLateMinutes: Number(r.toLateMinutes),
+          fromOccurrence: Number(r.fromOccurrence),
+          toOccurrence: Number(r.toOccurrence),
+          cutoffTime: r.cutoffTime || "00:00",
+          resolutionType: RESOLUTION_TYPE_MAP[r.resolutionType] ?? 0,
+          amount: Number(r.amount || 0),
+          amountType: r.amountType || "Fixed",
+          requiredMakeUpHours: Number(r.requiredMakeUpHours || 0),
+          leaveType: r.leaveType || "N/A",
+          priority: i + 1,
+          isActive: true,
+        })),
+        workTypeIds: form.workTypeIds,
+        shiftIds: form.shiftIds,
+        departmentIds: form.departmentIds,
+        locationIds: form.locationIds,
+      };
+
+      if (isEdit && initialData?.latePolicyId) {
+        // ✅ Edit / Update Existing Policy
+        await axiosInstance.put(
+          `/LatePolicy/update/${initialData.latePolicyId}`,
+          payload
+        );
+        toast.success("Late policy updated successfully");
+      } else {
+        // ✅ Create New Policy
+        await axiosInstance.post("/LatePolicy/create", payload);
+        toast.success("Late policy created successfully");
+      }
+
+      onSuccess?.();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error(`Failed to ${isEdit ? "update" : "create"} late policy`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const updateRule = (i, k, v) => {
     const rules = [...form.resolutionRules];
     rules[i][k] = v;
@@ -226,21 +354,31 @@ export default function AddLatePolicy({
     }));
   };
 
+  const removeRule = (index) => {
+    setForm((p) => ({
+      ...p,
+      resolutionRules: p.resolutionRules.filter((_, i) => i !== index),
+    }));
+  };
+
   const inputClass =
     "w-full border rounded-lg px-2 py-1 border-blue-300 focus:ring-2 focus:ring-blue-400";
 
   /* ================= UI ================= */
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm z-40 flex items-center justify-center">
-      <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-4 max-h-[85vh] overflow-y-auto relative text-[11px]">
+    <div className="fixed inset-0 bg-black/30 z-40 flex items-center justify-center">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-4 max-h-[85vh] overflow-y-auto relative text-[11px]"
+      >
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400"
+          className="absolute top-2 cursor-pointer hover:text-red-500 right-4 text-gray-500"
         >
-          <FaTimes />
+          <FiX size={20} />
         </button>
-
         {/* STEPPER */}
         <div className="flex mb-4 text-xs">
           {["Policy", "Applicability", "Rules"].map((t, i) => (
@@ -574,7 +712,7 @@ export default function AddLatePolicy({
                       <button
                         type="button"
                         onClick={() => removeRule(i)}
-                        className="text-red-500 text-[10px]"
+                        className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 hover:text-red-700 transition cursor-pointer"
                       >
                         Remove
                       </button>
@@ -721,7 +859,7 @@ export default function AddLatePolicy({
             <button
               type="button"
               onClick={addRule}
-              className="px-4 py-1.5 text-xs border rounded-md hover:bg-gray-100"
+              className=" flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer"
             >
               + Add Another Rule
             </button>
@@ -731,21 +869,22 @@ export default function AddLatePolicy({
         {/* FOOTER */}
         <div className="flex justify-between mt-4 pt-3 border-t">
           <button
+            type="button"
             disabled={step === 1}
             onClick={() => setStep((s) => s - 1)}
-            className="px-4 py-1 text-xs border rounded-md"
+            className="bg-gray-500 cursor-pointer text-white px-4 py-2 text-sm rounded"
           >
             Back
           </button>
 
           <button
-            onClick={() => (step < 3 ? setStep((s) => s + 1) : null)}
-            className="px-4 py-1 text-xs bg-blue-500 text-white rounded-md"
+            type="submit"
+            className="bg-primary cursor-pointer text-white px-4 py-2 text-sm rounded"
           >
             {step < 3 ? "Next" : "Save"}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

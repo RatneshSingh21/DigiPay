@@ -71,7 +71,7 @@ export const LEAVE_TYPE_CAPABILITIES = {
     includeHolidays: true,
     documentRequired: true,
     genderRestriction: "Male",
-    fixedDaysInfo: "Typically 5–15 days"
+    fixedDaysInfo: "Typically 5-15 days"
   },
 
   RH: {
@@ -93,7 +93,7 @@ export const LEAVE_TYPE_CAPABILITIES = {
     includeWeekends: true,
     includeHolidays: true,
     documentRequired: true,
-    fixedDaysInfo: "Typically 3–7 days"
+    fixedDaysInfo: "Typically 3-7 days"
   },
 
   MRL: {

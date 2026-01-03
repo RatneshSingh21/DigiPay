@@ -30,6 +30,13 @@ export const updateDevice = (deviceId, payload) => {
 };
 
 /* ===============================
+   GET EMPLOYEES
+================================ */
+export const getEmployees = () => {
+  return axiosInstance.get("/Employee");
+};
+
+/* ===============================
    DELETE DEVICE
 ================================ */
 export const deleteDevice = (deviceId) => {
@@ -58,8 +65,14 @@ export const pushAttendance = (payload) => {
   );
 };
 
+/* ===============================
+   MAP EMPLOYEE TO DEVICE
+================================ */
 export const mapEmployeeToDevice = (payload) =>
   axiosInstance.post("/BiometricAttendance/map-employee", payload);
 
+/* ===============================
+    GET DEVICE MAPPINGS
+================================ */
 export const getDeviceMappings = (deviceId) =>
   axiosInstance.get(`/BiometricAttendance/device-mappings/${deviceId}`);

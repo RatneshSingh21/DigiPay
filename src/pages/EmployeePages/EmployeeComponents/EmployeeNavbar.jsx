@@ -57,7 +57,7 @@ const EmployeeNavbar = () => {
               className="flex items-center cursor-pointer gap-2"
             >
               <img
-                src={user?.profilePicture || "https://i.pravatar.cc/300"}
+                src={user?.profileImageUrl || "https://i.pravatar.cc/300"}
                 alt="Profile"
                 className="w-8 h-8 rounded-full object-cover"
               />

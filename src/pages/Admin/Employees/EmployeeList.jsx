@@ -34,6 +34,7 @@ const EmployeeList = () => {
   const [designations, setDesignations] = useState([]);
   const [locations, setLocations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [uploadingId, setUploadingId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -71,7 +72,7 @@ const EmployeeList = () => {
         console.log(response.data);
       } catch (error) {
         if (error.response?.status === 403) {
-          toast.error("You don’t have permission to view employees.");
+          toast.error("You don't have permission to view employees.");
         } else {
           toast.error(
             error?.response?.data?.message || "Error fetching employee data"
@@ -118,6 +119,49 @@ const EmployeeList = () => {
     designations.find((d) => d.id === id)?.title || "Deleted";
   const getLocationName = (id) =>
     locations.find((l) => l.id === id)?.name || "Deleted";
+
+  const uploadProfileImage = async (employeeId, file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await axiosInstance.post(
+      `/Employee/${employeeId}/profile-image`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return res.data;
+  };
+
+  const handleImageChange = async (empId, file) => {
+    if (!file) return;
+
+    try {
+      setUploadingId(empId); // start spinner
+      const res = await uploadProfileImage(empId, file);
+
+      toast.success("Profile image updated");
+
+      // Update image locally (no refetch needed)
+      setEmployees((prev) =>
+        prev.map((emp) =>
+          emp.id === empId
+            ? { ...emp, profileImageUrl: res.profileImageUrl }
+            : emp
+        )
+      );
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message || "Failed to update profile image"
+      );
+    } finally {
+      setUploadingId(null); // stop spinner
+    }
+  };
 
   return (
     <div className="bg-white shadow rounded-xl">
@@ -267,8 +311,8 @@ const EmployeeList = () => {
 
           {/* Employee Table */}
           {filteredEmployees.length > 0 ? (
-            <div className="border mx-auto max-w-xl md:max-w-5xl xl:min-w-5xl 2xl:min-w-full overflow-auto border-gray-200 rounded-lg max-h-[70vh]">
-              <table className="text-xs">
+            <div className="border mt-5 mx-auto max-w-xl md:max-w-5xl xl:min-w-5xl 2xl:min-w-full overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
+              <table className="divide-y divide-gray-200 text-xs text-center">
                 <thead className="bg-gray-100 text-gray-700 sticky top-0">
                   <tr className="text-center">
                     <th scope="col" className="px-2 py-2 bg-gray-100">
@@ -276,6 +320,9 @@ const EmployeeList = () => {
                     </th>
                     <th scope="col" className="px-2 py-2 bg-gray-100">
                       EmpCode
+                    </th>
+                    <th scope="col" className="px-2 py-2 bg-gray-100">
+                      Profile
                     </th>
                     <th scope="col" className="px-2 py-2 bg-gray-100">
                       EmpName
@@ -320,23 +367,50 @@ const EmployeeList = () => {
                     >
                       <td className="px-2 py-2">{index + 1}</td>
                       <td className="px-2 py-2">{emp.employeeCode}</td>
-                      <td className="py-2 px-2 flex items-center gap-1">
-                        <img
-                          src={
-                            emp.profilePic
-                              ? emp.profilePic
-                              : `https://i.pravatar.cc/150?u=${
-                                  emp.id || emp.workEmail
-                                }`
-                          }
-                          alt={emp.fullName}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
+                      {/* Profile Image */}
+                      <td className="px-2 py-2 text-center relative">
+                        <label className="relative inline-block cursor-pointer group">
+                          <img
+                            src={
+                              emp.profileImageUrl
+                                ? emp.profileImageUrl
+                                : `https://i.pravatar.cc/150?u=${emp.id}`
+                            }
+                            alt={emp.fullName}
+                            className="w-8 h-8 rounded-full object-cover object-center bg-gray-200"
+                          />
 
-                        <div className="font-medium text-gray-800">
+                          {uploadingId === emp.id ? (
+                            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-40 rounded-full z-0">
+                              <Spinner size="small" />
+                            </div>
+                          ) : (
+                            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-40 rounded-full text-white text-[10px] opacity-0 group-hover:opacity-100 transition pointer-events-none z-0">
+                              Edit
+                            </div>
+                          )}
+
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleImageChange(emp.id, e.target.files[0])
+                            }
+                          />
+                        </label>
+                      </td>
+
+                      {/* Employee Name */}
+                      <td className="px-2 py-2">
+                        <div
+                          className="font-medium text-gray-800 truncate max-w-[150px]"
+                          title={emp.fullName}
+                        >
                           {emp.fullName}
                         </div>
                       </td>
+
                       <td className="px-2 py-2 truncate">{emp.workEmail}</td>
                       <td>{getDepartmentName(emp.departmentId)}</td>
                       <td>{getDesignationTitle(emp.designationId)}</td>

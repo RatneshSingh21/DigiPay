@@ -48,15 +48,19 @@ export default function SignInEmployeeForm() {
         message,
       } = response.data;
 
-      // Create user object for Zustand store
-      const user = {
-        userId: employeeId,
-        fullName,
-        email: backendEmail,
-        role: "Employee",
-      };
-
-      useAuthStore.getState().login(user, token, null);
+      useAuthStore.getState().login(
+        {
+          userId: employeeId, //  primary
+          id: employeeId, //  alias
+          name: fullName,
+          fullName: fullName,
+          emailOrPhone: backendEmail,
+          role: "Employee",
+          profileImageUrl: null,
+        },
+        token,
+        null
+      );
 
       toast.success(message || "Login successful!");
       navigate("/");
@@ -149,7 +153,7 @@ export default function SignInEmployeeForm() {
       >
         {loading ? <Spinner /> : "Login"}
       </button>
-      
+
       <div className="flex justify-between text-xs text-orange-500 font-semibold mt-3">
         <button
           type="button"

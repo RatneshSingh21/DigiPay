@@ -233,10 +233,10 @@ const PayslipTemplates = () => {
 
   return (
     <div>
-      <div className="sticky top-14 bg-white z-10 p-4 shadow mb-5 flex justify-between items-center">
+      <div className="sticky top-14 bg-white z-10 px-3 py-2 shadow mb-5 flex justify-between items-center">
         <h2 className="text-xl font-semibold">Payslip Templates</h2>
         <button
-          className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+          className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-primary text-sm text-white rounded hover:bg-secondary"
           onClick={() => setAddTemplateVisible((prev) => !prev)}
         >
           <FaPlus />

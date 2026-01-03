@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import { getBiometricDevices, getDeviceMappings } from "./biometricApi";
+import MapEmployeeModal from "./MapEmployeeModal";
 
 const StatusBadge = ({ active }) => (
   <span
@@ -20,6 +21,7 @@ const BiometricEmployeeMapping = () => {
   const [mappings, setMappings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [showMapModal, setShowMapModal] = useState(false);
 
   /* ================= LOAD DEVICES ================= */
   useEffect(() => {
@@ -82,17 +84,28 @@ const BiometricEmployeeMapping = () => {
 
       <div className="p-4 space-y-2">
         {/* DEVICE SELECT */}
-        <div className="max-w-md">
-          <label className="block text-sm font-medium mb-1">
-            Biometric Device
-          </label>
-          <Select
-            options={devices}
-            value={selectedDevice}
-            onChange={handleDeviceChange}
-            placeholder="Select biometric device..."
-            isClearable
-          />
+
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="max-w-md">
+            <label className="block text-sm font-medium mb-1">
+              Biometric Device
+            </label>
+            <Select
+              options={devices}
+              value={selectedDevice}
+              onChange={handleDeviceChange}
+              placeholder="Select biometric device..."
+              isClearable
+            />
+          </div>
+
+          <button
+            disabled={!selectedDevice}
+            onClick={() => setShowMapModal(true)}
+            className="bg-primary text-white cursor-pointer px-4 py-2 rounded text-sm hover:bg-secondary disabled:opacity-50"
+          >
+            Map Employee
+          </button>
         </div>
 
         {/* DEVICE INFO */}
@@ -154,7 +167,7 @@ const BiometricEmployeeMapping = () => {
 
                 <div className="mt-3 text-sm space-y-1">
                   <div>
-                    <span className="text-gray-500">Pay Code:</span> {m.payCode}
+                    <span className="text-gray-500">Machine PayCode:</span> {m.payCode}
                   </div>
                   <div>
                     <span className="text-gray-500">Enrollment:</span>{" "}
@@ -170,6 +183,13 @@ const BiometricEmployeeMapping = () => {
           </div>
         )}
       </div>
+
+      <MapEmployeeModal
+        open={showMapModal}
+        onClose={() => setShowMapModal(false)}
+        deviceId={selectedDevice?.value}
+        onSuccess={() => handleDeviceChange(selectedDevice)}
+      />
     </div>
   );
 };
