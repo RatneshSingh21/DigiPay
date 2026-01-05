@@ -35,7 +35,7 @@ const EmployeeSidebar = ({ collapsed, setCollapsed }) => {
       to: "/employee-dashboard/salary-slip",
     },
     {
-      label: "Leave Balance",
+      label: "Leave Apply",
       icon: <FaClipboardList />,
       to: "/employee-dashboard/leave",
     },

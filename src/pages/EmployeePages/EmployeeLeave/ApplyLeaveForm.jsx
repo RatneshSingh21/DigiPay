@@ -25,21 +25,61 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
 
   // -------- Fetch Leave Types --------
   useEffect(() => {
-    if (!showModal) return;
-    axiosInstance
-      .get("/LeaveType/active")
-      .then((res) =>
-        setLeaveOptions(
-          res.data?.map((lt) => ({
-            label: lt.leaveName,
-            value: lt.leaveTypeId,
-            code: lt.leaveCode,
-            maxLeavesPerYear: lt.maxLeavesPerYear,
-          })) || []
-        )
-      )
-      .catch(() => toast.error("Unable to load leave types."));
-  }, [showModal]);
+    if (!showModal || !user?.userId) return;
+
+    const fetchAllocatedLeaves = async () => {
+      try {
+        // 1️⃣ Employee allocations
+        const allocationRes = await axiosInstance.get(
+          `/EmployeeLeaveAllocation/${user.userId}`
+        );
+
+        const allocations = allocationRes.data?.data || [];
+
+        if (!allocations.length) {
+          setLeaveOptions([]);
+          return;
+        }
+
+        // 2️⃣ Master leave types
+        const leaveTypeRes = await axiosInstance.get("/LeaveType/active");
+        const leaveTypes = leaveTypeRes.data || [];
+
+        // 3️⃣ JOIN allocation + master
+        const options = allocations
+          .filter((a) => a.isActive)
+          .map((a) => {
+            const lt = leaveTypes.find((l) => l.leaveTypeId === a.leaveTypeId);
+
+            if (!lt) return null;
+
+            return {
+              value: lt.leaveTypeId,
+              label:
+                a.leavesRemaining > 0
+                  ? `${lt.leaveName} (Remaining: ${a.leavesRemaining})`
+                  : `${lt.leaveName} (No Balance)`,
+
+              code: lt.leaveCode,
+              remainingLeaves: a.leavesRemaining,
+              yearlyLimit: lt.maxLeavesPerYear,
+              totalAllocated: a.totalLeavesAllocated,
+              leavesTaken: a.leavesTaken,
+
+              isDisabled: a.leavesRemaining === 0, // ✅ THIS LINE IS IMPORTANT
+            };
+          })
+          .filter(Boolean);
+
+        setLeaveOptions(options);
+      } catch (err) {
+        console.error(err);
+        toast.error("Unable to load allocated leave types.");
+      }
+    };
+
+    fetchAllocatedLeaves();
+  }, [showModal, user?.userId]);
 
   // -------- Fetch Approvers --------
   useEffect(() => {
@@ -137,9 +177,9 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
 
     const days = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
 
-    if (days > type.maxLeavesPerYear) {
+    if (days > type.remainingLeaves) {
       setError(
-        `You cannot apply more than ${type.maxLeavesPerYear} days for ${type.label}.`
+        `Only ${type.remainingLeaves} days remaining for ${type.label}.`
       );
       return;
     }

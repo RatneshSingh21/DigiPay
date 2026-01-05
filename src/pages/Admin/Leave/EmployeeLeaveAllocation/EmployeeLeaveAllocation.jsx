@@ -4,7 +4,7 @@ import {
   FiPlus,
   FiDownload,
   FiUpload,
-  FiTrash2, 
+  FiTrash2,
   FiEdit2,
 } from "react-icons/fi";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -29,42 +29,56 @@ export default function EmployeeLeaveAllocation() {
 
   // Fetch employee name
   const getEmployeeName = async (id) => {
-    if (!id) return "";
+    if (!id) return null;
     if (employeeCache.current[id]) return employeeCache.current[id];
 
     try {
       const res = await axiosInstance.get(`/Employee/${id}`);
-      const name = res.data?.data?.fullName || "Unknown";
+      const employee = res.data?.data;
 
-      employeeCache.current[id] = name;
-      return name;
+      const data = employee
+        ? {
+            employeeName: employee.fullName,
+            employeeCode: employee.employeeCode,
+            displayName: `${employee.fullName} (${employee.employeeCode})`,
+          }
+        : {
+            employeeName: "Unknown",
+            employeeCode: "",
+            displayName: "Unknown",
+          };
+
+      employeeCache.current[id] = data;
+      return data;
     } catch {
-      return "Unknown";
+      return {
+        employeeName: "Unknown",
+        employeeCode: "",
+        displayName: "Unknown",
+      };
     }
   };
 
   // Fetch leave type name
   const getLeaveTypeName = async (id) => {
-  if (!id) return "";
-  if (leaveTypeCache.current[id]) return leaveTypeCache.current[id];
+    if (!id) return "";
+    if (leaveTypeCache.current[id]) return leaveTypeCache.current[id];
 
-  try {
-    const res = await axiosInstance.get(`/LeaveType/${id}`);
+    try {
+      const res = await axiosInstance.get(`/LeaveType/${id}`);
 
-    console.log("LeaveType API response:", res);
+      console.log("LeaveType API response:", res);
 
-    const name =
-      res.data?.leaveName ||
-      res.data?.data?.leaveName ||
-      "Unknown";
+      const name =
+        res.data?.leaveName || res.data?.data?.leaveName || "Unknown";
 
-    leaveTypeCache.current[id] = name;
-    return name;
-  } catch (err) {
-    console.error("LeaveType fetch failed:", err);
-    return "Unknown";
-  }
-};
+      leaveTypeCache.current[id] = name;
+      return name;
+    } catch (err) {
+      console.error("LeaveType fetch failed:", err);
+      return "Unknown";
+    }
+  };
 
   // Fetch allocations
   const fetchAllocations = async () => {
@@ -75,11 +89,16 @@ export default function EmployeeLeaveAllocation() {
 
       // Add names
       data = await Promise.all(
-        data.map(async (row) => ({
-          ...row,
-          employeeName: await getEmployeeName(row.employeeId),
-          leaveTypeName: await getLeaveTypeName(row.leaveTypeId),
-        }))
+        data.map(async (row) => {
+          const emp = await getEmployeeName(row.employeeId);
+
+          return {
+            ...row,
+            employeeName: emp.displayName,
+            employeeCode: emp.employeeCode,
+            leaveTypeName: await getLeaveTypeName(row.leaveTypeId),
+          };
+        })
       );
 
       setAllocations(data);
@@ -94,9 +113,17 @@ export default function EmployeeLeaveAllocation() {
       const formatted = Object.entries(grouped).map(([empId, rows]) => ({
         empId,
         employeeName: rows[0].employeeName,
+        employeeCode: rows[0].employeeCode,
         rows,
         totalAllocations: rows.length,
       }));
+
+      formatted.sort((a, b) =>
+        a.employeeCode.localeCompare(b.employeeCode, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        })
+      );
 
       setGroupedAllocations(formatted);
     } catch (err) {
@@ -150,7 +177,10 @@ export default function EmployeeLeaveAllocation() {
     formData.append("file", file);
 
     try {
-      await axiosInstance.post("/EmployeeLeaveAllocation/import-leave-allocated", formData);
+      await axiosInstance.post(
+        "/EmployeeLeaveAllocation/import-leave-allocated",
+        formData
+      );
       toast.success("Import successful");
       fetchAllocations();
     } catch {
@@ -178,7 +208,12 @@ export default function EmployeeLeaveAllocation() {
     <>
       {/* HEADER BAR */}
       <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
-        <h2 className="font-semibold text-xl">Employee Leave Allocations</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="font-semibold text-xl">Employee Leave Allocations</h2>
+          <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">
+            {groupedAllocations.length} Employees
+          </span>
+        </div>
 
         <div className="flex gap-2 items-center text-sm">
           <input
@@ -192,7 +227,7 @@ export default function EmployeeLeaveAllocation() {
           {/* IMPORT BUTTON */}
           <button
             onClick={() => fileInputRef.current.click()}
-            className="flex items-center cursor-pointer gap-2 px-3 py-2 border rounded hover:bg-gray-100"
+            className="flex items-center cursor-pointer gap-2 px-3 py-1.5 border rounded hover:bg-gray-100"
           >
             <FiUpload /> Import
           </button>
@@ -208,7 +243,7 @@ export default function EmployeeLeaveAllocation() {
           {/* EXPORT BUTTON */}
           <button
             onClick={handleExport}
-            className="flex items-center cursor-pointer gap-2 px-3 py-2 border rounded hover:bg-gray-100"
+            className="flex items-center cursor-pointer gap-2 px-3 py-1.5 border rounded hover:bg-gray-100"
           >
             <FiDownload /> Export
           </button>

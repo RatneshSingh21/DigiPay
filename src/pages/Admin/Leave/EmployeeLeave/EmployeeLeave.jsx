@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiRefreshCw } from "react-icons/fi";
 import { format } from "date-fns";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import Spinner from "../../../../components/Spinner";
 import EmployeeLeaveForm from "./EmployeeLeaveForm";
+import assets from "../../../../assets/assets";
 
 const EmployeeLeave = () => {
   const [leaves, setLeaves] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [statuses, setStatuses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,9 +40,21 @@ const EmployeeLeave = () => {
     }
   };
 
+  // Fetch status master
+  const fetchStatuses = async () => {
+    try {
+      const res = await axiosInstance.get("/StatusMaster");
+      setStatuses(res.data?.data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch status master");
+    }
+  };
+
   useEffect(() => {
     fetchEmployees();
     fetchLeaves();
+    fetchStatuses();
   }, []);
 
   // Get employee full name + code by ID
@@ -49,34 +63,40 @@ const EmployeeLeave = () => {
     return emp ? `${emp.fullName} (${emp.employeeCode})` : "Unknown Employee";
   };
 
-  // Map leave status
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 1:
-        return (
-          <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
-            Pending
-          </span>
-        );
-      case 2:
-        return (
-          <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
-            Approved
-          </span>
-        );
-      case 3:
-        return (
-          <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">
-            Rejected
-          </span>
-        );
-      default:
-        return (
-          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-            Unknown
-          </span>
-        );
+  // Map leave status using StatusMaster
+  const getStatusBadge = (statusId) => {
+    const status = statuses.find((s) => s.statusId === statusId);
+    if (!status) {
+      return (
+        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+          Unknown
+        </span>
+      );
     }
+
+    let colorClass = "bg-gray-100 text-gray-800";
+    switch (status.statusName.toLowerCase()) {
+      case "pending":
+        colorClass = "bg-yellow-100 text-yellow-800";
+        break;
+      case "approved":
+        colorClass = "bg-green-100 text-green-800";
+        break;
+      case "rejected":
+        colorClass = "bg-red-100 text-red-800";
+        break;
+      case "processed":
+        colorClass = "bg-blue-100 text-blue-800";
+        break;
+      default:
+        colorClass = "bg-gray-100 text-gray-800";
+    }
+
+    return (
+      <span className={`${colorClass} px-2 py-1 rounded text-xs`}>
+        {status.statusName}
+      </span>
+    );
   };
 
   // Filter leaves based on employee search
@@ -132,8 +152,40 @@ const EmployeeLeave = () => {
             <Spinner />
           </div>
         ) : filteredLeaves.length === 0 ? (
-          <div className="py-10 text-center text-gray-500">
-            No leaves found.
+          <div
+            className="flex flex-col items-center justify-center 
+               py-10 px-6 mx-4 my-6 rounded-2xl 
+               bg-gradient-to-br from-white to-gray-50 
+               shadow-sm"
+          >
+            <img
+              src={assets.NoData}
+              alt="No Attendance Data"
+              className="w-56 mb-6 opacity-90"
+            />
+
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No Attendance Data Found
+            </h3>
+
+            <p className="text-sm text-gray-600 mb-6 max-w-md text-center">
+              There is no biometric attendance available for the selected date.
+              Try syncing the machine or select a different date.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={fetchLeaves}
+                className="flex items-center gap-2 
+                   bg-primary hover:bg-secondary 
+                   text-white px-6 py-2 
+                   rounded-full text-sm font-medium 
+                   shadow hover:shadow-md transition"
+              >
+                <FiRefreshCw size={16} />
+                Refresh
+              </button>
+            </div>
           </div>
         ) : (
           <table className="w-full text-sm text-center text-gray-700 border-collapse">

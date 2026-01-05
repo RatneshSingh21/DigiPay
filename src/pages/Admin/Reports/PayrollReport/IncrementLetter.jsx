@@ -18,26 +18,26 @@ export default function IncrementLetter() {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   /* ================= PARAGRAPHS ================= */
- const [paragraphs, setParagraphs] = useState([
-  "We are pleased to inform **{EmployeeName}** that your salary has been revised.",
-  "Your current salary of **₹{CurrentSalary}** has been increased by **₹{IncrementAmount}**, effective from **{EffectiveFrom}**.",
-  "This increment is in recognition of your performance and contribution to **{CompanyName}**.",
-]);
+  const [paragraphs, setParagraphs] = useState([
+    "We are pleased to inform **{EmployeeName}** that your salary has been revised.",
+    "Your current salary of **₹{CurrentSalary}** has been increased by **₹{IncrementAmount}**, effective from **{EffectiveFrom}**.",
+    "This increment is in recognition of your performance and contribution to **{CompanyName}**.",
+  ]);
 
   /* ================= FORM ================= */
- const [form, setForm] = useState({
-  EmployeeId: null,
-  EmployeeName: "",
-  Email: "",
-  Designation: "",
-  Department: "",
-  CurrentSalary: "",
-  IncrementAmount: "",
-  EffectiveFrom: "",
-  IssueDate: new Date().toISOString(),
-  Reason: "",
-  TermsAndConditions: "",
-});
+  const [form, setForm] = useState({
+    EmployeeId: null,
+    EmployeeName: "",
+    Email: "",
+    Designation: "",
+    Department: "",
+    CurrentSalary: "",
+    IncrementAmount: "",
+    EffectiveFrom: "",
+    IssueDate: new Date().toISOString(),
+    Reason: "",
+    TermsAndConditions: "",
+  });
 
   /* ================= UI SETTINGS ================= */
   const [uiSettings, setUiSettings] = useState({
@@ -61,55 +61,52 @@ export default function IncrementLetter() {
   }, []);
 
   /* ================= VAR REPLACER ================= */
-const replaceVars = (text) =>
-  text
-    .replaceAll("{EmployeeName}", form.EmployeeName || "")
-    .replaceAll("{Designation}", form.Designation || "")
-    .replaceAll("{Department}", form.Department || "")
-    .replaceAll("{CompanyName}", org.company?.companyName || "")
-    .replaceAll("{CurrentSalary}", form.CurrentSalary || "")
-    .replaceAll("{IncrementAmount}", form.IncrementAmount || "")
-    .replaceAll(
-      "{EffectiveFrom}",
-      form.EffectiveFrom
-        ? new Date(form.EffectiveFrom).toLocaleDateString("en-GB")
-        : ""
-    );
+  const replaceVars = (text) =>
+    text
+      .replaceAll("{EmployeeName}", form.EmployeeName || "")
+      .replaceAll("{Designation}", form.Designation || "")
+      .replaceAll("{Department}", form.Department || "")
+      .replaceAll("{CompanyName}", org.company?.companyName || "")
+      .replaceAll("{CurrentSalary}", form.CurrentSalary || "")
+      .replaceAll("{IncrementAmount}", form.IncrementAmount || "")
+      .replaceAll(
+        "{EffectiveFrom}",
+        form.EffectiveFrom
+          ? new Date(form.EffectiveFrom).toLocaleDateString("en-GB")
+          : ""
+      );
 
   /* ================= EMPLOYEE SELECT ================= */
-const handleEmployeeSelect = async (emp) => {
-  try {
-    // 1️⃣ set employee basic info
-    setForm((prev) => ({
-      ...prev,
-      EmployeeId: emp.id,
-      EmployeeName: emp.fullName,
-      Email: emp.workEmail,
-      Department:
-        departments.find((d) => d.id === emp.departmentId)?.name || "",
-      Designation:
-        designations.find((d) => d.id === emp.designationId)?.title || "",
-      CurrentSalary: "",
-    }));
+  const handleEmployeeSelect = async (emp) => {
+    try {
+      // 1️⃣ set employee basic info
+      setForm((prev) => ({
+        ...prev,
+        EmployeeId: emp.id,
+        EmployeeName: emp.fullName,
+        Email: emp.workEmail,
+        Department:
+          departments.find((d) => d.id === emp.departmentId)?.name || "",
+        Designation:
+          designations.find((d) => d.id === emp.designationId)?.title || "",
+        CurrentSalary: "",
+      }));
 
-    // 2️⃣ fetch salary
-    const res = await axiosInstance.get(
-      `/EmployeeSalary/employee/${emp.id}`
-    );
+      // 2️⃣ fetch salary
+      const res = await axiosInstance.get(`/EmployeeSalary/employee/${emp.id}`);
 
-    console.log("Salary API Response:", res.data);
+      console.log("Salary API Response:", res.data);
 
-    // 3️⃣ set GROSS SALARY
-    setForm((prev) => ({
-      ...prev,
-      CurrentSalary: res.data?.data?.grossEarnings ?? "",
-    }));
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch employee salary");
-  }
-};
-
+      // 3️⃣ set GROSS SALARY
+      setForm((prev) => ({
+        ...prev,
+        CurrentSalary: res.data?.data?.grossEarnings ?? "",
+      }));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch employee salary");
+    }
+  };
 
   /* ================= PARAGRAPH CONTROLS ================= */
   const updatePara = (i, val) => {
@@ -135,23 +132,19 @@ const handleEmployeeSelect = async (emp) => {
       if (!result?.blob) throw new Error("PDF generation failed");
 
       // Prepare FormData
-     const fd = new FormData();
-fd.append("EmployeeId", form.EmployeeId);
-fd.append("EmployeeName", form.EmployeeName);
-fd.append("Email", form.Email);
-fd.append("Designation", form.Designation);
-fd.append("Department", form.Department);
-fd.append("CurrentSalary", Number(form.CurrentSalary));
-fd.append("IncrementAmount", Number(form.IncrementAmount));
-fd.append(
-  "EffectiveFrom",
-  new Date(form.EffectiveFrom).toISOString()
-);
-fd.append("IssueDate", new Date(form.IssueDate).toISOString());
-fd.append("Reason", form.Reason || "");
-fd.append("TermsAndConditions", form.TermsAndConditions || "");
-fd.append("File", result.blob, "IncrementLetter.pdf");
-
+      const fd = new FormData();
+      fd.append("EmployeeId", form.EmployeeId);
+      fd.append("EmployeeName", form.EmployeeName);
+      fd.append("Email", form.Email);
+      fd.append("Designation", form.Designation);
+      fd.append("Department", form.Department);
+      fd.append("CurrentSalary", Number(form.CurrentSalary));
+      fd.append("IncrementAmount", Number(form.IncrementAmount));
+      fd.append("EffectiveFrom", new Date(form.EffectiveFrom).toISOString());
+      fd.append("IssueDate", new Date(form.IssueDate).toISOString());
+      fd.append("Reason", form.Reason || "");
+      fd.append("TermsAndConditions", form.TermsAndConditions || "");
+      fd.append("File", result.blob, "IncrementLetter.pdf");
 
       // Upload
       await axiosInstance.post("/IncrementLetter/create", fd, {
@@ -182,39 +175,34 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
           getOptionValue={(e) => e.id}
           onChange={handleEmployeeSelect}
         />
-    {[
-  ["CurrentSalary", "Current Salary"],
-  ["IncrementAmount", "Increment Amount"],
-  ["Reason", "Reason"],
-  ["TermsAndConditions", "Terms & Conditions"],
-].map(([k, label]) => (
-  <div key={k} className="text-xs mb-1">
-    <label className="block font-medium">{label}</label>
-    <input
-      type={
-        k === "CurrentSalary" || k === "IncrementAmount"
-          ? "number"
-          : "text"
-      }
-      className={inputClass}
-      value={form[k]}
-      onChange={(e) =>
-        setForm({ ...form, [k]: e.target.value })
-      }
-    />
-  </div>
-))}
+        {[
+          ["CurrentSalary", "Current Salary"],
+          ["IncrementAmount", "Increment Amount"],
+          ["Reason", "Reason"],
+          ["TermsAndConditions", "Terms & Conditions"],
+        ].map(([k, label]) => (
+          <div key={k} className="text-xs mb-1">
+            <label className="block font-medium">{label}</label>
+            <input
+              type={
+                k === "CurrentSalary" || k === "IncrementAmount"
+                  ? "number"
+                  : "text"
+              }
+              className={inputClass}
+              value={form[k]}
+              onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+            />
+          </div>
+        ))}
 
-
-<label className="text-xs font-medium mt-2">Effective From</label>
-<input
-  type="date"
-  className={inputClass}
-  value={form.EffectiveFrom}
-  onChange={(e) =>
-    setForm({ ...form, EffectiveFrom: e.target.value })
-  }
-/>
+        <label className="text-xs font-medium mt-2">Effective From</label>
+        <input
+          type="date"
+          className={inputClass}
+          value={form.EffectiveFrom}
+          onChange={(e) => setForm({ ...form, EffectiveFrom: e.target.value })}
+        />
         <h3 className="font-semibold my-2">Letter Content</h3>
         {paragraphs.map((p, i) => (
           <div key={i} className="mb-2">
@@ -241,10 +229,11 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
           + Add Paragraph
         </button>
 
-        <h3 className="font-semibold my-3 text-sm">Header & Signature Settings</h3>
+        <h3 className="font-semibold my-3 text-sm">
+          Header & Signature Settings
+        </h3>
 
         <div className="grid grid-cols-2 gap-3 text-xs border rounded-md p-3 bg-gray-50 my-2">
-
           {/* Show Logo */}
           <label className="flex items-center gap-2">
             <input
@@ -263,7 +252,10 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
               type="checkbox"
               checked={uiSettings.showCompanyName}
               onChange={(e) =>
-                setUiSettings({ ...uiSettings, showCompanyName: e.target.checked })
+                setUiSettings({
+                  ...uiSettings,
+                  showCompanyName: e.target.checked,
+                })
               }
             />
             Show Company Name
@@ -290,7 +282,6 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
             />
             Show Terms & Conditions
           </label>
-
 
           {/* Logo Size */}
           <div>
@@ -353,9 +344,7 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
 
           {/* Company Name Color */}
           <div>
-            <label className="block font-medium mb-1">
-              Company Name Color
-            </label>
+            <label className="block font-medium mb-1">Company Name Color</label>
             <select
               className={inputClass}
               value={uiSettings.companyNameColor}
@@ -373,9 +362,7 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
 
           {/* Address Color */}
           <div>
-            <label className="block font-medium mb-1">
-              Address Text Color
-            </label>
+            <label className="block font-medium mb-1">Address Text Color</label>
             <select
               className={inputClass}
               value={uiSettings.addressColor}
@@ -390,10 +377,7 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
               <option value="#ffffff">White</option>
             </select>
           </div>
-
         </div>
-
-
 
         {uploadProgress > 0 && (
           <div className="absolute bottom-0 left-6 right-6">
@@ -417,8 +401,6 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
           Save & Upload PDF
         </button>
       </div>
-
-
 
       <style>
         {`
@@ -649,7 +631,8 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
           )}
           <div className="print-body">
             <p className="print-date">
-              <b>Date:</b> {new Date(form.IssueDate).toLocaleDateString("en-GB")}
+              <b>Date:</b>{" "}
+              {new Date(form.IssueDate).toLocaleDateString("en-GB")}
             </p>
 
             <h1 className="print-title">INCREMENT LETTER</h1>
@@ -661,12 +644,11 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
             ))}
 
             {form.Reason && (
-  <div className="paragraphs" style={{ marginTop: 20 }}>
-    <h2>Reason</h2>
-    <ReactMarkdown>{form.Reason}</ReactMarkdown>
-  </div>
-)}
-
+              <div className="paragraphs" style={{ marginTop: 20 }}>
+                <h2>Reason</h2>
+                <ReactMarkdown>{form.Reason}</ReactMarkdown>
+              </div>
+            )}
 
             <table
               style={{
@@ -675,8 +657,7 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
                 marginTop: 20,
                 tableLayout: "fixed", // important for even columns
               }}
-            >
-            </table>
+            ></table>
 
             {/* ================= TERMS & CONDITIONS ================= */}
             {uiSettings.showTerms && form.TermsAndConditions && (
@@ -705,7 +686,8 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
                 />
               )}
               <p>
-                Authorized Signatory<br />
+                Authorized Signatory
+                <br />
                 {form.AuthorizedPersonName}
               </p>
             </div>
@@ -726,6 +708,6 @@ fd.append("File", result.blob, "IncrementLetter.pdf");
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }

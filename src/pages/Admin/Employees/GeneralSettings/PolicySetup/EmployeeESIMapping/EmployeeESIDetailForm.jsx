@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { saveEmployeeESIDetail } from "../../../../../../services/esiService";
 import { toast } from "react-toastify";
 import { X } from "lucide-react";
@@ -16,12 +16,17 @@ const customSelectStyles = {
     fontSize: "0.875rem",
   }),
   menu: (provided) => ({ ...provided, zIndex: 9999, fontSize: "0.875rem" }),
-  multiValueLabel: (provided) => ({ ...provided, fontSize: "0.75rem" }),
-  placeholder: (provided) => ({ ...provided, fontSize: "0.875rem" }),
+  option: (base, state) => ({
+    ...base,
+    color: state.isDisabled ? "#9ca3af" : base.color,
+    cursor: state.isDisabled ? "not-allowed" : "pointer",
+  }),
 };
 
 const EmployeeESIDetailForm = ({ editData, onClose, onSuccess }) => {
   const [employees, setEmployees] = useState([]);
+  const [existingESI, setExistingESI] = useState([]);
+
   const [form, setForm] = useState({
     employeeId: "",
     esiNumber: "",
@@ -30,6 +35,7 @@ const EmployeeESIDetailForm = ({ editData, onClose, onSuccess }) => {
     coverageEndDate: "",
   });
 
+  /* ================= PREFILL EDIT ================= */
   useEffect(() => {
     if (editData) {
       setForm({
@@ -42,34 +48,79 @@ const EmployeeESIDetailForm = ({ editData, onClose, onSuccess }) => {
     }
   }, [editData]);
 
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [empRes] = await Promise.all([axiosInstance.get("/Employee")]);
+        const [empRes, esiRes] = await Promise.all([
+          axiosInstance.get("/Employee"),
+          axiosInstance.get("/EmployeeESIDetails"),
+        ]);
+
         setEmployees(empRes.data || []);
+        setExistingESI(esiRes.data?.data || []);
       } catch (err) {
         console.error(err);
         toast.error("Error loading form data");
       }
     };
+
     fetchData();
   }, []);
 
+  /* ================= CHECK ALREADY ADDED ================= */
+  const isEmployeeAlreadyAdded = (employeeId) => {
+    return existingESI.some(
+      (e) =>
+        e.employeeId === employeeId &&
+        (!editData || e.employeeId !== editData.employeeId)
+    );
+  };
+
+  /* ================= EMPLOYEE OPTIONS ================= */
+  const employeeOptions = useMemo(() => {
+    return employees.map((emp) => {
+      const isAdded = isEmployeeAlreadyAdded(emp.id);
+
+      return {
+        value: emp.id,
+        label: `${emp.fullName} (${emp.employeeCode})${
+          isAdded ? " • Already added" : ""
+        }`,
+        isDisabled: isAdded,
+      };
+    });
+  }, [employees, existingESI, editData]);
+
+  /* ================= CHANGE HANDLER ================= */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
   };
 
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isEmployeeAlreadyAdded(Number(form.employeeId))) {
+      toast.warning("ESI details already exist for this employee");
+      return;
+    }
+
     try {
       await saveEmployeeESIDetail(form);
-      toast.success("Employee ESI detail saved successfully");
+      toast.success(
+        editData
+          ? "Employee ESI detail updated successfully"
+          : "Employee ESI detail saved successfully"
+      );
       onSuccess();
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message || "Failed to save Employee ESI detail");
+      toast.error(
+        err?.response?.data?.message || "Failed to save Employee ESI detail"
+      );
     }
   };
 
@@ -85,26 +136,26 @@ const EmployeeESIDetailForm = ({ editData, onClose, onSuccess }) => {
         >
           <X size={24} />
         </button>
+
         <h2 className="text-lg font-bold mb-4">
           {editData ? "Edit Employee ESI Detail" : "Add Employee ESI Detail"}
         </h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Employee */}
           <div>
             <label className="font-medium mb-1 block">Employee</label>
             <Select
-              value={
-                employees.find((emp) => emp.id === form.employeeId) || null
+              options={employeeOptions}
+              value={employeeOptions.find(
+                (o) => o.value === Number(form.employeeId)
+              )}
+              onChange={(opt) =>
+                setForm({ ...form, employeeId: opt?.value || "" })
               }
-              onChange={(selected) =>
-                setForm({ ...form, employeeId: selected?.id || "" })
-              }
-              getOptionLabel={(emp) => `${emp.fullName} (${emp.employeeCode})`}
-              getOptionValue={(emp) => emp.id}
-              options={employees}
               styles={customSelectStyles}
               placeholder="Select Employee"
-              autoFocus
+              isDisabled={!!editData} // optional: lock employee on edit
             />
           </div>
 
@@ -120,6 +171,7 @@ const EmployeeESIDetailForm = ({ editData, onClose, onSuccess }) => {
               required
             />
           </div>
+
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -129,6 +181,7 @@ const EmployeeESIDetailForm = ({ editData, onClose, onSuccess }) => {
             />
             <label className="text-sm">Is Applicable</label>
           </div>
+
           <div>
             <label className="text-sm">Coverage Start Date</label>
             <input
@@ -140,6 +193,7 @@ const EmployeeESIDetailForm = ({ editData, onClose, onSuccess }) => {
               required
             />
           </div>
+
           <div>
             <label className="text-sm">Coverage End Date</label>
             <input
@@ -151,6 +205,7 @@ const EmployeeESIDetailForm = ({ editData, onClose, onSuccess }) => {
               required
             />
           </div>
+
           <div className="flex justify-end gap-2">
             <button
               type="button"

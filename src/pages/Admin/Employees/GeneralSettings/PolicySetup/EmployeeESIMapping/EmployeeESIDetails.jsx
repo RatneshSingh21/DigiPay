@@ -121,7 +121,7 @@ const EmployeeESIDetails = () => {
               <th className="px-3 py-2 border">Coverage Start</th>
               <th className="px-3 py-2 border">Coverage End</th>
               <th className="px-3 py-2 border">Created At</th>
-              <th className="px-3 py-2 border">Actions</th>
+              {/* <th className="px-3 py-2 border">Actions</th> */}
             </tr>
           </thead>
           <tbody>
@@ -154,7 +154,7 @@ const EmployeeESIDetails = () => {
                   <td className="px-3 py-2 border">
                     {formatDate(item.createdAt)}
                   </td>
-                  <td className="px-3 py-2 border">
+                  {/* <td className="px-3 py-2 border">
                     <button
                       onClick={() => handleEdit(item)}
                       className="flex items-center cursor-pointer gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
@@ -162,7 +162,7 @@ const EmployeeESIDetails = () => {
                       <FiEdit size={14} />
                       <span>Edit</span>
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))
             )}

@@ -1,7 +1,8 @@
 // src/pages/StatusMaster.jsx
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
-import Select from "react-select"
+import Select from "react-select";
+import { toast } from "react-toastify";
 
 const StatusMaster = () => {
   const [statuses, setStatuses] = useState([]);
@@ -46,16 +47,28 @@ const StatusMaster = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    // ✅ DUPLICATE STATUS NAME CHECK (case-insensitive)
+    const alreadyExists = statuses.some(
+      (s) => s.statusName?.toLowerCase() === formData.statusName.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      toast.warning("Status name already exists!");
+      return; // ❌ STOP API CALL
+    }
+
     try {
       await axiosInstance.post("/StatusMaster", {
         ...formData,
         createdOn: new Date().toISOString(),
       });
-      setSuccess("Status added successfully!");
+
+      toast.success("Status added successfully!");
       setFormData({ statusName: "", statusCode: "", isActive: true });
       fetchStatuses();
     } catch (err) {
-      setError(err?.response?.data?.message || "Error adding status.");
+      toast.error(err?.response?.data?.message || "Error adding status.");
     }
   };
 
@@ -127,7 +140,7 @@ const StatusMaster = () => {
         {loading ? (
           <p className="text-gray-600">Loading...</p>
         ) : (
-          <div className="overflow-x-auto shadow h-[150px] overflow-y-scroll">
+          <div className="overflow-x-auto shadow h-[40vh] overflow-y-scroll">
             <table className="min-w-full divide-y text-center text-xs divide-gray-200">
               <thead className="bg-gray-100 text-gray-600">
                 <tr>

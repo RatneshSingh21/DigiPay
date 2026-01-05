@@ -6,7 +6,6 @@ import LeaveList from "./LeaveList";
 import AddLeaveForm from "./AddLeaveForm";
 import ImportLeave from "../ImportLeave";
 
-
 const Leave = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -44,7 +43,7 @@ const Leave = () => {
         {leaves.length > 0 && (
           <div className="flex gap-2 items-center">
             <button
-              className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium cursor-pointer"
+              className="bg-primary hover:bg-secondary text-white text-sm px-4 py-2 rounded-lg font-medium cursor-pointer"
               onClick={() => {
                 setIsEdit("Add");
                 setSelectedLeave(null);

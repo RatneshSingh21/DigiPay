@@ -18,26 +18,25 @@ export default function RelievingLetter() {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   /* ================= PARAGRAPHS ================= */
-const [paragraphs, setParagraphs] = useState([
-  "This is to certify that **{EmployeeName}** was employed with **{CompanyName}** as **{Designation}** in the **{Department}** department.",
-  "The employee joined the organization on **{DateOfJoining}** and his/her last working day was **{LastWorkingDay}**.",
-  "We wish him/her success in future endeavors.",
-]);
+  const [paragraphs, setParagraphs] = useState([
+    "This is to certify that **{EmployeeName}** was employed with **{CompanyName}** as **{Designation}** in the **{Department}** department.",
+    "The employee joined the organization on **{DateOfJoining}** and his/her last working day was **{LastWorkingDay}**.",
+    "We wish him/her success in future endeavors.",
+  ]);
 
   /* ================= FORM ================= */
-const [form, setForm] = useState({
-  EmployeeId: null,
-  EmployeeName: "",
-  Email: "",
-  Department: "",
-  Designation: "",
-  DateOfJoining: "",
-  LastWorkingDay: "",
-  ReasonForLeaving: "",
-  TermsAndConditions: "",
-  IssueDate: new Date().toISOString(),
-});
-
+  const [form, setForm] = useState({
+    EmployeeId: null,
+    EmployeeName: "",
+    Email: "",
+    Department: "",
+    Designation: "",
+    DateOfJoining: "",
+    LastWorkingDay: "",
+    ReasonForLeaving: "",
+    TermsAndConditions: "",
+    IssueDate: new Date().toISOString(),
+  });
 
   /* ================= UI SETTINGS ================= */
   const [uiSettings, setUiSettings] = useState({
@@ -61,40 +60,39 @@ const [form, setForm] = useState({
   }, []);
 
   /* ================= VAR REPLACER ================= */
-const replaceVars = (text) =>
-  text
-    .replaceAll("{EmployeeName}", form.EmployeeName || "")
-    .replaceAll("{Department}", form.Department || "")
-    .replaceAll("{Designation}", form.Designation || "")
-    .replaceAll("{CompanyName}", org.company?.companyName || "")
-    .replaceAll(
-      "{DateOfJoining}",
-      form.DateOfJoining
-        ? new Date(form.DateOfJoining).toLocaleDateString("en-GB")
-        : ""
-    )
-    .replaceAll(
-      "{LastWorkingDay}",
-      form.LastWorkingDay
-        ? new Date(form.LastWorkingDay).toLocaleDateString("en-GB")
-        : ""
-    );
-
+  const replaceVars = (text) =>
+    text
+      .replaceAll("{EmployeeName}", form.EmployeeName || "")
+      .replaceAll("{Department}", form.Department || "")
+      .replaceAll("{Designation}", form.Designation || "")
+      .replaceAll("{CompanyName}", org.company?.companyName || "")
+      .replaceAll(
+        "{DateOfJoining}",
+        form.DateOfJoining
+          ? new Date(form.DateOfJoining).toLocaleDateString("en-GB")
+          : ""
+      )
+      .replaceAll(
+        "{LastWorkingDay}",
+        form.LastWorkingDay
+          ? new Date(form.LastWorkingDay).toLocaleDateString("en-GB")
+          : ""
+      );
 
   /* ================= EMPLOYEE SELECT ================= */
-const handleEmployeeSelect = (emp) => {
-  setForm((prev) => ({
-    ...prev,
-    EmployeeId: emp.id,
-    EmployeeName: emp.fullName,
-    Email: emp.workEmail,
-    Department:
-      departments.find((d) => d.id === emp.departmentId)?.name || "",
-    Designation:
-      designations.find((d) => d.id === emp.designationId)?.title || "",
-    DateOfJoining: emp.dateOfJoining || "",
-  }));
-};
+  const handleEmployeeSelect = (emp) => {
+    setForm((prev) => ({
+      ...prev,
+      EmployeeId: emp.id,
+      EmployeeName: emp.fullName,
+      Email: emp.workEmail,
+      Department:
+        departments.find((d) => d.id === emp.departmentId)?.name || "",
+      Designation:
+        designations.find((d) => d.id === emp.designationId)?.title || "",
+      DateOfJoining: emp.dateOfJoining || "",
+    }));
+  };
 
   /* ================= PARAGRAPH CONTROLS ================= */
   const updatePara = (i, val) => {
@@ -120,33 +118,24 @@ const handleEmployeeSelect = (emp) => {
       if (!result?.blob) throw new Error("PDF generation failed");
 
       // Prepare FormData
-const fd = new FormData();
+      const fd = new FormData();
 
-fd.append("EmployeeId", form.EmployeeId);
-fd.append("EmployeeName", form.EmployeeName);
-fd.append("Email", form.Email);
-fd.append("Department", form.Department);
-fd.append("Designation", form.Designation);
+      fd.append("EmployeeId", form.EmployeeId);
+      fd.append("EmployeeName", form.EmployeeName);
+      fd.append("Email", form.Email);
+      fd.append("Department", form.Department);
+      fd.append("Designation", form.Designation);
 
-fd.append(
-  "DateOfJoining",
-  new Date(form.DateOfJoining).toISOString()
-);
+      fd.append("DateOfJoining", new Date(form.DateOfJoining).toISOString());
 
-fd.append(
-  "LastWorkingDay",
-  new Date(form.LastWorkingDay).toISOString()
-);
+      fd.append("LastWorkingDay", new Date(form.LastWorkingDay).toISOString());
 
-fd.append("ReasonForLeaving", form.ReasonForLeaving || "");
-fd.append("TermsAndConditions", form.TermsAndConditions || "");
+      fd.append("ReasonForLeaving", form.ReasonForLeaving || "");
+      fd.append("TermsAndConditions", form.TermsAndConditions || "");
 
-fd.append(
-  "IssueDate",
-  new Date(form.IssueDate).toISOString()
-);
+      fd.append("IssueDate", new Date(form.IssueDate).toISOString());
 
-fd.append("File", result.blob, "RelievingLetter.pdf");
+      fd.append("File", result.blob, "RelievingLetter.pdf");
       // Upload
       await axiosInstance.post("/RelievingLetter/create", fd, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -176,41 +165,39 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
           getOptionValue={(e) => e.id}
           onChange={handleEmployeeSelect}
         />
-  {[
-  ["Designation", "Designation"],
-  ["DateOfJoining", "Date Of Joining"],
-  ["LastWorkingDay", "Last Working Day"],
-  ["ReasonForLeaving", "Reason For Leaving"],
-  ["TermsAndConditions", "Terms & Conditions"],
-].map(([k, label]) => (
-  <div key={k} className="text-xs mb-1">
-    <label className="block font-medium">{label}</label>
+        {[
+          ["Designation", "Designation"],
+          ["DateOfJoining", "Date Of Joining"],
+          ["LastWorkingDay", "Last Working Day"],
+          ["ReasonForLeaving", "Reason For Leaving"],
+          ["TermsAndConditions", "Terms & Conditions"],
+        ].map(([k, label]) => (
+          <div key={k} className="text-xs mb-1">
+            <label className="block font-medium">{label}</label>
 
-    <input
-      type={
-        k.includes("Day") || k.includes("Joining") ? "date" : "text"
-      }
-      readOnly={k === "Designation" || k === "DateOfJoining"}
-      className={`${inputClass} ${
-        k === "Designation" || k === "DateOfJoining"
-          ? "bg-gray-100 cursor-not-allowed"
-          : ""
-      }`}
-      value={
-    k === "DateOfJoining" || k === "LastWorkingDay"
-      ? form[k]
-        ? form[k].split("T")[0]
-        : ""
-      : form[k]
-  }
-      onChange={(e) =>
-        setForm({ ...form, [k]: e.target.value })
-      }
-    />
-  </div>
-))}
+            <input
+              type={
+                k.includes("Day") || k.includes("Joining") ? "date" : "text"
+              }
+              readOnly={k === "Designation" || k === "DateOfJoining"}
+              className={`${inputClass} ${
+                k === "Designation" || k === "DateOfJoining"
+                  ? "bg-gray-100 cursor-not-allowed"
+                  : ""
+              }`}
+              value={
+                k === "DateOfJoining" || k === "LastWorkingDay"
+                  ? form[k]
+                    ? form[k].split("T")[0]
+                    : ""
+                  : form[k]
+              }
+              onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+            />
+          </div>
+        ))}
 
-     <h3 className="font-semibold my-2">Letter Content</h3>
+        <h3 className="font-semibold my-2">Letter Content</h3>
         {paragraphs.map((p, i) => (
           <div key={i} className="mb-2">
             <textarea
@@ -236,10 +223,11 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
           + Add Paragraph
         </button>
 
-        <h3 className="font-semibold my-3 text-sm">Header & Signature Settings</h3>
+        <h3 className="font-semibold my-3 text-sm">
+          Header & Signature Settings
+        </h3>
 
         <div className="grid grid-cols-2 gap-3 text-xs border rounded-md p-3 bg-gray-50 my-2">
-
           {/* Show Logo */}
           <label className="flex items-center gap-2">
             <input
@@ -258,7 +246,10 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
               type="checkbox"
               checked={uiSettings.showCompanyName}
               onChange={(e) =>
-                setUiSettings({ ...uiSettings, showCompanyName: e.target.checked })
+                setUiSettings({
+                  ...uiSettings,
+                  showCompanyName: e.target.checked,
+                })
               }
             />
             Show Company Name
@@ -285,7 +276,6 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
             />
             Show Terms & Conditions
           </label>
-
 
           {/* Logo Size */}
           <div>
@@ -348,9 +338,7 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
 
           {/* Company Name Color */}
           <div>
-            <label className="block font-medium mb-1">
-              Company Name Color
-            </label>
+            <label className="block font-medium mb-1">Company Name Color</label>
             <select
               className={inputClass}
               value={uiSettings.companyNameColor}
@@ -368,9 +356,7 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
 
           {/* Address Color */}
           <div>
-            <label className="block font-medium mb-1">
-              Address Text Color
-            </label>
+            <label className="block font-medium mb-1">Address Text Color</label>
             <select
               className={inputClass}
               value={uiSettings.addressColor}
@@ -385,10 +371,7 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
               <option value="#ffffff">White</option>
             </select>
           </div>
-
         </div>
-
-
 
         {uploadProgress > 0 && (
           <div className="absolute bottom-0 left-6 right-6">
@@ -412,8 +395,6 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
           Save & Upload PDF
         </button>
       </div>
-
-
 
       <style>
         {`
@@ -644,10 +625,11 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
           )}
           <div className="print-body">
             <p className="print-date">
-              <b>Date:</b> {new Date(form.IssueDate).toLocaleDateString("en-GB")}
+              <b>Date:</b>{" "}
+              {new Date(form.IssueDate).toLocaleDateString("en-GB")}
             </p>
 
-           <h1 className="print-title">RELIEVING LETTER</h1>
+            <h1 className="print-title">RELIEVING LETTER</h1>
             {paragraphs.map((p, i) => (
               <div key={i} className="paragraphs">
                 <ReactMarkdown>{replaceVars(p)}</ReactMarkdown>
@@ -655,12 +637,11 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
             ))}
 
             {form.ReasonForLeaving && (
-  <div className="paragraphs" style={{ marginTop: 20 }}>
-    <h2>Reason For Leaving </h2>
-    <ReactMarkdown>{form.ReasonForLeaving}</ReactMarkdown>
-  </div>
-)}
-
+              <div className="paragraphs" style={{ marginTop: 20 }}>
+                <h2>Reason For Leaving </h2>
+                <ReactMarkdown>{form.ReasonForLeaving}</ReactMarkdown>
+              </div>
+            )}
 
             <table
               style={{
@@ -669,8 +650,7 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
                 marginTop: 20,
                 tableLayout: "fixed", // important for even columns
               }}
-            >
-            </table>
+            ></table>
 
             {/* ================= TERMS & CONDITIONS ================= */}
             {uiSettings.showTerms && form.TermsAndConditions && (
@@ -699,7 +679,8 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
                 />
               )}
               <p>
-                Authorized Signatory<br />
+                Authorized Signatory
+                <br />
                 {form.AuthorizedPersonName}
               </p>
             </div>
@@ -720,6 +701,6 @@ fd.append("File", result.blob, "RelievingLetter.pdf");
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }

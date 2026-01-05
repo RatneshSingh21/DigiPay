@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import SalaryCalculateForm from "./SalaryCalculateForm";
 import ManualSalaryCalculateForm from "./ManualSalaryCalculateForm";
+import SalaryCalculateGenerateAllForm from "./SalaryCalculateGenerateAllForm";
 
 const months = [
   { label: "All Months", value: "" },

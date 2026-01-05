@@ -30,26 +30,65 @@ const EmployeeLeaveForm = ({ onClose }) => {
           label: `${emp.fullName} (${emp.employeeCode})`,
         }));
         setEmployeeOptions(options);
+        console.log("Filtered Leave Types:", options);
       })
       .catch(() => toast.error("Failed to load employees."));
   }, []);
 
   // Fetch Leave Types
   useEffect(() => {
-    axiosInstance
-      .get("/LeaveType/active")
-      .then((res) => {
-        const options =
-          res.data?.map((lt) => ({
-            label: lt.leaveName,
-            value: lt.leaveTypeId,
-            code: lt.leaveCode,
-            maxLeavesPerYear: lt.maxLeavesPerYear,
-          })) || [];
+    if (!formData.employee) {
+      setLeaveTypes([]);
+      setFormData((prev) => ({ ...prev, leaveType: null }));
+      return;
+    }
+
+    const fetchAllocatedLeaveTypes = async () => {
+      try {
+        // 1️⃣ Fetch employee allocations
+        const allocationRes = await axiosInstance.get(
+          `/EmployeeLeaveAllocation/${formData.employee.value}`
+        );
+
+        const allocations = allocationRes.data?.data || [];
+
+        if (!allocations.length) {
+          setLeaveTypes([]);
+          return;
+        }
+
+        // 2️⃣ Fetch active leave types (master)
+        const leaveTypeRes = await axiosInstance.get("/LeaveType/active");
+        const leaveTypesMaster = leaveTypeRes.data || [];
+
+        // 3️⃣ JOIN allocation + leave type master
+        const options = allocations
+          .filter((a) => a.isActive && a.leavesRemaining > 0)
+          .map((a) => {
+            const lt = leaveTypesMaster.find(
+              (l) => l.leaveTypeId === a.leaveTypeId
+            );
+
+            if (!lt) return null;
+
+            return {
+              value: lt.leaveTypeId,
+              label: `${lt.leaveName} (Remaining: ${a.leavesRemaining})`,
+              leaveCode: lt.leaveCode,
+              leavesRemaining: a.leavesRemaining,
+            };
+          })
+          .filter(Boolean); // remove nulls
+
         setLeaveTypes(options);
-      })
-      .catch(() => toast.error("Failed to load leave types."));
-  }, []);
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load employee leave types");
+      }
+    };
+
+    fetchAllocatedLeaveTypes();
+  }, [formData.employee]);
 
   // Fetch Approvers
   useEffect(() => {
@@ -155,7 +194,11 @@ const EmployeeLeaveForm = ({ onClose }) => {
             options={employeeOptions}
             value={formData.employee}
             onChange={(selected) =>
-              setFormData({ ...formData, employee: selected })
+              setFormData({
+                ...formData,
+                employee: selected,
+                leaveType: null, // reset leave type
+              })
             }
             placeholder="Choose employee"
           />
@@ -167,6 +210,7 @@ const EmployeeLeaveForm = ({ onClose }) => {
             Leave Type
           </label>
           <Select
+            key={formData.employee?.value || "no-employee"}
             options={leaveTypes}
             value={formData.leaveType}
             onChange={(selected) =>

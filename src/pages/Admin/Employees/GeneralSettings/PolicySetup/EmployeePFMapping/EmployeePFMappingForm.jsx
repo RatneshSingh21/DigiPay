@@ -21,7 +21,7 @@ const customSelectStyles = {
 const EmployeePFMappingForm = ({ initialData, onClose, refreshList }) => {
   const [employees, setEmployees] = useState([]);
   const [pfSettings, setPfSettings] = useState([]);
-  const [components, setComponents] = useState([]);
+  const [existingPFMappings, setExistingPFMappings] = useState([]);
   const [formData, setFormData] = useState(
     initialData || {
       employeeId: "",
@@ -33,19 +33,21 @@ const EmployeePFMappingForm = ({ initialData, onClose, refreshList }) => {
       overrideFixedAmount: "",
       effectiveFrom: "",
       effectiveTo: "",
-      appliesOnComponents: [],
     }
   );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [empRes, pfRes] = await Promise.all([
+        const [empRes, pfRes, mappingRes] = await Promise.all([
           axiosInstance.get("/Employee"),
           axiosInstance.get("/PFSettings"),
+          axiosInstance.get("/PFEmployeeMapping"),
         ]);
+
         setEmployees(empRes.data || []);
         setPfSettings(pfRes.data.data || []);
+        setExistingPFMappings(mappingRes.data?.response || []);
       } catch (err) {
         console.error(err);
         toast.error("Error loading form data");
@@ -54,58 +56,82 @@ const EmployeePFMappingForm = ({ initialData, onClose, refreshList }) => {
     fetchData();
   }, []);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // Prepare payload considering opt-out
-    const payload = formData.isOptedOut
-      ? {
-          employeeId: formData.employeeId,
-          isOptedOut: true,
-        }
-      : {
-          employeeId: formData.employeeId,
-          pfNumber: formData.pfNumber || null,
-          isOptedOut: false,
-          pfSettingsId: formData.pfSettingsId || null,
-          overrideCalculationType: formData.overrideCalculationType || null,
-          overridePercentage:
-            formData.overridePercentage !== "" && formData.overridePercentage != null
-              ? Number(formData.overridePercentage)
-              : null,
-          overrideFixedAmount:
-            formData.overrideFixedAmount !== "" && formData.overrideFixedAmount != null
-              ? Number(formData.overrideFixedAmount)
-              : null,
-          effectiveFrom: formData.effectiveFrom || null,
-          effectiveTo: formData.effectiveTo || null,
-          appliesOnComponents: formData.appliesOnComponents || [],
-        };
+  const isEmployeeMapped = (employeeId) =>
+    existingPFMappings.some(
+      (m) =>
+        m.employeeId === employeeId &&
+        (!initialData || m.employeeId !== initialData.employeeId)
+    );
 
-    if (initialData) {
-      await axiosInstance.put(
-        `/PFEmployeeMapping/${initialData.pfEmployeeMappingId}`,
-        payload
-      );
-      toast.success("Mapping updated!");
-    } else {
-      await axiosInstance.post("/PFEmployeeMapping", payload);
-      toast.success("Mapping created!");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isEmployeeMapped(Number(formData.employeeId))) {
+      toast.warning("PF mapping already exists for this employee");
+      return;
     }
-    refreshList();
-    onClose();
-  } catch (err) {
-    console.error(err);
-    toast.error(err?.response?.data?.message || "Error saving mapping");
-  }
-};
 
+    try {
+      // Prepare payload according to API
+      const payload = {
+        employeeId: Number(formData.employeeId),
+        pfNumber: formData.pfNumber || null,
+        isOptedOut: formData.isOptedOut,
+        pfSettingsId: formData.pfSettingsId
+          ? Number(formData.pfSettingsId)
+          : null,
+        overrideCalculationType: formData.overrideCalculationType || null,
+        overridePercentage:
+          formData.overridePercentage !== "" &&
+          formData.overridePercentage != null
+            ? Number(formData.overridePercentage)
+            : null,
+        overrideFixedAmount:
+          formData.overrideFixedAmount !== "" &&
+          formData.overrideFixedAmount != null
+            ? Number(formData.overrideFixedAmount)
+            : null,
+        effectiveFrom: formData.effectiveFrom
+          ? new Date(formData.effectiveFrom).toISOString()
+          : null,
+        effectiveTo: formData.effectiveTo
+          ? new Date(formData.effectiveTo).toISOString()
+          : null,
+      };
+
+      if (initialData) {
+        await axiosInstance.put(
+          `/PFEmployeeMapping/${initialData.pfEmployeeMappingId}`,
+          payload
+        );
+        toast.success("Mapping updated!");
+      } else {
+        await axiosInstance.post("/PFEmployeeMapping", payload);
+        toast.success("Mapping created!");
+      }
+      refreshList();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Error saving mapping");
+    }
+  };
 
   const inputClass =
     "w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";
-
   const cardClass =
     "bg-white p-3 rounded-md shadow-sm border space-y-2 text-sm";
+
+  const employeeOptions = employees.map((emp) => {
+    const mapped = isEmployeeMapped(emp.id);
+    return {
+      value: emp.id,
+      label: `${emp.fullName} (${emp.employeeCode})${
+        mapped ? " • Already mapped" : ""
+      }`,
+      isDisabled: mapped,
+    };
+  });
 
   return (
     <form
@@ -134,18 +160,16 @@ const handleSubmit = async (e) => {
       <div className={cardClass}>
         <label className="font-medium mb-1 block">Employee</label>
         <Select
-          value={
-            employees.find((emp) => emp.id === formData.employeeId) || null
-          }
+          value={employeeOptions.find(
+            (o) => o.value === Number(formData.employeeId)
+          )}
           onChange={(selected) =>
-            setFormData({ ...formData, employeeId: selected?.id || "" })
+            setFormData({ ...formData, employeeId: selected?.value || "" })
           }
-          getOptionLabel={(emp) => `${emp.fullName} (${emp.employeeCode})`}
-          getOptionValue={(emp) => emp.id}
-          options={employees}
+          options={employeeOptions}
           styles={customSelectStyles}
           placeholder="Select Employee"
-          autoFocus
+          isDisabled={!!initialData}
         />
       </div>
 
@@ -179,7 +203,9 @@ const handleSubmit = async (e) => {
                   })
                 }
                 getOptionLabel={(pf) =>
-                  `PF #${pf.pfSettingsId} || ${pf.calculationType} - ${pf.percentage || pf.fixedAmount}`
+                  `PF #${pf.pfSettingsId} || ${pf.calculationType} - ${
+                    pf.percentage || pf.fixedAmount
+                  }`
                 }
                 getOptionValue={(pf) => pf.pfSettingsId}
                 options={pfSettings}
@@ -264,28 +290,6 @@ const handleSubmit = async (e) => {
                 className={`${inputClass} mt-2`}
               />
             </div>
-          </div>
-
-          {/* Components */}
-          <div className={cardClass}>
-            <label className="font-medium mb-1 block">
-              Applies On Components
-            </label>
-            <Select
-              value={components.filter((c) =>
-                formData.appliesOnComponents.includes(c.value)
-              )}
-              onChange={(selected) =>
-                setFormData({
-                  ...formData,
-                  appliesOnComponents: selected.map((s) => s.value),
-                })
-              }
-              options={components}
-              styles={customSelectStyles}
-              isMulti
-              placeholder="Select components"
-            />
           </div>
         </>
       )}

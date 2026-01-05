@@ -3,11 +3,13 @@ import EmployeeUpdates from "./EmployeeUpdates/EmployeeUpdates";
 import EmployeePFMapping from "./PolicySetup/EmployeePFMapping/EmployeePFMapping";
 import EmployeeESIDetails from "./PolicySetup/EmployeeESIMapping/EmployeeESIDetails";
 import EmployeeAttendancePolicyMapping from "./PolicySetup/EmployeeAttendancePolicyMapping/EmployeeAttendancePolicyMapping";
+import EmployeeLeavePolicyMapping from "./PolicySetup/EmployeeLeavePolicyMapping/EmployeeLeavePolicyMapping";
 
 const tabs = [
   { id: "employee", label: "Employee Updates" },
   { id: "pf", label: "PF Settings" },
   { id: "esi", label: "ESI Setup" },
+  { id: "leave", label: "Leave Policy" },
   { id: "attendance", label: "Attendance Policy" },
 ];
 
@@ -38,6 +40,7 @@ const GeneralSettings = () => {
         {activeTab === "employee" && <EmployeeUpdates />}
         {activeTab === "pf" && <EmployeePFMapping />}
         {activeTab === "esi" && <EmployeeESIDetails />}
+        {activeTab === "leave" && <EmployeeLeavePolicyMapping />}
         {activeTab === "attendance" && <EmployeeAttendancePolicyMapping />}
       </div>
     </div>

@@ -185,7 +185,7 @@ const EmpBasicSalary = () => {
               ))}
 
               {/* Sticky Total Row */}
-              <tr className="bg-gray-200 font-semibold text-center sticky -bottom-4 z-20">
+              <tr className="bg-gray-200 font-semibold text-center sticky -bottom-4 z-10">
                 <td colSpan={3} className="p-2 border-r border-gray-200">Total</td>
                 <td className="p-2 border-r border-gray-200">₹{totals.basicSalary.toLocaleString()}</td>
                 <td className="p-2 border-r border-gray-200">₹{totals.hra.toLocaleString()}</td>

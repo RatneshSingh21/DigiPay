@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import { generateLetterPdf } from "../PdfUtils";
 import ReactMarkdown from "react-markdown";
 
-
 export default function LetterOfIntent() {
   const certificateRef = useRef(null);
 
@@ -20,7 +19,7 @@ export default function LetterOfIntent() {
 
     "Please note that this Letter of Intent is non-binding in nature and does not obligate the organization to proceed with employment. Either party may withdraw from this understanding at any time without any legal or financial liability.",
 
-    "If the above terms are acceptable, please acknowledge this Letter of Intent as a confirmation of your interest. We look forward to the possibility of working together."
+    "If the above terms are acceptable, please acknowledge this Letter of Intent as a confirmation of your interest. We look forward to the possibility of working together.",
   ]);
 
   const [form, setForm] = useState({
@@ -51,7 +50,6 @@ export default function LetterOfIntent() {
     addressColor: "#000000", // black | white
   });
 
-
   const replaceVars = (text) => {
     return text
       .replaceAll("{CandidateName}", form.CandidateName || "")
@@ -67,19 +65,14 @@ export default function LetterOfIntent() {
       .replaceAll("{Department}", form.Department || "")
       .replaceAll(
         "{ProposedSalary}",
-        form.ProposedSalary
-          ? form.ProposedSalary.toLocaleString("en-IN")
-          : "0"
+        form.ProposedSalary ? form.ProposedSalary.toLocaleString("en-IN") : "0"
       )
       .replaceAll(
         "{Stipend}",
-        form.Stipend
-          ? form.Stipend.toLocaleString("en-IN")
-          : "0"
+        form.Stipend ? form.Stipend.toLocaleString("en-IN") : "0"
       )
       .replaceAll("{Duration}", form.Duration || "");
   };
-
 
   /* ================= LOAD ORG ================= */
   useEffect(() => {
@@ -158,9 +151,7 @@ export default function LetterOfIntent() {
       await axiosInstance.post("/LetterOfIntent/create", fd, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (e) => {
-          const percent = e.total
-            ? Math.round((e.loaded * 100) / e.total)
-            : 0;
+          const percent = e.total ? Math.round((e.loaded * 100) / e.total) : 0;
           setUploadProgress(percent);
         },
       });
@@ -173,7 +164,6 @@ export default function LetterOfIntent() {
       setUploadProgress(0);
     }
   };
-
 
   const inputClass =
     "w-full border border-gray-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 outline-none";
@@ -200,15 +190,15 @@ export default function LetterOfIntent() {
             <input
               className={inputClass}
               value={form[key] || ""}
-              onChange={(e) =>
-                setForm({ ...form, [key]: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, [key]: e.target.value })}
             />
           </div>
         ))}
 
         <div className="text-xs">
-          <label className="block font-medium mb-1">Proposed Joining Date</label>
+          <label className="block font-medium mb-1">
+            Proposed Joining Date
+          </label>
           <input
             type="date"
             className={inputClass}
@@ -242,9 +232,7 @@ export default function LetterOfIntent() {
           <input
             className={inputClass}
             value={form.Duration}
-            onChange={(e) =>
-              setForm({ ...form, Duration: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, Duration: e.target.value })}
           />
 
           <h3 className="font-semibold my-2">Letter Content</h3>
@@ -273,10 +261,11 @@ export default function LetterOfIntent() {
             + Add Paragraph
           </button>
 
-          <h3 className="font-semibold my-3 text-sm">Header & Signature Settings</h3>
+          <h3 className="font-semibold my-3 text-sm">
+            Header & Signature Settings
+          </h3>
 
           <div className="grid grid-cols-2 gap-3 text-xs border rounded-md p-3 bg-gray-50 my-2">
-
             {/* Show Logo */}
             <label className="flex items-center gap-2">
               <input
@@ -288,33 +277,35 @@ export default function LetterOfIntent() {
               />
               Show Logo
             </label>
-
             {/* Show Company Name */}
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={uiSettings.showCompanyName}
                 onChange={(e) =>
-                  setUiSettings({ ...uiSettings, showCompanyName: e.target.checked })
+                  setUiSettings({
+                    ...uiSettings,
+                    showCompanyName: e.target.checked,
+                  })
                 }
               />
               Show Company Name
             </label>
-
             {/* Show Address */}
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={uiSettings.showAddress}
                 onChange={(e) =>
-                  setUiSettings({ ...uiSettings, showAddress: e.target.checked })
+                  setUiSettings({
+                    ...uiSettings,
+                    showAddress: e.target.checked,
+                  })
                 }
               />
               Show Address
             </label>
-
             <div /> {/* spacer */}
-
             {/* Logo Size */}
             <div>
               <label className="block font-medium mb-1">
@@ -333,7 +324,6 @@ export default function LetterOfIntent() {
                 }
               />
             </div>
-
             {/* Signature Size */}
             <div>
               <label className="block font-medium mb-1">
@@ -352,7 +342,6 @@ export default function LetterOfIntent() {
                 }
               />
             </div>
-
             {/* Signature Alignment */}
             <div>
               <label className="block font-medium mb-1">
@@ -373,7 +362,6 @@ export default function LetterOfIntent() {
                 <option value="right">Right</option>
               </select>
             </div>
-
             {/* Company Name Color */}
             <div>
               <label className="block font-medium mb-1">
@@ -393,7 +381,6 @@ export default function LetterOfIntent() {
                 <option value="#ffffff">White</option>
               </select>
             </div>
-
             {/* Address Color */}
             <div>
               <label className="block font-medium mb-1">
@@ -413,12 +400,8 @@ export default function LetterOfIntent() {
                 <option value="#ffffff">White</option>
               </select>
             </div>
-
           </div>
         </div>
-
-
-
 
         {uploadProgress > 0 && (
           <div className="absolute bottom-0 left-6 right-6">
@@ -681,7 +664,11 @@ export default function LetterOfIntent() {
             <h1 className="print-title">LETTER OF INTENT</h1>
 
             {paragraphs.map((p, i) => (
-              <div key={i} className="paragraphs" style={{ textAlign: "justify" }}>
+              <div
+                key={i}
+                className="paragraphs"
+                style={{ textAlign: "justify" }}
+              >
                 <ReactMarkdown>{replaceVars(p)}</ReactMarkdown>
               </div>
             ))}
@@ -692,7 +679,6 @@ export default function LetterOfIntent() {
                 textAlign: uiSettings.signatureAlign,
               }}
             >
-
               {org.orgSignature && (
                 <img
                   src={org.orgSignature}

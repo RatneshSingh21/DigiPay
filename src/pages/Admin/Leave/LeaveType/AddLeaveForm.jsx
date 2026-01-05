@@ -103,7 +103,7 @@ const AddLeaveForm = ({ onClose, isEdit, initialData, onSuccess }) => {
 
         {/* Header */}
         <div className="px-6 pt-6 pb-3 border-b">
-          <h2 className="text-2xl font-extrabold text-primary">
+          <h2 className="text-xl font-extrabold text-primary">
             {isEdit === "Edit" ? "Edit Leave Type" : "Add Leave Type"}
           </h2>
         </div>

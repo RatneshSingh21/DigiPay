@@ -92,7 +92,6 @@ import RelievingLetter from "./pages/Admin/Reports/PayrollReport/RelievingLetter
 import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificate";
 import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalStatement";
 import JobPosting from "./pages/Admin/Reports/PayrollReport/JobPosting";
-import NominationDeclaration from "./pages/Admin/Reports/PayrollReport/NominationDeclaration";
 import AdminReports from "./pages/Admin/Reports/AdminReports";
 
 //Admin Leave Pages
@@ -342,10 +341,6 @@ const App = () => {
                     <Route
                       path="experience-certi"
                       element={<ExperienceCertificateEditor />}
-                    />
-                    <Route
-                      path="nomination-declaration"
-                      element={<NominationDeclaration />}
                     />
                     <Route path="job-posting" element={<JobPosting />} />
                     <Route

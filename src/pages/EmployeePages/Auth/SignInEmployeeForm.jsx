@@ -46,17 +46,18 @@ export default function SignInEmployeeForm() {
         email: backendEmail,
         token,
         message,
+        profileImageUrl,
       } = response.data;
 
       useAuthStore.getState().login(
         {
-          userId: employeeId, //  primary
-          id: employeeId, //  alias
+          userId: employeeId, // primary
+          id: employeeId, // alias
           name: fullName,
           fullName: fullName,
           emailOrPhone: backendEmail,
           role: "Employee",
-          profileImageUrl: null,
+          profileImageUrl: profileImageUrl || null,
         },
         token,
         null

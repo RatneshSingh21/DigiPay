@@ -120,11 +120,13 @@ export default function AppointmentLetter() {
   };
 
   const addSalary = () =>
-    setSalaryComponents([...salaryComponents, { ComponentName: "", Amount: 0 }]);
+    setSalaryComponents([
+      ...salaryComponents,
+      { ComponentName: "", Amount: 0 },
+    ]);
 
   const removeSalary = (i) =>
     setSalaryComponents(salaryComponents.filter((_, idx) => idx !== i));
-
 
   /* ================= SUBMIT ================= */
   const handleSubmit = async () => {
@@ -155,8 +157,7 @@ export default function AppointmentLetter() {
       // Corrected SalaryComponentsJson (stringified exactly like Swagger)
       const salaryJson = `[${salaryComponents
         .map(
-          (s) =>
-            `{"ComponentName":"${s.ComponentName}","Amount":"${s.Amount}"}`
+          (s) => `{"ComponentName":"${s.ComponentName}","Amount":"${s.Amount}"}`
         )
         .join(",")}]`;
       fd.append("SalaryComponentsJson", salaryJson);
@@ -191,7 +192,6 @@ export default function AppointmentLetter() {
           onChange={handleEmployeeSelect}
         />
         {[
-
           ["FatherName", "Father Name"],
           ["Email", "Email"],
           ["DesignationId", "Designation ID"],
@@ -199,16 +199,13 @@ export default function AppointmentLetter() {
           ["Position", "Position"],
           ["AuthorizedPersonName", "Authorized Person"],
           ["TermsAndConditions", "Terms And Conditions"],
-
         ].map(([k, label]) => (
           <div key={k} className="text-xs mb-1">
             <label className="block font-medium">{label}</label>
             <input
               className={inputClass}
               value={form[k] ?? ""}
-              onChange={(e) =>
-                setForm({ ...form, [k]: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, [k]: e.target.value })}
             />
           </div>
         ))}
@@ -218,9 +215,7 @@ export default function AppointmentLetter() {
           type="date"
           className={inputClass}
           value={form.DateOfJoining}
-          onChange={(e) =>
-            setForm({ ...form, DateOfJoining: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, DateOfJoining: e.target.value })}
         />
 
         {/* ================= SALARY ================= */}
@@ -231,18 +226,14 @@ export default function AppointmentLetter() {
               className={inputClass}
               placeholder="Component"
               value={s.ComponentName}
-              onChange={(e) =>
-                updateSalary(i, "ComponentName", e.target.value)
-              }
+              onChange={(e) => updateSalary(i, "ComponentName", e.target.value)}
             />
             <input
               type="number"
               className={inputClass}
               placeholder="Amount"
               value={s.Amount}
-              onChange={(e) =>
-                updateSalary(i, "Amount", e.target.value)
-              }
+              onChange={(e) => updateSalary(i, "Amount", e.target.value)}
             />
             <button
               className="text-red-600 text-sm"
@@ -285,10 +276,11 @@ export default function AppointmentLetter() {
           + Add Paragraph
         </button>
 
-        <h3 className="font-semibold my-3 text-sm">Header & Signature Settings</h3>
+        <h3 className="font-semibold my-3 text-sm">
+          Header & Signature Settings
+        </h3>
 
         <div className="grid grid-cols-2 gap-3 text-xs border rounded-md p-3 bg-gray-50 my-2">
-
           {/* Show Logo */}
           <label className="flex items-center gap-2">
             <input
@@ -307,7 +299,10 @@ export default function AppointmentLetter() {
               type="checkbox"
               checked={uiSettings.showCompanyName}
               onChange={(e) =>
-                setUiSettings({ ...uiSettings, showCompanyName: e.target.checked })
+                setUiSettings({
+                  ...uiSettings,
+                  showCompanyName: e.target.checked,
+                })
               }
             />
             Show Company Name
@@ -334,7 +329,6 @@ export default function AppointmentLetter() {
             />
             Show Terms & Conditions
           </label>
-
 
           {/* Logo Size */}
           <div>
@@ -397,9 +391,7 @@ export default function AppointmentLetter() {
 
           {/* Company Name Color */}
           <div>
-            <label className="block font-medium mb-1">
-              Company Name Color
-            </label>
+            <label className="block font-medium mb-1">Company Name Color</label>
             <select
               className={inputClass}
               value={uiSettings.companyNameColor}
@@ -417,9 +409,7 @@ export default function AppointmentLetter() {
 
           {/* Address Color */}
           <div>
-            <label className="block font-medium mb-1">
-              Address Text Color
-            </label>
+            <label className="block font-medium mb-1">Address Text Color</label>
             <select
               className={inputClass}
               value={uiSettings.addressColor}
@@ -434,10 +424,7 @@ export default function AppointmentLetter() {
               <option value="#ffffff">White</option>
             </select>
           </div>
-
         </div>
-
-
 
         {uploadProgress > 0 && (
           <div className="absolute bottom-0 left-6 right-6">
@@ -461,8 +448,6 @@ export default function AppointmentLetter() {
           Save & Upload PDF
         </button>
       </div>
-
-
 
       <style>
         {`
@@ -693,7 +678,8 @@ export default function AppointmentLetter() {
           )}
           <div className="print-body">
             <p className="print-date">
-              <b>Date:</b> {new Date(form.IssueDate).toLocaleDateString("en-GB")}
+              <b>Date:</b>{" "}
+              {new Date(form.IssueDate).toLocaleDateString("en-GB")}
             </p>
 
             <h1 className="print-title">APPOINTMENT LETTER</h1>
@@ -787,7 +773,8 @@ export default function AppointmentLetter() {
                 />
               )}
               <p>
-                Authorized Signatory<br />
+                Authorized Signatory
+                <br />
                 {form.AuthorizedPersonName}
               </p>
             </div>
@@ -808,6 +795,6 @@ export default function AppointmentLetter() {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }

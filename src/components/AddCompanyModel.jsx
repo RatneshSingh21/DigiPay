@@ -86,7 +86,7 @@ const AddCompanyModal = ({ isOpen, onClose }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary disabled:opacity-50"
+                className="rounded-md bg-primary cursor-pointer px-4 py-2 text-sm font-medium text-white hover:bg-secondary disabled:opacity-50"
               >
                 {loading ? "Saving..." : "Save"}
               </button>

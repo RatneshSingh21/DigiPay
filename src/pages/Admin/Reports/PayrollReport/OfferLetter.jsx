@@ -129,7 +129,7 @@ export default function OfferLetter() {
 
       /* ================= PDF GENERATION ================= */
       console.log("🖨️ Generating PDF...");
-      const result = await generateOfferLetterPdf(certificateRef, {
+      const result = await generateLetterPdf(certificateRef, {
         debug: true,
       });
 
