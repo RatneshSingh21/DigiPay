@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
+import { Hash, Type } from "lucide-react";
 import { getBiometricDevices, getDeviceMappings } from "./biometricApi";
 import MapEmployeeModal from "./MapEmployeeModal";
 
+/* ================= STATUS BADGE ================= */
 const StatusBadge = ({ active }) => (
   <span
     className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -21,7 +23,10 @@ const BiometricEmployeeMapping = () => {
   const [mappings, setMappings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+
   const [showMapModal, setShowMapModal] = useState(false);
+  const [showPayCodePrompt, setShowPayCodePrompt] = useState(false);
+  const [payCodeMode, setPayCodeMode] = useState(null); // numeric | alphanumeric
 
   /* ================= LOAD DEVICES ================= */
   useEffect(() => {
@@ -73,20 +78,19 @@ const BiometricEmployeeMapping = () => {
 
   /* ================= UI ================= */
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {/* HEADER */}
-      <div className="bg-white rounded-xl shadow p-5 flex flex-col justify-between items-center">
+      <div className="bg-white rounded-xl shadow p-5 text-center">
         <h1 className="text-xl font-semibold">Biometric Employee Mapping</h1>
         <p className="text-sm text-gray-500">
-          View employees enrolled on each biometric device
+          View and manage employees mapped to biometric devices
         </p>
       </div>
 
-      <div className="p-4 space-y-2">
+      <div className="p-4 space-y-3">
         {/* DEVICE SELECT */}
-
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="max-w-md">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div className="max-w-md w-full">
             <label className="block text-sm font-medium mb-1">
               Biometric Device
             </label>
@@ -101,8 +105,8 @@ const BiometricEmployeeMapping = () => {
 
           <button
             disabled={!selectedDevice}
-            onClick={() => setShowMapModal(true)}
-            className="bg-primary text-white cursor-pointer px-4 py-2 rounded text-sm hover:bg-secondary disabled:opacity-50"
+            onClick={() => setShowPayCodePrompt(true)}
+            className="bg-primary text-white px-4 py-2 rounded cursor-pointer text-sm hover:bg-secondary disabled:opacity-50"
           >
             Map Employee
           </button>
@@ -142,7 +146,7 @@ const BiometricEmployeeMapping = () => {
         {/* CONTENT */}
         {!selectedDevice ? (
           <p className="text-sm text-gray-500">
-            Select a device to see mapped employees.
+            Select a device to view mapped employees.
           </p>
         ) : loading ? (
           <p className="text-sm">Loading employees…</p>
@@ -167,7 +171,8 @@ const BiometricEmployeeMapping = () => {
 
                 <div className="mt-3 text-sm space-y-1">
                   <div>
-                    <span className="text-gray-500">Machine PayCode:</span> {m.payCode}
+                    <span className="text-gray-500">Machine PayCode:</span>{" "}
+                    {m.payCode}
                   </div>
                   <div>
                     <span className="text-gray-500">Enrollment:</span>{" "}
@@ -184,10 +189,99 @@ const BiometricEmployeeMapping = () => {
         )}
       </div>
 
+      {/* PAYCODE PROMPT */}
+      {showPayCodePrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5 animate-scaleIn">
+            {/* Header */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Choose PayCode Format
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Select how the PayCode should be sent to the biometric device.
+              </p>
+            </div>
+
+            {/* Options */}
+            <div className="space-y-3">
+              {/* Numeric */}
+              <button
+                className="group w-full border border-gray-200 rounded-xl p-4 text-left transition-all hover:border-blue-400 hover:bg-blue-50 focus:outline-none"
+                onClick={() => {
+                  setPayCodeMode("numeric");
+                  setShowPayCodePrompt(false);
+                  setShowMapModal(true);
+                }}
+              >
+                <div className="flex items-start gap-3 cursor-pointer">
+                  <div className="rounded-lg bg-blue-100 text-blue-600 p-2">
+                    <Hash size={18} />
+                  </div>
+
+                  <div>
+                    <div className="font-medium text-gray-800">
+                      Numeric only
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Only numbers will be sent to the device
+                      <span className="block mt-0.5">
+                        Example: <b>PMSD123</b> → <b>123</b>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Alphanumeric */}
+              <button
+                className="group w-full border border-gray-200 rounded-xl p-4 text-left transition-all hover:border-green-400 hover:bg-green-50 focus:outline-none"
+                onClick={() => {
+                  setPayCodeMode("alphanumeric");
+                  setShowPayCodePrompt(false);
+                  setShowMapModal(true);
+                }}
+              >
+                <div className="flex items-start gap-3 cursor-pointer">
+                  <div className="rounded-lg bg-green-100 text-green-600 p-2">
+                    <Type size={18} />
+                  </div>
+
+                  <div>
+                    <div className="font-medium text-gray-800">
+                      Full employee code
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Complete code will be sent as-is
+                      <span className="block mt-0.5">
+                        Example: <b>PMSD123</b> → <b>PMSD123</b>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end pt-4">
+              <button
+                onClick={() => setShowPayCodePrompt(false)}
+                className="px-4 py-2 rounded-lg border border-gray-300 cursor-pointer text-sm font-medium text-gray-600 
+               hover:bg-gray-100 hover:text-gray-800 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MAP MODAL */}
       <MapEmployeeModal
         open={showMapModal}
         onClose={() => setShowMapModal(false)}
         deviceId={selectedDevice?.value}
+        payCodeMode={payCodeMode}
         onSuccess={() => handleDeviceChange(selectedDevice)}
       />
     </div>

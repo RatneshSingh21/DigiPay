@@ -17,21 +17,32 @@ const initialFormState = {
   notes: "",
 };
 
-const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
+const MapEmployeeModal = ({
+  open,
+  onClose,
+  deviceId,
+  onSuccess,
+  payCodeMode, // "numeric" | "alphanumeric"
+}) => {
   const [employees, setEmployees] = useState([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [existingMappings, setExistingMappings] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState(initialFormState);
 
-  const formatPayCode = (code = "") => {
-    // Remove starting alphabets
-    const withoutAlphabets = code.replace(/^[A-Za-z]+/, "");
+  /* ================= PAYCODE RESOLVER ================= */
+  const resolvePayCode = (employeeCode = "") => {
+    if (payCodeMode === "numeric") {
+      const digits = employeeCode.replace(/\D/g, "");
+      return digits || ""; // prevent garbage values
+    }
 
-    // Remove leading zeros from the remaining value
-    return withoutAlphabets.replace(/^0+/, "") || "0";
+    // default: alphanumeric
+    return employeeCode;
   };
 
+  /* ================= LOAD DATA ================= */
   useEffect(() => {
     if (!open || !deviceId) return;
 
@@ -59,10 +70,9 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
   const isEmployeeAlreadyMapped = (employeeId) =>
     existingMappings.some((m) => m.employeeId === employeeId);
 
-  const [submitting, setSubmitting] = useState(false);
-
   if (!open) return null;
 
+  /* ================= EMPLOYEE OPTIONS ================= */
   const employeeOptions = employees.map((emp) => {
     const isMapped = existingMappings.some((m) => m.employeeId === emp.id);
 
@@ -72,7 +82,7 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
         isMapped ? " • Already mapped" : ""
       }`,
       employeeCode: emp.employeeCode,
-      isDisabled: isMapped, // ✅ KEY CHANGE
+      isDisabled: isMapped,
     };
   });
 
@@ -82,16 +92,21 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
     { value: "Card", label: "RF Card" },
   ];
 
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.employeeId || !form.payCode) {
-      toast.error("Employee and Pay Code are required");
+    if (!form.employeeId) {
+      toast.error("Employee is required");
       return;
     }
 
     if (!form.payCode) {
-      toast.error("Invalid Pay Code generated from employee code");
+      toast.error(
+        payCodeMode === "numeric"
+          ? "Employee code has no numeric value to generate PayCode"
+          : "Invalid PayCode"
+      );
       return;
     }
 
@@ -110,7 +125,7 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
 
       toast.success("Employee mapped successfully");
 
-      setForm(initialFormState); //clear form
+      setForm(initialFormState);
       onSuccess?.();
       onClose();
     } catch {
@@ -120,6 +135,10 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
     }
   };
 
+  const inputClass =
+    "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+  /* ================= UI ================= */
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-5">
@@ -137,7 +156,7 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-2 max-h-[75vh] pr-2 overflow-y-scroll text-sm"
+          className="space-y-2 max-h-[80vh] p-2 overflow-y-auto text-sm"
         >
           {/* Employee */}
           <div>
@@ -154,10 +173,12 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
               onChange={(opt) => {
                 if (!opt) return;
 
+                const generatedPayCode = resolvePayCode(opt.employeeCode);
+
                 setForm({
                   ...form,
                   employeeId: opt.value,
-                  payCode: formatPayCode(opt.employeeCode),
+                  payCode: generatedPayCode,
                 });
               }}
               styles={{
@@ -179,12 +200,13 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
               Machine PayCode <span className="text-red-500">*</span>
             </label>
             <input
-              className="border px-3 py-2 rounded w-full bg-gray-100 cursor-not-allowed"
+              className="mt-1 w-full rounded-md border border-gray-300 bg-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-not-allowed"
               value={form.payCode}
               disabled
             />
             <p className="text-xs text-gray-500 mt-1">
-              Auto-filled from employee code.
+              Generated automatically (
+              {payCodeMode === "numeric" ? "numeric only" : "employee code"}).
             </p>
           </div>
 
@@ -193,7 +215,6 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
             <label className="block font-medium mb-1">Enrollment Type</label>
             <Select
               options={enrollmentOptions}
-              placeholder="Select enrollment method"
               value={enrollmentOptions.find(
                 (opt) => opt.value === form.enrollmentType
               )}
@@ -208,8 +229,7 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
             <label className="block font-medium mb-1">Finger Index</label>
             <input
               type="number"
-              placeholder="e.g. 0 for thumb, 1 for index finger"
-              className="border px-3 py-2 rounded w-full"
+              className={inputClass}
               value={form.fingerIndex}
               onChange={(e) =>
                 setForm({
@@ -227,8 +247,7 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
           <div>
             <label className="block font-medium mb-1">Notes</label>
             <textarea
-              placeholder="Optional remarks or instructions"
-              className="border px-3 py-2 rounded w-full"
+              className={inputClass}
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
             />
@@ -238,7 +257,7 @@ const MapEmployeeModal = ({ open, onClose, deviceId, onSuccess }) => {
           <button
             type="submit"
             disabled={submitting}
-            className="bg-primary text-white w-full cursor-pointer py-2 rounded hover:bg-secondary disabled:opacity-50"
+            className="bg-primary text-white w-full py-2 rounded hover:bg-secondary disabled:opacity-50"
           >
             {submitting ? "Mapping..." : "Map Employee"}
           </button>

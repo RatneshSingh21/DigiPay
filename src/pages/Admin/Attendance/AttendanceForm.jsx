@@ -194,7 +194,7 @@ const AttendanceForm = () => {
         <h2 className="font-semibold text-xl">Attendance</h2>
         <button
           onClick={() => setShowImportModal(true)}
-          className="bg-primary text-white px-4 py-2 text-sm rounded-md hover:bg-secondary transition duration-200"
+          className="bg-primary text-white px-4 py-2 cursor-pointer text-sm rounded-md hover:bg-secondary transition duration-200"
         >
           Import / Export
         </button>
@@ -324,7 +324,7 @@ const AttendanceForm = () => {
           <div className="md:col-span-2 flex justify-end">
             <button
               type="submit"
-              className="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-md flex items-center justify-center min-w-[120px]"
+              className="bg-primary hover:bg-secondary cursor-pointer text-white px-6 py-2 rounded-md flex items-center justify-center min-w-[120px]"
               disabled={isSubmitting}
             >
               {isSubmitting ? <Spinner /> : "Submit"}

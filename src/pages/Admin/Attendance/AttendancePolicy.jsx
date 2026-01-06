@@ -16,7 +16,10 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import AttendancePolicyForm from "./AttendancePolicyForm";
 
 // services
-import { fetchMasterLookups , idsToNames } from "../../../services/masterLookupService";
+import {
+  fetchMasterLookups,
+  idsToNames,
+} from "../../../services/masterLookupService";
 import assets from "../../../assets/assets";
 
 /* -------------------- Helpers -------------------- */

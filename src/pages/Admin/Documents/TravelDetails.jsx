@@ -144,8 +144,35 @@ const TravelDetails = () => {
 
         {/* No Data */}
         {filtered.length === 0 ? (
-          <div className="text-center text-gray-500 mt-10 text-sm">
-            No travel records found.
+          <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center text-center bg-white border border-dashed border-gray-300 rounded-2xl p-10 max-w-md shadow-sm">
+              <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-600">
+                <MapPin size={24} />
+              </div>
+
+              <h3 className="text-xl font-semibold text-gray-800">
+                No Travel Records Found
+              </h3>
+
+              <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+                Employee travel history will appear here once employees start
+                logging their travel locations. You can filter results by
+                employee name or date range.
+              </p>
+
+              {(search || startDate || endDate) && (
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    setStartDate("");
+                    setEndDate("");
+                  }}
+                  className="px-4 py-2 rounded-lg border cursor-pointer text-sm hover:bg-gray-100"
+                >
+                  Clear Search
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           filtered.map((group) => (

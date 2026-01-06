@@ -110,9 +110,33 @@ const ExpenseHeader = () => {
           </table>
         </div>
       ) : (
-        <p className="text-gray-600 text-center py-6">
-          No headers found. Click “Add Header” to create one.
-        </p>
+        <div className="flex items-center justify-center py-24">
+          <div className="flex flex-col items-center text-center bg-white border border-dashed border-gray-300 rounded-2xl p-10 max-w-md shadow-sm">
+            <div className="mb-4 rounded-full bg-indigo-100 p-4 text-indigo-600">
+              <Plus size={22} />
+            </div>
+
+            <h3 className="text-xl font-semibold text-gray-800">
+              No Expense Headers Found
+            </h3>
+
+            <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+              Expense headers help categorize and control reimbursement claims.
+              Create headers like Travel, Food, Accommodation, etc.
+            </p>
+
+            <button
+              onClick={() => {
+                setEditData(null);
+                setShowModal(true);
+              }}
+              className="mt-6 inline-flex items-center cursor-pointer gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-secondary transition"
+            >
+              <Plus size={16} />
+              Add Expense Header
+            </button>
+          </div>
+        </div>
       )}
 
       {showModal && (

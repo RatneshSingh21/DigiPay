@@ -38,16 +38,15 @@ export default function LetterOfIntent() {
   });
 
   const [uiSettings, setUiSettings] = useState({
-    showLogo: true,
-    showAddress: true,
-    showCompanyName: true,
-
-    logoSize: 30, // px
-    signatureSize: 56, // px
-    signatureAlign: "left", // left | center | right
-
-    companyNameColor: "#000000", // black | white
-    addressColor: "#000000", // black | white
+    showLogo: false,
+    showAddress: false,
+    showCompanyName: false,
+    showTerms: false,
+    logoSize: 30,
+    signatureSize: 56,
+    signatureAlign: "left",
+    companyNameColor: "#000000",
+    addressColor: "#000000",
   });
 
   const replaceVars = (text) => {
@@ -462,7 +461,7 @@ export default function LetterOfIntent() {
 .header-bg {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -704,9 +703,7 @@ export default function LetterOfIntent() {
                 onError={(e) => (e.currentTarget.style.display = "none")}
               />
             )}
-            <div className="footer-text">
-              This is a system generated document
-            </div>
+            <div className="footer-text"></div>
           </div>
         </div>
       </div>

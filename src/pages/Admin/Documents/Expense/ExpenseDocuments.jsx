@@ -143,8 +143,31 @@ const ExpenseDocuments = () => {
 
         {/* No Data */}
         {filtered.length === 0 ? (
-          <div className="text-center text-gray-500 mt-10 text-sm">
-            No expense records found.
+          <div className="flex items-center justify-center py-15">
+            <div className="flex flex-col items-center text-center bg-white border border-dashed border-gray-300 rounded-2xl p-10 max-w-md shadow-sm">
+              <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-600">
+                <File size={24} />
+              </div>
+
+              <h3 className="text-xl font-semibold text-gray-800">
+                No Expense Documents Found
+              </h3>
+
+              <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+                Expense documents submitted by employees will appear here. Once
+                employees add expenses with attachments, you can review and
+                download them from this section.
+              </p>
+
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="px-4 py-2 rounded-lg mt-2 border cursor-pointer text-sm hover:bg-gray-100"
+                >
+                  Clear Search
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

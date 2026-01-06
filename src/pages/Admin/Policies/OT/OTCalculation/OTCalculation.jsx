@@ -127,7 +127,7 @@ const OTCalculation = () => {
               employees.
             </p>
             <button
-              className="bg-primary text-white px-5 py-2 rounded-lg text-sm hover:bg-secondary transition"
+              className="bg-primary text-white px-5 py-2 cursor-pointer rounded-lg text-sm hover:bg-secondary transition"
               onClick={() => setShowModal(true)}
             >
               + Add OT Entry

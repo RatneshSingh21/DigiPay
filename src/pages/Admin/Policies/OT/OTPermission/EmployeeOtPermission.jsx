@@ -4,6 +4,7 @@ import { FiPlus, FiEdit2 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 import EmployeeOtPermissionForm from "./EmployeeOtPermissionForm";
+import assets from "../../../../../assets/assets";
 
 // GLOBAL CACHE — survives re-renders
 const employeeCache = {};
@@ -101,9 +102,7 @@ export default function EmployeeOtPermission() {
   };
 
   const filtered = permissions.filter((p) =>
-    (p.employeeName || "")
-      .toLowerCase()
-      .includes(search.trim().toLowerCase())
+    (p.employeeName || "").toLowerCase().includes(search.trim().toLowerCase())
   );
 
   return (
@@ -154,8 +153,45 @@ export default function EmployeeOtPermission() {
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
-                  No records found
+                <td colSpan={5} className="py-10">
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <img
+                      src={assets.NoData}
+                      alt="No Data Found"
+                      className="w-64 mb-2 opacity-90"
+                    />
+
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      {search
+                        ? "No Matching Employees"
+                        : "No OT Permissions Configured"}
+                    </h3>
+
+                    <p className="mt-2 text-sm text-gray-500 max-w-md">
+                      {search
+                        ? "Try adjusting your search or clear the filter to see all employees."
+                        : "Overtime permissions have not been configured yet. Add a permission to allow employees to work overtime."}
+                    </p>
+
+                    <div className="mt-6 flex gap-3">
+                      {search && (
+                        <button
+                          onClick={() => setSearch("")}
+                          className="px-4 py-2 rounded border text-sm hover:bg-gray-50"
+                        >
+                          Clear Search
+                        </button>
+                      )}
+
+                      <button
+                        onClick={openCreate}
+                        className="px-4 py-2 rounded bg-primary cursor-pointer text-white text-sm hover:bg-secondary"
+                      >
+                        <FiPlus className="inline mr-1" />
+                        Add OT Permission
+                      </button>
+                    </div>
+                  </div>
                 </td>
               </tr>
             ) : (

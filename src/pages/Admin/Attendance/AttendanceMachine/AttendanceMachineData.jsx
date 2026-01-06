@@ -166,14 +166,14 @@ const AttendanceMachineData = () => {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="border pl-9 pr-3 py-2 rounded text-sm"
+              className="border pl-9 cursor-pointer pr-3 py-2 rounded text-sm"
             />
           </div>
         </div>
 
         <button
           onClick={loadMachineData}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded text-sm hover:bg-secondary"
+          className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded text-sm hover:bg-secondary"
         >
           <RefreshCw size={16} />
           Sync Machine
@@ -181,7 +181,7 @@ const AttendanceMachineData = () => {
 
         <button
           onClick={loadAttendanceData}
-          className="flex items-center gap-2 border px-4 py-2 rounded text-sm hover:bg-gray-50"
+          className="flex items-center gap-2 border cursor-pointer px-4 py-2 rounded text-sm hover:bg-gray-50"
         >
           <Users size={16} />
           View Attendance

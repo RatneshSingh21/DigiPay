@@ -172,7 +172,33 @@ const AttendanceMachine = () => {
       {loading ? (
         <div className="text-center text-gray-500">Loading devices...</div>
       ) : devices.length === 0 ? (
-        <div className="text-center text-gray-500">No devices registered</div>
+        <div className="flex items-center justify-center py-20 px-4">
+          <div className="flex flex-col items-center text-center bg-white border border-dashed border-gray-300 rounded-2xl p-10 max-w-md shadow-sm">
+            <div className="mb-4 rounded-full bg-blue-100 p-4 text-blue-600">
+              <Cpu size={32} />
+            </div>
+
+            <h3 className="text-xl font-semibold text-gray-800">
+              No Attendance Machines Found
+            </h3>
+
+            <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+              You haven't registered any biometric devices yet. Register a
+              machine to start capturing employee attendance.
+            </p>
+
+            <button
+              onClick={() => {
+                setEditDevice(null);
+                setOpenRegister(true);
+              }}
+              className="mt-6 inline-flex items-center cursor-pointer gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-secondary transition"
+            >
+              <Plus size={16} />
+              Register Device
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="p-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {devices.map((d) => (

@@ -50,10 +50,10 @@ export default function AppointmentLetter() {
 
   /* ================= UI SETTINGS ================= */
   const [uiSettings, setUiSettings] = useState({
-    showLogo: true,
-    showAddress: true,
-    showCompanyName: true,
-    showTerms: true,
+    showLogo: false,
+    showAddress: false,
+    showCompanyName: false,
+    showTerms: false,
     logoSize: 30,
     signatureSize: 56,
     signatureAlign: "left",
@@ -485,7 +485,7 @@ export default function AppointmentLetter() {
 .header-bg {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -790,7 +790,7 @@ export default function AppointmentLetter() {
               />
             )}
             <div className="footer-text">
-              This is a system generated document
+             
             </div>
           </div>
         </div>

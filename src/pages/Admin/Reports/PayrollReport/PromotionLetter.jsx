@@ -42,10 +42,10 @@ export default function PromotionLetter() {
 
   /* ================= UI SETTINGS ================= */
   const [uiSettings, setUiSettings] = useState({
-    showLogo: true,
-    showAddress: true,
-    showCompanyName: true,
-    showTerms: true,
+    showLogo: false,
+    showAddress: false,
+    showCompanyName: false,
+    showTerms: false,
     logoSize: 30,
     signatureSize: 56,
     signatureAlign: "left",
@@ -442,7 +442,7 @@ export default function PromotionLetter() {
 .header-bg {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -706,9 +706,7 @@ export default function PromotionLetter() {
                 onError={(e) => (e.currentTarget.style.display = "none")}
               />
             )}
-            <div className="footer-text">
-              This is a system generated document
-            </div>
+            <div className="footer-text"></div>
           </div>
         </div>
       </div>

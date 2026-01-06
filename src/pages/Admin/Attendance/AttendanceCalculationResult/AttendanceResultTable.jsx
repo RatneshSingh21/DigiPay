@@ -2,14 +2,43 @@ import React, { useState, useEffect } from "react";
 import { FiChevronDown } from "react-icons/fi";
 import PerDayAttendanceCalendar from "./PerDayAttendanceCalendar";
 import ModalOverlay from "../../../../components/ModalOverlay";
-
+import assets from "../../../../assets/assets";
 
 const AttendanceResultTable = ({ results, highlightText, getEmployeeName }) => {
   const [selectedDetails, setSelectedDetails] = useState(null);
-console.log(results);
+  console.log(results);
 
-  if (results.length === 0)
-    return <p className="text-center text-gray-500">No data available.</p>;
+  if (!results || results.length === 0)
+    return (
+      <div className="flex items-center justify-center py-12 px-4">
+        <div className="flex flex-col items-center text-center bg-white border border-dashed border-gray-300 rounded-xl p-8 max-w-md shadow-sm">
+          <img
+            src={assets.NoData}
+            alt="No Attendance Data"
+            className="w-56 mb-4 opacity-80"
+          />
+
+          <h3 className="text-xl font-semibold text-gray-800">
+            No Attendance Results
+          </h3>
+
+          <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+            We couldn’t find any attendance records for the selected criteria.
+            Try adjusting the date range, employee, or filters.
+          </p>
+
+          {/* Optional CTA – enable when needed */}
+          {/* 
+        <button
+          onClick={onResetFilters}
+          className="mt-4 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-full hover:bg-blue-100 transition"
+        >
+          Reset Filters
+        </button>
+        */}
+        </div>
+      </div>
+    );
 
   return (
     <>

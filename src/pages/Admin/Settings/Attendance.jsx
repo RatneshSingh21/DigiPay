@@ -131,7 +131,7 @@ const Attendance = () => {
           />
           <button
             onClick={fetchAttendance}
-            className="flex items-center gap-2 px-3 py-2 bg-primary hover:bg-secondary text-white rounded-lg text-sm"
+            className="flex items-center gap-2 px-3 py-2 bg-primary cursor-pointer hover:bg-secondary text-white rounded-lg text-sm"
           >
             <FiRefreshCw /> Refresh
           </button>
@@ -228,8 +228,42 @@ const Attendance = () => {
               </div>
             ))
         ) : (
-          <div className="text-center py-4 text-gray-500">
-            No attendance found.
+          <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center text-center bg-white border border-dashed border-gray-300 rounded-2xl p-10 max-w-md shadow-sm">
+              <div className="mb-4 rounded-full bg-indigo-100 p-4 text-indigo-600">
+                <FaRegCalendarAlt className="text-2xl" />
+              </div>
+
+              <h3 className="text-lg font-semibold text-gray-800">
+                {searchQuery
+                  ? "No Matching Attendance Records"
+                  : "No Attendance Records Found"}
+              </h3>
+
+              <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+                {searchQuery
+                  ? "Try adjusting your search term or clear the filter to view all attendance data."
+                  : "Attendance data has not been recorded yet. Once employees punch in or data is imported, it will appear here."}
+              </p>
+
+              <div className="mt-6 flex gap-3">
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="px-4 py-2 rounded-lg border cursor-pointer text-sm hover:bg-gray-50"
+                  >
+                    Clear Search
+                  </button>
+                )}
+
+                <button
+                  onClick={fetchAttendance}
+                  className="px-4 py-2 rounded-lg bg-primary cursor-pointer hover:bg-secondary text-white text-sm"
+                >
+                  Refresh
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -187,7 +187,7 @@ export default function PaymentAdjustment() {
             for employee salaries.
           </p>
           <button
-            className="bg-primary text-white px-5 py-2 rounded-lg text-sm hover:bg-secondary transition"
+            className="bg-primary text-white px-5 py-2 rounded-lg text-sm cursor-pointer hover:bg-secondary transition"
             onClick={() => setShowForm(true)}
           >
             + Add Adjustment

@@ -202,8 +202,6 @@ const PayslipTemplates = () => {
     setEditorVisible(true);
   };
 
-
-
   /* ---------------- ADD TEMPLATE ---------------- */
   const handleAddTemplate = async () => {
     if (!newTemplateName) return toast.error("Select a template name");
@@ -229,8 +227,6 @@ const PayslipTemplates = () => {
     }
   };
 
-
-
   return (
     <div>
       <div className="sticky top-14 bg-white z-10 px-3 py-2 shadow mb-5 flex justify-between items-center">
@@ -249,7 +245,9 @@ const PayslipTemplates = () => {
           <div className="bg-white rounded-2xl shadow-xl w-[400px] max-w-[90%] p-6 relative animate-slide-in">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Add Payslip Template</h3>
+              <h3 className="text-lg font-semibold text-gray-800">
+                Add Payslip Template
+              </h3>
               <button
                 onClick={() => setAddTemplateVisible(false)}
                 className="text-gray-400 hover:text-red-500 cursor-pointer transition"
@@ -289,67 +287,95 @@ const PayslipTemplates = () => {
       )}
 
       {/* ---------------- TEMPLATE GRID ---------------- */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4 mt-10">
-        {templates.map((template) => (
-          <div
-            key={template.templateId}
-            className="relative bg-white rounded shadow-md hover:shadow-lg transition"
-          >
-            {template.isDefault && (
-              <span className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
-                Default
-              </span>
-            )}
+      {templates.length === 0 ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="flex flex-col items-center text-center bg-white border border-dashed border-gray-300 rounded-2xl p-10 max-w-md shadow-sm">
+            <div className="mb-4 rounded-full bg-indigo-100 p-4 text-indigo-600">
+              <FaPlus className="text-2xl" />
+            </div>
 
-            <img
-              src={template.image}
-              alt={template.name}
-              className="w-full object-contain h-[300px]"
-            />
+            <h3 className="text-xl font-semibold text-gray-800">
+              No Payslip Templates Found
+            </h3>
 
-            <div className="p-4 border-t flex justify-between items-center">
-              <h3 className="font-medium">{template.name}</h3>
+            <p className="mt-2 text-sm text-gray-500 leading-relaxed">
+              Payslip templates define how employee salary slips look. Add a
+              template to customize branding, layout, and payroll details.
+            </p>
 
-              <div className="flex gap-3">
-                <FaEye
-                  className="text-blue-600 cursor-pointer"
-                  title="Preview"
-                  onClick={() => {
-                    setPreviewTemplate({
-                      ...template,
-                      config:
-                        templateConfigs[template.id] ??
-                        defaultTemplateConfigs[template.id],
-                    });
-                    setPreviewVisible(true);
-                  }}
-                />
+            <button
+              onClick={() => setAddTemplateVisible(true)}
+              className="mt-6 inline-flex items-center cursor-pointer gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-secondary transition"
+            >
+              <FaPlus />
+              Add Payslip Template
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4 mt-10">
+          {templates.map((template) => (
+            <div
+              key={template.templateId}
+              className="relative bg-white rounded shadow-md hover:shadow-lg transition"
+            >
+              {template.isDefault && (
+                <span className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                  Default
+                </span>
+              )}
 
-                <FaEdit
-                  className="text-green-600 cursor-pointer"
-                  title="Edit"
-                  onClick={() => openEditor(template)}
-                />
+              <img
+                src={template.image}
+                alt={template.name}
+                className="w-full object-contain h-[300px]"
+              />
 
-                <FaStar
-                  className={`cursor-pointer ${template.isDefault
-                    ? "text-yellow-500"
-                    : "text-gray-300 hover:text-yellow-400"
+              <div className="p-4 border-t flex justify-between items-center">
+                <h3 className="font-medium">{template.name}</h3>
+
+                <div className="flex gap-3">
+                  <FaEye
+                    className="text-blue-600 cursor-pointer"
+                    title="Preview"
+                    onClick={() => {
+                      setPreviewTemplate({
+                        ...template,
+                        config:
+                          templateConfigs[template.id] ??
+                          defaultTemplateConfigs[template.id],
+                      });
+                      setPreviewVisible(true);
+                    }}
+                  />
+
+                  <FaEdit
+                    className="text-green-600 cursor-pointer"
+                    title="Edit"
+                    onClick={() => openEditor(template)}
+                  />
+
+                  <FaStar
+                    className={`cursor-pointer ${
+                      template.isDefault
+                        ? "text-yellow-500"
+                        : "text-gray-300 hover:text-yellow-400"
                     }`}
-                  title={
-                    template.isDefault ? "Default Template" : "Set as Default"
-                  }
-                  onClick={() => {
-                    if (!template.isDefault) {
-                      setAsDefault(template.templateId);
+                    title={
+                      template.isDefault ? "Default Template" : "Set as Default"
                     }
-                  }}
-                />
+                    onClick={() => {
+                      if (!template.isDefault) {
+                        setAsDefault(template.templateId);
+                      }
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* ---------------- EDITOR ---------------- */}
       {editorVisible && selectedTemplate && (

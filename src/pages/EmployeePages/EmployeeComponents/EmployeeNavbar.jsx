@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  FaBell,
-  FaCog,
-  FaSignOutAlt,
-  FaChevronDown,
-} from "react-icons/fa";
+import { FaBell, FaCog, FaSignOutAlt, FaChevronDown } from "react-icons/fa";
 import useAuthStore from "../../../store/authStore";
 import ProfileSettingsDrawer from "../../../components/ProfileSettingsDrawer";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +33,9 @@ const EmployeeNavbar = () => {
       <nav className="sticky top-0 w-full h-14 bg-white shadow-sm z-20 flex items-center justify-between px-4 md:px-6">
         <div className="flex flex-col leading-tight">
           <span className="font-bold text-sm">Employee Dashboard</span>
-          <span className="text-xs text-gray-500 mt-0.5">Welcome, {user?.fullName || "User"}</span>
+          <span className="text-xs text-gray-500 mt-0.5">
+            Welcome, {user?.fullName || "User"}
+          </span>
         </div>
 
         <div className="flex items-center gap-4">
@@ -59,7 +56,7 @@ const EmployeeNavbar = () => {
               <img
                 src={user?.profileImageUrl || "https://i.pravatar.cc/300"}
                 alt="Profile"
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-9 h-9 rounded-full object-contain bg-gray-300 border-2 border-transparent group-hover:border-primary transition"
               />
               <FaChevronDown className="text-sm text-gray-600" />
             </button>

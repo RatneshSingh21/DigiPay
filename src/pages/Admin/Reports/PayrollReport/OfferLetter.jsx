@@ -19,7 +19,7 @@ export default function OfferLetter() {
 
     "You will be required to comply with all company policies, rules, and regulations, as amended from time to time, including confidentiality and code of conduct policies.",
 
-    "This offer is contingent upon successful verification of your documents and background. Please sign and return a copy of this letter as acceptance of the offer."
+    "This offer is contingent upon successful verification of your documents and background. Please sign and return a copy of this letter as acceptance of the offer.",
   ]);
 
   const [form, setForm] = useState({
@@ -37,16 +37,15 @@ export default function OfferLetter() {
   });
 
   const [uiSettings, setUiSettings] = useState({
-    showLogo: true,
-    showAddress: true,
-    showCompanyName: true,
-
-    logoSize: 30, // px
-    signatureSize: 56, // px
-    signatureAlign: "left", // left | center | right
-
-    companyNameColor: "#000000", // black | white
-    addressColor: "#000000", // black | white
+    showLogo: false,
+    showAddress: false,
+    showCompanyName: false,
+    showTerms: false,
+    logoSize: 30,
+    signatureSize: 56,
+    signatureAlign: "left",
+    companyNameColor: "#000000",
+    addressColor: "#000000",
   });
 
   const replaceVars = (text) => {
@@ -65,9 +64,7 @@ export default function OfferLetter() {
       .replaceAll("{Duration}", form.Duration || "")
       .replaceAll(
         "{Salary}",
-        form.Salary
-          ? Number(form.Salary).toLocaleString("en-IN")
-          : "0"
+        form.Salary ? Number(form.Salary).toLocaleString("en-IN") : "0"
       );
   };
 
@@ -293,10 +290,11 @@ export default function OfferLetter() {
             + Add Paragraph
           </button>
 
-          <h3 className="font-semibold my-3 text-sm">Header & Signature Settings</h3>
+          <h3 className="font-semibold my-3 text-sm">
+            Header & Signature Settings
+          </h3>
 
           <div className="grid grid-cols-2 gap-3 text-xs border rounded-md p-3 bg-gray-50 my-2">
-
             {/* Show Logo */}
             <label className="flex items-center gap-2">
               <input
@@ -308,33 +306,35 @@ export default function OfferLetter() {
               />
               Show Logo
             </label>
-
             {/* Show Company Name */}
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={uiSettings.showCompanyName}
                 onChange={(e) =>
-                  setUiSettings({ ...uiSettings, showCompanyName: e.target.checked })
+                  setUiSettings({
+                    ...uiSettings,
+                    showCompanyName: e.target.checked,
+                  })
                 }
               />
               Show Company Name
             </label>
-
             {/* Show Address */}
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={uiSettings.showAddress}
                 onChange={(e) =>
-                  setUiSettings({ ...uiSettings, showAddress: e.target.checked })
+                  setUiSettings({
+                    ...uiSettings,
+                    showAddress: e.target.checked,
+                  })
                 }
               />
               Show Address
             </label>
-
             <div /> {/* spacer */}
-
             {/* Logo Size */}
             <div>
               <label className="block font-medium mb-1">
@@ -353,7 +353,6 @@ export default function OfferLetter() {
                 }
               />
             </div>
-
             {/* Signature Size */}
             <div>
               <label className="block font-medium mb-1">
@@ -372,7 +371,6 @@ export default function OfferLetter() {
                 }
               />
             </div>
-
             {/* Signature Alignment */}
             <div>
               <label className="block font-medium mb-1">
@@ -393,7 +391,6 @@ export default function OfferLetter() {
                 <option value="right">Right</option>
               </select>
             </div>
-
             {/* Company Name Color */}
             <div>
               <label className="block font-medium mb-1">
@@ -413,7 +410,6 @@ export default function OfferLetter() {
                 <option value="#ffffff">White</option>
               </select>
             </div>
-
             {/* Address Color */}
             <div>
               <label className="block font-medium mb-1">
@@ -433,12 +429,8 @@ export default function OfferLetter() {
                 <option value="#ffffff">White</option>
               </select>
             </div>
-
           </div>
         </div>
-
-
-
 
         {uploadProgress > 0 && (
           <div className="absolute bottom-0 left-6 right-6">
@@ -499,7 +491,7 @@ export default function OfferLetter() {
 .header-bg {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -687,7 +679,8 @@ export default function OfferLetter() {
           {/* BODY */}
           <div className="print-body">
             <p className="print-date">
-              <b>Date:</b> {new Date(form.IssuedDate).toLocaleDateString("en-GB")}
+              <b>Date:</b>{" "}
+              {new Date(form.IssuedDate).toLocaleDateString("en-GB")}
             </p>
 
             <p className="print-to">
@@ -701,7 +694,11 @@ export default function OfferLetter() {
             <h1 className="print-title">OFFER LETTER</h1>
 
             {paragraphs.map((p, i) => (
-              <div key={i} className="paragraphs" style={{ textAlign: "justify" }}>
+              <div
+                key={i}
+                className="paragraphs"
+                style={{ textAlign: "justify" }}
+              >
                 <ReactMarkdown>{replaceVars(p)}</ReactMarkdown>
               </div>
             ))}
@@ -712,7 +709,6 @@ export default function OfferLetter() {
                 textAlign: uiSettings.signatureAlign,
               }}
             >
-
               {org.orgSignature && (
                 <img
                   src={org.orgSignature}
@@ -738,9 +734,7 @@ export default function OfferLetter() {
                 onError={(e) => (e.currentTarget.style.display = "none")}
               />
             )}
-            <div className="footer-text">
-              This is a system generated document
-            </div>
+            <div className="footer-text"></div>
           </div>
         </div>
       </div>
