@@ -22,7 +22,7 @@ const MapEmployeeModal = ({
   onClose,
   deviceId,
   onSuccess,
-  payCodeMode, // "numeric" | "alphanumeric"
+  payCodeMode, // numeric | alphanumeric | hyphenated
 }) => {
   const [employees, setEmployees] = useState([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
@@ -33,12 +33,24 @@ const MapEmployeeModal = ({
 
   /* ================= PAYCODE RESOLVER ================= */
   const resolvePayCode = (employeeCode = "") => {
+    if (!employeeCode) return "";
+
+    // NUMERIC → PMSD0099 → 99
     if (payCodeMode === "numeric") {
       const digits = employeeCode.replace(/\D/g, "");
-      return digits || ""; // prevent garbage values
+      return digits || "";
     }
 
-    // default: alphanumeric
+    // HYPHENATED → PMSD0099 → PMSD-0099
+    if (payCodeMode === "hyphenated") {
+      const match = employeeCode.match(/^([A-Za-z]+)(\d+)$/);
+      if (!match) return employeeCode; // fallback (safe)
+
+      const [, prefix, number] = match;
+      return `${prefix}-${number}`;
+    }
+
+    // ALPHANUMERIC (default) → PMSD0099
     return employeeCode;
   };
 
@@ -135,6 +147,14 @@ const MapEmployeeModal = ({
     }
   };
 
+  /* ================= PAYCODE LABEL ================= */
+  const payCodeHint =
+    payCodeMode === "numeric"
+      ? "numeric only"
+      : payCodeMode === "hyphenated"
+      ? "prefix-number format"
+      : "employee code";
+
   const inputClass =
     "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
@@ -205,8 +225,7 @@ const MapEmployeeModal = ({
               disabled
             />
             <p className="text-xs text-gray-500 mt-1">
-              Generated automatically (
-              {payCodeMode === "numeric" ? "numeric only" : "employee code"}).
+              Generated automatically ({payCodeHint}).
             </p>
           </div>
 

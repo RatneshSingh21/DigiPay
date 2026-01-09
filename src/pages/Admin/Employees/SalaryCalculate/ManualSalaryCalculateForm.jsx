@@ -41,7 +41,7 @@ const ManualSalaryCalculateForm = ({ onClose, onSuccess }) => {
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to calculate salary");
+      toast.error(err?.response?.data?.message || "Failed to calculate salary");
     } finally {
       setLoading(false);
     }

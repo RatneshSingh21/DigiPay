@@ -17,8 +17,6 @@ const StatusPill = ({ enabled }) => (
 
 const round = (value) => Math.round(Number(value || 0));
 
-
-
 const months = [
   { label: "Jan", value: 1 },
   { label: "Feb", value: 2 },
@@ -244,7 +242,6 @@ const EmpSalaryDetails = () => {
               value={viewOptions.find((v) => v.value === viewType)}
               onChange={(selected) => {
                 setViewType(selected.value);
-                setCurrentPage(1);
               }}
               menuPortalTarget={document.body}
               styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
@@ -259,7 +256,6 @@ const EmpSalaryDetails = () => {
                 value={months.find((m) => m.value === selectedMonth)}
                 onChange={(selected) => {
                   setSelectedMonth(selected.value);
-                  setCurrentPage(1);
                 }}
                 menuPortalTarget={document.body}
                 styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Inbox } from "lucide-react";
 import PFContributionRuleForm from "./PFContributionRuleForm";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
@@ -63,8 +63,22 @@ const PFContributionRule = () => {
           <tbody>
             {rules.length === 0 ? (
               <tr>
-                <td colSpan={9} className="text-center p-4 text-gray-500">
-                  No rules found
+                <td colSpan={9}>
+                  <div className="flex flex-col items-center justify-center py-10 text-gray-500">
+                    <div className="bg-gray-100 p-3 rounded-full mb-3">
+                      <Inbox size={40} className="text-gray-400" />
+                    </div>
+
+                    <p className="text-sm font-semibold text-gray-600">
+                      No Contribution Rules Found
+                    </p>
+
+                    <p className="text-xs text-gray-400 mt-1">
+                      Click{" "}
+                      <span className="text-primary font-medium">Add Rule</span>{" "}
+                      to create one
+                    </p>
+                  </div>
                 </td>
               </tr>
             ) : (

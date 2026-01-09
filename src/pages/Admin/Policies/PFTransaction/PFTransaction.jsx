@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit, FileDown } from "lucide-react";
+import { Plus, Edit, FileDown, Inbox } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import PFTransactionForm from "./PFTransactionForm";
@@ -277,8 +277,42 @@ const PFTransaction = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="p-4 text-center text-gray-500">
-                  No transactions found
+                <td colSpan="9">
+                  <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                    <div className="bg-gray-100 p-4 rounded-full mb-4">
+                      <Inbox size={44} className="text-gray-400" />
+                    </div>
+
+                    <p className="text-sm font-semibold text-gray-700">
+                      No PF Transactions Found
+                    </p>
+
+                    <p className="text-xs text-gray-400 mt-1 max-w-sm text-center">
+                      No PF transactions are available yet. Select a payroll
+                      month or add a new transaction to get started.
+                    </p>
+
+                    {/* Optional CTA */}
+                    <button
+                      onClick={() => {
+                        setEditId(null);
+                        setFormData({
+                          employeeId: "",
+                          payrollMonth: "",
+                          wageConsidered: "",
+                          employeeContribution: "",
+                          employerContribution: "",
+                          formulaUsed: "",
+                          transactionStatusId: "",
+                          processedAt: "",
+                        });
+                        setIsModalOpen(true);
+                      }}
+                      className="mt-4 flex items-center cursor-pointer gap-1 bg-primary hover:bg-secondary text-white px-4 py-2 rounded text-xs"
+                    >
+                      <Plus size={14} /> Add Transaction
+                    </button>
+                  </div>
                 </td>
               </tr>
             )}

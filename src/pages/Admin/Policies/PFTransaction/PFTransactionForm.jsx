@@ -45,7 +45,7 @@ const PFTransactionForm = ({
     "w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-lg relative animate-fadeIn">
         {/* Header */}
         <div className="flex justify-between items-center border-b px-6 py-4">

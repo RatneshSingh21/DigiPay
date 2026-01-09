@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 import CreateAdminForm from "../CreateAdmin/CreateAdminForm";
+import { FiInbox } from "react-icons/fi";
 
 const CreateSuperAdmin = () => {
   const [users, setUsers] = useState([]);
@@ -47,9 +48,13 @@ const CreateSuperAdmin = () => {
             <Spinner />
           </div>
         ) : users.length === 0 ? (
-          <p className="text-gray-500 text-sm text-center py-6">
-            No users found.
-          </p>
+          <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+            <FiInbox size={52} className="mb-3 text-gray-400" />
+            <p className="text-sm font-semibold">No admins found</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Click “Add Admin” to create the first admin
+            </p>
+          </div>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-gray-200">
             <table className="min-w-full border-collapse text-xs text-center">

@@ -28,7 +28,7 @@ const ESIRulesForm = ({ editData, onClose, onSuccess }) => {
     { value: "Conveyance", label: "Conveyance" },
     { value: "SpecialAllowance", label: "SpecialAllowance" },
     { value: "Bonus", label: "Bonus" },
-    { value: "DA", label: "DA" },
+    { value: "Gross", label: "Gross" },
   ];
 
   const handleChange = (e) => {

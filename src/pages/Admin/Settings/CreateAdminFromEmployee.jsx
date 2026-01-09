@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 import Select from "react-select";
+import { FiUsers } from "react-icons/fi";
 
 const CreateAdminFromEmployee = () => {
   const [employees, setEmployees] = useState([]);
@@ -271,40 +272,55 @@ const CreateAdminFromEmployee = () => {
             </div>
           )}
 
-          <div className="overflow-x-auto shadow rounded-lg h-[40vh] overflow-y-scroll mt-6">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-100 text-gray-700 text-center sticky top-0 z-10">
-                <tr>
-                  <th className="px-4 py-3 font-semibold">Name</th>
-                  <th className="px-4 py-3 font-semibold">Email</th>
-                  <th className="px-4 py-3 font-semibold">Dept</th>
-                  <th className="px-4 py-3 font-semibold">Role</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-gray-200 text-center">
-                {employeesWithRoles.map((emp) => {
-                  const mapping = roleMappings.find(
-                    (r) => r.employeeId === emp.id
-                  );
-                  const deptName = tableDeptNames[emp.departmentId] || "N/A";
-
-                  return (
-                    <tr
-                      key={emp.id}
-                      className="hover:bg-blue-50 transition cursor-pointer"
-                    >
-                      <td className="px-4 py-3">{emp.fullName}</td>
-                      <td className="px-4 py-3">{emp.workEmail}</td>
-                      <td className="px-4 py-3">{deptName}</td>
-                      <td className="px-4 py-3 text-blue-700 font-semibold">
-                        {mapping?.roleName}
-                      </td>
+          <div className="shadow rounded-lg h-[40vh] overflow-y-auto mt-6">
+            {employeesWithRoles.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <FiUsers size={52} className="mb-3 text-gray-400" />
+                <p className="text-sm font-semibold">
+                  No employees assigned as admins
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Assign a role to an employee to see them here
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto w-full">
+                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                  <thead className="bg-gray-100 text-gray-700 text-center sticky top-0 z-10">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold">Name</th>
+                      <th className="px-4 py-3 font-semibold">Email</th>
+                      <th className="px-4 py-3 font-semibold">Dept</th>
+                      <th className="px-4 py-3 font-semibold">Role</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-200 text-center">
+                    {employeesWithRoles.map((emp) => {
+                      const mapping = roleMappings.find(
+                        (r) => r.employeeId === emp.id
+                      );
+                      const deptName =
+                        tableDeptNames[emp.departmentId] || "N/A";
+
+                      return (
+                        <tr
+                          key={emp.id}
+                          className="hover:bg-blue-50 transition cursor-pointer"
+                        >
+                          <td className="px-4 py-3">{emp.fullName}</td>
+                          <td className="px-4 py-3">{emp.workEmail}</td>
+                          <td className="px-4 py-3">{deptName}</td>
+                          <td className="px-4 py-3 text-blue-700 font-semibold">
+                            {mapping?.roleName}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}

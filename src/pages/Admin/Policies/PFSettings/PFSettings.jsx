@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Inbox } from "lucide-react";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import PFSettingsForm from "./PFSettingsForm";
 
@@ -50,10 +50,22 @@ const PFSettings = () => {
       {/* Cards Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
         {settings.length === 0 && (
-          <div className="col-span-full text-center text-gray-500 py-10">
-            No PF settings found. Click{" "}
-            <span className="font-medium text-primary">Add PF Setting</span> to
-            create one.
+          <div className="col-span-full flex flex-col items-center justify-center h-[40vh] text-center text-gray-500">
+            <div className="bg-gray-100 p-4 rounded-full mb-4">
+              <Inbox size={48} className="text-gray-400" />
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-700">
+              No PF Settings Found
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1 max-w-sm">
+              PF configuration has not been created yet. Click
+              <span className="font-medium text-primary mx-1">
+                Add PF Setting
+              </span>
+              to get started.
+            </p>
           </div>
         )}
 

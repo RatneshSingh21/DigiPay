@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiInbox, FiPlus } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import ConfirmModal from "../../../../components/ConfirmModal";
@@ -77,9 +77,33 @@ const WeekendPolicyList = ({
 
   if (!weekendPolicy.length) {
     return (
-      <p className="text-xs text-gray-500 mx-6">
-        No Weekend Policies configured.
-      </p>
+      <div className="flex flex-col items-center justify-center h-[40vh] text-center text-gray-500 mx-6">
+        <div className="bg-gray-100 p-4 rounded-full mb-4">
+          <FiInbox size={46} className="text-gray-400" />
+        </div>
+
+        <h3 className="text-sm font-semibold text-gray-700">
+          No Weekend Policies Found
+        </h3>
+
+        <p className="text-xs text-gray-400 mt-1 max-w-sm">
+          Weekend policies have not been configured yet. Click{" "}
+          <span className="text-primary font-medium">Add Weekend Policy</span>{" "}
+          to create one.
+        </p>
+
+        {/* Optional CTA */}
+        <button
+          onClick={() => {
+            setIsEdit("Add");
+            setSelectedWeekendPolicy(null);
+            openModal();
+          }}
+          className="mt-4 flex items-center cursor-pointer gap-1 bg-primary hover:bg-secondary text-white px-4 py-2 rounded text-xs"
+        >
+          <FiPlus size={14} /> Add Weekend Policy
+        </button>
+      </div>
     );
   }
 

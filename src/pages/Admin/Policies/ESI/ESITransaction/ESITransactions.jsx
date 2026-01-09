@@ -7,7 +7,7 @@ import {
 import Spinner from "../../../../../components/Spinner";
 import { format } from "date-fns";
 import AddESITransactionsForm from "./ESITransactionsForm";
-import { Plus } from "lucide-react";
+import { Inbox, Plus } from "lucide-react";
 
 const ESITransactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -161,9 +161,9 @@ const ESITransactions = () => {
           </thead>
           <tbody className="divide-y divide-gray-200 text-center">
             {transactions.length > 0 ? (
-              transactions.map((txn,index) => (
+              transactions.map((txn, index) => (
                 <tr key={txn.contributionId} className="hover:bg-gray-50">
-                  <td className="px-2 py-2">{index+1}</td>
+                  <td className="px-2 py-2">{index + 1}</td>
                   <td className="px-2 py-2">
                     {employeeMap[txn.employeeId] || `ID: ${txn.employeeId}`}
                   </td>
@@ -188,11 +188,21 @@ const ESITransactions = () => {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="12"
-                  className="px-4 py-4 text-center text-gray-500"
-                >
-                  No transactions found
+                <td colSpan="12">
+                  <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                    <div className="bg-gray-100 p-4 rounded-full mb-4">
+                      <Inbox size={44} className="text-gray-400" />
+                    </div>
+
+                    <p className="text-sm font-semibold text-gray-700">
+                      No ESI Transactions Found
+                    </p>
+
+                    <p className="text-xs text-gray-400 mt-1 max-w-sm text-center">
+                      No ESI transactions are available yet. Select a payroll
+                      month or add a new transaction to get started.
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}

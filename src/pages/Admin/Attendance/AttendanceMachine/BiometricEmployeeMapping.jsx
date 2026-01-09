@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
-import { Hash, Type } from "lucide-react";
+import { Hash, Type, Link } from "lucide-react";
 import { getBiometricDevices, getDeviceMappings } from "./biometricApi";
 import MapEmployeeModal from "./MapEmployeeModal";
 
@@ -192,13 +192,13 @@ const BiometricEmployeeMapping = () => {
       {/* PAYCODE PROMPT */}
       {showPayCodePrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5 animate-scaleIn">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-h-[80vh] max-w-md px-6 py-2 space-y-5 animate-scaleIn">
             {/* Header */}
             <div>
               <h2 className="text-xl font-semibold text-gray-800">
                 Choose PayCode Format
               </h2>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-xs text-gray-500">
                 Select how the PayCode should be sent to the biometric device.
               </p>
             </div>
@@ -207,7 +207,7 @@ const BiometricEmployeeMapping = () => {
             <div className="space-y-3">
               {/* Numeric */}
               <button
-                className="group w-full border border-gray-200 rounded-xl p-4 text-left transition-all hover:border-blue-400 hover:bg-blue-50 focus:outline-none"
+                className="group w-full border text-sm border-gray-200 rounded-xl p-4 text-left transition-all hover:border-blue-400 hover:bg-blue-50 focus:outline-none"
                 onClick={() => {
                   setPayCodeMode("numeric");
                   setShowPayCodePrompt(false);
@@ -235,7 +235,7 @@ const BiometricEmployeeMapping = () => {
 
               {/* Alphanumeric */}
               <button
-                className="group w-full border border-gray-200 rounded-xl p-4 text-left transition-all hover:border-green-400 hover:bg-green-50 focus:outline-none"
+                className="group w-full border text-sm border-gray-200 rounded-xl p-4 text-left transition-all hover:border-green-400 hover:bg-green-50 focus:outline-none"
                 onClick={() => {
                   setPayCodeMode("alphanumeric");
                   setShowPayCodePrompt(false);
@@ -260,10 +260,38 @@ const BiometricEmployeeMapping = () => {
                   </div>
                 </div>
               </button>
+
+              {/* HYPHENATED */}
+              <button
+                className="group w-full border text-sm border-gray-200 rounded-xl p-4 text-left transition-all hover:border-purple-400 hover:bg-purple-50 focus:outline-none"
+                onClick={() => {
+                  setPayCodeMode("hyphenated");
+                  setShowPayCodePrompt(false);
+                  setShowMapModal(true);
+                }}
+              >
+                <div className="flex items-start gap-3 cursor-pointer">
+                  <div className="rounded-lg bg-purple-100 text-purple-600 p-2">
+                    <Link size={18} />
+                  </div>
+
+                  <div>
+                    <div className="font-medium text-gray-800">
+                      Prefix + hyphen + number
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Prefix remains, number is hyphenated
+                      <span className="block mt-0.5">
+                        Example: <b>PMSD0099</b> → <b>PMSD-0099</b>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-end">
               <button
                 onClick={() => setShowPayCodePrompt(false)}
                 className="px-4 py-2 rounded-lg border border-gray-300 cursor-pointer text-sm font-medium text-gray-600 

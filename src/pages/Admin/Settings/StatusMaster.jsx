@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Select from "react-select";
 import { toast } from "react-toastify";
+import { FiInbox } from "react-icons/fi";
 
 const StatusMaster = () => {
   const [statuses, setStatuses] = useState([]);
@@ -140,55 +141,61 @@ const StatusMaster = () => {
         {loading ? (
           <p className="text-gray-600">Loading...</p>
         ) : (
-          <div className="overflow-x-auto shadow h-[40vh] overflow-y-scroll">
-            <table className="min-w-full divide-y text-center text-xs divide-gray-200">
-              <thead className="bg-gray-100 text-gray-600">
-                <tr>
-                  <th className="px-4 py-2">S.No</th>
-                  <th className="px-4 py-2">Status Name</th>
-                  <th className="px-4 py-2">Code</th>
-                  <th className="px-4 py-2">Created By</th>
-                  <th className="px-4 py-2">Created On</th>
-                  <th className="px-4 py-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {statuses.map((status, idx) => (
-                  <tr key={status.statusId} className="hover:bg-gray-50">
-                    <td className="px-4 py-2">{idx + 1}.</td>
-                    <td className="px-4 py-2">{status.statusName}</td>
-                    <td className="px-4 py-2">{status.statusCode}</td>
-                    <td className="px-4 py-2">{status.createdBy || "-"}</td>
-                    <td className="px-4 py-2">
-                      {new Date(status.createdOn).toLocaleString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
-                    </td>
-                    <td className="px-4 py-2 cursor-pointer">
-                      {status.isActive ? (
-                        <span className="text-green-600 font-medium">
-                          Active
-                        </span>
-                      ) : (
-                        <span className="text-red-600 font-medium">
-                          Inactive
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {statuses.length === 0 && (
-              <p className="text-gray-500 text-center py-4">
-                No statuses found.
-              </p>
+          <div className="shadow h-[40vh] overflow-y-auto">
+            {statuses.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <FiInbox size={52} className="mb-3 text-gray-400" />
+                <p className="text-sm font-semibold">No statuses found</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Add a new status to get started
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto w-full">
+                <table className="min-w-full divide-y text-center text-xs divide-gray-200">
+                  <thead className="bg-gray-100 text-gray-600">
+                    <tr>
+                      <th className="px-4 py-2">S.No</th>
+                      <th className="px-4 py-2">Status Name</th>
+                      <th className="px-4 py-2">Code</th>
+                      <th className="px-4 py-2">Created By</th>
+                      <th className="px-4 py-2">Created On</th>
+                      <th className="px-4 py-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {statuses.map((status, idx) => (
+                      <tr key={status.statusId} className="hover:bg-gray-50">
+                        <td className="px-4 py-2">{idx + 1}.</td>
+                        <td className="px-4 py-2">{status.statusName}</td>
+                        <td className="px-4 py-2">{status.statusCode}</td>
+                        <td className="px-4 py-2">{status.createdBy || "-"}</td>
+                        <td className="px-4 py-2">
+                          {new Date(status.createdOn).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                        </td>
+                        <td className="px-4 py-2 cursor-pointer">
+                          {status.isActive ? (
+                            <span className="text-green-600 font-medium">
+                              Active
+                            </span>
+                          ) : (
+                            <span className="text-red-600 font-medium">
+                              Inactive
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         )}

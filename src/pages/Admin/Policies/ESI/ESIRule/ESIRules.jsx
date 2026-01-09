@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Inbox } from "lucide-react";
 import { toast } from "react-toastify";
 import { getESIRules } from "../../../../../services/esiService";
 import Spinner from "../../../../../components/Spinner";
@@ -118,11 +118,36 @@ const ESIRules = () => {
               ))}
               {rules.length === 0 && (
                 <tr>
-                  <td
-                    className="px-4 py-4 text-center text-gray-500"
-                    colSpan="10"
-                  >
-                    No ESI Rules found.
+                  <td colSpan="10">
+                    <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                      <div className="bg-gray-100 p-4 rounded-full mb-4">
+                        <Inbox size={44} className="text-gray-400" />
+                      </div>
+
+                      <p className="text-sm font-semibold text-gray-700">
+                        No ESI Rules Found
+                      </p>
+
+                      <p className="text-xs text-gray-400 mt-1 max-w-sm text-center">
+                        ESI contribution rules have not been configured yet.
+                        Click{" "}
+                        <span className="text-primary font-medium">
+                          Add ESI Rule
+                        </span>{" "}
+                        to create one.
+                      </p>
+
+                      {/* Optional CTA */}
+                      <button
+                        onClick={() => {
+                          setEditData(null);
+                          setIsFormOpen(true);
+                        }}
+                        className="mt-4 flex items-center cursor-pointer gap-1 bg-primary hover:bg-secondary text-white px-4 py-2 rounded text-xs"
+                      >
+                        <Plus size={14} /> Add ESI Rule
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )}
