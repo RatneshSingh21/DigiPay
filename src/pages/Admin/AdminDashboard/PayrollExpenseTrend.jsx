@@ -30,38 +30,48 @@ const PayrollExpenseTrend = () => {
 
   const fetchPayrollTrend = async () => {
     try {
-      const months = getLast6Months();
-      const promises = months.map((m) =>
-        axiosInstance.get(`/Salary/month/${m.num}`)
-      );
+      const res = await axiosInstance.get("/CalculatedSalary");
+      const salaries = res.data?.data || [];
 
-      // Fetch all months in parallel
-      const responses = await Promise.allSettled(promises);
+      if (!salaries.length) {
+        setData([]);
+        return;
+      }
 
-      const chartData = responses.map((res, idx) => {
-        if (res.status === "fulfilled") {
-          const salaries = res.value.data?.data || [];
-          const totalNetSalary = salaries.reduce(
-            (sum, s) => sum + (s.netSalary || 0),
-            0
-          );
-          // Convert to Lakhs for chart
-          return {
-            month: months[idx].name,
-            expense: totalNetSalary / 100000,
-          };
-        } else {
-          return {
-            month: months[idx].name,
-            expense: 0,
-          };
-        }
+      // 🔹 Get last 6 months (year + month)
+      const last6 = [];
+      const now = new Date();
+
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        last6.push({
+          month: d.getMonth() + 1,
+          year: d.getFullYear(),
+          label: d.toLocaleString("default", { month: "short" }),
+        });
+      }
+
+      // 🔹 Aggregate netSalary per month
+      const chartData = last6.map((m) => {
+        const monthData = salaries.filter(
+          (s) => s.month === m.month && s.year === m.year
+        );
+
+        const totalNet = monthData.reduce(
+          (sum, s) => sum + (s.netSalary || 0),
+          0
+        );
+
+        return {
+          month: m.label,
+          expense: totalNet / 100000, // Lakhs
+        };
       });
 
       setData(chartData);
     } catch (error) {
-      console.error("Error fetching payroll trend:", error);
-      toast.error("Failed to load payroll expense trend");
+      console.error(error);
+      // toast.error("Failed to load payroll expense trend");
     }
   };
 

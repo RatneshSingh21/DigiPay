@@ -68,7 +68,9 @@ const AddEmpRoleMappingModal = ({ onClose, onSuccess }) => {
       onClose(); // Close modal
     } catch (error) {
       console.error("Error adding role mapping:", error);
-      toast.error(error?.response?.data?.message ||"Failed to add role mapping.");
+      toast.error(
+        error?.response?.data?.message || "Failed to add role mapping."
+      );
     } finally {
       setLoading(false);
     }
@@ -81,7 +83,7 @@ const AddEmpRoleMappingModal = ({ onClose, onSuccess }) => {
           <h2 className="text-lg font-semibold">Add Role Mapping</h2>
           <button
             type="button"
-            className="text-gray-600 hover:text-red-500 text-2xl"
+            className="text-gray-600 cursor-pointer hover:text-red-500 text-2xl"
             onClick={onClose}
           >
             &times;

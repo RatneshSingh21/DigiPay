@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
-import { FiPlus, FiRefreshCw, FiX } from "react-icons/fi";
+import { FiInbox, FiPlus, FiRefreshCw, FiX } from "react-icons/fi";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 const Spinner = () => (
@@ -152,7 +152,28 @@ const ShiftMapping = () => {
 
       {/* GROUPED LIST */}
       <div className="p-4 space-y-4">
-        {loading && <p>Loading...</p>}
+        {loading && (
+          <p className="text-center text-gray-500 py-10">Loading...</p>
+        )}
+
+        {!loading && filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+            <FiInbox size={42} className="mb-3 text-gray-400" />
+
+            <p className="text-sm font-semibold">No shift mappings found</p>
+
+            <p className="text-xs text-gray-400 mt-1 text-center max-w-sm">
+              Assign shifts to employees to manage their working schedules.
+            </p>
+
+            <button
+              onClick={() => setShowModal(true)}
+              className="mt-4 px-4 py-2 text-xs bg-primary text-white rounded-lg hover:bg-secondary transition cursor-pointer"
+            >
+              Assign First Shift
+            </button>
+          </div>
+        )}
 
         {!loading &&
           filtered.map((group) => (
@@ -164,9 +185,7 @@ const ShiftMapping = () => {
                 className="flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-gray-50"
                 onClick={() =>
                   setExpandedId(
-                    expandedId === group.employeeId
-                      ? null
-                      : group.employeeId
+                    expandedId === group.employeeId ? null : group.employeeId
                   )
                 }
               >
@@ -185,10 +204,9 @@ const ShiftMapping = () => {
               </div>
 
               <div
-                className={`overflow-hidden transition-all ${expandedId === group.employeeId
-                  ? "max-h-[400px]"
-                  : "max-h-0"
-                  }`}
+                className={`overflow-hidden transition-all ${
+                  expandedId === group.employeeId ? "max-h-[400px]" : "max-h-0"
+                }`}
               >
                 <div className="p-4 border-t bg-gray-50">
                   <table className="min-w-full text-xs text-center">
@@ -206,10 +224,14 @@ const ShiftMapping = () => {
                             {r.shiftName}
                           </td>
                           <td className="px-3 py-2">
-                            {new Date(r.effectiveFrom).toLocaleDateString("en-GB")}
+                            {new Date(r.effectiveFrom).toLocaleDateString(
+                              "en-GB"
+                            )}
                           </td>
                           <td className="px-3 py-2">
-                            {new Date(r.effectiveTo).toLocaleDateString("en-GB")}
+                            {new Date(r.effectiveTo).toLocaleDateString(
+                              "en-GB"
+                            )}
                           </td>
                         </tr>
                       ))}

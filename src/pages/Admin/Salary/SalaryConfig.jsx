@@ -75,7 +75,7 @@ const SalaryConfig = () => {
             /* TABLE */
             <div className="overflow-x-auto w-full">
               <table className="min-w-full divide-y divide-gray-200 text-xs text-center">
-                <thead className="bg-gray-100 sticky top-0 z-10 text-gray-600">
+                <thead className="bg-gray-100 sticky top-0 text-gray-600">
                   <tr>
                     <th className="px-4 py-2">S.No</th>
                     <th className="px-4 py-2">Component Name</th>

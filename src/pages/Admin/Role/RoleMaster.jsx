@@ -3,6 +3,8 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import Spinner from "../../../components/Spinner";
 import Select from "react-select";
+import { Inbox } from "lucide-react";
+import { FiInbox } from "react-icons/fi";
 
 const ROLE_OPTIONS = [
   { value: "Admin", label: "Admin" },
@@ -154,20 +156,32 @@ const RoleMaster = () => {
                 </tr>
               </thead>
               <tbody>
-                {roles.map((role, idx) => (
-                  <tr key={role.roleID} className="hover:bg-gray-50">
-                    <td className="p-2">{idx + 1}.</td>
-                    <td className="p-2">{role.roleName}</td>
-                    <td className="p-2">{role.description}</td>
-                    <td className="p-2">{role.createdBy || "-"}</td>
+                {roles.length > 0 ? (
+                  roles.map((role, idx) => (
+                    <tr key={role.roleID} className="hover:bg-gray-50">
+                      <td className="p-2">{idx + 1}.</td>
+                      <td className="p-2">{role.roleName}</td>
+                      <td className="p-2">{role.description}</td>
+                      <td className="p-2">{role.createdBy || "-"}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="py-12">
+                      <div className="flex flex-col items-center justify-center text-gray-500">
+                        <FiInbox size={40} className="mb-3 text-gray-400" />
+
+                        <p className="text-sm font-medium">No roles found</p>
+
+                        <p className="text-xs text-gray-400 mt-1 text-center max-w-sm">
+                          Create roles to define access levels and permissions
+                        </p>
+                      </div>
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
-
-            {roles.length === 0 && (
-              <p className="text-gray-500 text-center py-4">No roles found.</p>
-            )}
           </div>
         )}
       </div>

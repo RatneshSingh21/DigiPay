@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiX, FiPlus } from "react-icons/fi";
+import { FiX, FiPlus, FiInbox } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 
@@ -90,9 +90,28 @@ const EmpCategory = () => {
         {loading ? (
           <p className="text-sm text-gray-500 text-center py-6">Loading...</p>
         ) : categories.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-6">
-            No categories found.
-          </p>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-4">
+              <FiInbox size={28} />
+            </div>
+
+            <h3 className="text-sm font-semibold text-gray-700">
+              No categories found
+            </h3>
+
+            <p className="text-xs text-gray-500 mt-1 max-w-xs">
+              Categories help you organize employees. Start by creating your
+              first category.
+            </p>
+
+            <button
+              onClick={() => setShowModal(true)}
+              className="mt-4 flex items-center gap-2 px-4 py-2 text-xs bg-primary text-white rounded-lg hover:bg-secondary transition cursor-pointer"
+            >
+              <FiPlus size={14} />
+              Add Category
+            </button>
+          </div>
         ) : (
           <table className="min-w-full divide-y text-xs text-center divide-gray-200">
             <thead className="bg-gray-100 text-gray-600">
@@ -114,7 +133,9 @@ const EmpCategory = () => {
                   <td className="px-4 py-2 font-medium text-gray-800">
                     {cat.categoryName}
                   </td>
-                  <td className="px-4 py-2">{cat.description ? cat.description : "-" }</td>
+                  <td className="px-4 py-2">
+                    {cat.description ? cat.description : "-"}
+                  </td>
                   <td className="px-4 py-2">
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${

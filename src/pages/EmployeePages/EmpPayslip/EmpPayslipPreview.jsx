@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AmountInWords from "../../../components/AmountInWords";
 import { payslipTranslations } from "./payslipTranslations";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
+import { LEAVE_CATALOG } from "../../Admin/Leave/LeaveType/leaveCatalog";
 
 const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
   const [language, setLanguage] = useState("en");
+  const [remainingLeaves, setRemainingLeaves] = useState([]);
   const t = payslipTranslations[language];
 
   if (!data) return null;
@@ -68,6 +71,49 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
   const deductions = [
     { label: t.totalDeductions, amount: salary.deductions ?? 0 },
   ];
+
+  useEffect(() => {
+    if (!employee?.id) return;
+
+    const fetchLeaveAllocation = async () => {
+      try {
+        const allocationRes = await axiosInstance.get(
+          `/EmployeeLeaveAllocation/${employee.id}`
+        );
+
+        const allocations = allocationRes.data?.data || [];
+
+        if (!allocations.length) {
+          setRemainingLeaves([]);
+          return;
+        }
+
+        const leaveTypeRes = await axiosInstance.get("/LeaveType/active");
+        const leaveTypes = leaveTypeRes.data || [];
+
+        const options = allocations
+          .filter((a) => a.isActive)
+          .map((a) => {
+            const lt = leaveTypes.find((l) => l.leaveTypeId === a.leaveTypeId);
+
+            if (!lt) return null;
+
+            return {
+              leaveTypeId: lt.leaveTypeId,
+              leaveName: lt.leaveName,
+              remaining: a.leavesRemaining,
+            };
+          })
+          .filter(Boolean);
+
+        setRemainingLeaves(options);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchLeaveAllocation();
+  }, [employee?.id]);
 
   return (
     <>
@@ -153,7 +199,8 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
 
         {/* Net Pay */}
         <div className="flex justify-end my-4">
-          <div className="border p-4 text-right rounded bg-green-50">
+          <div className="border p-4 rounded bg-green-50 min-w-[220px] text-right">
+            {/* Total Net Pay */}
             <p>{t.totalNetPay}</p>
             <p className="text-green-600 text-2xl font-bold">
               ₹{salary.netPay?.toLocaleString("en-IN")}
@@ -161,6 +208,30 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
             <p className="text-sm">
               {t.paidDays}: {salary.totalWorkingDays || "-"}
             </p>
+
+            {/* Remaining Leaves (right-aligned, column-wise) */}
+            {remainingLeaves.length > 0 && (
+              <div className="mt-2 text-xs text-gray-700">
+                <strong>{t.remainingLeaves}:</strong>
+                <div className="mt-1 flex flex-wrap justify-end gap-x-4 gap-y-1">
+                  {remainingLeaves.map((leave) => {
+                    const leaveCatalogItem = LEAVE_CATALOG.find(
+                      (lc) => lc.label === leave.leaveName
+                    );
+                    if (!leaveCatalogItem) return null;
+
+                    return (
+                      <span
+                        key={leave.leaveTypeId}
+                        className="whitespace-nowrap"
+                      >
+                        {leaveCatalogItem.value}: {leave.remaining}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -213,12 +284,19 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
 
         {signature && (
           <div
-            className={`mt-6 ${
-              signatureAlign === "right" ? "text-right" : "text-left"
+            className={`mt-6 flex ${
+              signatureAlign === "right" ? "justify-end" : "justify-start"
             }`}
           >
-            <img src={signature} alt="Signature" style={{ width: 90 }} />
-            <p className="text-xs mt-1">{t.authorizedSignatory}</p>
+            <div className="text-center">
+              <img
+                src={signature}
+                alt="Signature"
+                className="mx-auto"
+                style={{ width: 90 }}
+              />
+              <p className="text-xs mt-1">{t.authorizedSignatory}</p>
+            </div>
           </div>
         )}
 

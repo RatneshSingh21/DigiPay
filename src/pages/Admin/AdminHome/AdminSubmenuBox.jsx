@@ -64,6 +64,7 @@ const labelToPath = {
   "Work Nature": "emp-worknature",
   "General Imports": "general-imports",
   "General Settings": "general-settings",
+  "FullEmployee Data": "fullemployee-data",
 
   //Shifts
   "Add Shift": "add-shift",
@@ -166,6 +167,7 @@ const labelToIcon = {
   "Work Nature": <FaBriefcase className="mr-2" />,
   "General Imports": <FaGlobeAmericas className="mr-2" />,
   "General Settings": <FaGears className="mr-2" />,
+  "FullEmployee Data": <FaUserPlus className="mr-2" />,
 
   // Shifts
   "Add Shift": <AiOutlinePlusCircle className="mr-2" />,

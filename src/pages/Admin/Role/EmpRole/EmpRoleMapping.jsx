@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import AddEmpRoleMappingModal from "./AddEmpRoleMappingModal";
 import { FaPlus } from "react-icons/fa";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import { Inbox } from "lucide-react";
 
 const EmpRoleMapping = () => {
   const [mappings, setMappings] = useState([]);
@@ -81,8 +82,25 @@ const EmpRoleMapping = () => {
         {loading ? (
           <div className="text-center py-10 text-gray-500">Loading...</div>
         ) : filteredMappings.length === 0 ? (
-          <div className="text-center py-10 text-gray-500">
-            No employee role mappings found.
+          /* EMPTY STATE */
+          <div className="flex flex-col items-center justify-center py-14 text-gray-500">
+            <Inbox size={40} className="mb-3 text-gray-400" />
+
+            <p className="text-sm font-medium">
+              No Employee Role Mappings found
+            </p>
+
+            <p className="text-xs text-gray-400 mt-1 text-center max-w-sm">
+              Assign roles to employees to control access and permissions
+            </p>
+
+            <button
+              onClick={() => setShowModal(true)}
+              className="mt-4 flex items-center gap-2 px-4 cursor-pointer py-2 text-xs bg-primary text-white rounded-lg hover:bg-secondary transition"
+            >
+              <FaPlus />
+              Add Mapping
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto shadow">
@@ -106,7 +124,9 @@ const EmpRoleMapping = () => {
                   >
                     <td className="p-2">{highlightText(map.employeeId)}</td>
                     <td className="p-2">{highlightText(map.employeeName)}</td>
-                    <td className="p-2 font-medium">{highlightText(map.roleName)}</td>
+                    <td className="p-2 font-medium">
+                      {highlightText(map.roleName)}
+                    </td>
                     <td className="p-2">
                       {new Date(map.assignedAt).toLocaleString()}
                     </td>

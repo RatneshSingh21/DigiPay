@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
-import { FileUp, FileDown, Plus } from "lucide-react";
+import { FileUp, FileDown, Plus, Inbox } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
@@ -164,9 +164,22 @@ const EmpWorkType = () => {
             </tbody>
           </table>
         ) : (
-          <p className="text-center text-gray-500 py-8 text-sm">
-            No Work Types found.
-          </p>
+          /* EMPTY STATE */
+          <div className="flex flex-col items-center justify-center py-14 text-gray-500">
+            <Inbox size={40} className="mb-3 text-gray-400" />
+            <p className="text-sm font-medium">No Work Types found</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Add a work type to define employee working schedules
+            </p>
+
+            <button
+              onClick={() => setShowModal(true)}
+              className="mt-4 flex items-center cursor-pointer gap-2 px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-secondary transition"
+            >
+              <Plus size={16} />
+              Add Work Type
+            </button>
+          </div>
         )}
       </div>
 

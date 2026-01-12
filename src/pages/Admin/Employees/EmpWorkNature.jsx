@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FiPlus, FiRefreshCw, FiX } from "react-icons/fi";
+import { FiPlus, FiRefreshCw, FiX, FiInbox } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
@@ -113,13 +113,16 @@ const EmpWorkNature = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 text-center">
-            {loading ? (
+            {loading && (
               <tr>
-                <td colSpan="6" className="py-4">
+                <td colSpan="6" className="py-6 text-gray-500">
                   Loading...
                 </td>
               </tr>
-            ) : workNatures.length > 0 ? (
+            )}
+
+            {!loading &&
+              workNatures.length > 0 &&
               workNatures.map((item, index) => (
                 <tr key={item.workNatureId} className="hover:bg-gray-50">
                   <td className="px-4 py-2">{index + 1}</td>
@@ -133,11 +136,18 @@ const EmpWorkNature = () => {
                     {new Date(item.createdAt).toLocaleString()}
                   </td>
                 </tr>
-              ))
-            ) : (
+              ))}
+
+            {!loading && workNatures.length === 0 && (
               <tr>
-                <td colSpan="6" className="py-4">
-                  No work natures found
+                <td colSpan="6" className="py-10">
+                  <div className="flex flex-col items-center justify-center text-gray-500">
+                    <FiInbox size={36} className="mb-2" />
+                    <p className="text-sm font-medium">No work natures found</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Click “Add New” to create your first work nature
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}

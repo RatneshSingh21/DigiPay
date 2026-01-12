@@ -43,6 +43,7 @@ import EmpWorkType from "./pages/Admin/Employees/EmpWorkType";
 import EmpWorkNature from "./pages/Admin/Employees/EmpWorkNature";
 import GeneralImports from "./pages/Admin/Employees/GeneralImports";
 import GeneralSettings from "./pages/Admin/Employees/GeneralSettings/GeneralSettings";
+import EmployeeDetails from "./pages/Admin/Employees/EmployeeDetails";
 
 //Admin Settings Pages
 import OrganisationProfile from "./pages/Admin/Settings/OrganisationProfile";
@@ -146,6 +147,7 @@ import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals"
 
 
 
+
 const App = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
@@ -234,6 +236,7 @@ const App = () => {
                       path="general-settings"
                       element={<GeneralSettings />}
                     />
+                    <Route path="fullemployee-data" element={<EmployeeDetails />} />
                   </Route>
 
                   {/* Dashboard Main Page */}

@@ -14,6 +14,7 @@ const submenuMap = {
     "Work Type",
     "General Imports",
     "General Settings",
+    "FullEmployee Data"
   ],
 
   Role: ["Role Master", "Role Approval", "Emp. Role Mapping"],

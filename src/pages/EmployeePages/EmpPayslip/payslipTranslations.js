@@ -20,6 +20,7 @@ export const payslipTranslations = {
     totalNetPayable: "Total Net Payable",
     authorizedSignatory: "Authorized Signatory",
     systemGenerated: "This is a system-generated document",
+    remainingLeaves: "Remaining Leaves",
     earningLabels: {
       basicSalary: "Basic Salary",
       hra: "House Rent Allowance (HRA)",
@@ -54,6 +55,7 @@ export const payslipTranslations = {
     totalNetPayable: "देय शुद्ध वेतन",
     authorizedSignatory: "अधिकृत हस्ताक्षरकर्ता",
     systemGenerated: "यह एक सिस्टम जनरेटेड दस्तावेज़ है",
+    remainingLeaves: "शेष अवकाश",
     earningLabels: {
       basicSalary: "मूल वेतन",
       hra: "मकान किराया भत्ता (HRA)",
@@ -88,6 +90,7 @@ export const payslipTranslations = {
     totalNetPayable: "ચુકવવાનો નેટ પગાર",
     authorizedSignatory: "અધિકૃત હસ્તાક્ષર",
     systemGenerated: "આ સિસ્ટમ જનરેટેડ દસ્તાવેજ છે",
+    remainingLeaves: "બાકી રહેલ રજાઓ",
     earningLabels: {
       basicSalary: "મૂળ પગાર",
       hra: "મકાન ભાડું ભથ્થું (HRA)",
@@ -122,6 +125,7 @@ export const payslipTranslations = {
     totalNetPayable: "देय निव्वळ पगार",
     authorizedSignatory: "अधिकृत स्वाक्षरी",
     systemGenerated: "हा संगणकनिर्मित दस्तऐവज आहे",
+    remainingLeaves: "शिल्लक रजा",
     earningLabels: {
       basicSalary: "मूळ वेतन",
       hra: "घरभाडे भत्ता (HRA)",
@@ -156,6 +160,7 @@ export const payslipTranslations = {
     totalNetPayable: "നൽകേണ്ട ശുദ്ധ ശമ്പളം",
     authorizedSignatory: "അധികൃത ഒപ്പ്",
     systemGenerated: "ഇത് സിസ്റ്റം സൃഷ്ടിച്ച രേഖയാണ്",
+    remainingLeaves: "ബാക്കി അവധികൾ",
     earningLabels: {
       basicSalary: "അടിസ്ഥാന ശമ്പളം",
       hra: "വീടുവാടക അലവൻസ് (HRA)",
