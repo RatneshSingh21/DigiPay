@@ -13,7 +13,7 @@ const EmpOutDuty = () => {
   const [statuses, setStatuses] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [approverMapping, setApproverMapping] = useState({});
+  const [onDutyApproverMap, setOnDutyApproverMap] = useState({});
   const userId = useAuthStore((state) => state.user?.userId);
   const [selectedGatePass, setSelectedGatePass] = useState(null);
   const companyId = useAuthStore((state) => state.companyId);
@@ -42,7 +42,7 @@ const EmpOutDuty = () => {
         setStatuses(options);
       }
     } catch (err) {
-      toast.error("Failed to fetch statuses");
+      // toast.error("Failed to fetch statuses");
       console.error(err);
     }
   };
@@ -80,24 +80,90 @@ const EmpOutDuty = () => {
     return { name, color };
   };
 
-  const fetchApprovers = async () => {
+  const fetchOnDutyApprovers = async () => {
     try {
-      const res = await axiosInstance.get("/EmployeeRoleMapping/approvers/all");
-      if (res.status === 200) {
-        const mapping = {};
-        res.data.forEach((rule) => {
-          if (rule.requestType === "onDuty") {
-            mapping[rule.requestType] = {};
-            rule.approvers.forEach((a) => {
-              mapping[rule.requestType][a.employeeId] = a.employeeName;
-            });
-          }
-        });
-        setApproverMapping(mapping);
+      const approverMap = {};
+
+      // ===============================
+      // 1️⃣ Approval Rule
+      // ===============================
+      const ruleRes = await axiosInstance.get("/ApprovalRule");
+      const rules = ruleRes.data?.data || [];
+
+      const onDutyRule = rules.find(
+        (r) => r.requestType?.toLowerCase() === "onduty"
+      );
+
+      if (!onDutyRule) {
+        setOnDutyApproverMap({});
+        return;
       }
+
+      // ===============================
+      // 2️⃣ Rule Roles
+      // ===============================
+      const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
+      const ruleRoles = ruleRoleRes.data?.data || [];
+
+      const onDutyRuleRoles = ruleRoles.filter(
+        (rr) => rr.ruleId === onDutyRule.ruleId
+      );
+
+      const allowedRoleIds = onDutyRuleRoles.map((rr) => rr.roleId);
+
+      // ===============================
+      // 3️⃣ Role List (SuperAdmin check)
+      // ===============================
+      const roleListRes = await axiosInstance.get("/RoleList/getall");
+      const roleList = roleListRes.data || [];
+
+      const superAdminRole = roleList.find(
+        (r) => r.roleName?.toLowerCase() === "superadmin"
+      );
+
+      const superAdminRoleId = superAdminRole?.roleID;
+      const requiresSuperAdmin =
+        superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
+
+      // ===============================
+      // 4️⃣ Employee Approvers
+      // ===============================
+      const empRes = await axiosInstance.get(
+        "/EmployeeRoleMapping/approvers/all"
+      );
+
+      const onDutyEmpRule = empRes.data?.find(
+        (r) => r.requestType?.toLowerCase() === "onduty"
+      );
+
+      if (onDutyEmpRule?.approvers?.length) {
+        onDutyEmpRule.approvers
+          .filter((a) => allowedRoleIds.includes(a.roleId))
+          .forEach((a) => {
+            approverMap[a.employeeId] = a.employeeName;
+          });
+      }
+
+      // ===============================
+      // 5️⃣ SuperAdmin (ONLY if rule allows)
+      // ===============================
+      if (requiresSuperAdmin) {
+        const userRes = await axiosInstance.get("/user-auth/all");
+
+        const primarySuperAdmin = (userRes.data || [])
+          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
+          .sort((a, b) => a.userId - b.userId)[0];
+
+        if (primarySuperAdmin) {
+          approverMap[
+            primarySuperAdmin.userId
+          ] = `${primarySuperAdmin.name} (SuperAdmin)`;
+        }
+      }
+
+      setOnDutyApproverMap(approverMap);
     } catch (err) {
-      toast.error("Failed to fetch approvers");
-      console.error(err);
+      console.error("Failed to fetch OnDuty approvers", err);
     }
   };
 
@@ -124,8 +190,8 @@ const EmpOutDuty = () => {
   useEffect(() => {
     fetchOnDuty();
     fetchStatuses();
-    fetchApprovers();
-    fetchEmployees(); // ⬅ important
+    fetchOnDutyApprovers(); // ✅ NEW
+    fetchEmployees();
   }, []);
 
   // 🔹 Handle pagination click
@@ -222,7 +288,7 @@ const EmpOutDuty = () => {
                   <td className="p-2 border-r border-gray-200">
                     {req.approvers?.length
                       ? req.approvers
-                          .map((id) => approverMapping?.onDuty?.[id] || "N/A")
+                          .map((id) => onDutyApproverMap?.[id] || "N/A")
                           .join(", ")
                       : "N/A"}
                   </td>
@@ -285,7 +351,7 @@ const EmpOutDuty = () => {
       {selectedGatePass && (
         <GatePassCard
           data={selectedGatePass}
-          approverMapping={approverMapping}
+          approverMapping={onDutyApproverMap}
           onClose={() => setSelectedGatePass(null)}
         />
       )}

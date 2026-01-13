@@ -28,7 +28,7 @@ const EmployeeProfile = () => {
       try {
         setLoading(true);
 
-        // ✅ GET /api/Employee/{id}
+        // GET /api/Employee/{id}
         const res = await axiosInstance.get(`/Employee/${User.userId}`);
         const emp = res.data?.data;
 
@@ -37,7 +37,7 @@ const EmployeeProfile = () => {
           return;
         }
 
-        // ✅ Fetch related master data in parallel
+        // Fetch related master data in parallel
         const [deptRes, desigRes, payRes, locRes] = await Promise.all([
           emp.departmentId
             ? axiosInstance.get(`/Department/${emp.departmentId}`)
@@ -56,7 +56,7 @@ const EmployeeProfile = () => {
             : Promise.resolve({ data: null }),
         ]);
 
-        // ✅ Set employee with image
+        // Set employee with image
         setEmployee({
           ...emp,
           departmentName: deptRes?.data?.name || "N/A",
@@ -423,7 +423,7 @@ ${employee.departmentName}
                 <img
                   src={employee.profileImageUrl}
                   alt="Profile"
-                  className="w-24 h-24 rounded-full object-cover border"
+                  className="w-24 h-24 rounded-full object-contain border"
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-xl font-bold">

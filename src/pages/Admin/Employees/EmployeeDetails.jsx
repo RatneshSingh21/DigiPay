@@ -240,7 +240,29 @@ const EmployeeDetails = () => {
               <Detail
                 icon={FiCalendar}
                 label="Date of Joining"
-                value={basic.dateOfJoining?.slice(0, 10)}
+                value={
+                  basic?.dateOfJoining
+                    ? new Date(basic.dateOfJoining).toLocaleDateString("en-GB")
+                    : "—"
+                }
+              />
+              <Detail
+                icon={FiCalendar}
+                label="Aadhar Number"
+                value={basic.aadhaarCardNumber}
+              />
+
+              {/* NEW ADDITIONS */}
+              <Detail
+                icon={FiShield}
+                label="PAN Number"
+                value={personal?.pan}
+              />
+              <Detail icon={FiShield} label="PF Number" value={pf?.pfNumber} />
+              <Detail
+                icon={FiAlertCircle}
+                label="ESI Number"
+                value={esi?.esiNumber}
               />
             </Section>
 

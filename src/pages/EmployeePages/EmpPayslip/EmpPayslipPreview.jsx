@@ -158,11 +158,11 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
           <p>
             <strong>{t.employeeName}:</strong> {employee.fullName || "-"}
           </p>
-          {showDesignation && (
+          {/* {showDesignation && (
             <p>
               <strong>{t.designation}:</strong> {employee.designation || "-"}
             </p>
-          )}
+          )} */}
           {showDepartment && (
             <p>
               <strong>{t.department}:</strong> {department}
@@ -179,21 +179,26 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
               ? new Date(employee.dateOfJoining).toLocaleDateString("en-GB")
               : "-"}
           </p>
-          <p>
+          {/* <p>
             <strong>{t.payDate}:</strong>{" "}
             {salary.paymentDate
               ? new Date(salary.paymentDate).toLocaleDateString("en-GB")
               : "-"}
-          </p>
+          </p> */}
           {showPAN && (
             <p>
               <strong>{t.pan}:</strong> {employee.panNumber || "-"}
             </p>
           )}
           {showBank && (
-            <p>
-              <strong>{t.bankAccount}:</strong> {bank.accountNumber || "-"}
-            </p>
+            <>
+              <p>
+                <strong>{t.bankName}:</strong> {bank.bankName}
+              </p>
+              <p>
+                <strong>{t.bankAccount}:</strong> {bank.accountNumber || "-"}
+              </p>
+            </>
           )}
         </div>
 
@@ -212,8 +217,8 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
             {/* Remaining Leaves (right-aligned, column-wise) */}
             {remainingLeaves.length > 0 && (
               <div className="mt-2 text-xs text-gray-700">
-                <strong>{t.remainingLeaves}:</strong>
-                <div className="mt-1 flex flex-wrap justify-end gap-x-4 gap-y-1">
+                <strong>{t.balanceLeaves}:</strong>
+                <div className="mt-1 flex flex-wrap justify-end gap-x-2 gap-y-1">
                   {remainingLeaves.map((leave) => {
                     const leaveCatalogItem = LEAVE_CATALOG.find(
                       (lc) => lc.label === leave.leaveName
@@ -282,7 +287,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
           <AmountInWords amount={salary.netPay || 0} currency="Indian Rupee" />)
         </div>
 
-        {signature && (
+        {/* {signature && (
           <div
             className={`mt-6 flex ${
               signatureAlign === "right" ? "justify-end" : "justify-start"
@@ -298,7 +303,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
               <p className="text-xs mt-1">{t.authorizedSignatory}</p>
             </div>
           </div>
-        )}
+        )} */}
 
         <p className="text-center text-gray-400 text-xs mt-6">
           — {t.systemGenerated} —

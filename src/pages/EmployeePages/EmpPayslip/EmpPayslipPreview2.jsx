@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AmountInWords from "../../../components/AmountInWords";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
+import { LEAVE_CATALOG } from "../../Admin/Leave/LeaveType/leaveCatalog";
 
 const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
+  const [remainingLeaves, setRemainingLeaves] = useState([]);
   if (!data) return null;
 
   const {
@@ -58,11 +61,53 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
   const totalDeductions = salary.deductions ?? 0;
   const netPay = salary.netPay ?? 0;
 
+  useEffect(() => {
+    if (!employee?.id) return;
+
+    const fetchLeaveAllocation = async () => {
+      try {
+        const allocationRes = await axiosInstance.get(
+          `/EmployeeLeaveAllocation/${employee.id}`
+        );
+
+        const allocations = allocationRes.data?.data || [];
+
+        if (!allocations.length) {
+          setRemainingLeaves([]);
+          return;
+        }
+
+        const leaveTypeRes = await axiosInstance.get("/LeaveType/active");
+        const leaveTypes = leaveTypeRes.data || [];
+
+        const options = allocations
+          .filter((a) => a.isActive)
+          .map((a) => {
+            const lt = leaveTypes.find((l) => l.leaveTypeId === a.leaveTypeId);
+
+            if (!lt) return null;
+
+            return {
+              leaveTypeId: lt.leaveTypeId,
+              leaveName: lt.leaveName,
+              remaining: a.leavesRemaining,
+            };
+          })
+          .filter(Boolean);
+
+        setRemainingLeaves(options);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchLeaveAllocation();
+  }, [employee?.id]);
+
   /* ================= UI (UNCHANGED) ================= */
 
   return (
     <div className="bg-white shadow-lg p-8 border rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
-
       {/* ================= HEADER ================= */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1 pr-6">
@@ -95,15 +140,11 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
         <tbody>
           <Row label="Employee Name" value={employee.fullName} />
           <Row label="Employee Code" value={employee.employeeCode} />
-          {showDesignation && (
+          {/* {showDesignation && (
             <Row label="Designation" value={employee.designation} />
-          )}
-          {showDepartment && (
-            <Row label="Department" value={department} />
-          )}
-          {showWorkLocation && (
-            <Row label="Work Location" value={location} />
-          )}
+          )} */}
+          {showDepartment && <Row label="Department" value={department} />}
+          {showWorkLocation && <Row label="Work Location" value={location} />}
           <Row
             label="Date of Joining"
             value={
@@ -113,19 +154,26 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
             }
           />
           <Row label="Pay Period" value={payMonthYear} />
-          <Row
+          {/* <Row
             label="Pay Date"
             value={
               salary.paymentDate
                 ? new Date(salary.paymentDate).toLocaleDateString("en-GB")
                 : "-"
             }
-          />
-          {showPAN && (
-            <Row label="PAN" value={employee.panNumber} />
-          )}
+          /> */}
+          {showPAN && <Row label="PAN" value={employee.panNumber} />}
           {showBank && (
-            <Row label="Bank Account" value={bank.accountNumber} />
+            <Row
+              label="Bank Details"
+              value={
+                <>
+                  <strong>Bank Name</strong> : {bank.bankName || "-"}
+                  <br />
+                  <strong>Bank Account No</strong> : {bank.accountNumber || "-"}
+                </>
+              }
+            />
           )}
         </tbody>
       </table>
@@ -140,6 +188,27 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
           <p className="text-xs text-gray-500">
             Paid Days: {salary.totalWorkingDays || "-"}
           </p>
+
+          {/* Remaining Leaves (right-aligned, column-wise) */}
+          {remainingLeaves.length > 0 && (
+            <div className="mt-2 text-xs text-gray-700">
+              <strong>Balance Leaves:</strong>
+              <div className="mt-1 flex flex-wrap justify-end gap-x-2 gap-y-1">
+                {remainingLeaves.map((leave) => {
+                  const leaveCatalogItem = LEAVE_CATALOG.find(
+                    (lc) => lc.label === leave.leaveName
+                  );
+                  if (!leaveCatalogItem) return null;
+
+                  return (
+                    <span key={leave.leaveTypeId} className="whitespace-nowrap">
+                      {leaveCatalogItem.value}: {leave.remaining}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -167,16 +236,23 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
       </div>
 
       {/* ================= SIGNATURE ================= */}
-      {signature && (
+      {/* {signature && (
         <div
-          className={`mt-6 ${
-            signatureAlign === "right" ? "text-right" : "text-left"
+          className={`mt-6 flex ${
+            signatureAlign === "right" ? "justify-end" : "justify-start"
           }`}
         >
-          <img src={signature} alt="Signature" style={{ width: 90 }} />
-          <p className="text-xs text-gray-500">Authorized Signatory</p>
+          <div className="text-center">
+            <img
+              src={signature}
+              alt="Signature"
+              className="mx-auto"
+              style={{ width: 90 }}
+            />
+            <p className="text-xs mt-1">Authorized Signatory</p>
+          </div>
         </div>
-      )}
+      )} */}
 
       <p className="text-center text-xs text-gray-400 mt-6">
         — This is a system-generated document —

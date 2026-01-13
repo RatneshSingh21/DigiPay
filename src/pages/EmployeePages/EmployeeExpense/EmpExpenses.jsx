@@ -3,9 +3,16 @@ import {
   FaPlus,
   FaFileInvoiceDollar,
   FaDownload,
-  FaCalendarAlt,
   FaRupeeSign,
+  FaCommentDots,
 } from "react-icons/fa";
+
+import {
+  FiCalendar, // From
+  FiCheckSquare, // To
+  FiClock, // Submitted
+} from "react-icons/fi";
+
 import { toast } from "react-toastify";
 import EmpExpensesForm from "./EmpExpensesForm";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
@@ -20,6 +27,7 @@ const EmpExpenses = () => {
   const [headerOptions, setHeaderOptions] = useState([]);
   const [selectedHeader, setSelectedHeader] = useState(null);
   const [statusList, setStatusList] = useState([]);
+  const [approverMap, setApproverMap] = useState({});
 
   const fetchStatusList = async () => {
     try {
@@ -29,6 +37,96 @@ const EmpExpenses = () => {
       }
     } catch (err) {
       console.error("Failed to fetch status master", err);
+    }
+  };
+
+  const fetchExpenseApproverMap = async () => {
+    try {
+      const map = {};
+
+      // ===============================
+      // 1️⃣ Approval Rule
+      // ===============================
+      const ruleRes = await axiosInstance.get("/ApprovalRule");
+      const rules = ruleRes.data?.data || [];
+
+      const expenseRule = rules.find(
+        (r) => r.requestType?.toLowerCase() === "expense"
+      );
+
+      if (!expenseRule) {
+        setApproverMap({});
+        return;
+      }
+
+      // ===============================
+      // 2️⃣ Rule Roles
+      // ===============================
+      const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
+      const ruleRoles = ruleRoleRes.data?.data || [];
+
+      const allowedRoleIds = ruleRoles
+        .filter((rr) => rr.ruleId === expenseRule.ruleId)
+        .map((rr) => rr.roleId);
+
+      // ===============================
+      // 3️⃣ Role List (SuperAdmin check)
+      // ===============================
+      const roleListRes = await axiosInstance.get("/RoleList/getall");
+      const roleList = roleListRes.data || [];
+
+      const superAdminRole = roleList.find(
+        (r) => r.roleName?.toLowerCase() === "superadmin"
+      );
+
+      const requiresSuperAdmin =
+        superAdminRole && allowedRoleIds.includes(superAdminRole.roleID);
+
+      // ===============================
+      // 4️⃣ Employee Approvers → USER MAPPING (IMPORTANT)
+      // ===============================
+      const empRes = await axiosInstance.get(
+        "/EmployeeRoleMapping/approvers/all"
+      );
+
+      const expenseEmpRule = empRes.data?.find(
+        (r) => r.requestType?.toLowerCase() === "expense"
+      );
+
+      // 🔑 Fetch users ONCE
+      const userRes = await axiosInstance.get("/user-auth/all");
+      const users = userRes.data || [];
+
+      if (expenseEmpRule?.approvers?.length) {
+        expenseEmpRule.approvers
+          .filter((a) => allowedRoleIds.includes(a.roleId))
+          .forEach((a) => {
+            const user = users.find((u) => u.employeeId === a.employeeId);
+
+            if (user) {
+              map[user.userId] = `${user.name} (${a.roleName})`;
+            }
+          });
+      }
+
+      // ===============================
+      // 5️⃣ SuperAdmin (ONLY if rule allows)
+      // ===============================
+      if (requiresSuperAdmin) {
+        const primarySuperAdmin = users
+          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
+          .sort((a, b) => a.userId - b.userId)[0];
+
+        if (primarySuperAdmin) {
+          map[
+            primarySuperAdmin.userId
+          ] = `${primarySuperAdmin.name} (SuperAdmin)`;
+        }
+      }
+
+      setApproverMap(map);
+    } catch (err) {
+      console.error("Failed to fetch expense approvers", err);
     }
   };
 
@@ -64,6 +162,7 @@ const EmpExpenses = () => {
   useEffect(() => {
     fetchExpenses();
     fetchStatusList();
+    fetchExpenseApproverMap();
   }, []);
 
   const getStatusBadge = (statusId) => {
@@ -140,7 +239,6 @@ const EmpExpenses = () => {
                     {/* Header */}
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-gray-800 text-lg truncate flex items-center gap-2">
-                        <FaFileInvoiceDollar className="text-primary" />
                         {exp.expenseDetailsName || "Unnamed Expense"}
                       </h3>
                       <span
@@ -157,20 +255,52 @@ const EmpExpenses = () => {
                         <strong>Amount:</strong> ₹{exp.amount || 0}
                       </p>
                       <p className="flex items-center gap-2 text-xs text-gray-500">
-                        <FaCalendarAlt className="text-secondary" />
-                        <strong>Date:</strong>{" "}
+                        <FiCalendar className="text-orange-500" />
+                        <strong>From:</strong>{" "}
                         {exp.expenseDate
                           ? new Date(exp.expenseDate).toLocaleDateString(
                               "en-GB"
                             )
                           : "N/A"}
                       </p>
+
+                      <p className="flex items-center gap-2 text-xs text-gray-500">
+                        <FiCheckSquare className="text-orange-500" />
+                        <strong>To:</strong>{" "}
+                        {exp.expenseLastDate
+                          ? new Date(exp.expenseLastDate).toLocaleDateString(
+                              "en-GB"
+                            )
+                          : "N/A"}
+                      </p>
+
+                      <p className="flex items-center gap-2 text-xs text-gray-500">
+                        <FiClock className="text-orange-500" />
+                        <strong>Submitted Date:</strong>{" "}
+                        {exp.createdOn
+                          ? new Date(exp.createdOn).toLocaleDateString("en-GB")
+                          : "N/A"}
+                      </p>
                     </div>
 
                     {/* Description */}
-                    <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                      {exp.description || "No description provided."}
+                    <p className="flex items-center gap-2 text-sm text-gray-700 bg-gray-200 p-2 rounded-md mb-3 border border-gray-100">
+                      <FaCommentDots className="text-gray-500" />
+                      <span>
+                        <strong>Description:</strong>{" "}
+                        {exp.description || "No description provided."}
+                      </span>
                     </p>
+
+                    {/* Approvers */}
+                    {exp.customApproverIds?.length > 0 && (
+                      <div className="mt-3 text-xs text-gray-600">
+                        <strong>Approver:</strong>{" "}
+                        {exp.customApproverIds
+                          .map((id) => approverMap[id] || `User ${id}`)
+                          .join(", ")}
+                      </div>
+                    )}
 
                     {/* File + Footer */}
                     <div className="mt-auto flex justify-between items-center pt-3 border-t border-gray-100">

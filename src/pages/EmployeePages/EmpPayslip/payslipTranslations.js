@@ -9,6 +9,7 @@ export const payslipTranslations = {
     payDate: "Pay Date",
     pan: "PAN",
     bankAccount: "Bank Account No",
+    bankName: "Bank Name",
     totalNetPay: "Total Net Pay",
     paidDays: "Paid Days",
     earnings: "Earnings",
@@ -20,7 +21,7 @@ export const payslipTranslations = {
     totalNetPayable: "Total Net Payable",
     authorizedSignatory: "Authorized Signatory",
     systemGenerated: "This is a system-generated document",
-    remainingLeaves: "Remaining Leaves",
+    balanceLeaves: "Balance Leaves", // ✅ updated
     earningLabels: {
       basicSalary: "Basic Salary",
       hra: "House Rent Allowance (HRA)",
@@ -44,6 +45,7 @@ export const payslipTranslations = {
     payDate: "भुगतान तिथि",
     pan: "पैन",
     bankAccount: "बैंक खाता संख्या",
+    bankName: "बैंक का नाम",
     totalNetPay: "कुल शुद्ध वेतन",
     paidDays: "भुगतान किए गए दिन",
     earnings: "आय",
@@ -55,7 +57,7 @@ export const payslipTranslations = {
     totalNetPayable: "देय शुद्ध वेतन",
     authorizedSignatory: "अधिकृत हस्ताक्षरकर्ता",
     systemGenerated: "यह एक सिस्टम जनरेटेड दस्तावेज़ है",
-    remainingLeaves: "शेष अवकाश",
+    balanceLeaves: "शेष अवकाश", // ✅ updated
     earningLabels: {
       basicSalary: "मूल वेतन",
       hra: "मकान किराया भत्ता (HRA)",
@@ -79,6 +81,7 @@ export const payslipTranslations = {
     payDate: "ચુકવણી તારીખ",
     pan: "પેન",
     bankAccount: "બેંક ખાતા નંબર",
+    bankName: "બેંકનું નામ",
     totalNetPay: "કુલ નેટ પગાર",
     paidDays: "ચુકવેલ દિવસો",
     earnings: "આવક",
@@ -90,7 +93,7 @@ export const payslipTranslations = {
     totalNetPayable: "ચુકવવાનો નેટ પગાર",
     authorizedSignatory: "અધિકૃત હસ્તાક્ષર",
     systemGenerated: "આ સિસ્ટમ જનરેટેડ દસ્તાવેજ છે",
-    remainingLeaves: "બાકી રહેલ રજાઓ",
+    balanceLeaves: "બાકી રહેલ રજાઓ", // ✅ updated
     earningLabels: {
       basicSalary: "મૂળ પગાર",
       hra: "મકાન ભાડું ભથ્થું (HRA)",
@@ -114,6 +117,7 @@ export const payslipTranslations = {
     payDate: "देय तारीख",
     pan: "पॅन",
     bankAccount: "बँक खाते क्रमांक",
+    bankName: "बँकेचे नाव",
     totalNetPay: "एकूण निव्वळ पगार",
     paidDays: "देय दिवस",
     earnings: "कमाई",
@@ -124,8 +128,8 @@ export const payslipTranslations = {
     totalDeductions: "एकूण कपात",
     totalNetPayable: "देय निव्वळ पगार",
     authorizedSignatory: "अधिकृत स्वाक्षरी",
-    systemGenerated: "हा संगणकनिर्मित दस्तऐവज आहे",
-    remainingLeaves: "शिल्लक रजा",
+    systemGenerated: "हा संगणकनिर्मित दस्तऐवज आहे",
+    balanceLeaves: "शिल्लक रजा", // ✅ updated
     earningLabels: {
       basicSalary: "मूळ वेतन",
       hra: "घरभाडे भत्ता (HRA)",
@@ -149,6 +153,7 @@ export const payslipTranslations = {
     payDate: "ശമ്പളം നൽകിയ തീയതി",
     pan: "പാൻ",
     bankAccount: "ബാങ്ക് അക്കൗണ്ട് നമ്പർ",
+    bankName: "ബാങ്കിന്റെ പേര്",
     totalNetPay: "ആകെ ശുദ്ധ ശമ്പളം",
     paidDays: "പണം ലഭിച്ച ദിവസം",
     earnings: "വരുമാനം",
@@ -160,7 +165,7 @@ export const payslipTranslations = {
     totalNetPayable: "നൽകേണ്ട ശുദ്ധ ശമ്പളം",
     authorizedSignatory: "അധികൃത ഒപ്പ്",
     systemGenerated: "ഇത് സിസ്റ്റം സൃഷ്ടിച്ച രേഖയാണ്",
-    remainingLeaves: "ബാക്കി അവധികൾ",
+    balanceLeaves: "ബാക്കി അവധികൾ", // ✅ updated
     earningLabels: {
       basicSalary: "അടിസ്ഥാന ശമ്പളം",
       hra: "വീടുവാടക അലവൻസ് (HRA)",

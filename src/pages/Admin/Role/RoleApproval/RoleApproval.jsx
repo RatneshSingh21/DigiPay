@@ -179,16 +179,20 @@ const RoleApproval = () => {
               <table className="min-w-full divide-y text-xs divide-gray-200">
                 <thead className="bg-gray-100 text-gray-600 text-center">
                   <tr>
+                    <th className="p-2">S.No</th>
                     <th className="p-2">Request Type</th>
                     <th className="p-2">Custom Approver</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {rules.map((r) => (
+                  {rules.map((r, i) => (
                     <tr
                       key={r.ruleId}
                       className="hover:bg-gray-50 transition-colors"
                     >
+                      <td className="p-2 font-medium text-center text-gray-800">
+                        {i + 1}
+                      </td>
                       <td className="p-2 font-medium text-center text-gray-800">
                         {r.requestType}
                       </td>
@@ -239,13 +243,14 @@ const RoleApproval = () => {
               <table className="min-w-full divide-y text-xs divide-gray-200 text-center ">
                 <thead className="bg-gray-100 text-gray-600">
                   <tr>
-                    <th className="p-2">Rule Id</th>
+                    <th className="p-2">S.No</th>
+                    <th className="p-2">Rule</th>
                     <th className="p-2">Role</th>
                     <th className="p-2">Sequence</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {ruleRoles.map((rr) => {
+                  {ruleRoles.map((rr, index) => {
                     const roleName =
                       availableRoles.find((r) => r.roleID === rr.roleId)
                         ?.roleName || rr.roleId;
@@ -254,8 +259,11 @@ const RoleApproval = () => {
                         key={rr.ruleRoleId}
                         className="hover:bg-gray-50 transition-colors"
                       >
+                        <td className="p-2 text-gray-700">{index + 1}</td>
+
                         <td className="p-2 font-medium text-gray-800">
-                          {rr.ruleRoleId}
+                          {rules.find((r) => r.ruleId === rr.ruleId)
+                            ?.requestType || rr.ruleId}
                         </td>
                         <td className="p-2 text-gray-700">{roleName}</td>
                         <td className="p-2">

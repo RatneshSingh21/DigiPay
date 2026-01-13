@@ -60,6 +60,7 @@ const ApprovalsByApprover = ({ approverId }) => {
     requestType: null,
     status: null,
     requestedBy: null,
+    expenseHead: null,
   });
 
   const companyId = useAuthStore((state) => state.companyId);
@@ -294,13 +295,17 @@ const ApprovalsByApprover = ({ approverId }) => {
   const filteredApprovals = approvals.filter((a) => {
     const employee =
       employees.find((e) => e.id === a.requestedByEmployeeId) || {};
+
     const statusName =
       statuses.find((s) => s.statusId === a.statusId)?.statusName || "";
 
     return (
       (!filters.requestType || a.type === filters.requestType.value) &&
       (!filters.status || statusName === filters.status.value) &&
-      (!filters.requestedBy || employee.id === filters.requestedBy.value)
+      (!filters.requestedBy || employee.id === filters.requestedBy.value) &&
+      (!filters.expenseHead ||
+        (a.type === "Expense" &&
+          a.details.expenseDetailsName === filters.expenseHead.value))
     );
   });
 
@@ -349,9 +354,35 @@ const ApprovalsByApprover = ({ approverId }) => {
             value: rt,
           }))}
           value={filters.requestType}
-          onChange={(val) => setFilters({ ...filters, requestType: val })}
+          onChange={(val) =>
+            setFilters({
+              ...filters,
+              requestType: val,
+              expenseHead: null, // ✅ reset when type changes
+            })
+          }
           isClearable
         />
+
+        {filters.requestType?.value === "Expense" && (
+          <Select
+            placeholder="Expense Head"
+            options={[
+              ...new Set(
+                approvals
+                  .filter((a) => a.type === "Expense")
+                  .map((a) => a.details.expenseDetailsName)
+                  .filter(Boolean)
+              ),
+            ].map((head) => ({
+              label: head,
+              value: head,
+            }))}
+            value={filters.expenseHead}
+            onChange={(val) => setFilters({ ...filters, expenseHead: val })}
+            isClearable
+          />
+        )}
 
         <Select
           placeholder="Status"

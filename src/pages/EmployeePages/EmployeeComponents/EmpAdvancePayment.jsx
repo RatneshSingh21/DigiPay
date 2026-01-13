@@ -256,6 +256,7 @@ export default function EmpAdvancePayment() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Statuses
         const statusRes = await axiosInstance.get("/StatusMaster");
         const statusMapTemp = {};
         statusRes.data.data.forEach(
@@ -263,19 +264,10 @@ export default function EmpAdvancePayment() {
         );
         setStatusMap(statusMapTemp);
 
-        const approversRes = await axiosInstance.get(
-          "/EmployeeRoleMapping/approvers/all"
-        );
-        const all = approversRes.data?.data || approversRes.data || [];
-        const advanceRule = all.find((r) => r.requestType === "AdvancePayment");
-        const approverMapTemp = {};
-        if (advanceRule?.approvers?.length) {
-          advanceRule.approvers.forEach((a) => {
-            approverMapTemp[a.employeeId] = `${a.employeeName} (${a.roleName})`;
-          });
-        }
-        setApproverMap(approverMapTemp);
+        // ✅ Rule-based approvers
+        await fetchAdvanceApprovers();
 
+        // Requests
         if (User?.userId) {
           const reqRes = await axiosInstance.get(
             `/AdvancePayment/employee/${User.userId}`
@@ -286,8 +278,96 @@ export default function EmpAdvancePayment() {
         console.error(err);
       }
     };
+
     fetchData();
   }, [User?.userId]);
+
+  const fetchAdvanceApprovers = async () => {
+    try {
+      const map = {};
+
+      // ===============================
+      // 1️⃣ Approval Rule
+      // ===============================
+      const ruleRes = await axiosInstance.get("/ApprovalRule");
+      const rules = ruleRes.data?.data || [];
+
+      const advanceRule = rules.find(
+        (r) => r.requestType?.toLowerCase() === "advancepayment"
+      );
+
+      if (!advanceRule) {
+        setApproverMap({});
+        return;
+      }
+
+      // ===============================
+      // 2️⃣ Rule Roles
+      // ===============================
+      const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
+      const ruleRoles = ruleRoleRes.data?.data || [];
+
+      const advanceRuleRoles = ruleRoles.filter(
+        (rr) => rr.ruleId === advanceRule.ruleId
+      );
+
+      const allowedRoleIds = advanceRuleRoles.map((rr) => rr.roleId);
+
+      // ===============================
+      // 3️⃣ Role List (SuperAdmin check)
+      // ===============================
+      const roleListRes = await axiosInstance.get("/RoleList/getall");
+      const roleList = roleListRes.data || [];
+
+      const superAdminRole = roleList.find(
+        (r) => r.roleName?.toLowerCase() === "superadmin"
+      );
+
+      const superAdminRoleId = superAdminRole?.roleID;
+      const requiresSuperAdmin =
+        superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
+
+      // ===============================
+      // 4️⃣ Employee Approvers
+      // ===============================
+      const empRes = await axiosInstance.get(
+        "/EmployeeRoleMapping/approvers/all"
+      );
+
+      const advanceEmpRule = empRes.data?.find(
+        (r) => r.requestType?.toLowerCase() === "advancepayment"
+      );
+
+      if (advanceEmpRule?.approvers?.length) {
+        advanceEmpRule.approvers
+          .filter((a) => allowedRoleIds.includes(a.roleId))
+          .forEach((a) => {
+            map[a.employeeId] = `${a.employeeName} (${a.roleName})`;
+          });
+      }
+
+      // ===============================
+      // 5️⃣ SuperAdmin (ONLY if rule allows)
+      // ===============================
+      if (requiresSuperAdmin) {
+        const userRes = await axiosInstance.get("/user-auth/all");
+
+        const primarySuperAdmin = (userRes.data || [])
+          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
+          .sort((a, b) => a.userId - b.userId)[0];
+
+        if (primarySuperAdmin) {
+          map[
+            primarySuperAdmin.userId
+          ] = `${primarySuperAdmin.name} (SuperAdmin)`;
+        }
+      }
+
+      setApproverMap(map);
+    } catch (err) {
+      console.error("Failed to fetch advance approvers", err);
+    }
+  };
 
   const toggleExpand = (id) =>
     setExpandedRequests((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -380,13 +460,13 @@ export default function EmpAdvancePayment() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-md"
+              className="w-full max-w-xl"
             >
               <AdvancePaymentForm
                 onSuccess={() => {

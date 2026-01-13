@@ -114,35 +114,25 @@ const AdminAttendance = () => {
       try {
         setLoading(true);
 
-        // Safely fetch processed attendance records (handle null or 500)
-        let records = [];
-        try {
-          const recordRes = await axiosInstance.get(
-            "/AttendanceRecord/getAttendancerecord/all"
-          );
-          records = recordRes.data?.data || [];
-          console.log("🔹 Processed Attendance Records:", records);
-        } catch (err) {
-          console.warn(
-            "⚠️ Failed to fetch processed attendance records:",
-            err.message
-          );
-        }
+        /* ===========================
+         1️⃣ FETCH ATTENDANCE DATA
+      ============================ */
+        const [recordsRes, basicRes] = await Promise.allSettled([
+          axiosInstance.get("/AttendanceRecord/getAttendancerecord/all"),
+          axiosInstance.get("/Attendance/all"),
+        ]);
 
-        // Always fetch raw attendance punches
-        let basic = [];
-        try {
-          const basicRes = await axiosInstance.get("/Attendance/all");
-          basic = basicRes.data || [];
-          console.log("🔹 Raw Attendance Punches:", basic);
-        } catch (err) {
-          console.error(
-            "❌ Failed to fetch raw attendance punches:",
-            err.message
-          );
-        }
+        const records =
+          recordsRes.status === "fulfilled"
+            ? recordsRes.value.data?.data || []
+            : [];
 
-        // 🔹 Group raw punches by employee + date
+        const basic =
+          basicRes.status === "fulfilled" ? basicRes.value.data || [] : [];
+
+        /* ===========================
+         2️⃣ GROUP RAW PUNCHES
+      ============================ */
         const groupedBasic = {};
 
         basic.forEach((b) => {
@@ -161,7 +151,6 @@ const AdminAttendance = () => {
             };
           }
 
-          // For IN punches
           if (b.punchType === "IN") {
             if (
               !groupedBasic[key].inTime ||
@@ -171,7 +160,6 @@ const AdminAttendance = () => {
             }
           }
 
-          // For OUT punches
           if (b.punchType === "OUT") {
             if (
               !groupedBasic[key].outTime ||
@@ -182,9 +170,9 @@ const AdminAttendance = () => {
           }
         });
 
-        // 🔹 Merge grouped raw punches with processed records
-        // Always keep attendanceDate
-        // 🔥 Final Correct Merge Logic (Processed > Punches)
+        /* ===========================
+         3️⃣ MERGE PROCESSED + RAW
+      ============================ */
         const mergedData = Object.values(groupedBasic).map((punch) => {
           const punchDate = new Date(
             punch.inTime || punch.outTime || punch.attendanceDate
@@ -196,72 +184,76 @@ const AdminAttendance = () => {
               new Date(rec.attendanceDate).toDateString() === punchDate
           );
 
-          // If processed attendance exists → it wins (except location)
-          if (processed) {
-            return {
-              attendanceId: processed.attendanceRecordId,
-              employeeId: processed.employeeId,
-              attendanceDate: processed.attendanceDate,
-              inTime: processed.inTime,
-              outTime: processed.outTime,
-              totalHours: processed.totalHoursWorked,
-              status: processed.isAbsent ? "Absent" : "Present",
-
-              // always use raw punch location
-              latitude: punch.latitude,
-              longitude: punch.longitude,
-            };
-          }
-
-          // If NO processed record → fallback to punches
-          return {
-            attendanceId: punch.attendanceId,
-            employeeId: punch.employeeId,
-            attendanceDate: punch.attendanceDate,
-            inTime: punch.inTime,
-            outTime: punch.outTime,
-            totalHours:
-              punch.inTime && punch.outTime
-                ? (new Date(punch.outTime) - new Date(punch.inTime)) / 3600000
-                : null,
-            status: punch.inTime || punch.outTime ? "Present" : "Absent",
-
-            latitude: punch.latitude,
-            longitude: punch.longitude,
-          };
+          return processed
+            ? {
+                attendanceId: processed.attendanceRecordId,
+                employeeId: processed.employeeId,
+                attendanceDate: processed.attendanceDate,
+                inTime: processed.inTime,
+                outTime: processed.outTime,
+                totalHours: processed.totalHoursWorked,
+                status: processed.isAbsent ? "Absent" : "Present",
+                latitude: punch.latitude,
+                longitude: punch.longitude,
+              }
+            : {
+                attendanceId: punch.attendanceId,
+                employeeId: punch.employeeId,
+                attendanceDate: punch.attendanceDate,
+                inTime: punch.inTime,
+                outTime: punch.outTime,
+                totalHours:
+                  punch.inTime && punch.outTime
+                    ? (new Date(punch.outTime) - new Date(punch.inTime)) /
+                      3600000
+                    : null,
+                status: punch.inTime || punch.outTime ? "Present" : "Absent",
+                latitude: punch.latitude,
+                longitude: punch.longitude,
+              };
         });
 
-        // Fetch readable locations for all records
-        const updatedData = await Promise.all(
-          mergedData.map(async (item) => {
-            if (item.latitude && item.longitude) {
-              const location = await getLocationName(
-                item.latitude,
-                item.longitude
-              );
-              return { ...item, location };
-            }
-            return { ...item, location: "-" };
-          })
-        );
-
-        setAttendanceData(updatedData);
-
-        // 🔹 Fetch employee names
-        const employeeIds = [...new Set(mergedData.map((a) => a.employeeId))];
-        const employeeResponses = await Promise.all(
-          employeeIds.map((id) =>
-            axiosInstance.get(`/Employee/${id}`).then((r) => r.data.data)
+        /* ===========================
+         4️⃣ RESOLVE LOCATIONS (SAFE)
+      ============================ */
+        const locationResults = await Promise.allSettled(
+          mergedData.map((item) =>
+            item.latitude && item.longitude
+              ? getLocationName(item.latitude, item.longitude)
+              : Promise.resolve("-")
           )
         );
 
-        const map = {};
-        employeeResponses.forEach((emp) => {
-          map[emp.id] = emp.fullName;
+        const updatedData = mergedData.map((item, i) => ({
+          ...item,
+          location:
+            locationResults[i].status === "fulfilled"
+              ? locationResults[i].value
+              : "-",
+        }));
+
+        setAttendanceData(updatedData);
+
+        /* ===========================
+         5️⃣ FETCH EMPLOYEES (SAFE)
+      ============================ */
+        const employeeIds = [...new Set(updatedData.map((a) => a.employeeId))];
+
+        const employeeResults = await Promise.allSettled(
+          employeeIds.map((id) => axiosInstance.get(`/Employee/${id}`))
+        );
+
+        const empMap = {};
+        employeeResults.forEach((res) => {
+          if (res.status === "fulfilled") {
+            const emp = res.value.data?.data;
+            if (emp) empMap[emp.id] = emp.fullName;
+          }
         });
-        setEmployeeMap(map);
-      } catch (error) {
-        console.error("Error fetching attendance:", error);
+
+        setEmployeeMap(empMap);
+      } catch (err) {
+        console.error("Attendance fetch error:", err);
       } finally {
         setLoading(false);
       }
@@ -269,6 +261,7 @@ const AdminAttendance = () => {
 
     fetchAttendance();
   }, []);
+  
 
   const formatTime = (time) => {
     if (!time) return "-";

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import useAuthStore from "../../../store/authStore";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
-import { isBefore, format } from "date-fns";
+import { format } from "date-fns";
 import { toast } from "react-toastify";
 import Pagination from "../../../components/Pagination";
 import { FaPlus } from "react-icons/fa";
@@ -15,10 +15,8 @@ const StatusPill = ({ status }) => {
     Pending: "bg-yellow-100 text-yellow-700 border border-yellow-300",
     Cancelled: "bg-gray-100 text-gray-700 border border-gray-300",
   };
-
   const pillClass =
     colors[status] || "bg-blue-100 text-blue-700 border border-blue-300";
-
   return (
     <span className={`px-3 py-1 rounded-full text-xs font-medium ${pillClass}`}>
       {status}
@@ -32,12 +30,9 @@ const EmpLeaveRequest = () => {
   const [leaveHistory, setLeaveHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [statusMap, setStatusMap] = useState({});
-  const [approverMapping, setApproverMapping] = useState({});
+  const [leaveApproverMapping, setLeaveApproverMapping] = useState({});
 
-  // Modal state
   const [showModal, setShowModal] = useState(false);
-
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [perPageData, setPerPageData] = useState(8);
 
@@ -60,49 +55,90 @@ const EmpLeaveRequest = () => {
     }
   }, [user?.userId]);
 
-  // --------- Fetch Approvers History ---------
-  const fetchApprovers = async () => {
+  // --------- Fetch Leave Approvers ---------
+  const fetchLeaveApprovers = useCallback(async () => {
     try {
-      const res = await axiosInstance.get("/EmployeeRoleMapping/approvers/all");
-      if (res.status === 200) {
-        const mapping = {};
-        res.data.forEach((rule) => {
-          if (rule.requestType === "Leave") {
-            mapping[rule.requestType] = {};
-            rule.approvers.forEach((a) => {
-              mapping[rule.requestType][a.employeeId] = a.employeeName;
-            });
-          }
-        });
-        setApproverMapping(mapping);
-      }
-    } catch (err) {
-      toast.error("Failed to fetch approvers");
-      console.error(err);
-    }
-  };
-  useEffect(() => {
-    fetchApprovers();
-  }, []);
+      const approverMap = {};
 
-  useEffect(() => {
-    fetchLeaveHistory();
-  }, [fetchLeaveHistory]);
+      // 1️⃣ Approval Rules
+      const ruleRes = await axiosInstance.get("/ApprovalRule");
+      const rules = ruleRes.data?.data || [];
+      const leaveRule = rules.find(
+        (r) => r.requestType?.toLowerCase() === "leave"
+      );
+      if (!leaveRule) return setLeaveApproverMapping({});
+
+      // 2️⃣ Rule Roles
+      const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
+      const ruleRoles = ruleRoleRes.data?.data || [];
+      const leaveRuleRoles = ruleRoles.filter(
+        (rr) => rr.ruleId === leaveRule.ruleId
+      );
+      const allowedRoleIds = leaveRuleRoles.map((rr) => rr.roleId);
+
+      // 3️⃣ Role list & SuperAdmin check
+      const roleListRes = await axiosInstance.get("/RoleList/getall");
+      const roleList = roleListRes.data || [];
+      const superAdminRole = roleList.find(
+        (r) => r.roleName?.toLowerCase() === "superadmin"
+      );
+      const superAdminRoleId = superAdminRole?.roleID;
+      const requiresSuperAdmin =
+        superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
+
+      // 4️⃣ Employee Approvers
+      const empRes = await axiosInstance.get(
+        "/EmployeeRoleMapping/approvers/all"
+      );
+      const leaveEmpRule = empRes.data?.find(
+        (r) => r.requestType?.toLowerCase() === "leave"
+      );
+      if (leaveEmpRule?.approvers?.length) {
+        leaveEmpRule.approvers
+          .filter((a) => allowedRoleIds.includes(a.roleId))
+          .forEach((a) => {
+            approverMap[a.employeeId] = a.employeeName;
+          });
+      }
+
+      // 5️⃣ SuperAdmin if required
+      if (requiresSuperAdmin) {
+        const userRes = await axiosInstance.get("/user-auth/all");
+        const primarySuperAdmin = (userRes.data || [])
+          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
+          .sort((a, b) => a.userId - b.userId)[0];
+        if (primarySuperAdmin) {
+          approverMap[
+            primarySuperAdmin.userId
+          ] = `${primarySuperAdmin.name} (SuperAdmin)`;
+        }
+      }
+
+      setLeaveApproverMapping(approverMap);
+    } catch (err) {
+      console.error("Failed to fetch Leave approvers", err);
+    }
+  }, []);
 
   // --------- Fetch Status Master ---------
-  useEffect(() => {
-    axiosInstance
-      .get("/StatusMaster")
-      .then((res) => {
-        const data = res.data?.data || [];
-        const map = {};
-        data.forEach((s) => {
-          map[s.statusId] = s.statusName;
-        });
-        setStatusMap(map);
-      })
-      .catch(() => toast.error("Failed to load statuses."));
+  const fetchStatusMaster = useCallback(async () => {
+    try {
+      const res = await axiosInstance.get("/StatusMaster");
+      const data = res.data?.data || [];
+      const map = {};
+      data.forEach((s) => (map[s.statusId] = s.statusName));
+      setStatusMap(map);
+    } catch {
+      toast.error("Failed to load statuses.");
+    }
   }, []);
+
+  // --------- Effects ---------
+  useEffect(() => {
+    fetchLeaveApprovers();
+    fetchStatusMaster();
+    fetchLeaveHistory();
+  }, [fetchLeaveApprovers, fetchStatusMaster, fetchLeaveHistory]);
 
   // --------- Render Date ---------
   const renderDate = (date) => {
@@ -111,7 +147,7 @@ const EmpLeaveRequest = () => {
     return isNaN(d.getTime()) ? "—" : format(d, "dd MMM yyyy");
   };
 
-  // Pagination logic
+  // --------- Pagination ---------
   const totalDataLength = leaveHistory.length;
   const totalPages = Math.ceil(totalDataLength / perPageData);
   const indexOfLast = currentPage * perPageData;
@@ -134,11 +170,7 @@ const EmpLeaveRequest = () => {
       {/* Leave History */}
       <div className="bg-white shadow rounded p-3">
         <h3 className="text-xl font-semibold text-gray-700">Leave History</h3>
-        {/* Updated Table Container */}
-        <div
-          className="mt-4 mx-4 p-4 border 
-    overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh] bg-white shadow"
-        >
+        <div className="mt-4 mx-4 p-4 border overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh] bg-white shadow">
           <table className="min-w-full divide-y divide-gray-200 text-xs text-center">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
@@ -158,10 +190,9 @@ const EmpLeaveRequest = () => {
                 </th>
               </tr>
             </thead>
-
             <tbody className="divide-y divide-gray-100">
               {currentLeaves.length ? (
-                currentLeaves.map((leave, index) => {
+                currentLeaves.map((leave, idx) => {
                   const from = new Date(leave.fromDate);
                   const to = new Date(leave.toDate);
                   const diffDays =
@@ -171,11 +202,11 @@ const EmpLeaveRequest = () => {
                     <tr
                       key={leave.applyLeaveId}
                       className={`hover:bg-gray-50 transition ${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                       }`}
                     >
                       <td className="px-4 py-3 border-r border-gray-200">
-                        {indexOfFirst + index + 1}
+                        {indexOfFirst + idx + 1}
                       </td>
                       <td className="px-4 py-3 border-r border-gray-200">
                         {leave.leaveName}
@@ -204,11 +235,9 @@ const EmpLeaveRequest = () => {
                         />
                       </td>
                       <td className="px-4 py-3 border-r border-gray-200">
-                        {leave.approvedBy && leave.approvedBy.length > 0
+                        {leave.approvedBy?.length
                           ? leave.approvedBy
-                              .map(
-                                (id) => approverMapping?.Leave?.[id] || "N/A"
-                              )
+                              .map((id) => leaveApproverMapping[id] || "N/A")
                               .join(", ")
                           : "—"}
                       </td>

@@ -37,8 +37,8 @@ const MapEmployeeModal = ({
 
     // NUMERIC → PMSD0099 → 99
     if (payCodeMode === "numeric") {
-      const digits = employeeCode.replace(/\D/g, "");
-      return digits || "";
+      const digits = employeeCode.replace(/\D/g, ""); // extract digits
+      return digits ? String(Number(digits)) : ""; // convert to number then back to string to remove leading zeros
     }
 
     // HYPHENATED → PMSD0099 → PMSD-0099

@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AmountInWords from "../../../components/AmountInWords";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
+import { LEAVE_CATALOG } from "../../Admin/Leave/LeaveType/leaveCatalog";
 
 const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
+  const [remainingLeaves, setRemainingLeaves] = useState([]);
   if (!data) return null;
 
   const {
@@ -60,11 +63,53 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
   const totalDeductions = salary.deductions ?? 0;
   const netPay = salary.netPay ?? 0;
 
+  useEffect(() => {
+    if (!employee?.id) return;
+
+    const fetchLeaveAllocation = async () => {
+      try {
+        const allocationRes = await axiosInstance.get(
+          `/EmployeeLeaveAllocation/${employee.id}`
+        );
+
+        const allocations = allocationRes.data?.data || [];
+
+        if (!allocations.length) {
+          setRemainingLeaves([]);
+          return;
+        }
+
+        const leaveTypeRes = await axiosInstance.get("/LeaveType/active");
+        const leaveTypes = leaveTypeRes.data || [];
+
+        const options = allocations
+          .filter((a) => a.isActive)
+          .map((a) => {
+            const lt = leaveTypes.find((l) => l.leaveTypeId === a.leaveTypeId);
+
+            if (!lt) return null;
+
+            return {
+              leaveTypeId: lt.leaveTypeId,
+              leaveName: lt.leaveName,
+              remaining: a.leavesRemaining,
+            };
+          })
+          .filter(Boolean);
+
+        setRemainingLeaves(options);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchLeaveAllocation();
+  }, [employee?.id]);
+
   /* ================= UI (UNCHANGED) ================= */
 
   return (
     <div className="bg-white p-8 shadow-md max-w-4xl mx-auto text-sm text-gray-800 border rounded-md">
-
       {/* ================= HEADER ================= */}
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -99,11 +144,11 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
           <p>
             <strong>Employee Name</strong> : {employee.fullName || "-"}
           </p>
-          {showDesignation && (
+          {/* {showDesignation && (
             <p>
               <strong>Designation</strong> : {employee.designation || "-"}
             </p>
-          )}
+          )} */}
           {showDepartment && (
             <p>
               <strong>Department</strong> : {department}
@@ -126,12 +171,12 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
           <p>
             <strong>Pay Period</strong> : {payMonthYear}
           </p>
-          <p>
+          {/* <p>
             <strong>Pay Date</strong> :{" "}
             {salary.paymentDate
               ? new Date(salary.paymentDate).toLocaleDateString("en-GB")
               : "-"}
-          </p>
+          </p> */}
         </div>
 
         <div className="bg-green-50 border rounded p-4">
@@ -144,30 +189,42 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
               <strong>Paid Days</strong> : {salary.totalWorkingDays || "-"}
             </p>
           </div>
+          {/* Remaining Leaves (right-aligned, column-wise) */}
+          {remainingLeaves.length > 0 && (
+            <div className="mt-2 text-xs text-gray-700">
+              <strong>Balance Leaves:</strong>
+              <div className="mt-1 flex flex-wrap justify-start gap-x-2 gap-y-1">
+                {remainingLeaves.map((leave) => {
+                  const leaveCatalogItem = LEAVE_CATALOG.find(
+                    (lc) => lc.label === leave.leaveName
+                  );
+                  if (!leaveCatalogItem) return null;
+
+                  return (
+                    <span key={leave.leaveTypeId} className="whitespace-nowrap">
+                      {leaveCatalogItem.value}: {leave.remaining}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* ================= BANK & IDS ================= */}
       <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
         <div>
-          <p>
-            <strong>PF A/C Number</strong> : {employee.pfNumber || "-"}
-          </p>
+          {showBank && (
+            <p>
+              <strong>Bank Name</strong> : {bank.bankName || "-"}
+            </p>
+          )}
           {showBank && (
             <p>
               <strong>Bank Account No</strong> : {bank.accountNumber || "-"}
             </p>
           )}
-        </div>
-        <div>
-          {showPAN && (
-            <p>
-              <strong>PAN</strong> : {employee.panNumber || "-"}
-            </p>
-          )}
-          <p>
-            <strong>ESI Number</strong> : {employee.esiNumber || "-"}
-          </p>
         </div>
       </div>
 
@@ -185,27 +242,35 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
             </tr>
           </thead>
           <tbody>
-            {Array.from({
-              length: Math.max(earnings.length, deductions.length),
-            }).map((_, i) => {
-              const e = earnings[i] || { label: "", amount: 0 };
-              const d = deductions[i] || { label: "", amount: 0 };
+            {earnings.map((e, i) => {
+              const showDeduction = i === 0; // ✅ only first row
+
               return (
                 <tr key={i} className="border-t">
+                  {/* EARNINGS */}
                   <td className="p-2">{e.label}</td>
                   <td className="p-2 text-right">
-                    ₹{e.amount.toLocaleString("en-IN")}
+                    ₹{Number(e.amount).toLocaleString("en-IN")}
                   </td>
                   {showYTD && <td className="p-2 text-right">-</td>}
-                  <td className="p-2">{d.label}</td>
+
+                  {/* DEDUCTIONS (ONLY ONE ROW) */}
+                  <td className="p-2">
+                    {showDeduction ? deductions[0].label : ""}
+                  </td>
                   <td className="p-2 text-right">
-                    ₹{d.amount.toLocaleString("en-IN")}
+                    {showDeduction
+                      ? `₹${Number(deductions[0].amount).toLocaleString(
+                          "en-IN"
+                        )}`
+                      : ""}
                   </td>
                   {showYTD && <td className="p-2 text-right">-</td>}
                 </tr>
               );
             })}
 
+            {/* TOTAL ROW */}
             <tr className="bg-gray-50 border-t font-semibold">
               <td className="p-2">Gross Earnings</td>
               <td className="p-2 text-right">
@@ -241,16 +306,23 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
       </p>
 
       {/* ================= SIGNATURE ================= */}
-      {signature && (
+      {/* {signature && (
         <div
-          className={`mt-6 ${
-            signatureAlign === "right" ? "text-right" : "text-left"
+          className={`mt-6 flex ${
+            signatureAlign === "right" ? "justify-end" : "justify-start"
           }`}
         >
-          <img src={signature} alt="Signature" style={{ width: 90 }} />
-          <p className="text-xs mt-1 text-gray-500">Authorized Signatory</p>
+          <div className="text-center">
+            <img
+              src={signature}
+              alt="Signature"
+              className="mx-auto"
+              style={{ width: 90 }}
+            />
+            <p className="text-xs mt-1">Authorized Signatory</p>
+          </div>
         </div>
-      )}
+      )} */}
 
       <p className="text-center text-gray-400 text-xs mt-6">
         — This is a system-generated document —

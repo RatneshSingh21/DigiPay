@@ -103,7 +103,8 @@ const EmployeeList = () => {
       !filters.designation || emp.designationId === Number(filters.designation);
     const matchesSearch =
       !searchQuery ||
-      emp.fullName?.toLowerCase().includes(searchQuery.toLowerCase());
+      emp.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.employeeCode?.toLowerCase().includes(searchQuery.toLowerCase());
 
     return (
       matchesLocation &&
@@ -199,7 +200,7 @@ const EmployeeList = () => {
               </label>
               <input
                 type="text"
-                placeholder="Enter employee name..."
+                placeholder="Search by name or employee code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary text-sm"

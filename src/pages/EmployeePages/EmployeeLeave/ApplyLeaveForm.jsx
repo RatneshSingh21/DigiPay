@@ -13,6 +13,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
   const [leaveOptions, setLeaveOptions] = useState([]);
   const [employeeOptions, setEmployeeOptions] = useState([]);
   const [leaveHistory, setLeaveHistory] = useState([]);
+  const [autoSelected, setAutoSelected] = useState(false);
   const [formData, setFormData] = useState({
     type: null,
     from: "",
@@ -81,34 +82,101 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
     fetchAllocatedLeaves();
   }, [showModal, user?.userId]);
 
-  // -------- Fetch Approvers --------
+  /* ===============================
+   FETCH APPROVERS (OPTIONS ONLY) WITH LOGS
+=============================== */
   useEffect(() => {
     if (!showModal) return;
-    axiosInstance
-      .get("/EmployeeRoleMapping/approvers/all")
-      .then((res) => {
-        const leaveRule = res.data?.find(
-          (rule) => rule.requestType?.toLowerCase() === "leave"
-        );
-        if (leaveRule?.approvers) {
-          const formatted = leaveRule.approvers.map((a) => ({
-            value: a.employeeId,
-            label: `${a.employeeName} (${a.roleName})`,
-            role: a.roleName,
-          }));
-          setEmployeeOptions(formatted);
 
-          // Preselect Admin(s)
-          const adminApprovers = formatted.filter(
-            (emp) => emp.role?.toLowerCase() === "admin"
-          );
-          if (adminApprovers.length > 0) {
-            setFormData((prev) => ({ ...prev, approvers: adminApprovers }));
-          }
+    const fetchApprovers = async () => {
+      try {
+        let approvers = [];
+
+        // 1️⃣ Fetch approval rules
+        const ruleRes = await axiosInstance.get("/ApprovalRule");
+        const rules = ruleRes.data?.data || [];
+
+        const leaveRule = rules.find(
+          (r) => r.requestType?.toLowerCase() === "leave"
+        );
+        if (!leaveRule) {
+          setEmployeeOptions([]);
+          return;
         }
-      })
-      .catch(() => toast.error("Unable to load approvers."));
+
+        // 2️⃣ Allowed roles for this rule
+        const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
+        const ruleRoles = ruleRoleRes.data?.data || [];
+        const allowedRoleIds = ruleRoles
+          .filter((rr) => rr.ruleId === leaveRule.ruleId)
+          .map((rr) => rr.roleId);
+
+        // 3️⃣ Fetch all employees mapped as approvers
+        const empRes = await axiosInstance.get(
+          "/EmployeeRoleMapping/approvers/all"
+        );
+        const leaveEmpRule = empRes.data?.find(
+          (r) => r.requestType?.toLowerCase() === "leave"
+        );
+
+        if (leaveEmpRule?.approvers?.length) {
+          const filteredApprovers = leaveEmpRule.approvers
+            .filter((a) => allowedRoleIds.includes(a.roleId))
+            .map((a) => ({
+              value: `emp-${a.employeeId}`, // ✅ unique value
+              label: `${a.employeeName} (${a.roleName})`,
+              role: a.roleName,
+            }));
+          approvers.push(...filteredApprovers);
+        }
+
+        // 4️⃣ Add SuperAdmin as fallback
+        const usersRes = await axiosInstance.get("/user-auth/all");
+        const superAdmin = (usersRes.data || [])
+          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
+          .sort((a, b) => a.userId - b.userId)[0];
+
+        if (
+          superAdmin &&
+          !approvers.some((a) => a.value === `super-${superAdmin.userId}`)
+        ) {
+          approvers.push({
+            value: `super-${superAdmin.userId}`, // ✅ unique value
+            label: `${superAdmin.name} (SuperAdmin)`,
+            role: "SuperAdmin",
+          });
+        }
+
+        setEmployeeOptions(approvers);
+      } catch (err) {
+        console.error("Error fetching approvers:", err);
+        toast.error("Failed to load approvers");
+      }
+    };
+
+    fetchApprovers();
   }, [showModal]);
+
+  /* ===============================
+     AUTO-SELECT SUPERADMIN (FIX)
+  =============================== */
+  useEffect(() => {
+    if (!showModal) return;
+    if (!employeeOptions.length) return;
+    if (autoSelected) return;
+
+    const superAdmin = employeeOptions.find(
+      (a) => a.role?.toLowerCase() === "superadmin"
+    );
+
+    if (superAdmin) {
+      setFormData((prev) => ({
+        ...prev,
+        approvers: [superAdmin],
+      }));
+      setAutoSelected(true);
+    }
+  }, [employeeOptions, showModal, autoSelected]);
 
   // -------- Fetch Leave History (for overlap validation) --------
   useEffect(() => {
@@ -141,17 +209,14 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
     e.preventDefault();
     const { type, from, to, reason, approvers } = formData;
 
-    const startDate = new Date(from);
-    const endDate = new Date(to);
-
-    const todayDate = new Date();
-    todayDate.setHours(0, 0, 0, 0);
-
-    // Required fields
     if (!type || !from || !to || !reason) {
       setError("Please complete all fields.");
       return;
     }
+
+    const startDate = new Date(from);
+    const endDate = new Date(to);
+    const now = new Date();
 
     // To date before From date
     if (endDate < startDate) {
@@ -159,12 +224,8 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
       return;
     }
 
-    // Backdated not allowed → today allowed
-    const startDateOnly = new Date(from);
-    const todayOnly = new Date();
-    todayOnly.setHours(0, 0, 0, 0);
-
-    if (startDateOnly < todayOnly) {
+    // Backdated leave not allowed
+    if (startDate < now) {
       setError("You cannot apply for a backdated leave.");
       return;
     }
@@ -175,6 +236,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
       return;
     }
 
+    // Calculate total leave days
     const days = (endDate - startDate) / (1000 * 60 * 60 * 24) + 1;
 
     if (days > type.remainingLeaves) {
@@ -194,23 +256,21 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
         fromDate: startDate.toISOString(),
         toDate: endDate.toISOString(),
         reason,
-        customApproverIds: approvers?.map((a) => a.value) || [],
+        customApproverIds:
+          approvers?.map((a) => {
+            const parts = a.value.split("-");
+            return parseInt(parts[1]); // original employee/user ID
+          }) || [],
       });
 
       toast.success(`Leave Applied Successfully for ${days} day(s)!`);
       refreshHistory?.();
-      setFormData({
-        type: null,
-        from: "",
-        to: "",
-        reason: "",
-        approvers: [],
-      });
+      setFormData({ type: null, from: "", to: "", reason: "", approvers: [] });
       setError("");
       onClose();
     } catch (err) {
-      console.error(err?.response?.data.error);
-      setError(err?.response?.data.error || "Failed to apply leave.");
+      console.error(err?.response?.data?.error);
+      setError(err?.response?.data?.error || "Failed to apply leave.");
     } finally {
       setLoading(false);
     }
@@ -233,7 +293,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
               {error}
             </div>
           )}
-
           {/* Leave Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -250,7 +309,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
               required
             />
           </div>
-
           {/* Date range */}
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -258,7 +316,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
                 From Date
               </label>
               <input
-                type="date"
+                type="datetime-local"
                 name="from"
                 value={formData.from}
                 onChange={handleInputChange}
@@ -271,7 +329,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
                 To Date
               </label>
               <input
-                type="date"
+                type="datetime-local"
                 name="to"
                 value={formData.to}
                 onChange={handleInputChange}
@@ -280,7 +338,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
               />
             </div>
           </div>
-
           {/* Reason */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -295,7 +352,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
               className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
-
           {/* Approvers */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -311,7 +367,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
               placeholder="Select approvers"
             />
           </div>
-
           <button
             type="submit"
             disabled={loading}

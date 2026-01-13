@@ -165,12 +165,12 @@ const EmployeeLeave = () => {
             />
 
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No Attendance Data Found
+              No Leave Requests Found
             </h3>
 
             <p className="text-sm text-gray-600 mb-6 max-w-md text-center">
-              There is no biometric attendance available for the selected date.
-              Try syncing the machine or select a different date.
+              There are no leave requests to display. Click the "Apply Leave"
+              button to submit a new leave request.
             </p>
 
             <div className="flex gap-3">

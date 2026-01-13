@@ -40,34 +40,107 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
     const fetchApprovers = async () => {
       try {
         setLoadingApprovers(true);
-        const res = await axiosInstance.get(
+        let approvers = [];
+
+        // ===============================
+        // 1️⃣ Fetch Approval Rules
+        // ===============================
+        const ruleRes = await axiosInstance.get("/ApprovalRule");
+        const rules = ruleRes.data?.data || [];
+
+        const advanceRule = rules.find(
+          (r) => r.requestType?.toLowerCase() === "advancepayment"
+        );
+
+        if (!advanceRule) {
+          setApproverOptions([]);
+          return;
+        }
+
+        // ===============================
+        // 2️⃣ Fetch Approval Rule Roles
+        // ===============================
+        const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
+        const ruleRoles = ruleRoleRes.data?.data || [];
+
+        const advanceRuleRoles = ruleRoles.filter(
+          (rr) => rr.ruleId === advanceRule.ruleId
+        );
+
+        const allowedRoleIds = advanceRuleRoles.map((rr) => rr.roleId);
+
+        // ===============================
+        // 3️⃣ Fetch Role List
+        // ===============================
+        const roleListRes = await axiosInstance.get("/RoleList/getall");
+        const roleList = roleListRes.data || [];
+
+        const superAdminRole = roleList.find(
+          (r) => r.roleName?.toLowerCase() === "superadmin"
+        );
+
+        const superAdminRoleId = superAdminRole?.roleID;
+        const requiresSuperAdmin =
+          superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
+
+        // ===============================
+        // 4️⃣ Fetch Employee Approvers (if any)
+        // ===============================
+        const empRes = await axiosInstance.get(
           "/EmployeeRoleMapping/approvers/all"
         );
 
-        if (Array.isArray(res.data)) {
-          const advancePaymentRule = res.data.find(
-            (rule) => rule.requestType?.toLowerCase() === "advancepayment"
-          );
+        const advanceEmpRule = empRes.data?.find(
+          (r) => r.requestType?.toLowerCase() === "advancepayment"
+        );
 
-          if (advancePaymentRule?.approvers?.length) {
-            const formatted = advancePaymentRule.approvers.map((a) => ({
+        if (advanceEmpRule?.approvers?.length) {
+          const employeeApprovers = advanceEmpRule.approvers
+            .filter((a) => allowedRoleIds.includes(a.roleId))
+            .map((a) => ({
               value: a.employeeId,
               label: `${a.employeeName} (${a.roleName})`,
               role: a.roleName,
+              source: "EMPLOYEE",
             }));
-            setApproverOptions(formatted);
 
-            // Auto-select Admin(s)
-            const adminApprovers = formatted.filter(
-              (emp) => emp.role?.toLowerCase() === "admin"
-            );
-            if (adminApprovers.length > 0) {
-              setFormData((prev) => ({ ...prev, approvers: adminApprovers }));
-            }
+          approvers = [...approvers, ...employeeApprovers];
+        }
+
+        // ===============================
+        // 5️⃣ Fetch ONLY ONE SuperAdmin (AUTHORIZED)
+        // ===============================
+        if (requiresSuperAdmin) {
+          const userRes = await axiosInstance.get("/user-auth/all");
+
+          const primarySuperAdmin = (userRes.data || [])
+            .filter(
+              (u) => u.isVerified && u.role?.toLowerCase() === "superadmin"
+            )
+            // 🔑 deterministic: ONE approver only
+            .sort((a, b) => a.userId - b.userId)[0];
+
+          if (primarySuperAdmin) {
+            const superAdminApprover = {
+              value: primarySuperAdmin.userId,
+              label: `${primarySuperAdmin.name} (SuperAdmin)`,
+              role: "SuperAdmin",
+              source: "USER",
+            };
+
+            approvers.push(superAdminApprover);
+
+            // Auto-select
+            setFormData((prev) => ({
+              ...prev,
+              approvers: [superAdminApprover],
+            }));
           }
         }
-      } catch (error) {
-        console.error("Error fetching approvers:", error);
+
+        setApproverOptions(approvers);
+      } catch (err) {
+        console.error("Error fetching approvers:", err);
         toast.error("Failed to load approvers");
       } finally {
         setLoadingApprovers(false);
@@ -139,7 +212,7 @@ const AdvancePaymentForm = ({ onSuccess, onClose }) => {
   };
 
   return (
-    <div className="p-6 h-[75vh] text-sm overflow-y-auto bg-white rounded-xl shadow-lg">
+    <div className="p-6 h-[90vh] text-sm overflow-auto bg-white rounded-xl shadow-lg">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-xl font-semibold text-gray-800">
           Apply Advance Payment

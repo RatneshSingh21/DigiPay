@@ -55,33 +55,119 @@ const EmpExpensesForm = ({ onClose, onSuccess }) => {
     }
   };
 
-  // ---------- Fetch Approvers ----------
-  const fetchApprovers = async () => {
-    try {
-      const res = await axiosInstance.get("/EmployeeRoleMapping/approvers/all");
-      const expenseRule = res.data?.find(
-        (rule) => rule.requestType?.toLowerCase() === "expense"
-      );
-      if (expenseRule?.approvers) {
-        const formatted = expenseRule.approvers.map((a) => ({
+    // ---------- Fetch Approvers ----------
+const fetchApprovers = async () => {
+  try {
+    let approvers = [];
+
+    // ===============================
+    // 1️⃣ Fetch Approval Rules
+    // ===============================
+    const ruleRes = await axiosInstance.get("/ApprovalRule");
+    const rules = ruleRes.data?.data || [];
+
+    const expenseRule = rules.find(
+      (r) => r.requestType?.toLowerCase() === "expense"
+    );
+
+    if (!expenseRule) {
+      setApproverOptions([]);
+      return;
+    }
+
+    // ===============================
+    // 2️⃣ Fetch Approval Rule Roles
+    // ===============================
+    const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
+    const ruleRoles = ruleRoleRes.data?.data || [];
+
+    const expenseRuleRoles = ruleRoles.filter(
+      (rr) => rr.ruleId === expenseRule.ruleId
+    );
+
+    const allowedRoleIds = expenseRuleRoles.map((rr) => rr.roleId);
+
+    // ===============================
+    // 3️⃣ Fetch Role List
+    // ===============================
+    const roleListRes = await axiosInstance.get("/RoleList/getall");
+    const roleList = roleListRes.data || [];
+
+    const superAdminRole = roleList.find(
+      (r) => r.roleName?.toLowerCase() === "superadmin"
+    );
+
+    const superAdminRoleId = superAdminRole?.roleID;
+    const requiresSuperAdmin =
+      superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
+
+    // ===============================
+    // 4️⃣ Fetch Employee Approvers (filtered by rule)
+    // ===============================
+    const empRes = await axiosInstance.get(
+      "/EmployeeRoleMapping/approvers/all"
+    );
+
+    const expenseEmpRule = empRes.data?.find(
+      (r) => r.requestType?.toLowerCase() === "expense"
+    );
+
+    if (expenseEmpRule?.approvers?.length) {
+      const employeeApprovers = expenseEmpRule.approvers
+        .filter((a) => allowedRoleIds.includes(a.roleId))
+        .map((a) => ({
           value: a.employeeId,
           label: `${a.employeeName} (${a.roleName})`,
           role: a.roleName,
+          source: "EMPLOYEE",
         }));
-        setApproverOptions(formatted);
 
-        // Preselect Admin(s)
-        const adminApprovers = formatted.filter(
-          (emp) => emp.role?.toLowerCase() === "admin"
-        );
-        if (adminApprovers.length > 0) {
-          setFormData((prev) => ({ ...prev, approvers: adminApprovers }));
-        }
-      }
-    } catch (err) {
-      console.error(err?.response?.data?.message);
+      approvers = [...approvers, ...employeeApprovers];
     }
-  };
+
+    // ===============================
+    // 5️⃣ Fetch ONLY ONE SuperAdmin (AUTHORIZED)
+    // ===============================
+    if (requiresSuperAdmin) {
+      const userRes = await axiosInstance.get("/user-auth/all");
+
+      // 🔒 Deterministic rule: ONE SuperAdmin only
+      const primarySuperAdmin = (userRes.data || [])
+        .filter(
+          (u) =>
+            u.isVerified &&
+            u.role?.toLowerCase() === "superadmin"
+        )
+        // 🔑 pick ONE (oldest / lowest userId)
+        .sort((a, b) => a.userId - b.userId)[0];
+
+      if (primarySuperAdmin) {
+        const superAdminApprover = {
+          value: primarySuperAdmin.userId,
+          label: `${primarySuperAdmin.name} (SuperAdmin)`,
+          role: "SuperAdmin",
+          source: "USER",
+        };
+
+        approvers.push(superAdminApprover);
+
+        // Auto-select
+        setFormData((prev) => ({
+          ...prev,
+          approvers: [superAdminApprover],
+        }));
+      }
+    }
+
+    // ===============================
+    // 6️⃣ Set options
+    // ===============================
+    setApproverOptions(approvers);
+  } catch (err) {
+    console.error("Error fetching approvers:", err);
+    toast.error("Failed to load approvers");
+  }
+};
 
   useEffect(() => {
     fetchHeaders();

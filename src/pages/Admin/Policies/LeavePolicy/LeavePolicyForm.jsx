@@ -120,15 +120,15 @@ const LeavePolicyForm = ({ policyId, onClose, onSuccess }) => {
             data.blockLeaveIfAttendanceMissing ?? false,
         });
 
-        setSandwichRule({
-          isEnabled: data.sandwichRule?.isEnabled ?? false,
-          bridgeGapDays: data.sandwichRule?.bridgeGapDays ?? true,
-          includeWeekends: data.sandwichRule?.includeWeekends ?? true,
-          includeHolidays: data.sandwichRule?.includeHolidays ?? true,
-          maxGapDays: data.sandwichRule?.maxGapDays ?? 1,
-          applyAcrossLeaveTypes:
-            data.sandwichRule?.applyAcrossLeaveTypes ?? false,
-        });
+     setSandwichRule({
+  enabled: data.sandwichRule?.enabled ?? false,
+  bridgeGapDays: data.sandwichRule?.bridgeGapDays ?? true,
+  includeWeekends: data.sandwichRule?.includeWeekends ?? true,
+  includeHolidays: data.sandwichRule?.includeHolidays ?? true,
+  maxGapDays: data.sandwichRule?.maxGapDays ?? 1,
+  applyAcrossLeaveTypes: data.sandwichRule?.applyAcrossLeaveTypes ?? false,
+});
+
 
         setSelectedLeaveTypeIds(
           data.leaveTypeRules?.map((r) => r.leaveTypeId) || []
@@ -168,75 +168,145 @@ const LeavePolicyForm = ({ policyId, onClose, onSuccess }) => {
   }, [policyId]);
 
   /* ================= SUBMIT ================= */
-  const handleSubmit = async () => {
-    if (!policy.policyName || !policy.effectiveFrom) {
-      toast.error("Policy Name and Effective From are required");
-      return;
-    }
+ const handleSubmit = async () => {
+  if (!policy.policyName || !policy.effectiveFrom) {
+    toast.error("Policy Name and Effective From are required");
+    return;
+  }
 
-    const payload = {
-      ...policy,
-      effectiveFrom: new Date(policy.effectiveFrom).toISOString(),
-      ...(policy.effectiveTo && {
-        effectiveTo: new Date(policy.effectiveTo).toISOString(),
-      }),
+  const payload = {
+    // ================= BASIC POLICY =================
+    ...policy,
 
-      sandwichRule: {
-        ...sandwichRule,
-        maxGapDays: sandwichRule.enabled ? sandwichRule.maxGapDays : 0,
-      },
+    departmentId: policy.departmentId ?? 0,
+    designationId: 0,
+    gradeId: 0,
+    roleId: 0,
+    workLocationId: 0,
+    shiftId: 0,
+    employmentTypeId: 0,
 
-      compOffRule,
+    effectiveFrom: new Date(policy.effectiveFrom).toISOString(),
+    ...(policy.effectiveTo && {
+      effectiveTo: new Date(policy.effectiveTo).toISOString(),
+    }),
 
-      leaveTypeRules: Object.values(leaveRules).map((r) => ({
-        ...r,
-        genderRestriction: r.genderRestriction || null,
-      })),
+    // ================= SANDWICH RULE =================
+    sandwichRule: {
+      enabled: sandwichRule.enabled,
+      bridgeGapDays: sandwichRule.bridgeGapDays,
+      includeWeekends: sandwichRule.includeWeekends,
+      includeHolidays: sandwichRule.includeHolidays,
+      maxGapDays: sandwichRule.enabled ? sandwichRule.maxGapDays : 0,
+      applyAcrossLeaveTypes: sandwichRule.applyAcrossLeaveTypes,
+    },
 
-      encashmentRules: encashmentRules.filter(
-        (r) => r.leaveTypeId && r.leaveTypeId > 0
-      ),
+    // ================= LEAVE TYPE RULES =================
+    leaveTypeRules: Object.values(leaveRules).map((r) => ({
+      leaveTypeId: r.leaveTypeId,
+      maxLeavesPerYear: r.maxLeavesPerYear ?? 0,
+      maxDaysPerApplication: r.maxDaysPerApplication ?? 0,
+      minDaysPerApplication: r.minDaysPerApplication ?? 0,
+      minServiceMonthsRequired: r.minServiceMonthsRequired ?? 0,
+      includeWeekends: r.includeWeekends ?? true,
+      includeHolidays: r.includeHolidays ?? true,
+      allowHalfDay: r.allowHalfDay ?? false,
 
-      accrualRules: accrualRules.map((r) => ({
-        ...r,
-        effectiveFrom: r.effectiveFrom
-          ? new Date(r.effectiveFrom).toISOString()
-          : undefined,
-        effectiveTo: r.effectiveTo
-          ? new Date(r.effectiveTo).toISOString()
-          : undefined,
-      })),
+      // 🔥 CRITICAL FIX (TimeSpan-safe)
+      halfDayCutoffTime:
+        r.allowHalfDay && r.halfDayCutoffTime
+          ? r.halfDayCutoffTime.length === 5
+            ? `${r.halfDayCutoffTime}:00`
+            : r.halfDayCutoffTime
+          : null,
 
-      carryForwardRules: carryForwardRules.map((r) => ({
+      isCarryForwardAllowed: r.isCarryForwardAllowed ?? false,
+      carryForwardLimit: r.carryForwardLimit ?? 0,
+      isDocumentRequired: r.isDocumentRequired ?? false,
+      documentRequiredAfterDays: r.documentRequiredAfterDays ?? 0,
+      allowDuringNoticePeriod: r.allowDuringNoticePeriod ?? false,
+      genderRestriction: r.genderRestriction || null,
+    })),
+
+    // ================= COMP OFF =================
+    compOffRule: {
+      isEnabled: compOffRule.isEnabled,
+      expiryInDays: compOffRule.expiryInDays ?? 0,
+      allowOnHoliday: compOffRule.allowOnHoliday,
+      allowOnWeekend: compOffRule.allowOnWeekend,
+    },
+
+    // ================= ENCASHMENT =================
+    encashmentRules: encashmentRules
+      .filter((r) => r.leaveTypeId && r.leaveTypeId > 0)
+      .map((r) => ({
         leaveTypeId: r.leaveTypeId,
-        allowCarryForward: r.allowCarryForward,
-        maxCarryForwardDays: r.maxCarryForwardDays,
-        carryForwardExpiryInMonths: r.carryForwardExpiryInMonths,
-        carryForwardProrated: r.carryForwardProrated,
-        conditionsJson: r.conditionsJson || null,
+        isEncashmentAllowed: r.isEncashmentAllowed ?? false,
+        maxEncashableDaysPerYear: r.maxEncashableDaysPerYear ?? 0,
+        minBalanceRequired: r.minBalanceRequired ?? 0,
+        allowAtYearEnd: r.allowAtYearEnd ?? false,
+        allowDuringResignation: r.allowDuringResignation ?? false,
+        allowDuringRetirement: r.allowDuringRetirement ?? false,
+        encashmentCalculationType: r.encashmentCalculationType || null,
       })),
 
-      blackoutDates: blackoutDates.map((bd) => ({
-        fromDate: new Date(bd.fromDate).toISOString(),
-        toDate: new Date(bd.toDate).toISOString(),
-      })),
-    };
+    // ================= ACCRUAL =================
+    accrualRules: accrualRules.map((r) => ({
+      leaveTypeId: r.leaveTypeId,
+      policyCode: r.policyCode || "",
+      frequency: r.frequency,
+      accrualValue: r.accrualValue ?? 0,
+      prorateOnJoin: r.prorateOnJoin ?? true,
+      prorateOnLeave: r.prorateOnLeave ?? true,
+      accrualStartsAfterServiceMonths:
+        r.accrualStartsAfterServiceMonths ?? 0,
+      effectiveFrom: r.effectiveFrom
+        ? new Date(r.effectiveFrom).toISOString()
+        : null,
+      effectiveTo: r.effectiveTo
+        ? new Date(r.effectiveTo).toISOString()
+        : null,
+      extraJson: r.extraJson || null,
+    })),
 
-    try {
-      setLoading(true);
-      policyId
-        ? await axiosInstance.put(`/LeavePolicy/update/${policyId}`, payload)
-        : await axiosInstance.post("/LeavePolicy/create", payload);
+    // ================= CARRY FORWARD =================
+    carryForwardRules: carryForwardRules.map((r) => ({
+      leaveTypeId: r.leaveTypeId,
+      allowCarryForward: r.allowCarryForward ?? false,
+      maxCarryForwardDays: r.maxCarryForwardDays ?? 0,
+      carryForwardExpiryInMonths:
+        r.carryForwardExpiryInMonths ?? 0,
+      carryForwardProrated: r.carryForwardProrated ?? false,
+      conditionsJson: r.conditionsJson || null,
+    })),
 
-      toast.success("Leave policy saved successfully");
-      onSuccess?.();
-      onClose?.();
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Save failed");
-    } finally {
-      setLoading(false);
-    }
+    // ================= BLACKOUT =================
+    blackoutDates: blackoutDates.map((bd) => ({
+      title: bd.title || "",
+      fromDate: new Date(bd.fromDate).toISOString(),
+      toDate: new Date(bd.toDate).toISOString(),
+      isFullBlock: bd.isFullBlock ?? true,
+      applicableLeaveTypeIds: bd.applicableLeaveTypeIds || [],
+      applicableDepartmentIds: bd.applicableDepartmentIds || [],
+    })),
   };
+
+  try {
+    setLoading(true);
+    policyId
+      ? await axiosInstance.put(`/LeavePolicy/update/${policyId}`, payload)
+      : await axiosInstance.post("/LeavePolicy/create", payload);
+
+    toast.success("Leave policy saved successfully");
+    onSuccess?.();
+    onClose?.();
+  } catch (err) {
+    toast.error(err?.response?.data?.message || "Save failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const CurrentStepComponent = steps[currentStep].component;
 

@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AmountInWords from "../../../components/AmountInWords";
+import axiosInstance from "../../../axiosInstance/axiosInstance";
+import { LEAVE_CATALOG } from "../../Admin/Leave/LeaveType/leaveCatalog";
 
 const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
+  const [remainingLeaves, setRemainingLeaves] = useState([]);
   if (!data) return null;
 
   const {
@@ -59,6 +62,49 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
   const totalDeductions = salary.deductions ?? 0;
   const netPay = salary.netPay ?? 0;
 
+  useEffect(() => {
+    if (!employee?.id) return;
+
+    const fetchLeaveAllocation = async () => {
+      try {
+        const allocationRes = await axiosInstance.get(
+          `/EmployeeLeaveAllocation/${employee.id}`
+        );
+
+        const allocations = allocationRes.data?.data || [];
+
+        if (!allocations.length) {
+          setRemainingLeaves([]);
+          return;
+        }
+
+        const leaveTypeRes = await axiosInstance.get("/LeaveType/active");
+        const leaveTypes = leaveTypeRes.data || [];
+
+        const options = allocations
+          .filter((a) => a.isActive)
+          .map((a) => {
+            const lt = leaveTypes.find((l) => l.leaveTypeId === a.leaveTypeId);
+
+            if (!lt) return null;
+
+            return {
+              leaveTypeId: lt.leaveTypeId,
+              leaveName: lt.leaveName,
+              remaining: a.leavesRemaining,
+            };
+          })
+          .filter(Boolean);
+
+        setRemainingLeaves(options);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchLeaveAllocation();
+  }, [employee?.id]);
+
   /* ================= UI ================= */
 
   return (
@@ -91,14 +137,14 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="col-span-2 space-y-1">
           <p>
-            <strong>Employee Name</strong> : {employee.fullName || "-"},{" "}
-            {employee.employeeCode || "-"}
+            <strong>Employee Name</strong> : {employee.fullName || "-"}(
+            {employee.employeeCode || "-"})
           </p>
-          {showDesignation && (
+          {/* {showDesignation && (
             <p>
               <strong>Designation</strong> : {employee.designation || "-"}
             </p>
-          )}
+          )} */}
           {showDepartment && (
             <p>
               <strong>Department</strong> : {department}
@@ -118,21 +164,26 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
           <p>
             <strong>Pay Period</strong> : {payMonthYear}
           </p>
-          <p>
+          {/* <p>
             <strong>Pay Date</strong> :{" "}
             {salary.paymentDate
               ? new Date(salary.paymentDate).toLocaleDateString("en-GB")
               : "-"}
-          </p>
+          </p> */}
           {showPAN && (
             <p>
               <strong>PAN</strong> : {employee.panNumber || "-"}
             </p>
           )}
           {showBank && (
-            <p>
-              <strong>Bank Account No</strong> : {bank.accountNumber || "-"}
-            </p>
+            <div>
+              <p>
+                <strong>Bank Name</strong> : {bank.bankName || "-"}
+              </p>
+              <p>
+                <strong>Bank Account No</strong> : {bank.accountNumber || "-"}
+              </p>
+            </div>
           )}
         </div>
 
@@ -144,6 +195,26 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
           <p className="mt-2 text-sm">
             Paid Days : {salary.totalWorkingDays || "-"}
           </p>
+          {/* Remaining Leaves (right-aligned, column-wise) */}
+          {remainingLeaves.length > 0 && (
+            <div className="mt-2 text-xs text-gray-700">
+              <strong>Balance Leaves:</strong>
+              <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1">
+                {remainingLeaves.map((leave) => {
+                  const leaveCatalogItem = LEAVE_CATALOG.find(
+                    (lc) => lc.label === leave.leaveName
+                  );
+                  if (!leaveCatalogItem) return null;
+
+                  return (
+                    <span key={leave.leaveTypeId} className="whitespace-nowrap">
+                      {leaveCatalogItem.value}: {leave.remaining}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -162,33 +233,47 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
           </thead>
 
           <tbody>
-            {Array.from({ length: Math.max(earnings.length, deductions.length) }).map(
-              (_, index) => {
-                const e = earnings[index] || {};
-                const d = deductions[index] || {};
-                return (
-                  <tr key={index}>
-                    <td className="border px-2 py-1">{e.label}</td>
-                    <td className="border px-2 py-1 text-right">
-                      ₹{Number(e.amount).toLocaleString("en-IN")}
-                    </td>
-                    {showYTD && <td className="border px-2 py-1 text-right">-</td>}
-                    <td className="border px-2 py-1">{d.label}</td>
-                    <td className="border px-2 py-1 text-right">
-                      ₹{Number(d.amount).toLocaleString("en-IN")}
-                    </td>
-                    {showYTD && <td className="border px-2 py-1 text-right">-</td>}
-                  </tr>
-                );
-              }
-            )}
+            {/* Earnings rows */}
+            {earnings.map((e, index) => (
+              <tr key={index}>
+                <td className="border px-2 py-1">{e.label}</td>
+                <td className="border px-2 py-1 text-right">
+                  ₹{Number(e.amount ?? 0).toLocaleString("en-IN")}
+                </td>
+                {showYTD && <td className="border px-2 py-1 text-right">-</td>}
 
+                {/* Deduction columns only on FIRST row */}
+                {index === 0 ? (
+                  <>
+                    <td className="border px-2 py-1">{deductions[0]?.label}</td>
+                    <td className="border px-2 py-1 text-right">
+                      ₹
+                      {Number(deductions[0]?.amount ?? 0).toLocaleString(
+                        "en-IN"
+                      )}
+                    </td>
+                    {showYTD && (
+                      <td className="border px-2 py-1 text-right">-</td>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <td className="border px-2 py-1"></td>
+                    <td className="border px-2 py-1"></td>
+                    {showYTD && <td className="border px-2 py-1"></td>}
+                  </>
+                )}
+              </tr>
+            ))}
+
+            {/* Totals row */}
             <tr className="font-semibold bg-gray-50">
               <td className="border px-2 py-1">Gross Earnings</td>
               <td className="border px-2 py-1 text-right">
                 ₹{totalEarnings.toLocaleString("en-IN")}
               </td>
               {showYTD && <td />}
+
               <td className="border px-2 py-1">Total Deductions</td>
               <td className="border px-2 py-1 text-right">
                 ₹{totalDeductions.toLocaleString("en-IN")}
@@ -205,12 +290,24 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
         <AmountInWords amount={netPay} currency="Indian Rupee" />)
       </p>
 
-      {signature && (
-        <div className={`mt-4 text-${signatureAlign || "left"}`}>
-          <img src={signature} alt="Signature" style={{ width: 90 }} />
-          <p className="text-xs text-gray-500">Authorized Signatory</p>
+      {/* ================= SIGNATURE ================= */}
+      {/* {signature && (
+        <div
+          className={`mt-6 flex ${
+            signatureAlign === "right" ? "justify-end" : "justify-start"
+          }`}
+        >
+          <div className="text-center">
+            <img
+              src={signature}
+              alt="Signature"
+              className="mx-auto"
+              style={{ width: 90 }}
+            />
+            <p className="text-xs mt-1">Authorized Signatory</p>
+          </div>
         </div>
-      )}
+      )} */}
 
       <p className="text-center text-gray-400 text-xs mt-4">
         — This is a system-generated document —

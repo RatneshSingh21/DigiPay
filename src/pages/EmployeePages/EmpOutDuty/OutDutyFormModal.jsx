@@ -24,38 +24,112 @@ const OutDutyFormModal = ({ onClose, onSuccess }) => {
   };
 
   // ---------------- Fetch Approvers ----------------
+  // ---------------- Fetch Approvers ----------------
   useEffect(() => {
     const fetchApprovers = async () => {
       try {
         setLoadingApprovers(true);
-        const res = await axiosInstance.get(
+        let approvers = [];
+
+        // ===============================
+        // 1️⃣ Fetch Approval Rules
+        // ===============================
+        const ruleRes = await axiosInstance.get("/ApprovalRule");
+        const rules = ruleRes.data?.data || [];
+
+        const outDutyRule = rules.find(
+          (r) => r.requestType?.toLowerCase() === "onduty"
+        );
+
+        if (!outDutyRule) {
+          setApproverOptions([]);
+          return;
+        }
+
+        // ===============================
+        // 2️⃣ Fetch Approval Rule Roles
+        // ===============================
+        const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
+        const ruleRoles = ruleRoleRes.data?.data || [];
+
+        const outDutyRuleRoles = ruleRoles.filter(
+          (rr) => rr.ruleId === outDutyRule.ruleId
+        );
+
+        const allowedRoleIds = outDutyRuleRoles.map((rr) => rr.roleId);
+
+        // ===============================
+        // 3️⃣ Fetch Role List
+        // ===============================
+        const roleListRes = await axiosInstance.get("/RoleList/getall");
+        const roleList = roleListRes.data || [];
+
+        const superAdminRole = roleList.find(
+          (r) => r.roleName?.toLowerCase() === "superadmin"
+        );
+
+        const superAdminRoleId = superAdminRole?.roleID;
+        const requiresSuperAdmin =
+          superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
+
+        // ===============================
+        // 4️⃣ Fetch Employee Approvers (if any)
+        // ===============================
+        const empRes = await axiosInstance.get(
           "/EmployeeRoleMapping/approvers/all"
         );
 
-        if (Array.isArray(res.data)) {
-          const outDutyRule = res.data.find(
-            (rule) => rule.requestType?.toLowerCase() === "onduty"
-          );
+        const outDutyEmpRule = empRes.data?.find(
+          (r) => r.requestType?.toLowerCase() === "onduty"
+        );
 
-          if (outDutyRule?.approvers?.length) {
-            const formatted = outDutyRule.approvers.map((a) => ({
+        if (outDutyEmpRule?.approvers?.length) {
+          const employeeApprovers = outDutyEmpRule.approvers
+            .filter((a) => allowedRoleIds.includes(a.roleId))
+            .map((a) => ({
               value: a.employeeId,
               label: `${a.employeeName} (${a.roleName})`,
               role: a.roleName,
+              source: "EMPLOYEE",
             }));
-            setApproverOptions(formatted);
 
-            // Auto-select Admin(s)
-            const adminApprovers = formatted.filter(
-              (emp) => emp.role?.toLowerCase() === "admin"
-            );
-            if (adminApprovers.length > 0) {
-              setFormData((prev) => ({ ...prev, approvers: adminApprovers }));
-            }
+          approvers = [...approvers, ...employeeApprovers];
+        }
+
+        // ===============================
+        // 5️⃣ Fetch ONLY ONE SuperAdmin (AUTHORIZED)
+        // ===============================
+        if (requiresSuperAdmin) {
+          const userRes = await axiosInstance.get("/user-auth/all");
+
+          const primarySuperAdmin = (userRes.data || [])
+            .filter(
+              (u) => u.isVerified && u.role?.toLowerCase() === "superadmin"
+            )
+            // 🔑 pick ONE deterministic SuperAdmin
+            .sort((a, b) => a.userId - b.userId)[0];
+
+          if (primarySuperAdmin) {
+            const superAdminApprover = {
+              value: primarySuperAdmin.userId,
+              label: `${primarySuperAdmin.name} (SuperAdmin)`,
+              role: "SuperAdmin",
+              source: "USER",
+            };
+
+            approvers.push(superAdminApprover);
+
+            // Auto-select
+            setFormData((prev) => ({
+              ...prev,
+              approvers: [superAdminApprover],
+            }));
           }
         }
+
+        setApproverOptions(approvers);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load approvers:", err);
         toast.error("Failed to load approvers");
       } finally {
         setLoadingApprovers(false);
