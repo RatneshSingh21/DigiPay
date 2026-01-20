@@ -167,7 +167,7 @@ const EmpSalaryDetails = () => {
         a.fixed += s.fixedAllowance || 0;
         a.bonus += s.bonus || 0;
         a.otHours += s.overtimeHours || 0;
-        a.otAmount += (s.overtimeHours || 0) * (s.overtimeRate || 0);
+        a.otAmount += s.overtimeAmount || 0;
         a.pf += s.pfEmployee || 0;
         a.esi += s.esicEmployee || 0;
         a.tax += s.professionalTax || 0;
@@ -373,7 +373,7 @@ const EmpSalaryDetails = () => {
                       {s.overtimeRate}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                      {round(s.overtimeHours * s.overtimeRate)}
+                 {round(s.overtimeAmount)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
                       {round(s.pfEmployee)}

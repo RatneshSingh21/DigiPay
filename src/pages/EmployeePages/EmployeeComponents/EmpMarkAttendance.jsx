@@ -238,6 +238,8 @@ const EmpMarkAttendance = () => {
           workType: workType.value,
           shiftId: shift?.value || 0,
           punchTypeCode: punchType.value,
+          isManual: false,
+          verificationMode: "WEB",
         },
         latitude,
         longitude,

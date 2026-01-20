@@ -18,23 +18,75 @@ const customSelectStyles = {
   placeholder: (provided) => ({ ...provided, fontSize: "0.875rem" }),
 };
 
+const overrideOptions = [
+  { value: "", label: "Select Override Type" },
+  { value: "Percentage", label: "Percentage" },
+  { value: "Fixed", label: "Fixed" },
+];
+
 const EmployeePFMappingForm = ({ initialData, onClose, refreshList }) => {
   const [employees, setEmployees] = useState([]);
   const [pfSettings, setPfSettings] = useState([]);
   const [existingPFMappings, setExistingPFMappings] = useState([]);
+
+  const normalizeInitialData = (data) => {
+    if (!data) return null;
+
+    let overrideCalculationType = null;
+
+    if (
+      data.overridePercentage !== null &&
+      data.overridePercentage !== undefined &&
+      data.overridePercentage !== ""
+    ) {
+      overrideCalculationType = "Percentage";
+    } else if (
+      data.overrideFixedAmount !== null &&
+      data.overrideFixedAmount !== undefined &&
+      data.overrideFixedAmount !== ""
+    ) {
+      overrideCalculationType = "Fixed";
+    }
+
+    return {
+      ...data,
+      overrideCalculationType,
+    };
+  };
+
   const [formData, setFormData] = useState(
-    initialData || {
+    normalizeInitialData(initialData) || {
       employeeId: "",
       pfNumber: "",
       isOptedOut: false,
       pfSettingsId: "",
-      overrideCalculationType: "",
+      overrideCalculationType: null,
       overridePercentage: "",
       overrideFixedAmount: "",
       effectiveFrom: "",
       effectiveTo: "",
     }
   );
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(normalizeInitialData(initialData));
+    } else {
+      setFormData({
+        employeeId: "",
+        pfNumber: "",
+        isOptedOut: false,
+        pfSettingsId: "",
+        overrideCalculationType: null,
+        overridePercentage: "",
+        overrideFixedAmount: "",
+        effectiveFrom: "",
+        effectiveTo: "",
+      });
+    }
+  }, [initialData]);
+
+  console.log("Initial Data:", initialData);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -220,30 +272,26 @@ const EmployeePFMappingForm = ({ initialData, onClose, refreshList }) => {
             <div className={cardClass}>
               <label className="font-medium mb-1 block">Override Type</label>
               <Select
-                value={
-                  formData.overrideCalculationType
-                    ? {
-                        value: formData.overrideCalculationType,
-                        label: formData.overrideCalculationType,
-                      }
-                    : null
-                }
+                value={overrideOptions.find(
+                  (o) => o.value === formData.overrideCalculationType
+                )}
                 onChange={(selected) =>
                   setFormData({
                     ...formData,
-                    overrideCalculationType: selected?.value || "",
+                    overrideCalculationType: selected?.value || null,
+                    overridePercentage: "",
+                    overrideFixedAmount: "",
                   })
                 }
-                options={[
-                  { value: "Percentage", label: "Percentage" },
-                  { value: "Fixed", label: "Fixed" },
-                ]}
+                options={overrideOptions}
                 styles={customSelectStyles}
                 placeholder="Select Override Type"
               />
               {formData.overrideCalculationType === "Percentage" && (
                 <input
                   type="number"
+                  placeholder="Override %"
+                  className={inputClass}
                   value={formData.overridePercentage}
                   onChange={(e) =>
                     setFormData({
@@ -251,13 +299,14 @@ const EmployeePFMappingForm = ({ initialData, onClose, refreshList }) => {
                       overridePercentage: e.target.value,
                     })
                   }
-                  placeholder="Override %"
-                  className={inputClass}
                 />
               )}
+
               {formData.overrideCalculationType === "Fixed" && (
                 <input
                   type="number"
+                  placeholder="Override Amount"
+                  className={inputClass}
                   value={formData.overrideFixedAmount}
                   onChange={(e) =>
                     setFormData({
@@ -265,8 +314,6 @@ const EmployeePFMappingForm = ({ initialData, onClose, refreshList }) => {
                       overrideFixedAmount: e.target.value,
                     })
                   }
-                  placeholder="Override Amount"
-                  className={inputClass}
                 />
               )}
             </div>

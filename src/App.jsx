@@ -102,8 +102,8 @@ import LeaveBalance from "./pages/Admin/Leave/LeaveBalance";
 import LeaveMapping from "./pages/Admin/Leave/Leave Mapping/LeaveMapping";
 import HolidayList from "./pages/Admin/Leave/HolidayList/HolidayList";
 import EmployeeLeave from "./pages/Admin/Leave/EmployeeLeave/EmployeeLeave";
-import EmployeeLeaveAllocation from "./pages/Admin/Leave/EmployeeLeaveAllocation/EmployeeLeaveAllocation";
 import EmployeeAdvancePayments from "./pages/Admin/Leave/EmployeeAdvancePayments/EmployeeAdvancePayments";
+import EmployeeLeaveAllocation from "./pages/Admin/Leave/EmployeeLeaveAllocation/EmployeeLeaveAllocation";
 
 //Admin Policy Pages
 import PFSettings from "./pages/Admin/Policies/PFSettings/PFSettings";

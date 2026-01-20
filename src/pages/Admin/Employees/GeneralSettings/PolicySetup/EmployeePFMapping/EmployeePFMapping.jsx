@@ -101,14 +101,12 @@ const EmployeePFMapping = () => {
           </thead>
           <tbody>
             {filteredMappings.length > 0 ? (
-              filteredMappings.map((m,i) => (
+              filteredMappings.map((m, i) => (
                 <tr
                   key={m.pfEmployeeMappingId}
                   className="hover:bg-gray-50 transition"
                 >
-                  <td className="px-3 py-2 border">
-                    {i+1}
-                  </td>
+                  <td className="px-3 py-2 border">{i + 1}</td>
                   <td className="px-3 py-2 border">
                     {employeeMap[m.employeeId] || `ID: ${m.employeeId}`}
                   </td>
@@ -150,7 +148,7 @@ const EmployeePFMapping = () => {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50">
+        <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl p-4 md:p-6 animate-fadeIn">
             {/* Modal Header */}
             <div className="flex justify-between items-center border-b pb-3 mb-4">

@@ -6,7 +6,7 @@ const statusColors = {
   Holiday: "bg-blue-600",
   Present: "bg-green-500",
   Absent: "bg-red-500",
-  HalfDay: "bg-purple-400",
+  "HalfDay": "bg-purple-400",
   "Week Off": "bg-gray-300",
 };
 
@@ -14,7 +14,7 @@ const DayCell = ({ date, data }) => {
   const formatted = format(date, "d");
   const isCurrentDay = isToday(date); // highlight today
 
-  const totalHours = data?.totalHoursWorked ?? 0;
+  const totalHours = data?.hours ?? 0;
 
   // Convert totalHours (decimal) to hh:mm format
   const hours = Math.floor(totalHours);

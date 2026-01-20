@@ -197,9 +197,16 @@ const AdvanceRequestCard = ({
                     onMouseEnter={() => setHover(true)}
                     onMouseLeave={() => setHover(false)}
                   >
-                    <div className="w-6 h-6 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-indigo-700 cursor-help">
-                      {approverMap[id]?.charAt(0) || "U"}
+                    <div className="flex gap-2">
+                      <div className="w-6 h-6 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-indigo-700 cursor-help">
+                        {approverMap[id]?.charAt(0) || "U"}
+                      </div>
+                      <p className="font-medium text-primary">
+                        {" "}
+                        {approverMap[id]}
+                      </p>
                     </div>
+
                     {hover && (
                       <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 px-2 py-1 text-xs bg-gray-900 text-white rounded whitespace-nowrap">
                         {approverMap[id] || `User ${id}`}

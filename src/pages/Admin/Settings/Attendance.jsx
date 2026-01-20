@@ -37,14 +37,56 @@ const Attendance = () => {
             inTime: null,
             outTime: null,
             status: item.status,
+
+            // default values
+            isManual: false,
+            verificationMode: null,
+            _lastUpdated: new Date(item.createdAt),
           };
         }
 
-        if (item.punchType === "IN") merged[key].inTime = item.inTime;
-        if (item.punchType === "OUT") merged[key].outTime = item.outTime;
+        const current = merged[key];
+        const itemTime = new Date(item.createdAt);
+
+        // ---- IN / OUT TIME ----
+        if (item.punchType === "IN") {
+          current.inTime = item.inTime;
+        }
+
+        if (item.punchType === "OUT") {
+          current.outTime = item.outTime;
+        }
+
+        // ---- MANUAL OVERRIDE LOGIC ----
+        if (item.isManual) {
+          current.isManual = true;
+        }
+
+        // ---- VERIFICATION MODE PRIORITY ----
+        const priority = {
+          ADMIN: 4,
+          WEB: 3,
+          EMPLOYEE: 2,
+          SYSTEM: 1,
+          null: 0,
+        };
+
+        if (
+          priority[item.verificationMode] > priority[current.verificationMode]
+        ) {
+          current.verificationMode = item.verificationMode;
+        }
+
+        // ---- STATUS (take latest update) ----
+        if (itemTime > current._lastUpdated) {
+          current.status = item.status;
+          current._lastUpdated = itemTime;
+        }
       });
 
-      setAttendanceData(Object.values(merged));
+      setAttendanceData(
+        Object.values(merged).map(({ _lastUpdated, ...rest }) => rest)
+      );
     } catch (error) {
       toast.error("Failed to fetch attendance");
     } finally {
@@ -178,6 +220,8 @@ const Attendance = () => {
                           <th className="py-2 px-3">In Time</th>
                           <th className="py-2 px-3">Out Time</th>
                           <th className="py-2 px-3">Status</th>
+                          <th className="py-2 px-3">Mode</th>
+                          <th className="py-2 px-3">Manual</th>
                         </tr>
                       </thead>
 
@@ -186,7 +230,22 @@ const Attendance = () => {
                           <tr key={index} className="hover:bg-gray-50">
                             <td className="py-2 px-3">{index + 1}</td>
                             <td className="py-2 px-3">
-                              {highlightText(getEmployeeName(item.employeeId))}
+                              <div className="flex items-center justify-center gap-2">
+                                <span>
+                                  {highlightText(
+                                    getEmployeeName(item.employeeId)
+                                  )}
+                                </span>
+
+                                {item.isManual && (
+                                  <span
+                                    className="text-xs text-orange-600 font-semibold"
+                                    title="Attendance edited by Admin"
+                                  >
+                                    (Edited)
+                                  </span>
+                                )}
+                              </div>
                             </td>
 
                             <td className="py-2 px-3">
@@ -217,6 +276,32 @@ const Attendance = () => {
                                 )}`}
                               >
                                 {item.status}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3">
+                              <span
+                                className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-700 cursor-help"
+                                title={
+                                  item.verificationMode === "ADMIN"
+                                    ? "Attendance edited by Admin"
+                                    : item.verificationMode === "WEB"
+                                    ? "Self marked via Web App"
+                                    : "System generated attendance"
+                                }
+                              >
+                                {item.verificationMode || "SYSTEM"}
+                              </span>
+                            </td>
+
+                            <td className="py-2 px-3">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                  item.isManual
+                                    ? "bg-orange-100 text-orange-700"
+                                    : "bg-gray-100 text-gray-600"
+                                }`}
+                              >
+                                {item.isManual ? "Manual" : "Auto"}
                               </span>
                             </td>
                           </tr>

@@ -103,7 +103,7 @@ const EmployeeLeave = () => {
   const filteredLeaves = leaves.filter((leave) =>
     getEmployeeName(leave.employeeId)
       .toLowerCase()
-      .includes(searchQuery.toLowerCase())
+      .includes(searchQuery.toLowerCase()),
   );
 
   // Highlight matching text
@@ -118,123 +118,144 @@ const EmployeeLeave = () => {
         </span>
       ) : (
         part
-      )
+      ),
     );
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
-        <h2 className="font-semibold text-xl">Employee Leave Management</h2>
-        <div className="flex flex-col md:flex-row md:items-center gap-2">
-          {/* Search Input */}
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="bg-white rounded-2xl shadow px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 sticky top-14 z-20">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Employee Leave Management
+          </h2>
+          <p className="text-sm text-gray-500">
+            View and manage employee leave requests
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+          {/* Search */}
           <input
             type="text"
-            placeholder="Search by employee name or code"
+            placeholder="Search employee name or code..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full sm:w-64 rounded-lg border border-gray-300 px-3 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-primary"
           />
+
+          {/* Action */}
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1 bg-primary cursor-pointer text-white px-4 py-2 rounded hover:bg-secondary transition"
+            className="inline-flex items-center gap-2 bg-primary text-white
+                     px-5 py-2 rounded-lg text-sm font-medium
+                     hover:bg-secondary transition shadow"
           >
-            <FiPlus /> Apply Leave
+            <FiPlus size={16} />
+            Apply Leave
           </button>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow overflow-x-auto px-2">
+      {/* Content */}
+      <div className="bg-white rounded-2xl shadow overflow-hidden">
         {loading ? (
-          <div className="py-10 flex justify-center">
+          <div className="flex justify-center items-center py-16">
             <Spinner />
           </div>
         ) : filteredLeaves.length === 0 ? (
-          <div
-            className="flex flex-col items-center justify-center 
-               py-10 px-6 mx-4 my-6 rounded-2xl 
-               bg-gradient-to-br from-white to-gray-50 
-               shadow-sm"
-          >
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
             <img
               src={assets.NoData}
-              alt="No Attendance Data"
-              className="w-56 mb-6 opacity-90"
+              alt="No leave data"
+              className="w-52 mb-6 opacity-90"
             />
-
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No Leave Requests Found
+              No Leave Requests
             </h3>
-
-            <p className="text-sm text-gray-600 mb-6 max-w-md text-center">
-              There are no leave requests to display. Click the "Apply Leave"
-              button to submit a new leave request.
+            <p className="text-sm text-gray-600 max-w-md mb-6">
+              There are no leave requests available. Click below to apply a new
+              leave request.
             </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={fetchLeaves}
-                className="flex items-center gap-2 
-                   bg-primary hover:bg-secondary 
-                   text-white px-6 py-2 
-                   rounded-full text-sm font-medium 
-                   shadow hover:shadow-md transition"
-              >
-                <FiRefreshCw size={16} />
-                Refresh
-              </button>
-            </div>
+            <button
+              onClick={fetchLeaves}
+              className="inline-flex items-center gap-2 bg-primary text-white
+                       px-6 py-2 rounded-full text-sm font-medium
+                       hover:bg-secondary transition shadow"
+            >
+              <FiRefreshCw size={16} />
+              Refresh
+            </button>
           </div>
         ) : (
-          <table className="w-full text-sm text-center text-gray-700 border-collapse">
-            <thead className="bg-gray-100 text-gray-600 text-xs uppercase">
-              <tr>
-                <th className="px-4 py-2">#</th>
-                <th className="px-4 py-2">Employee</th>
-                <th className="px-4 py-2">Leave Type</th>
-                <th className="px-4 py-2">From</th>
-                <th className="px-4 py-2">To</th>
-                <th className="px-4 py-2">Reason</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Applied On</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLeaves.map((leave, index) => (
-                <tr
-                  key={leave.applyLeaveId}
-                  className="border-b hover:bg-gray-50 transition"
-                >
-                  <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2">
-                    {highlightText(getEmployeeName(leave.employeeId))}
-                  </td>
-                  <td className="px-4 py-2">
-                    {leave.leaveName} ({leave.leaveCode})
-                  </td>
-                  <td className="px-4 py-2">
-                    {format(new Date(leave.fromDate), "dd-MMM-yyyy")}
-                  </td>
-                  <td className="px-4 py-2">
-                    {format(new Date(leave.toDate), "dd-MMM-yyyy")}
-                  </td>
-                  <td className="px-4 py-2">{leave.reason}</td>
-                  <td className="px-4 py-2">{getStatusBadge(leave.status)}</td>
-                  <td className="px-4 py-2">
-                    {format(new Date(leave.createdOn), "dd-MMM-yyyy")}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm text-gray-700">
+              <thead className="bg-gray-50 sticky top-0 z-10">
+                <tr className="text-xs uppercase text-gray-500 text-center">
+                  <th className="px-4 py-3">S.No</th>
+                  <th className="px-4 py-3">Employee</th>
+                  <th className="px-4 py-3">Leave</th>
+                  <th className="px-4 py-3">From</th>
+                  <th className="px-4 py-3">To</th>
+                  <th className="px-4 py-3">Reason</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Applied On</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody className="divide-y">
+                {filteredLeaves.map((leave, index) => (
+                  <tr
+                    key={leave.applyLeaveId}
+                    className="hover:bg-gray-50 transition text-center"
+                  >
+                    <td className="px-4 py-3">{index + 1}</td>
+
+                    <td className="px-4 py-3 font-medium">
+                      {highlightText(getEmployeeName(leave.employeeId))}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <div className="text-sm font-medium">
+                        {leave.leaveName}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {leave.leaveCode}
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {format(new Date(leave.fromDate), "dd MMM yyyy")}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {format(new Date(leave.toDate), "dd MMM yyyy")}
+                    </td>
+
+                    <td className="px-4 py-3 max-w-xs truncate">
+                      {leave.reason}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {getStatusBadge(leave.status)}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {format(new Date(leave.createdOn), "dd MMM yyyy")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50">
+        <div className="fixed inset-0 z-50">
           <EmployeeLeaveForm onClose={() => setShowModal(false)} />
         </div>
       )}

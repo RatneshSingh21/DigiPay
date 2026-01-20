@@ -51,7 +51,7 @@ const AttendanceForm = () => {
         ]);
 
         const employees = empRes.data.map((emp) => ({
-          label: emp.fullName,
+          label: emp.fullName + ` (${emp.employeeCode})`,
           value: emp.id,
         }));
         setEmployeeOptions(employees);
@@ -145,6 +145,10 @@ const AttendanceForm = () => {
         workType: workType.value,
         shiftId: shift?.value || 0,
         punchTypeCode: punchType.value,
+
+        // ✅ REQUIRED FOR MANUAL ENTRY
+        isManual: true,
+        verificationMode: "ADMIN",
       },
       latitude: 0,
       longitude: 0,

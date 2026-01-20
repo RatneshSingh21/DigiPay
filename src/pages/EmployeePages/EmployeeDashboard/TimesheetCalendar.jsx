@@ -16,60 +16,123 @@ import useAuthStore from "../../../store/authStore";
 
 const TimesheetCalendar = () => {
   const { user } = useAuthStore();
+
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [records, setRecords] = useState({}); // yyyy-MM-dd -> perDayDetails
   const [loading, setLoading] = useState(true);
 
-  const handleNextMonth = () => setCurrentMonth((prev) => addMonths(prev, 1));
-  const handlePrevMonth = () => setCurrentMonth((prev) => subMonths(prev, 1));
+  const handleNextMonth = () =>
+    setCurrentMonth((prev) => addMonths(prev, 1));
+
+  const handlePrevMonth = () =>
+    setCurrentMonth((prev) => subMonths(prev, 1));
 
   // Fetch attendance calculation results
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get("/AttendanceCalculationResult/all");
-        let data = res.data.response || [];
 
-        // Filter for current employee
-        if (user?.userId) {
-          data = data.filter((item) => item.employeeId === user.userId);
+        let data = [];
+
+        // 1️⃣ First API call
+        const resAll = await axiosInstance.get(
+          "/AttendanceCalculationResult/all"
+        );
+
+        data = resAll.data?.response || [];
+
+        // Filter by employee if data exists
+        if (data.length > 0 && user?.userId) {
+          data = data.filter(
+            (item) => item.employeeId === user.userId
+          );
         }
 
-        // Map perDayDetails to { "yyyy-MM-dd": details }
+        // 2️⃣ If still no data → fallback API
+        if (data.length === 0 && user?.userId) {
+          const resEmployee = await axiosInstance.get(
+            `/Attendance/GetByEmployeeId/${user.userId}`
+          );
+
+          // Support both wrapped & direct responses
+          data =
+            resEmployee.data?.response ||
+            resEmployee.data ||
+            [];
+        }
+
+        console.log("FINAL ATTENDANCE DATA:", data);
+
+        // 3️⃣ Map data
         const mapped = {};
-        data.forEach((item) => {
-          item.perDayDetails.forEach((d) => {
-            const key = format(new Date(d.date), "yyyy-MM-dd");
+
+        data.forEach((d) => {
+          const key = format(
+            new Date(d.attendanceDate || d.date),
+            "yyyy-MM-dd"
+          );
+
+          if (!mapped[key]) {
             mapped[key] = {
-              ...d,
-              status: item.isAbsent
-                ? "Absent"
-                : item.isHalfDay
-                ? "Half Day"
-                : "Present",
+              inTime: null,
+              outTime: null,
+              hours: 0,
+              status: "Absent",
             };
-          });
+          }
+
+          // Merge IN & OUT
+          if (d.inTime) mapped[key].inTime = d.inTime;
+          if (d.outTime) mapped[key].outTime = d.outTime;
+        });
+
+        // Calculate hours + status
+        Object.keys(mapped).forEach((key) => {
+          const record = mapped[key];
+
+          if (record.inTime && record.outTime) {
+            const inTime = new Date(record.inTime);
+            const outTime = new Date(record.outTime);
+
+            const diffMs = outTime - inTime;
+            const hours = diffMs / (1000 * 60 * 60);
+
+            record.hours = Math.max(hours, 0);
+            record.status = "Present";
+          } else if (record.inTime || record.outTime) {
+            record.status = "MisPunch";
+          } else {
+            record.status = "Absent";
+          }
         });
 
         setRecords(mapped);
       } catch (err) {
-        console.error("Error fetching attendance calculation:", err);
+        console.error("Error fetching attendance:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAttendance();
+    if (user?.userId) {
+      fetchAttendance();
+    }
   }, [user]);
 
   const days = eachDayOfInterval({
     start: startOfMonth(currentMonth),
     end: endOfMonth(currentMonth),
   });
+
   const firstDayIndex = getDay(startOfMonth(currentMonth)); // Padding days
 
-  if (loading) return <p className="text-center text-gray-500">Loading attendance...</p>;
+  if (loading)
+    return (
+      <p className="text-center text-gray-500">
+        Loading attendance...
+      </p>
+    );
 
   return (
     <div className="bg-white rounded-xl shadow p-4 w-full mx-auto">
@@ -79,19 +142,28 @@ const TimesheetCalendar = () => {
           <button onClick={handlePrevMonth}>
             <ChevronLeft className="w-5 h-5 text-gray-700 hover:text-black cursor-pointer" />
           </button>
-          <h2 className="text-lg font-bold">{format(currentMonth, "MMM yyyy")}</h2>
+
+          <h2 className="text-lg font-bold">
+            {format(currentMonth, "MMM yyyy")}
+          </h2>
+
           <button onClick={handleNextMonth}>
             <ChevronRight className="w-5 h-5 text-gray-700 hover:text-black cursor-pointer" />
           </button>
         </div>
-        <span className="text-sm text-gray-500">Time Format: hh:mm</span>
+
+        <span className="text-sm text-gray-500">
+          Time Format: hh:mm
+        </span>
       </div>
 
       {/* Days header */}
       <div className="grid grid-cols-7 text-center text-sm font-medium text-gray-600">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div key={d}>{d}</div>
-        ))}
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+          (d) => (
+            <div key={d}>{d}</div>
+          )
+        )}
       </div>
 
       {/* Days Grid */}
@@ -101,7 +173,11 @@ const TimesheetCalendar = () => {
         ))}
 
         {days.map((date) => (
-          <DayCell key={date} date={date} data={records[format(date, "yyyy-MM-dd")]} />
+          <DayCell
+            key={date}
+            date={date}
+            data={records[format(date, "yyyy-MM-dd")]}
+          />
         ))}
       </div>
 

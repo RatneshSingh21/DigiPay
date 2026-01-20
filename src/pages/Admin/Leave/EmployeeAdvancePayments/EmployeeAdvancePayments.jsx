@@ -1,324 +1,245 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import Select from "react-select";
+import React, { useEffect, useState } from "react";
+import { FiPlus, FiRefreshCw } from "react-icons/fi";
+import { format } from "date-fns";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import Spinner from "../../../../components/Spinner";
-
-
-
-const paymentTypeOptions = [
-  { value: "Cash", label: "Cash" },
-  { value: "Cheque", label: "Cheque" },
-  { value: "Bank Transfer", label: "Bank Transfer" },
-  { value: "UPI", label: "UPI" },
-];
-
-const repaymentModeOptions = [
-  { value: "SalaryDeduction", label: "Salary Deduction" },
-  { value: "ManualPayment", label: "Manual Payment" },
-];
+import { toast } from "react-toastify";
+import EmployeeAdvancePaymentForm from "./EmployeeAdvancePaymentForm";
+import assets from "../../../../assets/assets";
 
 const EmployeeAdvancePayments = () => {
+  const [payments, setPayments] = useState([]);
   const [employees, setEmployees] = useState([]);
-  const [approverOptions, setApproverOptions] = useState([]);
+  const [statuses, setStatuses] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingApprovers, setLoadingApprovers] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [formData, setFormData] = useState({
-    employee: null,
-    amount: "",
-    reason: "",
-    repaymentDate: "",
-    installments: "",
-    advancePaymentType: null,
-    repaymentMode: null,
-    comments: "",
-    approvers: [],
-  });
-
-  // Fetch employees for dropdown
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        setLoading(true);
-        const res = await axiosInstance.get("/Employee");
-        setEmployees(res.data || []);
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load employees");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEmployees();
-  }, []);
-
-  // Fetch approvers
-  useEffect(() => {
-    const fetchApprovers = async () => {
-      try {
-        setLoadingApprovers(true);
-        const res = await axiosInstance.get(
-          "/EmployeeRoleMapping/approvers/all"
-        );
-
-        if (Array.isArray(res.data)) {
-          const advancePaymentRule = res.data.find(
-            (rule) => rule.requestType?.toLowerCase() === "advancepayment"
-          );
-
-          if (advancePaymentRule?.approvers?.length) {
-            const formatted = advancePaymentRule.approvers.map((a) => ({
-              value: a.employeeId,
-              label: `${a.employeeName} (${a.roleName})`,
-              role: a.roleName,
-            }));
-            setApproverOptions(formatted);
-
-            // Auto-select Admin(s)
-            const adminApprovers = formatted.filter(
-              (emp) => emp.role?.toLowerCase() === "admin"
-            );
-            if (adminApprovers.length > 0) {
-              setFormData((prev) => ({ ...prev, approvers: adminApprovers }));
-            }
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        // toast.error("Failed to load approvers");
-      } finally {
-        setLoadingApprovers(false);
-      }
-    };
-
-    fetchApprovers();
-  }, []);
-
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const {
-      employee,
-      amount,
-      reason,
-      repaymentDate,
-      installments,
-      advancePaymentType,
-      repaymentMode,
-      approvers,
-    } = formData;
-
-    if (
-      !employee ||
-      !amount ||
-      !reason ||
-      !repaymentDate ||
-      !installments ||
-      !advancePaymentType ||
-      !repaymentMode
-    ) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-
+  /* ===============================
+     FETCH DATA
+  =============================== */
+  const fetchPayments = async () => {
+    setLoading(true);
     try {
-      setSubmitting(true);
-
-      const totalAmount = parseFloat(amount);
-      const noOfInstallments = parseInt(installments);
-      const installmentAmount = totalAmount / noOfInstallments;
-
-      const payload = {
-        employeeId: employee.value,
-        advancePaymentAmount: totalAmount,
-        advancePaymentType: advancePaymentType.value,
-        noOfInstallments,
-        installmentAmount,
-        repaymentStartDate: new Date(repaymentDate).toISOString(),
-        reason,
-        comments: formData.comments,
-        customApproverIds: approvers?.map((a) => a.value) || [],
-        repaymentMode: repaymentMode.value,
-      };
-
-      await axiosInstance.post("/AdvancePayment", payload);
-      toast.success("Advance payment request submitted!");
-      setFormData({
-        employee: null,
-        amount: "",
-        reason: "",
-        repaymentDate: "",
-        installments: "",
-        advancePaymentType: null,
-        repaymentMode: null,
-        comments: "",
-        approvers: approvers, // keep selected approvers
-      });
+      const res = await axiosInstance.get("/AdvancePayment");
+      setPayments(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.error || "Failed to submit request");
+      toast.error("Failed to fetch advance payments");
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
+  const fetchEmployees = async () => {
+    try {
+      const res = await axiosInstance.get("/Employee");
+      setEmployees(res.data || []);
+    } catch {
+      toast.error("Failed to fetch employees");
+    }
+  };
+
+  const fetchStatuses = async () => {
+    try {
+      const res = await axiosInstance.get("/StatusMaster");
+      setStatuses(res.data?.data || []);
+    } catch {
+      toast.error("Failed to fetch status master");
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+    fetchPayments();
+    fetchStatuses();
+  }, []);
+
+  /* ===============================
+     HELPERS
+  =============================== */
+  const getEmployeeName = (id) => {
+    const emp = employees.find((e) => e.id === id);
+    return emp ? `${emp.fullName} (${emp.employeeCode})` : "Unknown Employee";
+  };
+
+  const getStatusBadge = (statusId, isFullyRepaid) => {
+    if (isFullyRepaid) {
+      return (
+        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+          Fully Repaid
+        </span>
+      );
+    }
+
+    const status = statuses.find((s) => s.statusId === statusId);
+    if (!status) {
+      return (
+        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+          Unknown
+        </span>
+      );
+    }
+
+    // Color based on statusName
+    let bgColor = "bg-gray-100";
+    let textColor = "text-gray-800";
+
+    switch (status.statusName.toLowerCase()) {
+      case "pending":
+        bgColor = "bg-yellow-100";
+        textColor = "text-yellow-800";
+        break;
+      case "approved":
+      case "processed":
+        bgColor = "bg-green-100";
+        textColor = "text-green-800";
+        break;
+      case "rejected":
+        bgColor = "bg-red-100";
+        textColor = "text-red-800";
+        break;
+      case "paid":
+      case "partial":
+        bgColor = "bg-blue-100";
+        textColor = "text-blue-800";
+        break;
+      default:
+        bgColor = "bg-gray-100";
+        textColor = "text-gray-800";
+    }
+
+    return (
+      <span className={`${bgColor} ${textColor} px-2 py-1 rounded text-xs`}>
+        {status.statusName}
+      </span>
+    );
+  };
+
+  const filteredPayments = payments.filter((p) =>
+    getEmployeeName(p.employeeId)
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase()),
+  );
+
+  /* ===============================
+     UI
+  =============================== */
   return (
-    <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-xl p-6">
-      <h2 className="text-xl font-semibold mb-4">Employee Advance Payment</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Employee */}
-        <div>
-          <label className="block font-medium text-gray-700 mb-1">
-            Employee <span className="text-red-500">*</span>
-          </label>
-          <Select
-            options={employees.map((e) => ({
-              value: e.id,
-              label: `${e.fullName} (${e.employeeCode})`,
-            }))}
-            value={formData.employee}
-            onChange={(val) => handleChange("employee", val)}
-            placeholder="Select employee"
-          />
-        </div>
+    <div className="space-y-4">
+      {/* HEADER */}
+      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+        <h2 className="font-semibold text-xl">
+          Employee Advance Payment Management
+        </h2>
 
-        {/* Amount */}
-        <div>
-          <label className="block font-medium text-gray-700 mb-1">
-            Requested Amount (₹) <span className="text-red-500">*</span>
-          </label>
+        <div className="flex flex-col md:flex-row gap-2">
           <input
-            type="number"
-            value={formData.amount}
-            onChange={(e) => handleChange("amount", e.target.value)}
-            placeholder="e.g. 10000"
-            className="w-full px-4 py-2 border border-blue-200 outline-none rounded-lg focus:ring-2 focus:ring-blue-400"
-            required
+            type="text"
+            placeholder="Search by employee name or code"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:ring-1 focus:ring-primary outline-none"
           />
-        </div>
 
-        {/* Reason */}
-        <div>
-          <label className="block font-medium text-gray-700 mb-1">
-            Reason <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            value={formData.reason}
-            onChange={(e) => handleChange("reason", e.target.value)}
-            rows={3}
-            placeholder="Reason for Advance Payment"
-            className="w-full px-4 py-2 border border-blue-200 outline-none rounded-lg focus:ring-2 focus:ring-blue-400"
-            required
-          />
-        </div>
-
-        {/* Repayment Date */}
-        <div>
-          <label className="block font-medium text-gray-700 mb-1">
-            Repayment Start Date <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            value={formData.repaymentDate}
-            onChange={(e) => handleChange("repaymentDate", e.target.value)}
-            className="w-full px-4 py-2 border border-blue-200 outline-none rounded-lg focus:ring-2 focus:ring-blue-400"
-            required
-          />
-        </div>
-
-        {/* Advance Payment Type */}
-        <div>
-          <label className="block font-medium text-gray-700 mb-1">
-            Advance Payment Type <span className="text-red-500">*</span>
-          </label>
-          <Select
-            options={paymentTypeOptions}
-            value={formData.advancePaymentType}
-            onChange={(val) => handleChange("advancePaymentType", val)}
-            placeholder="Select type"
-          />
-        </div>
-
-        {/* Repayment Mode */}
-        <div>
-          <label className="block font-medium text-gray-700 mb-1">
-            Repayment Mode <span className="text-red-500">*</span>
-          </label>
-          <Select
-            options={repaymentModeOptions}
-            value={formData.repaymentMode}
-            onChange={(val) => handleChange("repaymentMode", val)}
-            placeholder="Select mode"
-          />
-        </div>
-
-        {/* Installments */}
-        <div>
-          <label className="block font-medium text-gray-700 mb-1">
-            Number of Installments <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="number"
-            value={formData.installments}
-            min={1}
-            onChange={(e) => handleChange("installments", e.target.value)}
-            placeholder="e.g. 3"
-           className="w-full px-4 py-2 border border-blue-200 outline-none rounded-lg focus:ring-2 focus:ring-blue-400"
-            required
-          />
-        </div>
-
-        {/* Approvers */}
-        <div>
-          <label className="block font-medium text-gray-700 mb-1">
-            Approvers
-          </label>
-          <Select
-            options={approverOptions}
-            value={formData.approvers}
-            onChange={(val) => handleChange("approvers", val || [])}
-            isMulti
-            isLoading={loadingApprovers}
-            placeholder="Select approvers"
-          />
-        </div>
-
-        {/* Buttons */}
-        <div className="flex gap-3 pt-4">
           <button
-            type="reset"
-            onClick={() =>
-              setFormData({
-                employee: null,
-                amount: "",
-                reason: "",
-                repaymentDate: "",
-                installments: "",
-                advancePaymentType: null,
-                repaymentMode: null,
-                comments: "",
-                approvers: [],
-              })
-            }
-            className="flex-1 py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition"
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-1 cursor-pointer bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition"
           >
-            Reset
-          </button>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex-1 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-secondary transition disabled:opacity-50 flex justify-center items-center"
-          >
-            {submitting ? <Spinner /> : "Submit Request"}
+            <FiPlus /> Apply Advance
           </button>
         </div>
-      </form>
+      </div>
+
+      {/* TABLE / STATES */}
+      <div className="bg-white rounded-xl shadow overflow-x-auto px-2">
+        {loading ? (
+          <div className="py-10 flex justify-center">
+            <Spinner />
+          </div>
+        ) : filteredPayments.length === 0 ? (
+          <div className="flex flex-col items-center py-10">
+            <img src={assets.NoData} className="w-52 mb-4" />
+            <h3 className="font-semibold text-lg">No Advance Payments Found</h3>
+
+            <button
+              onClick={fetchPayments}
+              className="mt-4 flex items-center cursor-pointer gap-2 bg-primary text-white px-6 py-2 rounded-full"
+            >
+              <FiRefreshCw /> Refresh
+            </button>
+          </div>
+        ) : (
+          <table className="w-full text-sm text-center text-gray-700">
+            <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
+              <tr>
+                <th className="px-4 py-2">S.No</th>
+                <th className="px-4 py-2">Employee</th>
+                <th className="px-4 py-2">Amount</th>
+                <th className="px-4 py-2">Balance</th>
+                <th className="px-4 py-2">Installments</th>
+                <th className="px-4 py-2">Repayment</th>
+                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Applied On</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredPayments.map((p, i) => (
+                <tr
+                  key={p.advancePaymentId}
+                  className="border-b hover:bg-gray-50 transition"
+                >
+                  <td className="px-4 py-2">{i + 1}</td>
+
+                  <td className="px-4 py-2 font-medium">
+                    {getEmployeeName(p.employeeId)}
+                  </td>
+
+                  <td className="px-4 py-2 font-semibold">
+                    ₹{p.advancePaymentAmount}
+                    <div className="text-xs text-gray-500">
+                      EMI ₹{p.installmentAmount}
+                    </div>
+                  </td>
+
+                  <td className="px-4 py-2">
+                    ₹{p.balanceAmount}
+                    <div className="text-xs text-gray-500">
+                      Repaid ₹{p.amountRepaid}
+                    </div>
+                  </td>
+
+                  <td className="px-4 py-2">{p.noOfInstallments}</td>
+
+                  <td className="px-4 py-2">{p.repaymentMode}</td>
+
+                  <td className="px-4 py-2">
+                    {getStatusBadge(p.statusId, p.isFullyRepaid)}
+                  </td>
+
+                  <td className="px-4 py-2">
+                    {format(new Date(p.createdOn), "dd-MMM-yyyy")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50">
+          <EmployeeAdvancePaymentForm
+            onClose={() => setShowModal(false)}
+            onSuccess={() => {
+              setShowModal(false);
+              fetchPayments();
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
