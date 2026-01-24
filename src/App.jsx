@@ -57,6 +57,7 @@ import Designation from "./pages/Admin/Settings/Designation";
 import StatusMaster from "./pages/Admin/Settings/StatusMaster";
 import Salary from "./pages/Admin/Settings/Salary";
 import SalaryCalculationType from "./pages/Admin/Settings/SalaryCalculationType/SalaryCalculationType";
+import ComponentLock from "./pages/Admin/Settings/ComponentLock/ComponentLock";
 
 //Admin Role Pages
 import RoleMaster from "./pages/Admin/Role/RoleMaster";
@@ -64,11 +65,11 @@ import RoleApproval from "./pages/Admin/Role/RoleApproval/RoleApproval";
 import EmpRoleMapping from "./pages/Admin/Role/EmpRole/EmpRoleMapping";
 
 //Admin Shift Pages
-import Shifts from "./pages/Admin/Settings/Shifts";
+import Shifts from "./pages/Admin/Shift/Shifts";
 import ShiftMapping from "./pages/Admin/Shift/ShiftMapping";
 
 //Admin Attendance Pages
-import Attendance from "./pages/Admin/Settings/Attendance";
+import Attendance from "./pages/Admin/Attendance/Attendance";
 import AttendanceForm from "./pages/Admin/Attendance/AttendanceForm";
 import ManualAttendance from "./pages/Admin/Attendance/ManualAttendance/ManualAttendance";
 import AttendancePunch from "./pages/Admin/Attendance/AttendancePunch";
@@ -78,6 +79,7 @@ import AttendanceCalculationResult from "./pages/Admin/Attendance/AttendanceCalc
 import AttendanceMachine from "./pages/Admin/Attendance/AttendanceMachine/AttendanceMachine";
 import BiometricEmployeeMapping from "./pages/Admin/Attendance/AttendanceMachine/BiometricEmployeeMapping";
 import AttendanceMachineData from "./pages/Admin/Attendance/AttendanceMachine/AttendanceMachineData";
+import AttendanceLock from "./pages/Admin/Attendance/AttendanceLock/AttendanceLock";
 
 // Admin Reports Pages
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
@@ -144,10 +146,6 @@ import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
 
 
-
-
-
-
 const App = () => {
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
@@ -203,7 +201,10 @@ const App = () => {
                   <ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]} />
                 }
               >
-                <Route path="/admin-dashboard" element={<AdminDashboardLayout />}>
+                <Route
+                  path="/admin-dashboard"
+                  element={<AdminDashboardLayout />}
+                >
                   {/* Default route for admin-dashboard */}
                   <Route index element={<Navigate to="dashboard" />} />
 
@@ -231,12 +232,18 @@ const App = () => {
                     />
                     <Route path="emp-worktype" element={<EmpWorkType />} />
                     <Route path="emp-worknature" element={<EmpWorkNature />} />
-                    <Route path="general-imports" element={<GeneralImports />} />
+                    <Route
+                      path="general-imports"
+                      element={<GeneralImports />}
+                    />
                     <Route
                       path="general-settings"
                       element={<GeneralSettings />}
                     />
-                    <Route path="fullemployee-data" element={<EmployeeDetails />} />
+                    <Route
+                      path="fullemployee-data"
+                      element={<EmployeeDetails />}
+                    />
                   </Route>
 
                   {/* Dashboard Main Page */}
@@ -263,11 +270,14 @@ const App = () => {
                     />
                     <Route path="work-locations" element={<WorkLocations />} />
                     <Route path="permissions" element={<Permissions />} />
-                    <Route path="shifts" element={<Shifts />} />
                     <Route path="designation" element={<Designation />} />
                     <Route path="salary" element={<Salary />} />
                     <Route path="status-master" element={<StatusMaster />} />
-                    <Route path="salary-calculation-type" element={<SalaryCalculationType />} />
+                    <Route
+                      path="salary-calculation-type"
+                      element={<SalaryCalculationType />}
+                    />
+                    <Route path="component-lock" element={<ComponentLock />} />
                   </Route>
 
                   {/* Role SubRoutes */}
@@ -275,7 +285,10 @@ const App = () => {
                     <Route index element={<Navigate to="role-master" />} />
                     <Route path="role-master" element={<RoleMaster />} />
                     <Route path="role-approval" element={<RoleApproval />} />
-                    <Route path="emp-role-mapping" element={<EmpRoleMapping />} />
+                    <Route
+                      path="emp-role-mapping"
+                      element={<EmpRoleMapping />}
+                    />
                   </Route>
 
                   {/* Shift SubRoutes */}
@@ -305,19 +318,35 @@ const App = () => {
                       path="attendance-report"
                       element={<AttendanceReport />}
                     />
-                    <Route path="attendance-machine" element={<AttendanceMachine />} />
-                    <Route path="emp-machine-mapping" element={<BiometricEmployeeMapping />} />
-                    <Route path="machine-data-log" element={<AttendanceMachineData />} />
+                    <Route
+                      path="attendance-machine"
+                      element={<AttendanceMachine />}
+                    />
+                    <Route
+                      path="emp-machine-mapping"
+                      element={<BiometricEmployeeMapping />}
+                    />
+                    <Route
+                      path="machine-data-log"
+                      element={<AttendanceMachineData />}
+                    />
+                    <Route path="attendance-lock" element={<AttendanceLock />} />
                   </Route>
 
                   {/* Reports SubRoutes */}
                   <Route path="reports/*" element={<AdminContentBox />}>
-                    <Route index element={<Navigate to="payslip-templates" />} />
+                    <Route
+                      index
+                      element={<Navigate to="payslip-templates" />}
+                    />
                     <Route
                       path="payslip-templates"
                       element={<PayslipTemplates />}
                     />
-                    <Route path="salary-register" element={<SalaryRegister />} />
+                    <Route
+                      path="salary-register"
+                      element={<SalaryRegister />}
+                    />
 
                     <Route path="letter-intent" element={<LetterOfIntent />} />
                     <Route path="offer-letter" element={<OfferLetter />} />
@@ -355,7 +384,10 @@ const App = () => {
 
                   {/* Documents SubRoutes */}
                   <Route path="expenses/*" element={<AdminContentBox />}>
-                    <Route index element={<Navigate to="expense-documents" />} />
+                    <Route
+                      index
+                      element={<Navigate to="expense-documents" />}
+                    />
                     <Route path="expense-header" element={<ExpenseHeader />} />
                     <Route
                       path="uploaded-documents"
@@ -397,7 +429,10 @@ const App = () => {
                       element={<PFContributionRule />}
                     />
                     <Route path="esi-rule" element={<ESIRules />} />
-                    <Route path="esi-transaction" element={<ESITransactions />} />
+                    <Route
+                      path="esi-transaction"
+                      element={<ESITransactions />}
+                    />
                     <Route path="late-policy" element={<LatePolicy />} />
                     <Route path="policy-leave" element={<LeavePolicy />} />
                     <Route path="weekend-policy" element={<WeekendPolicy />} />
@@ -409,7 +444,10 @@ const App = () => {
 
                   {/* Compliance SubRoutes */}
                   <Route path="compliance/*" element={<AdminContentBox />}>
-                    <Route index element={<Navigate to="payment-adjustment" />} />
+                    <Route
+                      index
+                      element={<Navigate to="payment-adjustment" />}
+                    />
                     <Route
                       path="payment-adjustment"
                       element={<PaymentAdjustment />}
@@ -444,11 +482,17 @@ const App = () => {
                   <Route path="attendance" element={<EmpAttendance />} />
                   <Route path="leave" element={<EmpLeaveRequest />} />
                   <Route path="salary-slip" element={<EmpSalarySlip />} />
-                  <Route path="mark-attendance" element={<EmpMarkAttendance />} />
+                  <Route
+                    path="mark-attendance"
+                    element={<EmpMarkAttendance />}
+                  />
                   <Route path="my-expenses" element={<EmpExpenses />} />
                   <Route path="my-documents" element={<EmpDocuments />} />
                   <Route path="travel-details" element={<EmpTravel />} />
-                  <Route path="advance-payment" element={<EmpAdvancePayment />} />
+                  <Route
+                    path="advance-payment"
+                    element={<EmpAdvancePayment />}
+                  />
                   <Route path="on-duty" element={<EmpOutDuty />} />
                   <Route path="approvals" element={<EmpApprovals />} />
                   <Route path="*" element={<NotFound />} />

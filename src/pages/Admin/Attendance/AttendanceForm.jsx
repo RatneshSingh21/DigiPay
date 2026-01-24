@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 import ImportExportAttendance from "./ImportExportAttendance"; // Import modal
+import ExportAttendanceModal from "./ExportAttendanceModal";
 
 const statusOptions = [
   { value: "Present", label: "Present" },
@@ -19,13 +20,18 @@ const workTypeOptions = [
   { value: "Work From Home", label: "Work From Home" },
 ];
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const AttendanceForm = () => {
   const [shiftOptions, setShiftOptions] = useState([]);
   const [employeeOptions, setEmployeeOptions] = useState([]);
   const [punchTypeOptions, setPunchTypeOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false); // Modal toggle state
+  const [showImportExportModal, setShowImportExportModal] = useState(false); // Modal toggle state
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const [formData, setFormData] = useState({
     employee: null,
@@ -83,7 +89,7 @@ const AttendanceForm = () => {
     if (!formData.employee || !shiftOptions.allShifts) return;
 
     const empMappings = shiftOptions.allMappings?.filter(
-      (m) => m.employeeId === formData.employee.value
+      (m) => m.employeeId === formData.employee.value,
     );
     const mappedIds = empMappings.map((m) => m.shiftId);
 
@@ -146,7 +152,7 @@ const AttendanceForm = () => {
         shiftId: shift?.value || 0,
         punchTypeCode: punchType.value,
 
-        // ✅ REQUIRED FOR MANUAL ENTRY
+        // REQUIRED FOR MANUAL ENTRY
         isManual: true,
         verificationMode: "ADMIN",
       },
@@ -179,7 +185,7 @@ const AttendanceForm = () => {
     } catch (err) {
       console.error("Submission error:", err);
       toast.error(
-        err?.response?.data?.message || "Failed to submit attendance."
+        err?.response?.data?.message || "Failed to submit attendance.",
       );
     } finally {
       setIsSubmitting(false);
@@ -196,12 +202,22 @@ const AttendanceForm = () => {
       {/* HEADER */}
       <div className="px-4 py-3 shadow sticky top-14 bg-white flex items-center justify-between z-10">
         <h2 className="font-semibold text-xl">Attendance</h2>
-        <button
-          onClick={() => setShowImportModal(true)}
-          className="bg-primary text-white px-4 py-2 cursor-pointer text-sm rounded-md hover:bg-secondary transition duration-200"
-        >
-          Import / Export
-        </button>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="bg-green-600 text-white cursor-pointer px-4 py-2 text-sm rounded-md hover:bg-green-700 transition"
+          >
+            Export Datewise
+          </button>
+
+          <button
+            onClick={() => setShowImportExportModal(true)}
+            className="bg-primary text-white cursor-pointer px-4 py-2 text-sm rounded-md hover:bg-secondary transition"
+          >
+            Import / Export
+          </button>
+        </div>
       </div>
 
       {/* FORM */}
@@ -234,7 +250,7 @@ const AttendanceForm = () => {
               type="date"
               value={formData.attendanceDate}
               onChange={(e) => handleChange("attendanceDate", e.target.value)}
-              className="w-full rounded-md border-gray-300 p-2"
+              className={inputClass}
             />
           </div>
 
@@ -262,7 +278,7 @@ const AttendanceForm = () => {
                 type="time"
                 value={formData.inTime}
                 onChange={(e) => handleChange("inTime", e.target.value)}
-                className="w-full rounded-md border-gray-300 p-2"
+                className={inputClass}
               />
             </div>
           )}
@@ -276,7 +292,7 @@ const AttendanceForm = () => {
                 type="time"
                 value={formData.outTime}
                 onChange={(e) => handleChange("outTime", e.target.value)}
-                className="w-full rounded-md border-gray-300 p-2"
+                className={inputClass}
               />
             </div>
           )}
@@ -338,11 +354,15 @@ const AttendanceForm = () => {
       </div>
 
       {/* Import/Export Modal */}
-      {showImportModal && (
+      {showImportExportModal && (
         <ImportExportAttendance
-          onClose={() => setShowImportModal(false)}
+          onClose={() => setShowImportExportModal(false)}
           fetchAttendance={fetchAttendance}
         />
+      )}
+
+      {showExportModal && (
+        <ExportAttendanceModal onClose={() => setShowExportModal(false)} />
       )}
     </div>
   );

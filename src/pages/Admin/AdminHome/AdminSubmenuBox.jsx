@@ -36,8 +36,11 @@ import {
 import { GoLocation } from "react-icons/go";
 import { GiBookCover } from "react-icons/gi";
 import { RiShieldKeyholeLine } from "react-icons/ri";
-import { AiFillDashboard, AiOutlinePlusCircle, AiOutlineSchedule } from "react-icons/ai";
-import { BiTimeFive } from "react-icons/bi";
+import {
+  AiFillDashboard,
+  AiOutlinePlusCircle,
+  AiOutlineSchedule,
+} from "react-icons/ai";
 import { HiOutlineBriefcase, HiOutlineDocumentReport } from "react-icons/hi";
 import {
   TbCalendarStats,
@@ -45,10 +48,11 @@ import {
   TbReportMoney,
   TbMathFunction,
   TbDeviceWatch,
+  TbLock,
 } from "react-icons/tb";
 import { FaGears } from "react-icons/fa6";
 import { BsBriefcase, BsCashStack, BsPeople } from "react-icons/bs";
-
+import { HiLockClosed } from "react-icons/hi2";
 
 // Label to path mapping
 const labelToPath = {
@@ -82,6 +86,7 @@ const labelToPath = {
   "Attendance Machine": "attendance-machine",
   "Emp Machine Mapping": "emp-machine-mapping",
   "Machine Data Log": "machine-data-log",
+  "Attendance Lock": "attendance-lock",
 
   // Settings
   "Organisation Profile": "organisation-profile",
@@ -92,10 +97,10 @@ const labelToPath = {
   "Work Locations": "work-locations",
   Permissions: "permissions",
   PaySchedule: "payschedule",
-  Shifts: "shifts",
   "Salary Configuration": "salary",
   "Status Master": "status-master",
   "Salary Calculation Type": "salary-calculation-type",
+  "Component Lock": "component-lock",
 
   // Role
   "Role Master": "role-master",
@@ -150,7 +155,7 @@ const labelToPath = {
   "OT Master": "otrate",
   "OT Rule": "otrate-rules",
   "OT Calculation": "otrate-calculation",
-  "OT Permission" : "ot-permission"
+  "OT Permission": "ot-permission",
 };
 
 // Label to icon mapping
@@ -185,6 +190,7 @@ const labelToIcon = {
   "Attendance Machine": <TbDeviceWatch className="mr-2" />,
   "Emp Machine Mapping": <TbDeviceWatch className="mr-2" />,
   "Machine Data Log": <TbDeviceWatch className="mr-2" />,
+  "Attendance Lock": <HiLockClosed className="mr-2" />,
 
   // Documents
   "Expense Header": <FaFileAlt className="mr-2" />,
@@ -201,11 +207,11 @@ const labelToIcon = {
   "Work Locations": <GoLocation className="mr-2" />,
   Permissions: <RiShieldKeyholeLine className="mr-2" />,
   PaySchedule: <AiOutlineSchedule className="mr-2" />,
-  Shifts: <BiTimeFive className="mr-2" />,
   "Salary Configuration": <TbCurrencyRupee className="mr-2" />,
   "Status Master": <MdOutlineTrackChanges className="mr-2" />,
   "LetterField Master": <HiOutlineDocumentReport className="mr-2" />,
   "Salary Calculation Type": <TbMathFunction className="mr-2" />,
+  "Component Lock": <HiLockClosed className="mr-2" />,
 
   // Role
   "Role Master": <MdAdminPanelSettings className="mr-2" />,
@@ -254,7 +260,7 @@ const labelToIcon = {
   "OT Master": <FaClock className="mr-2" />,
   "OT Rule": <FaRegClock className="mr-2" />,
   "OT Calculation": <FaCalculator className="mr-2" />,
-  "OT Permission" : <TbReportMoney className="mr-2" />,
+  "OT Permission": <TbReportMoney className="mr-2" />,
 };
 
 const AdminSubmenuBox = ({ items, selectedMenu }) => {

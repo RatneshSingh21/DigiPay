@@ -3,9 +3,9 @@ import { FiDownload } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import assets from "../../../assets/assets";
-import ShiftList from "../Shift/ShiftList";
-import AddShiftForm from "../Shift/AddShiftForm";
-import ImportShift from "../Shift/ImportShift";
+import ShiftList from "./ShiftList";
+import AddShiftForm from "./AddShiftForm";
+import ImportShift from "./ImportShift";
 
 const Shifts = () => {
   const [showAddModal, setShowAddModal] = useState(false);

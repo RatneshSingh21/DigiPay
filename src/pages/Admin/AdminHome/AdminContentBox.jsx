@@ -59,7 +59,7 @@ const submenuMap = {
     "Attendance Machine",
     "Emp Machine Mapping",
     "Machine Data Log",
-    
+    "Attendance Lock"
   ],
 
   Reports: [
@@ -96,10 +96,10 @@ const submenuMap = {
     "Designation",
     "Work Locations",
     "Permissions",
-    "Shifts",
     "Salary Configuration",
     "Salary Calculation Type",
     "Status Master",
+    "Component Lock",
   ],
 };
 
