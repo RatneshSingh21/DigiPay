@@ -11,6 +11,8 @@ const PayslipPreview3 = ({ config }) => {
     showDesignation,
     showOrgName,
     showOrgAddress,
+    showLogo,
+    showSignature,
     logo,
     logoSize,
     signature,
@@ -44,11 +46,11 @@ const PayslipPreview3 = ({ config }) => {
 
   const totalEarnings = earnings.reduce(
     (sum, item) => sum + parseAmount(item.amount),
-    0
+    0,
   );
   const totalDeductions = deductions.reduce(
     (sum, item) => sum + parseAmount(item.amount),
-    0
+    0,
   );
   const netPay = totalEarnings - totalDeductions;
 
@@ -57,13 +59,15 @@ const PayslipPreview3 = ({ config }) => {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          {logo && (
-            <img
-              src={logo}
-              alt="Company Logo"
-              style={{ width: `${logoSize}px` }}
-              className="mb-2"
-            />
+          {showLogo && logo && (
+            <div className="flex-shrink-0">
+              <img
+                src={logo}
+                alt="Company Logo"
+                style={{ width: `${logoSize}px` }}
+                className="object-contain"
+              />
+            </div>
           )}
           {showOrgName && (
             <h1 className="text-lg font-bold text-gray-900">{orgName}</h1>
@@ -234,15 +238,23 @@ const PayslipPreview3 = ({ config }) => {
       </p>
 
       {/* Signature */}
-      {signature && (
-        <div className={`mt-6 text-${signatureAlign}`}>
+      {showSignature && signature && (
+        <div
+          className={`mt-6 ${
+            signatureAlign === "left"
+              ? "text-left"
+              : signatureAlign === "center"
+                ? "text-center"
+                : "text-right"
+          }`}
+        >
           <img
             src={signature}
             alt="Signature"
             className="inline-block"
             style={{ width: "90px" }}
           />
-          <p className="text-xs mt-1 text-gray-500">Authorized Signatory</p>
+          <p className="text-xs mt-1">Authorized Signatory</p>
         </div>
       )}
 

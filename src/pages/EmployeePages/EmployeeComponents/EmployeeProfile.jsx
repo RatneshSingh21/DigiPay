@@ -67,7 +67,7 @@ const EmployeeProfile = () => {
         });
       } catch (error) {
         console.error("Failed to fetch employee:", error);
-        toast.error("Failed to load profile");
+        toast.error(error?.response?.data?.message || "Failed to load profile");
       } finally {
         setLoading(false);
       }
@@ -335,7 +335,7 @@ ${employee.departmentName}
         25,
         25,
         370,
-        (canvas.height / canvas.width) * 370
+        (canvas.height / canvas.width) * 370,
       );
 
       const pdfBlob = pdf.output("blob");

@@ -43,6 +43,7 @@ export default function RelievingLetter() {
     showLogo: false,
     showAddress: false,
     showCompanyName: false,
+    showSignature: true,
     showTerms: false,
     logoSize: 30,
     signatureSize: 56,
@@ -70,13 +71,13 @@ export default function RelievingLetter() {
         "{DateOfJoining}",
         form.DateOfJoining
           ? new Date(form.DateOfJoining).toLocaleDateString("en-GB")
-          : ""
+          : "",
       )
       .replaceAll(
         "{LastWorkingDay}",
         form.LastWorkingDay
           ? new Date(form.LastWorkingDay).toLocaleDateString("en-GB")
-          : ""
+          : "",
       );
 
   /* ================= EMPLOYEE SELECT ================= */
@@ -265,6 +266,19 @@ export default function RelievingLetter() {
               }
             />
             Show Address
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={uiSettings.showSignature}
+              onChange={(e) =>
+                setUiSettings({
+                  ...uiSettings,
+                  showSignature: e.target.checked,
+                })
+              }
+            />
+            Show Signature
           </label>
           <label className="flex items-center gap-2 ">
             <input
@@ -660,13 +674,13 @@ export default function RelievingLetter() {
               </div>
             )}
 
-            <div
-              className="print-signature"
-              style={{
-                textAlign: uiSettings.signatureAlign,
-              }}
-            >
-              {org.orgSignature && (
+            {uiSettings.showSignature && org.orgSignature && (
+              <div
+                className="print-signature"
+                style={{
+                  textAlign: uiSettings.signatureAlign,
+                }}
+              >
                 <img
                   src={org.orgSignature}
                   crossOrigin="anonymous"
@@ -677,13 +691,9 @@ export default function RelievingLetter() {
                   }}
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
-              )}
-              <p>
-                Authorized Signatory
-                <br />
-                {form.AuthorizedPersonName}
-              </p>
-            </div>
+                <p>Authorized Sign by {org.company?.companyName}</p>
+              </div>
+            )}
           </div>
 
           {/* FOOTER */}

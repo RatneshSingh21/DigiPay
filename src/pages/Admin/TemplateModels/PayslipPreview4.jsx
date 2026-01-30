@@ -11,6 +11,8 @@ const PayslipPreview4 = ({ config }) => {
     showDesignation,
     showOrgName,
     showOrgAddress,
+    showLogo,
+    showSignature,
     logo,
     logoSize,
     signature,
@@ -23,7 +25,11 @@ const PayslipPreview4 = ({ config }) => {
 
   const earnings = [
     { label: "Basic", amount: "₹60,000.00", ytd: "₹2,40,000.00" },
-    { label: "House Rent Allowance", amount: "₹60,000.00", ytd: "₹2,40,000.00" },
+    {
+      label: "House Rent Allowance",
+      amount: "₹60,000.00",
+      ytd: "₹2,40,000.00",
+    },
     { label: "Conveyance Allowance", amount: "₹0.00", ytd: "₹0.00" },
     { label: "Fixed Allowance", amount: "₹0.00", ytd: "₹0.00" },
     { label: "Bonus", amount: "₹0.00", ytd: "₹0.00" },
@@ -40,11 +46,11 @@ const PayslipPreview4 = ({ config }) => {
 
   const totalEarnings = earnings.reduce(
     (sum, item) => sum + parseAmount(item.amount),
-    0
+    0,
   );
   const totalDeductions = deductions.reduce(
     (sum, item) => sum + parseAmount(item.amount),
-    0
+    0,
   );
   const netPay = totalEarnings - totalDeductions;
 
@@ -55,16 +61,20 @@ const PayslipPreview4 = ({ config }) => {
         <div>
           {showOrgName && <h1 className="font-bold text-lg">{orgName}</h1>}
           {showOrgAddress && (
-            <p className="text-xs text-gray-600 whitespace-pre-line">{orgAddress}</p>
+            <p className="text-xs text-gray-600 whitespace-pre-line">
+              {orgAddress}
+            </p>
           )}
         </div>
-        {logo && (
-          <img
-            src={logo}
-            alt="Logo"
-            style={{ width: `${logoSize}px` }}
-            className="object-contain"
-          />
+        {showLogo && logo && (
+          <div className="flex-shrink-0">
+            <img
+              src={logo}
+              alt="Company Logo"
+              style={{ width: `${logoSize}px` }}
+              className="object-contain"
+            />
+          </div>
         )}
       </div>
 
@@ -75,21 +85,55 @@ const PayslipPreview4 = ({ config }) => {
       {/* Pay Summary & Net Pay Side-by-Side */}
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="col-span-2 space-y-1">
-          <p><strong>Employee Name</strong> : Preet Setty, emp012</p>
-          {showDesignation && <p><strong>Designation</strong> : Software Engineer</p>}
-          {showDepartment && <p><strong>Department</strong> : {department || "Engineering"}</p>}
-          {showWorkLocation && <p><strong>Work Location</strong> : {workLocation || "Noida"}</p>}
-          <p><strong>Date of Joining</strong> : 21-09-2014</p>
-          <p><strong>Pay Period</strong> : July 2025</p>
-          <p><strong>Pay Date</strong> : 31/07/2025</p>
-          <p><strong>PF A/C Number</strong> : AA/AAA/0000000/000/0000000</p>
-          {showPAN && <p><strong>UAN</strong> : 101010101010</p>}
-          <p><strong>ESI Number</strong> : 1234567890</p>
-          {showBank && <p><strong>Bank Account No</strong> : 101010101010101</p>}
+          <p>
+            <strong>Employee Name</strong> : Preet Setty, emp012
+          </p>
+          {showDesignation && (
+            <p>
+              <strong>Designation</strong> : Software Engineer
+            </p>
+          )}
+          {showDepartment && (
+            <p>
+              <strong>Department</strong> : {department || "Engineering"}
+            </p>
+          )}
+          {showWorkLocation && (
+            <p>
+              <strong>Work Location</strong> : {workLocation || "Noida"}
+            </p>
+          )}
+          <p>
+            <strong>Date of Joining</strong> : 21-09-2014
+          </p>
+          <p>
+            <strong>Pay Period</strong> : July 2025
+          </p>
+          <p>
+            <strong>Pay Date</strong> : 31/07/2025
+          </p>
+          <p>
+            <strong>PF A/C Number</strong> : AA/AAA/0000000/000/0000000
+          </p>
+          {showPAN && (
+            <p>
+              <strong>UAN</strong> : 101010101010
+            </p>
+          )}
+          <p>
+            <strong>ESI Number</strong> : 1234567890
+          </p>
+          {showBank && (
+            <p>
+              <strong>Bank Account No</strong> : 101010101010101
+            </p>
+          )}
         </div>
         <div className="border p-4 flex flex-col items-center justify-center">
           <p className="text-sm text-gray-600">Total Net Pay</p>
-          <p className="text-2xl font-bold text-green-700">₹{netPay.toLocaleString("en-IN")}</p>
+          <p className="text-2xl font-bold text-green-700">
+            ₹{netPay.toLocaleString("en-IN")}
+          </p>
           <p className="mt-2 text-sm">Paid Days : 28</p>
           <p className="mt-2 text-sm"> LOP Days : 3</p>
         </div>
@@ -109,26 +153,52 @@ const PayslipPreview4 = ({ config }) => {
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: Math.max(earnings.length, deductions.length) }).map((_, index) => {
-              const earning = earnings[index] || { label: "", amount: "", ytd: "" };
-              const deduction = deductions[index] || { label: "", amount: "", ytd: "" };
+            {Array.from({
+              length: Math.max(earnings.length, deductions.length),
+            }).map((_, index) => {
+              const earning = earnings[index] || {
+                label: "",
+                amount: "",
+                ytd: "",
+              };
+              const deduction = deductions[index] || {
+                label: "",
+                amount: "",
+                ytd: "",
+              };
               return (
                 <tr key={index}>
                   <td className="border px-2 py-1">{earning.label}</td>
-                  <td className="border px-2 py-1 text-right">{earning.amount}</td>
-                  {showYTD && <td className="border px-2 py-1 text-right">{earning.ytd}</td>}
+                  <td className="border px-2 py-1 text-right">
+                    {earning.amount}
+                  </td>
+                  {showYTD && (
+                    <td className="border px-2 py-1 text-right">
+                      {earning.ytd}
+                    </td>
+                  )}
                   <td className="border px-2 py-1">{deduction.label}</td>
-                  <td className="border px-2 py-1 text-right">{deduction.amount}</td>
-                  {showYTD && <td className="border px-2 py-1 text-right">{deduction.ytd}</td>}
+                  <td className="border px-2 py-1 text-right">
+                    {deduction.amount}
+                  </td>
+                  {showYTD && (
+                    <td className="border px-2 py-1 text-right">
+                      {deduction.ytd}
+                    </td>
+                  )}
                 </tr>
               );
             })}
             <tr className="font-semibold bg-gray-50">
               <td className="border px-2 py-1">Gross Earnings</td>
-              <td className="border px-2 py-1 text-right">₹{totalEarnings.toLocaleString("en-IN")}</td>
+              <td className="border px-2 py-1 text-right">
+                ₹{totalEarnings.toLocaleString("en-IN")}
+              </td>
               {showYTD && <td className="border px-2 py-1"></td>}
               <td className="border px-2 py-1">Total Deductions</td>
-              <td className="border px-2 py-1 text-right">₹{totalDeductions.toLocaleString("en-IN")}</td>
+              <td className="border px-2 py-1 text-right">
+                ₹{totalDeductions.toLocaleString("en-IN")}
+              </td>
               {showYTD && <td className="border px-2 py-1"></td>}
             </tr>
           </tbody>
@@ -140,21 +210,29 @@ const PayslipPreview4 = ({ config }) => {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-100 border-b">
-              <th className="text-left px-2 py-1" colSpan={2}>NET PAY</th>
+              <th className="text-left px-2 py-1" colSpan={2}>
+                NET PAY
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td className="border px-2 py-1">Gross Earnings</td>
-              <td className="border px-2 py-1 text-right">₹{totalEarnings.toLocaleString("en-IN")}</td>
+              <td className="border px-2 py-1 text-right">
+                ₹{totalEarnings.toLocaleString("en-IN")}
+              </td>
             </tr>
             <tr>
               <td className="border px-2 py-1">Total Deductions</td>
-              <td className="border px-2 py-1 text-right">(-) ₹{totalDeductions.toLocaleString("en-IN")}</td>
+              <td className="border px-2 py-1 text-right">
+                (-) ₹{totalDeductions.toLocaleString("en-IN")}
+              </td>
             </tr>
             <tr className="font-bold bg-gray-50">
               <td className="border px-2 py-1">Total Net Payable</td>
-              <td className="border px-2 py-1 text-right">₹{netPay.toLocaleString("en-IN")}</td>
+              <td className="border px-2 py-1 text-right">
+                ₹{netPay.toLocaleString("en-IN")}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -162,7 +240,11 @@ const PayslipPreview4 = ({ config }) => {
 
       {/* Amount in Words */}
       <p className="text-sm font-medium text-center mt-2">
-        Total Net Payable <span className="font-bold text-black">₹{netPay.toLocaleString("en-IN")}</span> (
+        Total Net Payable{" "}
+        <span className="font-bold text-black">
+          ₹{netPay.toLocaleString("en-IN")}
+        </span>{" "}
+        (
         <AmountInWords amount={netPay} currency="Indian Rupee" /> Only)
       </p>
 
@@ -171,15 +253,23 @@ const PayslipPreview4 = ({ config }) => {
         **Total Net Payable = Gross Earnings − Total Deductions**
       </p>
 
-      {signature && (
-        <div className={`mt-4 text-${signatureAlign}`}>
+      {showSignature && signature && (
+        <div
+          className={`mt-6 ${
+            signatureAlign === "left"
+              ? "text-left"
+              : signatureAlign === "center"
+                ? "text-center"
+                : "text-right"
+          }`}
+        >
           <img
             src={signature}
             alt="Signature"
             className="inline-block"
             style={{ width: "90px" }}
           />
-          <p className="text-xs mt-1 text-gray-500">Authorized Signatory</p>
+          <p className="text-xs mt-1">Authorized Signatory</p>
         </div>
       )}
 

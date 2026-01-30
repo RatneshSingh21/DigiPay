@@ -31,11 +31,11 @@ const SalaryDetails = () => {
   console.log(salaryDetails);
 
   useEffect(() => {
-    if (!user?.userId) return;
+    if (!user?.companyId) return;
 
     axiosInstance
       .get("/OrgComponentConfig/by-org", {
-        params: { orgId: user.userId },
+        params: { orgId: user.companyId },
       })
       .then((res) => {
         const data = res.data?.data || [];

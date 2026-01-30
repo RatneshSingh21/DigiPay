@@ -43,6 +43,17 @@ export default function UpdateBasicDetails({ employeeId, onLocalUpdate }) {
   const [saving, setSaving] = useState(false);
   const [basicDetailsExists, setBasicDetailsExists] = useState(false);
 
+  // Normalize Select Valu
+  const normalizeStringSelect = (value, options) => {
+    if (!value) return "";
+
+    const match = options.find(
+      (opt) => opt.toLowerCase() === value.toLowerCase(),
+    );
+
+    return match || "";
+  };
+
   // ---------------------------
   //  FETCH DROPDOWNS
   // ---------------------------
@@ -79,7 +90,7 @@ export default function UpdateBasicDetails({ employeeId, onLocalUpdate }) {
         workEmail: emp.workEmail || "",
         mobileNumber: emp.mobileNumber || "",
         isDirector: emp.isDirector ?? false,
-        gender: emp.gender || "",
+        gender: normalizeStringSelect(emp.gender, genderOptions),
         departmentId: emp.departmentId ? Number(emp.departmentId) : "",
         designationId: emp.designationId ? Number(emp.designationId) : "",
         workLocationId: emp.workLocationId ? Number(emp.workLocationId) : "",

@@ -180,3 +180,11 @@ body {
 .accent-primary {
   accent-color: rgb(var(--color-primary));
 }
+
+
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

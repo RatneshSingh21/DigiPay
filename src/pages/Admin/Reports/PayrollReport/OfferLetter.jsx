@@ -40,6 +40,7 @@ export default function OfferLetter() {
     showLogo: false,
     showAddress: false,
     showCompanyName: false,
+    showSignature: true,
     showTerms: false,
     logoSize: 30,
     signatureSize: 56,
@@ -58,13 +59,13 @@ export default function OfferLetter() {
         "{DateOfJoining}",
         form.DateOfJoining
           ? new Date(form.DateOfJoining).toLocaleDateString("en-GB")
-          : ""
+          : "",
       )
       .replaceAll("{EmploymentType}", form.EmploymentType || "")
       .replaceAll("{Duration}", form.Duration || "")
       .replaceAll(
         "{Salary}",
-        form.Salary ? Number(form.Salary).toLocaleString("en-IN") : "0"
+        form.Salary ? Number(form.Salary).toLocaleString("en-IN") : "0",
       );
   };
 
@@ -333,6 +334,19 @@ export default function OfferLetter() {
                 }
               />
               Show Address
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={uiSettings.showSignature}
+                onChange={(e) =>
+                  setUiSettings({
+                    ...uiSettings,
+                    showSignature: e.target.checked,
+                  })
+                }
+              />
+              Show Signature
             </label>
             <div /> {/* spacer */}
             {/* Logo Size */}
@@ -703,13 +717,13 @@ export default function OfferLetter() {
               </div>
             ))}
 
-            <div
-              className="print-signature"
-              style={{
-                textAlign: uiSettings.signatureAlign,
-              }}
-            >
-              {org.orgSignature && (
+            {uiSettings.showSignature && org.orgSignature && (
+              <div
+                className="print-signature"
+                style={{
+                  textAlign: uiSettings.signatureAlign,
+                }}
+              >
                 <img
                   src={org.orgSignature}
                   crossOrigin="anonymous"
@@ -720,9 +734,9 @@ export default function OfferLetter() {
                   }}
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
-              )}
-              <p>Authorized Sign by {org.company?.companyName}</p>
-            </div>
+                <p>Authorized Sign by {org.company?.companyName}</p>
+              </div>
+            )}
           </div>
 
           {/* FOOTER */}

@@ -30,6 +30,10 @@ const STEPS = [
     subtitle: "Working hours, late rules, overtime & weekends",
   },
   {
+    title: "Compliance Rules",
+    subtitle: "Working hours, late rules, overtime & weekends",
+  },
+  {
     title: "Payroll & Leave Impact",
     subtitle: "How attendance affects salary and leave",
   },
@@ -42,6 +46,32 @@ const STEPS = [
     subtitle: "Optional expert-level configuration",
   },
 ];
+
+const otCalculationModeOptions = [
+  { value: "Simple", label: "Simple" },
+  { value: "ComplianceEmbedded", label: "Compliance Embedded" },
+];
+
+const otAttendanceCreditModeOptions = [
+  { value: "None", label: "No Attendance Credit" },
+  { value: "ConvertToAttendance", label: "Convert To Attendance" },
+  { value: "CapAtFullDay", label: "CapAt FullDay" },
+];
+
+const otCalculationModeHints = {
+  Simple:
+    "Clean overtime calculation. OT is calculated separately and clearly visible.",
+  ComplianceEmbedded:
+    "Overtime is adjusted internally via compliance rules and may not appear explicitly.",
+};
+
+const otAttendanceCreditModeHints = {
+  None: "Overtime will NOT affect attendance or payable days.",
+  ConvertToAttendance:
+    "Overtime hours can be converted into attendance credit.",
+  CapAtFullDay:
+    "Overtime can add attendance credit but will be capped at one full day.",
+};
 
 /* ===================== COMPONENT ===================== */
 const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
@@ -58,6 +88,13 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
 
     fullDayHours: 8,
     halfDayHours: 4,
+
+    otCalculationMode: "Simple",
+    otDailyBaseDays: 0,
+    includeOTInCompliance: true,
+    otAttendanceCreditMode: "None",
+    maxOTHoursPerDayForAttendance: null,
+    maxAttendanceCreditPerDay: null,
 
     shiftIds: [],
     workTypeIds: [],
@@ -151,10 +188,16 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
         additionalMetadataJson: showJson ? form.additionalMetadataJson : "{}",
       };
 
+      // 🔒 FINAL DB-SAFE NORMALIZATION
+      if (payload.otAttendanceCreditMode === "None") {
+        payload.maxOTHoursPerDayForAttendance = null;
+        payload.maxAttendanceCreditPerDay = null;
+      }
+
       if (initialData) {
         await axiosInstance.put(
           `/AttendancePolicy/${initialData.attendancePolicyId}`,
-          payload
+          payload,
         );
       } else {
         await axiosInstance.post("/AttendancePolicy", payload);
@@ -184,7 +227,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
     ];
 
     const selectedObjects = enhancedOptions.filter((o) =>
-      selectedValues.includes(o.value)
+      selectedValues.includes(o.value),
     );
 
     return (
@@ -261,36 +304,56 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
         <div className="space-y-4">
           {step === 0 && (
             <>
-              <input
-                className={input}
-                name="policyName"
-                value={form.policyName}
-                onChange={handleChange}
-                placeholder="Policy name (e.g. Office Attendance Policy)"
-              />
-              <textarea
-                className={input}
-                rows={2}
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                placeholder="What does this policy do?"
-              />
-              <div className="flex gap-3">
+              {/* Policy Name */}
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  Policy Name
+                </label>
                 <input
-                  type="date"
                   className={input}
-                  name="effectiveFrom"
-                  value={form.effectiveFrom}
+                  name="policyName"
+                  value={form.policyName}
                   onChange={handleChange}
+                  placeholder="e.g. Office Attendance Policy"
                 />
-                <input
-                  type="date"
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  Description
+                </label>
+                <textarea
                   className={input}
-                  name="effectiveTo"
-                  value={form.effectiveTo}
+                  rows={2}
+                  name="description"
+                  value={form.description}
                   onChange={handleChange}
+                  placeholder="Briefly explain what this policy controls"
                 />
+              </div>
+
+              {/* Effective Dates */}
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  Policy Effective Period
+                </label>
+                <div className="flex gap-3">
+                  <input
+                    type="date"
+                    className={input}
+                    name="effectiveFrom"
+                    value={form.effectiveFrom}
+                    onChange={handleChange}
+                  />
+                  <input
+                    type="date"
+                    className={input}
+                    name="effectiveTo"
+                    value={form.effectiveTo}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
             </>
           )}
@@ -325,11 +388,12 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
 
           {step === 2 && (
             <>
+              {/* Working Hours */}
               <div>
                 <label className="text-xs font-medium text-gray-700">
                   Working Hours Definition
                 </label>
-                <p className="text-[11px] text-gray-500 mb-2">
+                <p className="text-[11px] text-gray-500">
                   These values decide how the system marks Full Day and Half Day
                   attendance.
                 </p>
@@ -354,6 +418,165 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
                 </div>
               </div>
 
+              {/* OT Configuration */}
+              <div>
+                <label className="text-xs font-medium text-gray-700">
+                  Overtime Configuration
+                </label>
+                <p className="text-[11px] text-gray-500">
+                  Define how overtime contributes to attendance and compliance.
+                </p>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {/* OT Calculation Mode */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                      OT Calculation Mode
+                    </label>
+
+                    <Select
+                      styles={selectStyles}
+                      options={otCalculationModeOptions}
+                      value={otCalculationModeOptions.find(
+                        (o) => o.value === form.otCalculationMode,
+                      )}
+                      onChange={(opt) =>
+                        setForm((f) => ({ ...f, otCalculationMode: opt.value }))
+                      }
+                      menuPortalTarget={document.body}
+                    />
+
+                    {/* Hint */}
+                    {form.otCalculationMode && (
+                      <p className="text-[11px] text-gray-500 mt-1">
+                        {otCalculationModeHints[form.otCalculationMode]}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* OT Attendance Credit Mode */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                      OT Attendance Credit Mode
+                    </label>
+
+                    <Select
+                      styles={selectStyles}
+                      options={otAttendanceCreditModeOptions}
+                      value={otAttendanceCreditModeOptions.find(
+                        (o) => o.value === form.otAttendanceCreditMode,
+                      )}
+                      onChange={(opt) =>
+                        setForm((f) => ({
+                          ...f,
+                          otAttendanceCreditMode: opt.value,
+
+                          // HARD RESET based on DB constraint
+                          maxOTHoursPerDayForAttendance:
+                            opt.value === "None"
+                              ? null
+                              : (f.maxOTHoursPerDayForAttendance ?? 1),
+
+                          maxAttendanceCreditPerDay:
+                            opt.value === "ConvertToAttendance"
+                              ? (f.maxAttendanceCreditPerDay ?? 1)
+                              : null,
+                        }))
+                      }
+                      menuPortalTarget={document.body}
+                    />
+
+                    {/* Hint */}
+                    {form.otAttendanceCreditMode && (
+                      <p className="text-[11px] text-gray-500 mt-1">
+                        {
+                          otAttendanceCreditModeHints[
+                            form.otAttendanceCreditMode
+                          ]
+                        }
+                      </p>
+                    )}
+                  </div>
+
+                  {/* OT Base Days */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                      OT Base Days
+                    </label>
+                    <input
+                      className={input}
+                      type="number"
+                      name="otDailyBaseDays"
+                      value={form.otDailyBaseDays}
+                      onChange={handleChange}
+                      placeholder="e.g. 26"
+                    />
+                  </div>
+
+                  {/* Max OT Hours Per Day */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                      Max OT Hours / Day for Attendance
+                    </label>
+                    <input
+                      className={input}
+                      type="number"
+                      name="maxOTHoursPerDayForAttendance"
+                      value={form.maxOTHoursPerDayForAttendance ?? ""}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          maxOTHoursPerDayForAttendance:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+
+                  {/* Max Attendance Credit Per Day */}
+                  {form.otAttendanceCreditMode === "ConvertToAttendance" && (
+                    <div>
+                      <label className="text-xs font-medium text-gray-700 mb-1 block">
+                        Max Attendance Credit / Day
+                      </label>
+                      <input
+                        className={input}
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="1"
+                        name="maxAttendanceCreditPerDay"
+                        value={form.maxAttendanceCreditPerDay ?? ""}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            maxAttendanceCreditPerDay:
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value),
+                          }))
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <label className="flex items-center gap-2 text-sm mt-2">
+                  <input
+                    type="checkbox"
+                    name="includeOTInCompliance"
+                    checked={form.includeOTInCompliance}
+                    onChange={handleChange}
+                  />
+                  Include OT in Compliance Calculation
+                </label>
+              </div>
+            </>
+          )}
+          {step === 3 && (
+            <>
               <Multi
                 field="latePolicyIds"
                 label="Late Arrival Rules"
@@ -373,8 +596,13 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
               />
             </>
           )}
-          {step === 3 && (
+
+          {step === 4 && (
             <>
+              <p className="text-[11px] text-gray-500 mb-2">
+                These settings control how attendance data is captured and
+                processed by the system.
+              </p>
               <Multi
                 field="paymentAdjustmentIds"
                 label="Salary Adjustments"
@@ -395,7 +623,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
             </>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <>
               <p className="text-[11px] text-gray-500 mb-2">
                 These settings control how attendance data is captured and
@@ -416,8 +644,13 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
             </>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <>
+              <p className="text-[11px] text-gray-500 mb-2">
+                These settings control how attendance data is captured and
+                processed by the system.
+              </p>
+
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"

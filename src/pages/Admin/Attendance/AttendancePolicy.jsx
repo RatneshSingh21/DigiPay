@@ -48,7 +48,7 @@ const Badge = ({ children, color = "gray" }) => (
 const SectionTitle = ({ icon: Icon, children }) => (
   <div className="flex items-center gap-2 mb-2 mt-4">
     <Icon className="w-4 h-4 text-gray-500 shrink-0" />
-    <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wide">
+    <h4 className="text-sm font-bold text-primary uppercase tracking-wide">
       {children}
     </h4>
   </div>
@@ -86,6 +86,32 @@ const EmptyState = ({ onCreate }) => (
     </button>
   </div>
 );
+
+const otCalculationModeMeta = {
+  Simple: {
+    label: "Simple",
+    hint: "Overtime is calculated separately and clearly visible.",
+  },
+  ComplianceEmbedded: {
+    label: "Compliance Embedded",
+    hint: "Overtime is adjusted internally via compliance rules and may not be shown separately.",
+  },
+};
+
+const otAttendanceCreditModeMeta = {
+  None: {
+    label: "No Attendance Credit",
+    hint: "Overtime does not affect attendance or payable days.",
+  },
+  ConvertToAttendance: {
+    label: "Convert To Attendance",
+    hint: "Overtime hours can be converted into attendance credit.",
+  },
+  CapAtFullDay: {
+    label: "Cap At Full Day",
+    hint: "Attendance credit from OT is capped at one full day.",
+  },
+};
 
 /* -------------------- Component -------------------- */
 const AttendancePolicyList = () => {
@@ -209,6 +235,50 @@ const AttendancePolicyList = () => {
                         </ListItem>
                       </ul>
                     </div>
+
+                    <div>
+                      <SectionTitle icon={FiClock}>Overtime Rules</SectionTitle>
+
+                      <ul className="space-y-1">
+                        <ListItem icon={FiClock}>
+                          <strong>OT Calculation:</strong>{" "}
+                          {otCalculationModeMeta[p.otCalculationMode]?.label ||
+                            p.otCalculationMode}
+                        </ListItem>
+
+                        <p className="text-[11px] text-gray-500 ml-6">
+                          {otCalculationModeMeta[p.otCalculationMode]?.hint}
+                        </p>
+
+                        <ListItem icon={FiClock}>
+                          <strong>OT Attendance Credit:</strong>{" "}
+                          {otAttendanceCreditModeMeta[p.otAttendanceCreditMode]
+                            ?.label || p.otAttendanceCreditMode}
+                        </ListItem>
+
+                        <p className="text-[11px] text-gray-500 ml-6">
+                          {
+                            otAttendanceCreditModeMeta[p.otAttendanceCreditMode]
+                              ?.hint
+                          }
+                        </p>
+
+                        <ListItem icon={FiCheckCircle}>
+                          <strong>Max OT / Day for Attendance:</strong>{" "}
+                          {p.maxOTHoursPerDayForAttendance} hrs
+                        </ListItem>
+
+                        <ListItem icon={FiCheckCircle}>
+                          <strong>Max Attendance Credit / Day:</strong>{" "}
+                          {p.maxAttendanceCreditPerDay}
+                        </ListItem>
+
+                        <ListItem icon={FiAlertTriangle}>
+                          <strong>OT in Compliance:</strong>{" "}
+                          {p.includeOTInCompliance ? "Included" : "Excluded"}
+                        </ListItem>
+                      </ul>
+                    </div>
                   </div>
 
                   {/* RIGHT COLUMN */}
@@ -222,7 +292,7 @@ const AttendancePolicyList = () => {
                           <strong>Adjustments:</strong>{" "}
                           {idsToNames(
                             p.paymentAdjustmentIds,
-                            lookups.paymentAdjustmentMap
+                            lookups.paymentAdjustmentMap,
                           )}
                         </ListItem>
                         <ListItem icon={FiDollarSign}>

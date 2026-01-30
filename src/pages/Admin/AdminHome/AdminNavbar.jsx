@@ -10,10 +10,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "../../../store/authStore";
 import ProfileSettingsDrawer from "../../../components/ProfileSettingsDrawer";
 import AdminSettingsDrawer from "./AdminSettingsDrawer";
-import CompanySwitchModal from "../../../components/CompanySwitchModal"; // ✅ ADD
+import CompanySwitchModal from "../../../components/CompanySwitchModal"; // ADD
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import NotificationPanel from "./NotificationPanel";
+import assets from "../../../assets/assets";
 
 const AdminNavbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -97,7 +98,7 @@ const AdminNavbar = () => {
           <div className="flex flex-col leading-tight">
             <span
               className="font-bold text-sm text-primary tracking-wide cursor-pointer hover:underline"
-              onClick={() => setCompanyModalOpen(true)} // ✅ CLICK OPENS MODAL
+              onClick={() => setCompanyModalOpen(true)} // CLICK OPENS MODAL
             >
               {companyName}
             </span>
@@ -161,7 +162,7 @@ const AdminNavbar = () => {
               className="flex items-center cursor-pointer gap-2 group"
             >
               <img
-                src={user?.profileImageUrl || "https://i.pravatar.cc/300"}
+                src={user?.profileImageUrl || assets.UserDummy}
                 alt="Profile"
                 className="w-9 h-9 rounded-full object-contain bg-gray-300 border-2 border-transparent group-hover:border-primary transition"
               />

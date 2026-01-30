@@ -16,6 +16,8 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
     showDesignation,
     showOrgName,
     showOrgAddress,
+    showLogo,
+    showSignature,
     logo,
     logoSize,
     signature,
@@ -68,7 +70,7 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
     const fetchLeaveAllocation = async () => {
       try {
         const allocationRes = await axiosInstance.get(
-          `/EmployeeLeaveAllocation/${employee.id}`
+          `/EmployeeLeaveAllocation/${employee.id}`,
         );
 
         const allocations = allocationRes.data?.data || [];
@@ -119,7 +121,7 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
             </p>
           )}
         </div>
-        {logo && (
+        {showLogo && logo && (
           <img
             src={logo}
             alt="Logo"
@@ -202,7 +204,7 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
               <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1">
                 {remainingLeaves.map((leave) => {
                   const leaveCatalogItem = LEAVE_CATALOG.find(
-                    (lc) => lc.label === leave.leaveName
+                    (lc) => lc.label === leave.leaveName,
                   );
                   if (!leaveCatalogItem) return null;
 
@@ -249,7 +251,7 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
                     <td className="border px-2 py-1 text-right">
                       ₹
                       {Number(deductions[0]?.amount ?? 0).toLocaleString(
-                        "en-IN"
+                        "en-IN",
                       )}
                     </td>
                     {showYTD && (
@@ -291,10 +293,14 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
       </p>
 
       {/* ================= SIGNATURE ================= */}
-      {/* {signature && (
+      {showSignature && signature && (
         <div
           className={`mt-6 flex ${
-            signatureAlign === "right" ? "justify-end" : "justify-start"
+            signatureAlign === "right"
+              ? "justify-end"
+              : signatureAlign === "center"
+                ? "justify-center"
+                : "justify-start"
           }`}
         >
           <div className="text-center">
@@ -307,7 +313,7 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
             <p className="text-xs mt-1">Authorized Signatory</p>
           </div>
         </div>
-      )} */}
+      )}
 
       <p className="text-center text-gray-400 text-xs mt-4">
         — This is a system-generated document —

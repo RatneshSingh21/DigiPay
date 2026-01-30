@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 //baseURL: "http://localhost:5023/api",
 
 const axiosInstance = axios.create({
-  baseURL: "https://digipaydevops.digicodesoftware.com/api",
+  baseURL: "http://localhost:5023/api",
 });
 
 // IMPORTANT FIX FOR FILE UPLOAD
@@ -31,7 +31,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Token refresh handling
@@ -111,7 +111,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

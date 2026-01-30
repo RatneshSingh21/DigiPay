@@ -86,6 +86,17 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
   const [saving, setSaving] = useState(false);
   const [personalDetailsExists, setPersonalDetailsExists] = useState(false);
 
+  // Normalize Select Value
+  const normalizeStringSelect = (value, options) => {
+    if (!value) return "";
+
+    const match = options.find(
+      (opt) => opt.toLowerCase() === value.toLowerCase(),
+    );
+
+    return match || "";
+  };
+
   // ===============================
   // FETCH PERSONAL DETAILS
   // ===============================
@@ -96,12 +107,21 @@ const UpdatePersonalDetails = ({ employeeId, onLocalUpdate }) => {
 
         if (res.data) {
           setPersonalDetailsExists(true);
+
           setForm({
             ...res.data,
             employeeId,
+
             dateOfBirth: res.data.dateOfBirth
               ? res.data.dateOfBirth.slice(0, 10)
               : "",
+
+            differentlyAbledType: normalizeStringSelect(
+              res.data.differentlyAbledType,
+              differentlyAbledOptions,
+            ),
+
+            state: normalizeStringSelect(res.data.state, indianStates),
           });
         } else {
           setPersonalDetailsExists(false); // ← Personal Details does NOT exist

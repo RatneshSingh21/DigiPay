@@ -11,6 +11,8 @@ const PayslipPreview = ({ config }) => {
     showDesignation,
     showOrgName,
     showOrgAddress,
+    showLogo,
+    showSignature,
     logo,
     logoSize,
     signature,
@@ -40,12 +42,12 @@ const PayslipPreview = ({ config }) => {
 
   const totalEarnings = earnings.reduce(
     (sum, item) => sum + parseAmount(item.amount),
-    0
+    0,
   );
 
   const totalDeductions = deductions.reduce(
     (sum, item) => sum + parseAmount(item.amount),
-    0
+    0,
   );
 
   const netPay = totalEarnings - totalDeductions;
@@ -54,7 +56,7 @@ const PayslipPreview = ({ config }) => {
     <div className="bg-white shadow-lg p-8 border rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
       {/* Header with Logo + Org Info */}
       <div className="flex justify-between items-start mb-4">
-        {logo && (
+        {showLogo && logo && (
           <img
             src={logo}
             alt="Logo"
@@ -207,8 +209,16 @@ const PayslipPreview = ({ config }) => {
       </div>
 
       {/* Signature */}
-      {signature && (
-        <div className={`mt-6 text-${signatureAlign}`}>
+      {showSignature && signature && (
+        <div
+          className={`mt-6 ${
+            signatureAlign === "left"
+              ? "text-left"
+              : signatureAlign === "center"
+                ? "text-center"
+                : "text-right"
+          }`}
+        >
           <img
             src={signature}
             alt="Signature"

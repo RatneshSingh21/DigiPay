@@ -53,6 +53,7 @@ export default function AppointmentLetter() {
     showLogo: false,
     showAddress: false,
     showCompanyName: false,
+    showSignature: true,
     showTerms: false,
     logoSize: 30,
     signatureSize: 56,
@@ -80,7 +81,7 @@ export default function AppointmentLetter() {
         "{DateOfJoining}",
         form.DateOfJoining
           ? new Date(form.DateOfJoining).toLocaleDateString("en-GB")
-          : ""
+          : "",
       );
 
   /* ================= EMPLOYEE SELECT ================= */
@@ -157,7 +158,8 @@ export default function AppointmentLetter() {
       // Corrected SalaryComponentsJson (stringified exactly like Swagger)
       const salaryJson = `[${salaryComponents
         .map(
-          (s) => `{"ComponentName":"${s.ComponentName}","Amount":"${s.Amount}"}`
+          (s) =>
+            `{"ComponentName":"${s.ComponentName}","Amount":"${s.Amount}"}`,
         )
         .join(",")}]`;
       fd.append("SalaryComponentsJson", salaryJson);
@@ -318,6 +320,19 @@ export default function AppointmentLetter() {
               }
             />
             Show Address
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={uiSettings.showSignature}
+              onChange={(e) =>
+                setUiSettings({
+                  ...uiSettings,
+                  showSignature: e.target.checked,
+                })
+              }
+            />
+            Show Signature
           </label>
           <label className="flex items-center gap-2 ">
             <input
@@ -754,13 +769,13 @@ export default function AppointmentLetter() {
               </div>
             )}
 
-            <div
-              className="print-signature"
-              style={{
-                textAlign: uiSettings.signatureAlign,
-              }}
-            >
-              {org.orgSignature && (
+            {uiSettings.showSignature && org.orgSignature && (
+              <div
+                className="print-signature"
+                style={{
+                  textAlign: uiSettings.signatureAlign,
+                }}
+              >
                 <img
                   src={org.orgSignature}
                   crossOrigin="anonymous"
@@ -771,13 +786,9 @@ export default function AppointmentLetter() {
                   }}
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
-              )}
-              <p>
-                Authorized Signatory
-                <br />
-                {form.AuthorizedPersonName}
-              </p>
-            </div>
+                <p>Authorized Sign by {org.company?.companyName}</p>
+              </div>
+            )}
           </div>
 
           {/* FOOTER */}
@@ -789,9 +800,7 @@ export default function AppointmentLetter() {
                 onError={(e) => (e.currentTarget.style.display = "none")}
               />
             )}
-            <div className="footer-text">
-             
-            </div>
+            <div className="footer-text"></div>
           </div>
         </div>
       </div>

@@ -27,7 +27,13 @@ const salaryComponentOptions = [
   { label: "Other Deductions", value: "otherDeductions" },
 ];
 
-const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
+const SalaryConfigForm = ({
+  orgId,
+  fetchConfigs,
+  editData,
+  clearEdit,
+  existingComponents = [],
+}) => {
   const [formData, setFormData] = useState({
     componentName: null,
     isEnabled: true,
@@ -41,10 +47,10 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
     if (editData) {
       setFormData({
         componentName: salaryComponentOptions.find(
-          (opt) => opt.value === editData.componentName
+          (opt) => opt.value === editData.componentName,
         ),
         calculationType: calculationTypeOptions.find(
-          (opt) => opt.value === editData.calculationType
+          (opt) => opt.value === editData.calculationType,
         ),
         isEnabled: editData.isEnabled ?? true,
         percentageValue: editData.percentageValue ?? "",
@@ -103,6 +109,17 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
     }
   };
 
+  const usedComponentNames = existingComponents.map(
+    (item) => item.componentName,
+  );
+
+  // Allow current component during edit
+  const filteredSalaryComponentOptions = salaryComponentOptions.filter(
+    (opt) =>
+      !usedComponentNames.includes(opt.value) ||
+      opt.value === editData?.componentName,
+  );
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -111,7 +128,7 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
       <div>
         <label className="block mb-1">Component Name</label>
         <Select
-          options={salaryComponentOptions}
+          options={filteredSalaryComponentOptions}
           value={formData.componentName}
           onChange={(option) =>
             setFormData({ ...formData, componentName: option })
@@ -138,7 +155,7 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
         <div>
           <label>Percentage Value (%)</label>
           <input
-            type="number"
+            type="text"
             min={0}
             value={formData.percentageValue}
             onChange={(e) =>
@@ -152,7 +169,7 @@ const SalaryConfigForm = ({ orgId, fetchConfigs, editData, clearEdit }) => {
         <div>
           <label>Fixed Amount</label>
           <input
-            type="number"
+            type="text"
             min={0}
             value={formData.fixedAmount}
             onChange={(e) =>

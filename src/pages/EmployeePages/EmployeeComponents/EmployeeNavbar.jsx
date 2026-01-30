@@ -3,6 +3,7 @@ import { FaBell, FaCog, FaSignOutAlt, FaChevronDown } from "react-icons/fa";
 import useAuthStore from "../../../store/authStore";
 import ProfileSettingsDrawer from "../../../components/ProfileSettingsDrawer";
 import { useNavigate } from "react-router-dom";
+import assets from "../../../assets/assets";
 
 const EmployeeNavbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -54,7 +55,7 @@ const EmployeeNavbar = () => {
               className="flex items-center cursor-pointer gap-2"
             >
               <img
-                src={user?.profileImageUrl || "https://i.pravatar.cc/300"}
+                src={user?.profileImageUrl || assets.UserDummy}
                 alt="Profile"
                 className="w-9 h-9 rounded-full object-contain bg-gray-300 border-2 border-transparent group-hover:border-primary transition"
               />

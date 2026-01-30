@@ -41,6 +41,7 @@ export default function LetterOfIntent() {
     showLogo: false,
     showAddress: false,
     showCompanyName: false,
+    showSignature: true,
     showTerms: false,
     logoSize: 30,
     signatureSize: 56,
@@ -58,17 +59,17 @@ export default function LetterOfIntent() {
         "{ProposedJoiningDate}",
         form.ProposedJoiningDate
           ? new Date(form.ProposedJoiningDate).toLocaleDateString("en-GB")
-          : ""
+          : "",
       )
       .replaceAll("{Location}", form.Location || "")
       .replaceAll("{Department}", form.Department || "")
       .replaceAll(
         "{ProposedSalary}",
-        form.ProposedSalary ? form.ProposedSalary.toLocaleString("en-IN") : "0"
+        form.ProposedSalary ? form.ProposedSalary.toLocaleString("en-IN") : "0",
       )
       .replaceAll(
         "{Stipend}",
-        form.Stipend ? form.Stipend.toLocaleString("en-IN") : "0"
+        form.Stipend ? form.Stipend.toLocaleString("en-IN") : "0",
       )
       .replaceAll("{Duration}", form.Duration || "");
   };
@@ -138,7 +139,7 @@ export default function LetterOfIntent() {
       fd.append("Department", form.Department || "");
       fd.append(
         "ProposedJoiningDate",
-        new Date(form.ProposedJoiningDate).toISOString()
+        new Date(form.ProposedJoiningDate).toISOString(),
       );
       fd.append("Location", form.Location || "");
       fd.append("ProposedSalary", Number(form.ProposedSalary || 0));
@@ -304,7 +305,20 @@ export default function LetterOfIntent() {
               />
               Show Address
             </label>
-            <div /> {/* spacer */}
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={uiSettings.showSignature}
+                onChange={(e) =>
+                  setUiSettings({
+                    ...uiSettings,
+                    showSignature: e.target.checked,
+                  })
+                }
+              />
+              Show Signature
+            </label>
+
             {/* Logo Size */}
             <div>
               <label className="block font-medium mb-1">
@@ -672,13 +686,13 @@ export default function LetterOfIntent() {
               </div>
             ))}
 
-            <div
-              className="print-signature"
-              style={{
-                textAlign: uiSettings.signatureAlign,
-              }}
-            >
-              {org.orgSignature && (
+            {uiSettings.showSignature && org.orgSignature && (
+              <div
+                className="print-signature"
+                style={{
+                  textAlign: uiSettings.signatureAlign,
+                }}
+              >
                 <img
                   src={org.orgSignature}
                   crossOrigin="anonymous"
@@ -689,9 +703,9 @@ export default function LetterOfIntent() {
                   }}
                   onError={(e) => (e.currentTarget.style.display = "none")}
                 />
-              )}
-              <p>Authorized Sign by {org.company?.companyName}</p>
-            </div>
+                <p>Authorized Sign by {org.company?.companyName}</p>
+              </div>
+            )}
           </div>
 
           {/* FOOTER */}

@@ -39,13 +39,13 @@ const Profile = () => {
       let res;
 
       if (user.role === "Employee") {
-        // ✅ EMPLOYEE API
+        // EMPLOYEE API
         res = await axiosInstance.post(
           `/Employee/${user.userId}/profile-image`,
           formData
         );
       } else {
-        // ✅ ADMIN API
+        // ADMIN API
         const adminForm = new FormData();
         adminForm.append("UserId", user.userId);
         adminForm.append("Name", name);

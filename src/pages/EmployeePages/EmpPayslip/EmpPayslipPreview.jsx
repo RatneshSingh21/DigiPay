@@ -20,6 +20,8 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
     showDesignation,
     showOrgName,
     showOrgAddress,
+    showLogo,
+    showSignature,
     logo,
     logoSize,
     signature,
@@ -78,7 +80,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
     const fetchLeaveAllocation = async () => {
       try {
         const allocationRes = await axiosInstance.get(
-          `/EmployeeLeaveAllocation/${employee.id}`
+          `/EmployeeLeaveAllocation/${employee.id}`,
         );
 
         const allocations = allocationRes.data?.data || [];
@@ -118,7 +120,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
   return (
     <>
       {/* 🌐 Language Selector */}
-      <div className="max-w-4xl mx-auto mb-3 text-right">
+      <div className="max-w-4xl mx-auto mb-3 text-right no-print">
         <select
           className="border px-2 py-1 rounded text-sm"
           value={language}
@@ -135,7 +137,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
       <div className="bg-white shadow-lg p-8 border rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
-          {logo && (
+          {showLogo && logo && (
             <img src={logo} alt="Logo" style={{ width: logoSize || 140 }} />
           )}
           <div className="text-right">
@@ -221,7 +223,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
                 <div className="mt-1 flex flex-wrap justify-end gap-x-2 gap-y-1">
                   {remainingLeaves.map((leave) => {
                     const leaveCatalogItem = LEAVE_CATALOG.find(
-                      (lc) => lc.label === leave.leaveName
+                      (lc) => lc.label === leave.leaveName,
                     );
                     if (!leaveCatalogItem) return null;
 
@@ -287,10 +289,14 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
           <AmountInWords amount={salary.netPay || 0} currency="Indian Rupee" />)
         </div>
 
-        {/* {signature && (
+        {showSignature && signature && (
           <div
             className={`mt-6 flex ${
-              signatureAlign === "right" ? "justify-end" : "justify-start"
+              signatureAlign === "right"
+                ? "justify-end"
+                : signatureAlign === "center"
+                  ? "justify-center"
+                  : "justify-start"
             }`}
           >
             <div className="text-center">
@@ -303,7 +309,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
               <p className="text-xs mt-1">{t.authorizedSignatory}</p>
             </div>
           </div>
-        )} */}
+        )}
 
         <p className="text-center text-gray-400 text-xs mt-6">
           — {t.systemGenerated} —

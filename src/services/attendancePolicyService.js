@@ -13,7 +13,7 @@ const mapShiftOptions = (data) =>
 /* ================= WORK TYPE ================= */
 export const getAllWorkTypes = () => axiosInstance.get("/WorkTypeMaster/all");
 const mapWorkTypeOptions = (res) => {
-  const list = res?.data?.data; // ✅ correct path
+  const list = res?.data?.data; // correct path
   return Array.isArray(list)
     ? list.map((item) => ({
         value: item.workTypeId,
@@ -82,7 +82,7 @@ const mapHolidayListOptions = (data) =>
     ? data.map((item) => ({
         value: item.holidayId,
         label: `${item.holidayName} (${new Date(
-          item.holidayDate
+          item.holidayDate,
         ).toLocaleDateString()})`,
       }))
     : [];
@@ -101,7 +101,7 @@ const mapLeaveTypeOptions = (data) =>
 export const getAllWeekendPolicies = () =>
   axiosInstance.get("/WeekendPolicy/get-all-Weekend-policy");
 const mapWeekendPolicyOptions = (res) => {
-  const list = res?.data?.data; // ✅ correct level
+  const list = res?.data?.data; // correct level
   return Array.isArray(list)
     ? list.map((item) => ({
         value: item.weekendPolicyId,
@@ -109,17 +109,6 @@ const mapWeekendPolicyOptions = (res) => {
       }))
     : [];
 };
-
-/* ================= WEEKEND POLICY MAPPING ================= */
-export const getAllWeekendPolicyMappings = () =>
-  axiosInstance.get("/WeekendPolicyMapping/get");
-const mapWeekendPolicyMappingOptions = (data) =>
-  Array.isArray(data)
-    ? data.map((item) => ({
-        value: item.mappingId,
-        label: `Mapping #${item.mappingId}`,
-      }))
-    : [];
 
 /* ================= MASTER FETCH ================= */
 export const fetchAllAttendancePolicyOptions = async () => {
@@ -135,10 +124,9 @@ export const fetchAllAttendancePolicyOptions = async () => {
       getAllHolidayLists(),
       getAllLeaveTypes(),
       getAllWeekendPolicies(),
-      getAllWeekendPolicyMappings(),
     ]);
 
-    const safe = (r) => (r.status === "fulfilled" ? r.value?.data ?? [] : []);
+    const safe = (r) => (r.status === "fulfilled" ? (r.value?.data ?? []) : []);
 
     return {
       shiftIds: mapShiftOptions(safe(results[0])),
@@ -151,9 +139,6 @@ export const fetchAllAttendancePolicyOptions = async () => {
       holidayListIds: mapHolidayListOptions(safe(results[7])),
       leaveTypeIds: mapLeaveTypeOptions(safe(results[8])),
       weekendPolicyIds: mapWeekendPolicyOptions(results[9].value),
-      weekendPolicyMappingIds: mapWeekendPolicyMappingOptions(
-        safe(results[10])
-      ),
     };
   } catch (err) {
     console.error("❌ Failed to fetch attendance policy options", err);

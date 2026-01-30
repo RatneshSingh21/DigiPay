@@ -196,7 +196,7 @@ const EmployeeList = () => {
           <div className="flex flex-wrap gap-4 mb-4 justify-center">
             <div className="min-w-[250px]">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Search by Name
+                Search by Name or EmpCode
               </label>
               <input
                 type="text"
@@ -312,7 +312,7 @@ const EmployeeList = () => {
 
           {/* Employee Table */}
           {filteredEmployees.length > 0 ? (
-            <div className="border mt-5 mx-auto max-w-xl md:max-w-5xl xl:min-w-5xl 2xl:min-w-full overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
+            <div className="border mt-5 mx-auto max-w-xl md:max-w-5xl xl:min-w-5xl 2xl:min-w-full overflow-auto border-gray-200 rounded-lg max-h-[70vh]">
               <table className="divide-y divide-gray-200 text-xs text-center w-full">
                 <thead className="bg-gray-100 text-gray-700 sticky top-0 z-1">
                   <tr className="text-center">
@@ -375,10 +375,10 @@ const EmployeeList = () => {
                             src={
                               emp.profileImageUrl
                                 ? emp.profileImageUrl
-                                : `https://i.pravatar.cc/150?u=${emp.id}`
+                                : assets.UserDummy
                             }
                             alt={emp.fullName}
-                            className="w-8 h-8 rounded-full object-cover object-center bg-gray-200"
+                            className="w-8 h-8 rounded-full object-contain object-center bg-gray-200"
                           />
 
                           {uploadingId === emp.id ? (

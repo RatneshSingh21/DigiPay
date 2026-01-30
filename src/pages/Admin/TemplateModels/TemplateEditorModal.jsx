@@ -46,7 +46,7 @@ const TemplateEditorModal = ({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-red-600"
+          className="absolute top-4 right-4 cursor-pointer text-gray-500 hover:text-red-600"
         >
           <FaTimes size={18} />
         </button>
@@ -66,6 +66,8 @@ const TemplateEditorModal = ({
               { label: "Designation", field: "showDesignation" },
               { label: "Org. Name", field: "showOrgName" },
               { label: "Org. Address", field: "showOrgAddress" },
+              { label: "Show Logo", field: "showLogo" },
+              { label: "Show Signature", field: "showSignature" },
             ].map(({ label, field }) => (
               <div key={field} className="flex items-center justify-between">
                 <span>{label}</span>
@@ -97,7 +99,7 @@ const TemplateEditorModal = ({
               onChange={(e) => handleImageUpload(e, "logo")}
               className="hover:text-blue-600"
             />
-            {formState.logo && (
+            {formState.showLogo && formState.logo && (
               <img
                 src={formState.logo}
                 alt="Logo Preview"
@@ -105,19 +107,24 @@ const TemplateEditorModal = ({
                 style={{ maxWidth: formState.logoSize }}
               />
             )}
-            <input
-              type="range"
-              min={50}
-              max={200}
-              value={formState.logoSize}
-              onChange={(e) =>
-                setFormState({ ...formState, logoSize: +e.target.value })
-              }
-              className="w-full mt-2"
-            />
-            <span className="text-xs text-gray-500">
-              Logo Size: {formState.logoSize}px
-            </span>
+
+            {formState.showLogo && (
+              <>
+                <input
+                  type="range"
+                  min={50}
+                  max={200}
+                  value={formState.logoSize}
+                  onChange={(e) =>
+                    setFormState({ ...formState, logoSize: +e.target.value })
+                  }
+                  className="w-full mt-2"
+                />
+                <span className="text-xs text-gray-500">
+                  Logo Size: {formState.logoSize}px
+                </span>
+              </>
+            )}
           </div>
 
           {/* Org Name */}
@@ -155,24 +162,27 @@ const TemplateEditorModal = ({
               onChange={(e) => handleImageUpload(e, "signature")}
               className="hover:text-blue-600"
             />
-            {formState.signature && (
+            {formState.showSignature && formState.signature && (
               <img
                 src={formState.signature}
                 alt="Signature Preview"
                 className="mt-2 h-12 object-contain border p-1 rounded"
               />
             )}
-            <select
-              value={formState.signatureAlign}
-              onChange={(e) =>
-                setFormState({ ...formState, signatureAlign: e.target.value })
-              }
-              className="mt-2 border rounded p-1 w-full"
-            >
-              <option value="left">Align Left</option>
-              <option value="center">Align Center</option>
-              <option value="right">Align Right</option>
-            </select>
+
+            {formState.showSignature && (
+              <select
+                value={formState.signatureAlign}
+                onChange={(e) =>
+                  setFormState({ ...formState, signatureAlign: e.target.value })
+                }
+                className="mt-2 border rounded p-1 w-full"
+              >
+                <option value="left">Align Left</option>
+                <option value="center">Align Center</option>
+                <option value="right">Align Right</option>
+              </select>
+            )}
           </div>
 
           {/* Save Button */}

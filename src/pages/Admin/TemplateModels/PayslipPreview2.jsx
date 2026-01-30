@@ -12,6 +12,8 @@ const PayslipPreview2 = ({ config }) => {
     showDesignation,
     showOrgName,
     showOrgAddress,
+    showLogo,
+    showSignature,
     logo,
     logoSize,
     signature,
@@ -39,11 +41,11 @@ const PayslipPreview2 = ({ config }) => {
 
   const totalEarnings = earnings.reduce(
     (sum, item) => sum + parseAmount(item.amount),
-    0
+    0,
   );
   const totalDeductions = deductions.reduce(
     (sum, item) => sum + parseAmount(item.amount),
-    0
+    0,
   );
   const netPay = totalEarnings - totalDeductions;
 
@@ -61,7 +63,7 @@ const PayslipPreview2 = ({ config }) => {
             </p>
           )}
         </div>
-        {logo && (
+        {showLogo && logo && (
           <div className="flex-shrink-0">
             <img
               src={logo}
@@ -224,15 +226,23 @@ const PayslipPreview2 = ({ config }) => {
       </div>
 
       {/* Signature */}
-      {signature && (
-        <div className={`mt-6 text-${signatureAlign}`}>
+      {showSignature && signature && (
+        <div
+          className={`mt-6 ${
+            signatureAlign === "left"
+              ? "text-left"
+              : signatureAlign === "center"
+                ? "text-center"
+                : "text-right"
+          }`}
+        >
           <img
             src={signature}
             alt="Signature"
             className="inline-block"
             style={{ width: "90px" }}
           />
-          <p className="text-xs mt-1 text-gray-500">Authorized Signatory</p>
+          <p className="text-xs mt-1">Authorized Signatory</p>
         </div>
       )}
 

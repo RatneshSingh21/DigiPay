@@ -201,12 +201,6 @@ const EmpSalarySlip = () => {
             alt="No Salary Slip Found"
             className="w-64 h-auto mx-auto mb-6"
           />
-          <h2 className="text-lg font-semibold text-gray-700">
-            No Payslip Available
-          </h2>
-          <p className="text-sm text-gray-500">
-            No salary slip found for the selected month/year.
-          </p>
         </div>
       )}
 

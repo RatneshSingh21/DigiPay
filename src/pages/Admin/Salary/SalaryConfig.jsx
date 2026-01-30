@@ -8,7 +8,9 @@ import { FiEdit, FiTrash2, FiInbox } from "react-icons/fi";
 
 const SalaryConfig = () => {
   const user = useAuthStore((state) => state.user);
-  const orgId = user?.orgId || user?.userId;
+  console.log(user);
+
+  const orgId = user?.orgId || user?.companyId;
 
   const [componentConfigs, setComponentConfigs] = useState([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
@@ -23,7 +25,7 @@ const SalaryConfig = () => {
     } catch (err) {
       console.error(
         err?.response?.data?.message || "Error fetching configs",
-        err
+        err,
       );
     }
   };
@@ -53,6 +55,7 @@ const SalaryConfig = () => {
         fetchConfigs={fetchConfigs}
         editData={editData}
         clearEdit={() => setEditData(null)}
+        existingComponents={componentConfigs}
       />
 
       {/* List */}

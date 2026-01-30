@@ -48,6 +48,17 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
   const [saving, setSaving] = useState(false);
   const [bankDetailsExists, setBankDetailsExists] = useState(false);
 
+  // Normalize Select Value
+  const normalizeSelectValue = (value, options) => {
+    if (!value) return "";
+
+    const matched = options.find(
+      (opt) => opt.value.toLowerCase() === value.toLowerCase(),
+    );
+
+    return matched ? matched.value : "";
+  };
+
   // =========================
   // FETCH BANK DETAILS
   // =========================
@@ -58,12 +69,21 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
 
         if (res.data?.length > 0) {
           const latestBank = res.data[res.data.length - 1];
+
           setForm({
             ...latestBank,
+            accountType: normalizeSelectValue(
+              latestBank.accountType,
+              accountTypeOptions,
+            ),
+            paymentMode: normalizeSelectValue(
+              latestBank.paymentMode,
+              paymentModes,
+            ),
             employeeId,
           });
 
-          setBankDetailsExists(true); // ← Correct
+          setBankDetailsExists(true);
         } else {
           setBankDetailsExists(false); // ← No record exists
         }
@@ -123,7 +143,7 @@ const UpdatePaymentInfo = ({ employeeId, onLocalUpdate }) => {
     } catch (err) {
       console.error(err);
       toast.error(
-        err?.response?.data?.message || "Failed to save bank details"
+        err?.response?.data?.message || "Failed to save bank details",
       );
     } finally {
       setSaving(false);
