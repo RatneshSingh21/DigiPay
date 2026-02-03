@@ -1,263 +1,208 @@
-import React, { useEffect, useState } from "react";
-import { FiPlus, FiRefreshCw } from "react-icons/fi";
-import { format } from "date-fns";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
-import { toast } from "react-toastify";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import Spinner from "../../../../components/Spinner";
+import LeaveFilterCards from "./components/LeaveFilterCards";
+import LeaveTable from "./components/LeaveTable";
+import { useEmployeeLeave } from "./components/useEmployeeLeave";
 import EmployeeLeaveForm from "./EmployeeLeaveForm";
-import assets from "../../../../assets/assets";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import { FiUpload, FiDownload, FiRefreshCw, FiPlus } from "react-icons/fi";
+import { toast } from "react-toastify";
+import useAuthStore from "../../../../store/authStore";
 
 const EmployeeLeave = () => {
-  const [leaves, setLeaves] = useState([]);
+  const user = useAuthStore((state) => state.user);
+
+  const { leaves, loading, filters, setFilters, refresh } = useEmployeeLeave();
+
+  const [leaveTypes, setLeaveTypes] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [statuses, setStatuses] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [showApplyModal, setShowApplyModal] = useState(false);
 
-  // Fetch all employee leaves
-  const fetchLeaves = async () => {
-    setLoading(true);
-    try {
-      const res = await axiosInstance.get("/EmployeeLeave");
-      setLeaves(res.data?.data || []);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch employee leaves");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fileInputRef = useRef(null);
 
-  // Fetch all employees
-  const fetchEmployees = async () => {
-    try {
-      const res = await axiosInstance.get("/Employee");
-      setEmployees(res.data || []);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch employees");
-    }
-  };
-
-  // Fetch status master
-  const fetchStatuses = async () => {
-    try {
-      const res = await axiosInstance.get("/StatusMaster");
-      setStatuses(res.data?.data || []);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch status master");
-    }
-  };
-
+  // ================= FETCH MASTER DATA =================
   useEffect(() => {
-    fetchEmployees();
-    fetchLeaves();
-    fetchStatuses();
-  }, []);
+    if (!user?.companyId) return;
 
-  // Get employee full name + code by ID
-  const getEmployeeName = (id) => {
-    const emp = employees.find((e) => e.id === id);
-    return emp ? `${emp.fullName} (${emp.employeeCode})` : "Unknown Employee";
+    const fetchMasterData = async () => {
+      try {
+        const [leaveRes, empRes, statusRes] = await Promise.all([
+          axiosInstance.get("/LeaveType"),
+          axiosInstance.get(
+            `/user-auth/getEmployee/companyId/${user.companyId}`,
+          ),
+          axiosInstance.get("/StatusMaster"),
+        ]);
+
+        setLeaveTypes(leaveRes.data?.data || leaveRes.data || []);
+        setEmployees(empRes.data?.data || empRes.data || []);
+        setStatuses(statusRes.data?.data || statusRes.data || []);
+      } catch (err) {
+        toast.error("Failed to fetch master data");
+      }
+    };
+
+    fetchMasterData();
+  }, [user?.companyId]);
+
+  // ================= MAP LEAVES =================
+  const mappedLeaves = useMemo(() => {
+    return leaves.map((l) => {
+      const emp = employees.find((e) => e.id === l.employeeId);
+      const statusObj = statuses.find((s) => s.statusId === l.status);
+
+      return {
+        ...l,
+        employeeDisplay: emp
+          ? `${emp.fullName} (${emp.employeeCode})`
+          : `Employee #${l.employeeId}`,
+        statusDisplay: statusObj?.statusName ?? "Unknown",
+      };
+    });
+  }, [leaves, employees, statuses]);
+
+  // ================= FILTERING =================
+  const filteredLeaves = useMemo(() => {
+    return mappedLeaves.filter((l) => {
+      if (filters.leaveTypeId && l.leaveTypeId !== filters.leaveTypeId)
+        return false;
+      if (filters.statusId && l.status !== filters.statusId) return false;
+      if (filters.employeeId && l.employeeId !== filters.employeeId)
+        return false;
+
+      // FROM DATE: compare only dates, ignore time
+      if (filters.fromDate) {
+        const leaveFrom = new Date(l.fromDate);
+        const filterFrom = new Date(filters.fromDate);
+
+        leaveFrom.setHours(0, 0, 0, 0);
+        filterFrom.setHours(0, 0, 0, 0);
+
+        if (leaveFrom < filterFrom) return false;
+      }
+
+      return true;
+    });
+  }, [mappedLeaves, filters]);
+
+  // ================= EXPORT =================
+  const handleExport = async () => {
+    try {
+      const res = await axiosInstance.get("/EmployeeLeave/export", {
+        responseType: "blob",
+      });
+      const blob = new Blob([res.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Employee_Leaves_${Date.now()}.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Leave data exported successfully");
+    } catch {
+      toast.error("Failed to export leave data");
+    }
   };
 
-  // Map leave status using StatusMaster
-  const getStatusBadge = (statusId) => {
-    const status = statuses.find((s) => s.statusId === statusId);
-    if (!status) {
-      return (
-        <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-          Unknown
-        </span>
-      );
+  // ================= IMPORT =================
+  const handleImport = async (file) => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      await axiosInstance.post("/EmployeeLeave/import", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Leave data imported successfully");
+      refresh();
+    } catch {
+      toast.error("Failed to import leave data");
+    } finally {
+      fileInputRef.current.value = "";
     }
-
-    let colorClass = "bg-gray-100 text-gray-800";
-    switch (status.statusName.toLowerCase()) {
-      case "pending":
-        colorClass = "bg-yellow-100 text-yellow-800";
-        break;
-      case "approved":
-        colorClass = "bg-green-100 text-green-800";
-        break;
-      case "rejected":
-        colorClass = "bg-red-100 text-red-800";
-        break;
-      case "processed":
-        colorClass = "bg-blue-100 text-blue-800";
-        break;
-      default:
-        colorClass = "bg-gray-100 text-gray-800";
-    }
-
-    return (
-      <span className={`${colorClass} px-2 py-1 rounded text-xs`}>
-        {status.statusName}
-      </span>
-    );
-  };
-
-  // Filter leaves based on employee search
-  const filteredLeaves = leaves.filter((leave) =>
-    getEmployeeName(leave.employeeId)
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase()),
-  );
-
-  // Highlight matching text
-  const highlightText = (text) => {
-    if (!searchQuery) return text;
-    const regex = new RegExp(`(${searchQuery})`, "gi");
-    const parts = text.toString().split(regex);
-    return parts.map((part, i) =>
-      regex.test(part) ? (
-        <span key={i} className="bg-yellow-200">
-          {part}
-        </span>
-      ) : (
-        part
-      ),
-    );
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="bg-white rounded-2xl shadow px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 sticky top-14 z-20">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            Employee Leave Management
-          </h2>
-          <p className="text-sm text-gray-500">
-            View and manage employee leave requests
-          </p>
-        </div>
+    <div className="space-y-2">
+      {/* ================= ACTION BAR ================= */}
+      <div className="bg-white rounded-2xl shadow px-6 py-4 flex flex-wrap gap-3 justify-between items-center">
+        <h2 className="text-lg font-semibold text-gray-900">
+          Employee Leave Management
+        </h2>
 
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-          {/* Search */}
+        <div className="flex flex-wrap gap-2">
           <input
-            type="text"
-            placeholder="Search employee name or code..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full sm:w-64 rounded-lg border border-gray-300 px-3 py-2 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-primary"
+            type="file"
+            ref={fileInputRef}
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={(e) => handleImport(e.target.files[0])}
           />
 
-          {/* Action */}
           <button
-            onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 bg-primary text-white
-                     px-5 py-2 rounded-lg text-sm font-medium
-                     hover:bg-secondary transition shadow"
+            onClick={() => setShowApplyModal(true)}
+            className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg cursor-pointer bg-primary text-white hover:bg-secondary"
           >
-            <FiPlus size={16} />
-            Apply Leave
+            <FiPlus /> Apply Leave
+          </button>
+
+          <button
+            onClick={() => fileInputRef.current.click()}
+            className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
+          >
+            <FiUpload /> Import
+          </button>
+
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg cursor-pointer bg-green-600 text-white hover:bg-green-700"
+          >
+            <FiDownload /> Export
+          </button>
+
+          <button
+            onClick={refresh}
+            className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg cursor-pointer bg-gray-200 text-gray-800 hover:bg-gray-300"
+          >
+            <FiRefreshCw /> Refresh
           </button>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
-        {loading ? (
-          <div className="flex justify-center items-center py-16">
-            <Spinner />
-          </div>
-        ) : filteredLeaves.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <img
-              src={assets.NoData}
-              alt="No leave data"
-              className="w-52 mb-6 opacity-90"
-            />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No Leave Requests
-            </h3>
-            <p className="text-sm text-gray-600 max-w-md mb-6">
-              There are no leave requests available. Click below to apply a new
-              leave request.
-            </p>
-            <button
-              onClick={fetchLeaves}
-              className="inline-flex items-center gap-2 bg-primary text-white
-                       px-6 py-2 rounded-full text-sm font-medium
-                       hover:bg-secondary transition shadow"
-            >
-              <FiRefreshCw size={16} />
-              Refresh
-            </button>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm text-gray-700">
-              <thead className="bg-gray-50 sticky top-0 z-10">
-                <tr className="text-xs uppercase text-gray-500 text-center">
-                  <th className="px-4 py-3">S.No</th>
-                  <th className="px-4 py-3">Employee</th>
-                  <th className="px-4 py-3">Leave</th>
-                  <th className="px-4 py-3">From</th>
-                  <th className="px-4 py-3">To</th>
-                  <th className="px-4 py-3">Reason</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Applied On</th>
-                </tr>
-              </thead>
+      {/* ================= FILTERS ================= */}
+      <LeaveFilterCards
+        filters={filters}
+        setFilters={setFilters}
+        leaveTypes={leaveTypes}
+        statuses={statuses}
+        employees={employees}
+      />
 
-              <tbody className="divide-y">
-                {filteredLeaves.map((leave, index) => (
-                  <tr
-                    key={leave.applyLeaveId}
-                    className="hover:bg-gray-50 transition text-center"
-                  >
-                    <td className="px-4 py-3">{index + 1}</td>
-
-                    <td className="px-4 py-3 font-medium">
-                      {highlightText(getEmployeeName(leave.employeeId))}
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <div className="text-sm font-medium">
-                        {leave.leaveName}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {leave.leaveCode}
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-3">
-                      {format(new Date(leave.fromDate), "dd MMM yyyy")}
-                    </td>
-
-                    <td className="px-4 py-3">
-                      {format(new Date(leave.toDate), "dd MMM yyyy")}
-                    </td>
-
-                    <td className="px-4 py-3 max-w-xs truncate">
-                      {leave.reason}
-                    </td>
-
-                    <td className="px-4 py-3">
-                      {getStatusBadge(leave.status)}
-                    </td>
-
-                    <td className="px-4 py-3">
-                      {format(new Date(leave.createdOn), "dd MMM yyyy")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50">
-          <EmployeeLeaveForm onClose={() => setShowModal(false)} />
+      {/* ================= TABLE ================= */}
+      {loading ? (
+        <div className="flex justify-center py-10">
+          <Spinner />
         </div>
+      ) : (
+        <LeaveTable leaves={filteredLeaves} />
+      )}
+
+      {/* ================= APPLY MODAL ================= */}
+      {showApplyModal && (
+        <EmployeeLeaveForm
+          onClose={() => {
+            setShowApplyModal(false);
+            refresh();
+          }}
+        />
       )}
     </div>
   );

@@ -7,6 +7,10 @@ import { toast } from "react-toastify";
 import EmployeeAdvancePaymentForm from "./EmployeeAdvancePaymentForm";
 import assets from "../../../../assets/assets";
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
 const EmployeeAdvancePayments = () => {
   const [payments, setPayments] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -25,7 +29,7 @@ const EmployeeAdvancePayments = () => {
       setPayments(res.data?.data || []);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch advance payments");
+      // toast.error("Failed to fetch advance payments");
     } finally {
       setLoading(false);
     }
@@ -129,7 +133,7 @@ const EmployeeAdvancePayments = () => {
     <div className="space-y-4">
       {/* HEADER */}
       <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-        <h2 className="font-semibold text-xl">
+        <h2 className="font-semibold text-lg">
           Employee Advance Payment Management
         </h2>
 
@@ -139,7 +143,7 @@ const EmployeeAdvancePayments = () => {
             placeholder="Search by employee name or code"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:ring-1 focus:ring-primary outline-none"
+            className={`${inputClass} border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:ring-1 focus:ring-primary outline-none`}
           />
 
           <button
@@ -190,7 +194,7 @@ const EmployeeAdvancePayments = () => {
                   key={p.advancePaymentId}
                   className="border-b hover:bg-gray-50 transition"
                 >
-                  <td className="px-4 py-2">{i + 1}</td>
+                  <td className="px-4 py-2">{i + 1}.</td>
 
                   <td className="px-4 py-2 font-medium">
                     {getEmployeeName(p.employeeId)}

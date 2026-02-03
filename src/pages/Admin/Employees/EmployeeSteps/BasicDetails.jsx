@@ -20,6 +20,7 @@ const BasicDetails = () => {
   } = useAddEmployeeStore();
 
   const [form, setForm] = useState(basicDetails || {});
+  const [errors, setErrors] = useState({});
   const [isDirector, setIsDirector] = useState(
     basicDetails?.isDirector || false
   );
@@ -31,7 +32,7 @@ const BasicDetails = () => {
   const [department, setDepartment] = useState([]);
   const [payschedule, setPayschedule] = useState([]);
   const [openModalField, setOpenModalField] = useState(null);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const resetStore = useAddEmployeeStore((state) => state.resetStore);
 
@@ -81,6 +82,25 @@ const BasicDetails = () => {
   const handleChange = (e) => {
     if (e?.target) {
       const { name, value } = e.target;
+
+      // Employee ID validation
+      if (name === "employeeId") {
+        const sanitizedValue = value.replace(/[^a-zA-Z0-9]/g, "");
+
+        setForm((prev) => ({ ...prev, employeeId: sanitizedValue }));
+
+        if (value !== sanitizedValue) {
+          setErrors((prev) => ({
+            ...prev,
+            employeeId: "Only letters and numbers are allowed"
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, employeeId: "" }));
+        }
+
+        return;
+      }
+
       setForm((prev) => ({ ...prev, [name]: value }));
     } else {
       setForm((prev) => ({ ...prev, [e.name]: e }));
@@ -89,6 +109,12 @@ const BasicDetails = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (errors.employeeId) {
+      toast.error("Please fix errors before submitting");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
 
     const payload = {
@@ -106,7 +132,7 @@ const BasicDetails = () => {
       workLocationId: form.workLocation?.value || 0,
       payScheduleId: form.payschedule?.value || 0,
       portalAccessEnabled: portalAccess,
-      aadhaarCardNumber:form.aadhaarCardNumber
+      aadhaarCardNumber: form.aadhaarCardNumber
     };
 
     try {
@@ -171,20 +197,27 @@ const BasicDetails = () => {
             <label className="block font-medium mb-1">
               Employee ID <span className="text-red-500">*</span>
             </label>
+
             <input
               required
               name="employeeId"
-              placeholder="employeeId"
+              placeholder="Employee ID"
               value={form.employeeId || ""}
               type="text"
               onChange={handleChange}
               disabled={employeeId}
               className={`w-full px-4 py-2 border rounded-md ${
-                employeeId
-                  ? "bg-gray-100 cursor-not-allowed"
+                errors.employeeId
+                  ? "border-red-500 focus:outline-none focus:ring-2 focus:ring-red-400"
                   : "border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              }`}
+              } ${employeeId ? "bg-gray-100 cursor-not-allowed" : ""}`}
             />
+
+            {errors.employeeId && (
+              <span className="text-xs text-red-500 mt-1 block">
+                {errors.employeeId}
+              </span>
+            )}
           </div>
           <div>
             <label className="block font-medium mb-1">

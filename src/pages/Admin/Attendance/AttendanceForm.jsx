@@ -159,7 +159,7 @@ const AttendanceForm = () => {
       latitude: 0,
       longitude: 0,
       accuracyMeters: 0,
-      source: "Admin Panel",
+      source: "ADMIN_PANEL",
       deviceInfo: navigator.userAgent,
       capturedAt: `${attendanceDate}T${
         new Date().toTimeString().split(" ")[0]

@@ -6,6 +6,9 @@ import { isBefore } from "date-fns";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import Spinner from "../../../../components/Spinner";
 
+const inputClass =
+  "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const EmployeeLeaveForm = ({ onClose }) => {
   const [employeeOptions, setEmployeeOptions] = useState([]);
   const [leaveTypes, setLeaveTypes] = useState([]);
@@ -251,7 +254,7 @@ const EmployeeLeaveForm = ({ onClose }) => {
 
         {/* Error */}
         {error && (
-          <div className="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+          <div className="mx-6 mt-2 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
             {error}
           </div>
         )}
@@ -259,7 +262,7 @@ const EmployeeLeaveForm = ({ onClose }) => {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="px-6 py-5 space-y-5 max-h-[65vh] overflow-y-auto"
+          className="px-6 py-5 space-y-2 max-h-[65vh] overflow-y-auto"
         >
           {/* Employee */}
           <div>
@@ -302,7 +305,7 @@ const EmployeeLeaveForm = ({ onClose }) => {
           {/* Dates */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700">
                 From Date
               </label>
               <input
@@ -310,14 +313,13 @@ const EmployeeLeaveForm = ({ onClose }) => {
                 name="fromDate"
                 value={formData.fromDate}
                 onChange={handleInputChange}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-                         focus:outline-none focus:ring-2 focus:ring-primary"
+                className={inputClass}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700">
                 To Date
               </label>
               <input
@@ -325,8 +327,7 @@ const EmployeeLeaveForm = ({ onClose }) => {
                 name="toDate"
                 value={formData.toDate}
                 onChange={handleInputChange}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-                         focus:outline-none focus:ring-2 focus:ring-primary"
+                className={inputClass}
                 required
               />
             </div>
@@ -334,7 +335,7 @@ const EmployeeLeaveForm = ({ onClose }) => {
 
           {/* Reason */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700">
               Reason
             </label>
             <textarea
@@ -343,15 +344,14 @@ const EmployeeLeaveForm = ({ onClose }) => {
               value={formData.reason}
               onChange={handleInputChange}
               placeholder="Enter reason for leave"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-                       focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className={inputClass}
               required
             />
           </div>
 
           {/* Approvers */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700">
               Approvers
             </label>
             <Select

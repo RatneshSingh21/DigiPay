@@ -26,8 +26,6 @@ import Cash from "./Cash.png";
 import Cheque from "./Cheque.png";
 import NEFT from "./NEFT.png";
 import Otpgif from "./Otpgif.gif";
-import BP from "./BP.jpeg";
-import Atul from "./Atul.jpeg";
 import PayslipTemplate1 from "./PayslipTemplate1.png";
 import PayslipTemplate2 from "./PayslipTemplate2.png";
 import PayslipTemplate3 from "./PayslipTemplate3.png";
@@ -82,8 +80,6 @@ const assets = {
   NEFT: NEFT,
   Cheque: Cheque,
   Otpgif: Otpgif,
-  BP: BP,
-  Atul: Atul,
   PayslipTemplate1: PayslipTemplate1,
   PayslipTemplate2: PayslipTemplate2,
   PayslipTemplate3: PayslipTemplate3,
