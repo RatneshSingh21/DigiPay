@@ -9,7 +9,6 @@ import {
   Button,
   Divider,
 } from "@mui/material";
-import useAuthStore from "../../../../../store/authStore";
 
 // API Endpoints
 const CREATE_SALARY_ENDPOINT = "/EmployeeSalary/create";
@@ -17,15 +16,13 @@ const UPDATE_SALARY_ENDPOINT = "/EmployeeSalary/employee/update-salary";
 const GET_SALARY_ENDPOINT = (id) => `/EmployeeSalary/employee/${id}`;
 
 const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
-  const { user } = useAuthStore();
-
   const [loading, setLoading] = useState(true);
   const [salaryExists, setSalaryExists] = useState(false);
 
   const [form, setForm] = useState({
     employeeId,
-    employeeCode: data.employeeCode,
-    employeeName: data.employeeName,
+    employeeCode: "",
+    employeeName: "",
 
     basicSalary: 0,
     hra: 0,
@@ -45,12 +42,25 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
     otherDeductions: 0,
   });
 
+  useEffect(() => {
+    if (!data) return;
+
+    setForm((prev) => ({
+      ...prev,
+      employeeId,
+      employeeCode: data.employeeCode || "",
+      employeeName: data.employeeName || "",
+    }));
+  }, [employeeId, data]);
+
   // -------------------------------
   // 🚀 Fetch Salary on Component Mount
   // -------------------------------
   useEffect(() => {
-    fetchEmployeeSalary();
-  }, []);
+    if (employeeId) {
+      fetchEmployeeSalary();
+    }
+  }, [employeeId]);
 
   const fetchEmployeeSalary = async () => {
     try {
@@ -106,9 +116,32 @@ const UpdateSalaryDetails = ({ employeeId, data, onLocalUpdate }) => {
   // ---------------------------------
   const onChange = (e) => {
     const { name, value } = e.target;
+
+    const numberFields = [
+      "basicSalary",
+      "hra",
+      "conveyanceAllowance",
+      "fixedAllowance",
+      "bonus",
+      "arrears",
+      "overtimeRate",
+      "leaveEncashment",
+      "specialAllowance",
+      "pfEmployee",
+      "esicEmployee",
+      "professionalTax",
+      "tds",
+      "loanRepayment",
+      "otherDeductions",
+    ];
+
     setForm((f) => ({
       ...f,
-      [name]: value === "" ? "" : Number(value),
+      [name]: numberFields.includes(name)
+        ? value === ""
+          ? 0
+          : Number(value)
+        : value, // strings stay strings
     }));
   };
 

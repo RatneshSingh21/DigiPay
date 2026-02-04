@@ -37,7 +37,7 @@ export default function SignInEmployeeForm() {
     try {
       const response = await axiosInstance.post(
         "/user-auth/employee-authenaticqtio",
-        { email, password }
+        { email, password },
       );
 
       const {
@@ -60,7 +60,7 @@ export default function SignInEmployeeForm() {
           profileImageUrl: profileImageUrl || null,
         },
         token,
-        null
+        null,
       );
 
       toast.success(message || "Login successful!");
@@ -155,18 +155,18 @@ export default function SignInEmployeeForm() {
         {loading ? <Spinner /> : "Login"}
       </button>
 
-      <div className="flex justify-between text-xs text-orange-500 font-semibold mt-3">
-        <button
+      <div className="flex justify-end text-xs text-orange-500 font-semibold mt-3">
+        {/* <button
           type="button"
           className="hover:underline cursor-pointer"
           onClick={() => navigate("/login-otp")}
         >
           Login with OTP
-        </button>
+        </button> */}
         <button
           type="button"
           className="hover:underline cursor-pointer"
-          onClick={() => navigate("/forget-password")}
+          onClick={() => navigate("/employee/forgot-password")}
         >
           Forgot Password?
         </button>

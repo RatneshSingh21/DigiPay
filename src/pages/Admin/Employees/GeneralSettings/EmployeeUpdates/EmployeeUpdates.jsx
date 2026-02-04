@@ -25,7 +25,7 @@ const EmployeeUpdates = () => {
       try {
         setLoading(true);
         const res = await axiosInstance.get(
-          EMP_DETAILS_ENDPOINT(selectedEmp.id)
+          EMP_DETAILS_ENDPOINT(selectedEmp.id),
         );
         // Normalize your API response shape here:
         // Expecting e.g. { basicDetails:{}, salaryDetails:{}, personalDetails:{}, paymentDetails:{} }
@@ -52,7 +52,15 @@ const EmployeeUpdates = () => {
       <EmployeeSelect
         value={selectedEmp?.id}
         onSelect={(emp) =>
-          setSelectedEmp(emp ? { id: emp.value, name: emp.label } : null)
+          setSelectedEmp(
+            emp
+              ? {
+                  id: emp.value,
+                  name: emp.employeeName,
+                  code: emp.employeeCode, // FIX
+                }
+              : null,
+          )
         }
       />
 
@@ -77,7 +85,11 @@ const EmployeeUpdates = () => {
           />
           <UpdateSalaryDetails
             employeeId={selectedEmp.id}
-            data={data.salaryDetails}
+            data={{
+              ...data.salaryDetails,
+              employeeCode: selectedEmp.code,
+              employeeName: selectedEmp.name,
+            }}
             onLocalUpdate={(updated) =>
               setData((d) => ({ ...d, salaryDetails: updated }))
             }

@@ -6,6 +6,7 @@ import AttendanceHeader from "./components/AttendanceHeader";
 import AttendanceList from "./components/AttendanceList";
 import EditAttendanceModal from "./components/EditAttendanceModal";
 import EditHistoryModal from "./components/EditHistoryModal";
+import useAuthStore from "../../../store/authStore";
 
 const Attendance = () => {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -14,7 +15,7 @@ const Attendance = () => {
   const [companyEmployees, setCompanyEmployees] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [openDates, setOpenDates] = useState({});
-
+  const user = useAuthStore((state) => state.user);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [editPunchType, setEditPunchType] = useState("IN");
@@ -36,7 +37,10 @@ const Attendance = () => {
       const merged = {};
 
       raw.forEach((item) => {
-        const key = `${item.employeeId}-${item.attendanceDate}`;
+        const dateOnly = new Date(item.attendanceDate);
+        dateOnly.setHours(0, 0, 0, 0);
+
+        const key = `${item.employeeId}-${dateOnly.toISOString().split("T")[0]}`;
 
         if (!merged[key]) {
           merged[key] = {
@@ -117,7 +121,9 @@ const Attendance = () => {
   };
 
   const fetchCompanyEmployees = async () => {
-    const res = await axiosInstance.get("/user-auth/getEmployee/companyId/6");
+    const res = await axiosInstance.get(
+      `/user-auth/getEmployee/companyId/${user.companyId}`,
+    );
     setCompanyEmployees(res.data?.data || []);
   };
 
@@ -133,7 +139,8 @@ const Attendance = () => {
       toast.success("Attendance updated");
       setIsEditOpen(false);
       fetchAttendance();
-    } catch {
+    } catch (error) {
+      console.error("Error updating attendance:", error);
       toast.error("Update failed");
     } finally {
       setSaving(false);

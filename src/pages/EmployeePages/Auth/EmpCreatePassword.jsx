@@ -78,21 +78,24 @@ const EmpCreatePassword = () => {
 
     try {
       setLoading(true);
-      const response = await axiosInstance.post("/user-auth/employee-setup-password", {
-        token: token,
-        newPassword: password,
-      });
+      const response = await axiosInstance.post(
+        "/user-auth/employee-setup-password",
+        {
+          token: token,
+          newPassword: password,
+        },
+      );
 
       toast.success(
         response.data?.message ||
-          "Password created successfully! Redirecting..."
+          "Password created successfully! Redirecting...",
       );
 
       localStorage.setItem("loginRole", "Employee");
       navigate("/auth");
     } catch (err) {
       toast.error(
-        err.response?.data?.message || "Failed to setup password. Try again."
+        err.response?.data?.message || "Failed to setup password. Try again.",
       );
     } finally {
       setLoading(false);
@@ -122,7 +125,7 @@ const EmpCreatePassword = () => {
             </label>
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"} 
+                type={showPassword ? "text" : "password"}
                 className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -173,7 +176,7 @@ const EmpCreatePassword = () => {
             </label>
             <div className="relative">
               <input
-                type={showConfirmPassword ? "text" : "password"} 
+                type={showConfirmPassword ? "text" : "password"}
                 className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

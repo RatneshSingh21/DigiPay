@@ -21,6 +21,8 @@ import SendLoginOtp from "./pages/Admin/Auth/SendLoginOtp";
 import ForgetPassword from "./pages/Admin/Auth/ForgetPassword";
 import ResetPassword from "./pages/Admin/Auth/ResetPassword";
 import EmpCreatePassword from "./pages/EmployeePages/Auth/EmpCreatePassword";
+import EmpForgetPassword from "./pages/EmployeePages/Auth/EmpForgetPassword";
+import EmpResetPassword from "./pages/EmployeePages/Auth/EmpResetPassword";
 
 // Guard
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -144,7 +146,6 @@ import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
-
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -330,7 +331,10 @@ const App = () => {
                       path="machine-data-log"
                       element={<AttendanceMachineData />}
                     />
-                    <Route path="attendance-lock" element={<AttendanceLock />} />
+                    <Route
+                      path="attendance-lock"
+                      element={<AttendanceLock />}
+                    />
                   </Route>
 
                   {/* Reports SubRoutes */}
@@ -514,7 +518,18 @@ const App = () => {
               <Route path="/forget-password" element={<ForgetPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/verify-otp" element={<VerifyOtp />} />
-              <Route path="/setup-password" element={<EmpCreatePassword />} />
+              <Route
+                path="/employee/setup-password"
+                element={<EmpCreatePassword />}
+              />
+              <Route
+                path="/employee/forgot-password"
+                element={<EmpForgetPassword />}
+              />
+              <Route
+                path="/employee/reset-password"
+                element={<EmpResetPassword />}
+              />
 
               {/* Unauthorized Page for public access violations */}
               <Route path="/unauthorized" element={<Unauthorized />} />
