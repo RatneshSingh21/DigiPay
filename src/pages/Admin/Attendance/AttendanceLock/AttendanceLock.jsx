@@ -60,76 +60,110 @@ const AttendanceLock = () => {
       </div>
 
       {/* TABLE */}
+      {/* TABLE / EMPTY STATE */}
       <div className="bg-white p-4 rounded-lg shadow-md">
-        <div className="overflow-x-auto rounded-lg border border-gray-200">
-          <table className="min-w-full text-xs text-center">
-            <thead className="bg-gray-100 uppercase text-gray-700">
-              <tr>
-                <th className="px-3 py-2">S.No</th>
-                <th className="px-3 py-2">Component</th>
-                <th className="px-3 py-2">Month</th>
-                <th className="px-3 py-2">Year</th>
-                <th className="px-3 py-2">Locked Date</th>
-                <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2">Reason</th>
-                <th className="px-3 py-2">Source</th>
-                <th className="px-3 py-2">Locked By</th>
-                <th className="px-3 py-2">Action</th>
-              </tr>
-            </thead>
+        {locks.length === 0 ? (
+          /* EMPTY STATE */
+          <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-12 w-12 text-gray-300 mb-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
 
-            <tbody>
-              {locks.map((lock, idx) => (
-                <tr key={lock.componentLockId} className="hover:bg-gray-50">
-                  <td className="px-3 py-2">{idx + 1}</td>
-                  <td className="px-3 py-2 font-medium">{lock.component}</td>
-                  <td className="px-3 py-2">{lock.month}</td>
-                  <td className="px-3 py-2">{lock.year}</td>
-                  <td className="px-3 py-2">
-                    {new Date(lock.lockedDate).toLocaleDateString("en-GB")}
-                  </td>
+            <p className="text-sm font-medium">No Attendance Locks Found</p>
 
-                  <td className="px-3 py-2">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        lock.isLocked
-                          ? "bg-red-100 text-red-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
-                    >
-                      {lock.isLocked ? "Locked" : "Unlocked"}
-                    </span>
-                  </td>
+            <p className="text-xs text-gray-400 mt-1 text-center max-w-sm">
+              Attendance has not been locked for any month yet.
+            </p>
 
-                  <td className="px-3 py-2">{lock.reason || "-"}</td>
-                  <td className="px-3 py-2">{lock.source || "-"}</td>
-
-                  {/* Locked By Name */}
-                  <td className="px-3 py-2 font-medium">
-                    {usersMap[lock.lockedBy] || "—"}
-                  </td>
-
-                  <td className="px-3 py-2">
-                    <button
-                      className="flex items-center gap-1 px-2.5 py-1 cursor-pointer rounded bg-blue-50 text-blue-600 hover:bg-blue-100"
-                      onClick={() => {
-                        setEditData({
-                          componentLockId: lock.componentLockId,
-                          isLocked: lock.isLocked,
-                          reason: lock.reason,
-                          source: lock.source,
-                        });
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      <FiEdit size={14} /> Edit
-                    </button>
-                  </td>
+            <button
+              className="mt-4 bg-primary hover:bg-secondary cursor-pointer
+                   text-sm text-white px-4 py-2 rounded-lg font-medium"
+              onClick={() => {
+                setEditData(null);
+                setIsModalOpen(true);
+              }}
+            >
+              Create Lock
+            </button>
+          </div>
+        ) : (
+          /* TABLE */
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
+            <table className="min-w-full text-xs text-center">
+              <thead className="bg-gray-100 uppercase text-gray-700">
+                <tr>
+                  <th className="px-3 py-2">S.No</th>
+                  <th className="px-3 py-2">Component</th>
+                  <th className="px-3 py-2">Month</th>
+                  <th className="px-3 py-2">Year</th>
+                  <th className="px-3 py-2">Locked Date</th>
+                  <th className="px-3 py-2">Status</th>
+                  <th className="px-3 py-2">Reason</th>
+                  <th className="px-3 py-2">Source</th>
+                  <th className="px-3 py-2">Locked By</th>
+                  <th className="px-3 py-2">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+
+              <tbody>
+                {locks.map((lock, idx) => (
+                  <tr key={lock.componentLockId} className="hover:bg-gray-50">
+                    <td className="px-3 py-2">{idx + 1}</td>
+                    <td className="px-3 py-2 font-medium">{lock.component}</td>
+                    <td className="px-3 py-2">{lock.month}</td>
+                    <td className="px-3 py-2">{lock.year}</td>
+                    <td className="px-3 py-2">
+                      {new Date(lock.lockedDate).toLocaleDateString("en-GB")}
+                    </td>
+                    <td className="px-3 py-2">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          lock.isLocked
+                            ? "bg-red-100 text-red-700"
+                            : "bg-green-100 text-green-700"
+                        }`}
+                      >
+                        {lock.isLocked ? "Locked" : "Unlocked"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">{lock.reason || "-"}</td>
+                    <td className="px-3 py-2">{lock.source || "-"}</td>
+                    <td className="px-3 py-2 font-medium">
+                      {usersMap[lock.lockedBy] || "—"}
+                    </td>
+                    <td className="px-3 py-2">
+                      <button
+                        className="flex items-center gap-1 px-2.5 py-1 cursor-pointer rounded bg-blue-50 text-blue-600 hover:bg-blue-100"
+                        onClick={() => {
+                          setEditData({
+                            componentLockId: lock.componentLockId,
+                            isLocked: lock.isLocked,
+                            reason: lock.reason,
+                            source: lock.source,
+                          });
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        <FiEdit size={14} /> Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* MODAL */}

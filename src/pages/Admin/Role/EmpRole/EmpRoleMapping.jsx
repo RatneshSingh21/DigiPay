@@ -4,6 +4,10 @@ import { FaPlus } from "react-icons/fa";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import { Inbox } from "lucide-react";
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const EmpRoleMapping = () => {
   const [mappings, setMappings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +36,7 @@ const EmpRoleMapping = () => {
     (map) =>
       map.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       map.employeeId.toString().includes(searchQuery.toLowerCase()) ||
-      map.roleName.toLowerCase().includes(searchQuery.toLowerCase())
+      map.roleName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Highlight matched text
@@ -47,7 +51,7 @@ const EmpRoleMapping = () => {
         </span>
       ) : (
         part
-      )
+      ),
     );
   };
 
@@ -64,15 +68,20 @@ const EmpRoleMapping = () => {
             placeholder="Search by Employee, ID, or Role"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
+            className={inputClass}
           />
 
           {/* Add Button */}
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center cursor-pointer gap-2 text-xs bg-primary text-white px-3 py-2 rounded-lg hover:bg-secondary transition"
+            className="flex items-center gap-2 cursor-pointer
+             text-sm font-medium
+             bg-primary text-white
+             px-4 py-2
+             rounded-lg
+             hover:bg-secondary transition"
           >
-            <FaPlus /> Add Mapping
+            <FaPlus size={14} /> AddMapping
           </button>
         </div>
       </div>
@@ -103,11 +112,11 @@ const EmpRoleMapping = () => {
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto shadow">
-            <table className="min-w-full divide-y text-xs text-center divide-gray-200">
-              <thead className="bg-gray-100 text-gray-600">
-                <tr>
-                  <th className="p-2">Employee ID</th>
+          <div className="overflow-x-auto border border-gray-200 rounded-lg">
+            <table className="min-w-full text-xs">
+              <thead className="bg-gray-100 text-gray-700 uppercase">
+                <tr className="text-center">
+                  <th className="p-2">S.No</th>
                   <th className="p-2">Employee Name</th>
                   <th className="p-2">Role</th>
                   <th className="p-2">Assigned At</th>
@@ -118,17 +127,15 @@ const EmpRoleMapping = () => {
                 {filteredMappings.map((map, idx) => (
                   <tr
                     key={map.employeeRoleMappingId}
-                    className={`${
-                      idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    } hover:bg-blue-50 transition`}
+                    className="border-t border-gray-200 hover:bg-blue-50 transition text-center"
                   >
-                    <td className="p-2">{highlightText(map.employeeId)}</td>
+                    <td className="p-2">{idx + 1}.</td>
                     <td className="p-2">{highlightText(map.employeeName)}</td>
                     <td className="p-2 font-medium">
                       {highlightText(map.roleName)}
                     </td>
                     <td className="p-2">
-                      {new Date(map.assignedAt).toLocaleString()}
+                      {new Date(map.assignedAt).toLocaleString("en-Gb")}
                     </td>
                     <td className="p-2">{highlightText(map.assignedBy)}</td>
                   </tr>

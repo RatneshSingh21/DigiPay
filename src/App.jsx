@@ -60,11 +60,14 @@ import StatusMaster from "./pages/Admin/Settings/StatusMaster";
 import Salary from "./pages/Admin/Settings/Salary";
 import SalaryCalculationType from "./pages/Admin/Settings/SalaryCalculationType/SalaryCalculationType";
 import ComponentLock from "./pages/Admin/Settings/ComponentLock/ComponentLock";
+import EmployeePasswordSetup from "./pages/Admin/Settings/EmployeePasswordSetUp/EmployeePasswordSetup";
 
 //Admin Role Pages
 import RoleMaster from "./pages/Admin/Role/RoleMaster";
 import RoleApproval from "./pages/Admin/Role/RoleApproval/RoleApproval";
 import EmpRoleMapping from "./pages/Admin/Role/EmpRole/EmpRoleMapping";
+import EmployeeReportingList from "./pages/Admin/Role/EmployeeReporting/EmployeeReportingList";
+import DepartmentAuthorityList from "./pages/Admin/Role/DepartmentManager/DepartmentAuthorityList";
 
 //Admin Shift Pages
 import Shifts from "./pages/Admin/Shift/Shifts";
@@ -279,6 +282,10 @@ const App = () => {
                       element={<SalaryCalculationType />}
                     />
                     <Route path="component-lock" element={<ComponentLock />} />
+                    <Route
+                      path="employee-password-setup"
+                      element={<EmployeePasswordSetup />}
+                    />
                   </Route>
 
                   {/* Role SubRoutes */}
@@ -289,6 +296,15 @@ const App = () => {
                     <Route
                       path="emp-role-mapping"
                       element={<EmpRoleMapping />}
+                    />
+
+                    <Route
+                      path="employee-reporting-list"
+                      element={<EmployeeReportingList />}
+                    />
+                    <Route
+                      path="department-manager-mapping"
+                      element={<DepartmentAuthorityList />}
                     />
                   </Route>
 

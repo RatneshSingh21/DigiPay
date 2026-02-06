@@ -85,6 +85,7 @@ const AttendanceList = ({
                         <th className="py-2 px-3">Employee</th>
                         <th className="py-2 px-3">In Time</th>
                         <th className="py-2 px-3">Out Time</th>
+                        <th className="py-2 px-3">Total Hours</th>
                         <th className="py-2 px-3">Status</th>
                         <th className="py-2 px-3">Mode</th>
                         <th className="py-2 px-3">Manual</th>
@@ -124,6 +125,9 @@ const AttendanceList = ({
                               time={item.outTime}
                               remark={item.outRemark}
                             />
+                          </td>
+                          <td className="text-sm text-gray-700">
+                            {item.totalHoursFormatted}
                           </td>
 
                           <td className="py-2 px-3">

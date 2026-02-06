@@ -41,7 +41,7 @@ const AdminAttendance = () => {
             "User-Agent": "MyAttendanceApp/1.0",
             "Accept-Language": "en",
           },
-        }
+        },
       );
 
       const data = await res.json();
@@ -175,13 +175,13 @@ const AdminAttendance = () => {
       ============================ */
         const mergedData = Object.values(groupedBasic).map((punch) => {
           const punchDate = new Date(
-            punch.inTime || punch.outTime || punch.attendanceDate
+            punch.inTime || punch.outTime || punch.attendanceDate,
           ).toDateString();
 
           const processed = records.find(
             (rec) =>
               rec.employeeId === punch.employeeId &&
-              new Date(rec.attendanceDate).toDateString() === punchDate
+              new Date(rec.attendanceDate).toDateString() === punchDate,
           );
 
           return processed
@@ -220,8 +220,8 @@ const AdminAttendance = () => {
           mergedData.map((item) =>
             item.latitude && item.longitude
               ? getLocationName(item.latitude, item.longitude)
-              : Promise.resolve("-")
-          )
+              : Promise.resolve("-"),
+          ),
         );
 
         const updatedData = mergedData.map((item, i) => ({
@@ -240,7 +240,7 @@ const AdminAttendance = () => {
         const employeeIds = [...new Set(updatedData.map((a) => a.employeeId))];
 
         const employeeResults = await Promise.allSettled(
-          employeeIds.map((id) => axiosInstance.get(`/Employee/${id}`))
+          employeeIds.map((id) => axiosInstance.get(`/Employee/${id}`)),
         );
 
         const empMap = {};
@@ -261,11 +261,24 @@ const AdminAttendance = () => {
 
     fetchAttendance();
   }, []);
-  
 
   const formatTime = (time) => {
     if (!time) return "-";
     return format(new Date(time), "hh:mma");
+  };
+
+  const formatTotalHours = (inTime, outTime, totalHours) => {
+    // If backend already sends totalHours in minutes or hh:mm, handle separately
+    if (!inTime || !outTime) return "-";
+
+    const diffMs = new Date(outTime) - new Date(inTime);
+    if (diffMs <= 0) return "-";
+
+    const totalMinutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    return `${hours}h ${minutes}m`;
   };
 
   // 🔹 Filter attendance by active tab
@@ -362,7 +375,7 @@ const AdminAttendance = () => {
                       </td>
                       <td className="py-3 text-gray-800">
                         {new Date(att.attendanceDate).toLocaleDateString(
-                          "en-GB"
+                          "en-GB",
                         )}
                       </td>
                       <td>
@@ -382,9 +395,11 @@ const AdminAttendance = () => {
                         {formatTime(att.outTime)}
                       </td>
                       <td className="text-gray-700">
-                        {att.totalHours !== null
-                          ? att.totalHours.toFixed(2)
-                          : "-"}
+                        {formatTotalHours(
+                          att.inTime,
+                          att.outTime,
+                          att.totalHours,
+                        )}
                       </td>
                       <td
                         className="text-gray-600 text-xs max-w-[100px] truncate cursor-help"

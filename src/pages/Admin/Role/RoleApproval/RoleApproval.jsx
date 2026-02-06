@@ -11,10 +11,12 @@ const RoleApproval = () => {
   const [rules, setRules] = useState([]);
   const [ruleRoles, setRuleRoles] = useState([]);
   const [availableRoles, setAvailableRoles] = useState([]);
+  const [editingRuleId, setEditingRuleId] = useState(null);
 
   const [formData, setFormData] = useState({
     requestType: "",
     allowCustomApprover: false,
+    ownerAutoApprove: false,
   });
 
   const [roleAssignment, setRoleAssignment] = useState({
@@ -76,7 +78,7 @@ const RoleApproval = () => {
     const ruleExists = rules.some(
       (r) =>
         r.requestType.toLowerCase() ===
-        formData.requestType.trim().toLowerCase()
+        formData.requestType.trim().toLowerCase(),
     );
 
     if (ruleExists) {
@@ -88,6 +90,7 @@ const RoleApproval = () => {
       await axiosInstance.post("/ApprovalRule", {
         requestType: formData.requestType.trim(),
         allowCustomApprover: formData.allowCustomApprover,
+        ownerAutoApprove: formData.ownerAutoApprove,
       });
 
       toast.success("Rule created successfully");
@@ -95,12 +98,42 @@ const RoleApproval = () => {
       setFormData({
         requestType: "",
         allowCustomApprover: false,
+        ownerAutoApprove: false,
       });
 
       setIsRuleModalOpen(false);
       fetchRules();
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to create rule");
+    }
+  };
+
+  const updateRule = async () => {
+    if (!formData.requestType.trim()) {
+      toast.error("Request Type is required");
+      return;
+    }
+
+    try {
+      await axiosInstance.put(`/ApprovalRule/${editingRuleId}`, {
+        requestType: formData.requestType.trim(),
+        allowCustomApprover: formData.allowCustomApprover,
+        ownerAutoApprove: formData.ownerAutoApprove,
+      });
+
+      toast.success("Rule updated successfully");
+
+      setFormData({
+        requestType: "",
+        allowCustomApprover: false,
+        ownerAutoApprove: false,
+      });
+
+      setEditingRuleId(null);
+      setIsRuleModalOpen(false);
+      fetchRules();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to update rule");
     }
   };
 
@@ -115,12 +148,12 @@ const RoleApproval = () => {
     const existingRoleForSequence = ruleRoles.find(
       (r) =>
         r.ruleId === roleAssignment.ruleId &&
-        r.sequenceOrder === roleAssignment.sequenceOrder
+        r.sequenceOrder === roleAssignment.sequenceOrder,
     );
 
     if (existingRoleForSequence) {
       toast.error(
-        `Sequence order ${roleAssignment.sequenceOrder} is already used for this rule`
+        `Sequence order ${roleAssignment.sequenceOrder} is already used for this rule`,
       );
       return;
     }
@@ -162,7 +195,16 @@ const RoleApproval = () => {
             </h3>
 
             <button
-              onClick={() => setIsRuleModalOpen(true)}
+              onClick={() => {
+                // Reset form for creating new rule
+                setFormData({
+                  requestType: "",
+                  allowCustomApprover: false,
+                  ownerAutoApprove: false,
+                });
+                setEditingRuleId(null); // important: tells modal it's "create" mode
+                setIsRuleModalOpen(true);
+              }}
               className="bg-primary text-sm hover:opacity-80 cursor-pointer flex items-center text-white px-5 py-2 rounded-lg shadow-md"
             >
               <FaPlus className="mr-2" /> Create Rule
@@ -182,6 +224,8 @@ const RoleApproval = () => {
                     <th className="p-2">S.No</th>
                     <th className="p-2">Request Type</th>
                     <th className="p-2">Custom Approver</th>
+                    <th className="p-2">Owner Auto-Approve</th>
+                    <th className="p-2">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -206,6 +250,34 @@ const RoleApproval = () => {
                             No
                           </span>
                         )}
+                      </td>
+                      <td className="p-2 text-center">
+                        {r.ownerAutoApprove ? (
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                            Yes
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
+                            No
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={() => {
+                            setFormData({
+                              requestType: r.requestType,
+                              allowCustomApprover: r.allowCustomApprover,
+                              ownerAutoApprove: r.ownerAutoApprove,
+                            });
+                            setEditingRuleId(r.ruleId);
+                            setIsRuleModalOpen(true);
+                          }}
+                          className="text-blue-600 text-xs hover:underline"
+                        >
+                          Edit
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -283,10 +355,14 @@ const RoleApproval = () => {
         {/* Modals */}
         <RuleModal
           isOpen={isRuleModalOpen}
-          onClose={() => setIsRuleModalOpen(false)}
+          onClose={() => {
+            setIsRuleModalOpen(false);
+            setEditingRuleId(null);
+          }}
           formData={formData}
           setFormData={setFormData}
-          createRule={createRule}
+          createRule={editingRuleId ? updateRule : createRule}
+          isEdit={Boolean(editingRuleId)}
         />
 
         <RoleModal

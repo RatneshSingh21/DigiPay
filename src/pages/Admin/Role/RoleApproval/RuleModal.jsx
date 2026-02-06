@@ -2,7 +2,32 @@ import React from "react";
 import { X } from "lucide-react";
 import CreatableSelect from "react-select/creatable";
 
-const RuleModal = ({ isOpen, onClose, formData, setFormData, createRule }) => {
+const selectStyles = {
+  control: (base, state) => ({
+    ...base,
+    borderRadius: "0.75rem",
+    borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
+    minHeight: "40px",
+    boxShadow: state.isFocused ? "0 0 0 2px rgba(59,130,246,0.25)" : "none",
+    "&:hover": {
+      borderColor: "#3b82f6",
+    },
+    fontSize: "0.875rem",
+  }),
+  menu: (base) => ({
+    ...base,
+    zIndex: 60,
+  }),
+};
+
+const RuleModal = ({
+  isOpen,
+  onClose,
+  formData,
+  setFormData,
+  createRule,
+  isEdit,
+}) => {
   if (!isOpen) return null;
 
   const options = [
@@ -13,65 +38,57 @@ const RuleModal = ({ isOpen, onClose, formData, setFormData, createRule }) => {
   ];
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative animate-slideUp">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl animate-slideUp">
         {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-gray-800">
-            Create Approval Rule
+        <div className="mb-6 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-800">
+            {isEdit ? "Edit Approval Rule" : "Create Approval Rule"}
           </h3>
           <button
             onClick={onClose}
-            className="cursor-pointer text-gray-400 hover:text-gray-600 transition"
+            className="rounded-md p-1 text-gray-400 cursor-pointer hover:text-gray-600 hover:bg-gray-100 transition"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Request Type (Creatable Select) */}
+        {/* Request Type */}
         <div className="mb-4">
-          <label className="text-sm font-medium text-gray-700 block mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
             Request Type
           </label>
           <CreatableSelect
             isClearable
             autoFocus
             options={options}
-            placeholder="Select or type to add new..."
+            placeholder="Select or type to add new"
             value={
               formData.requestType
-                ? { value: formData.requestType, label: formData.requestType }
+                ? {
+                    value: formData.requestType,
+                    label: formData.requestType,
+                  }
                 : null
             }
-            onChange={(selectedOption) =>
+            onChange={(option) =>
               setFormData({
                 ...formData,
-                requestType: selectedOption ? selectedOption.value : "",
+                requestType: option ? option.value : "",
               })
             }
-            formatCreateLabel={(inputValue) => ` Add "${inputValue}"`}
-            classNamePrefix="select"
-            styles={{
-              control: (base) => ({
-                ...base,
-                borderColor: "#93c5fd",
-                borderRadius: "0.5rem",
-                minHeight: "38px",
-                boxShadow: "none",
-                "&:hover": { borderColor: "#60a5fa" },
-              }),
-            }}
+            formatCreateLabel={(value) => `Add "${value}"`}
+            styles={selectStyles}
           />
         </div>
 
-        {/* Checkbox */}
-        <div className="mb-6">
-          <label
-            htmlFor="customApprover"
-            className="flex items-center gap-2 cursor-pointer select-none text-gray-700"
-          >
+        {/* Rule Options */}
+        <div className="mb-6 rounded-xl border border-gray-200 p-4">
+          <p className="mb-3 text-sm font-medium text-gray-700">Rule Options</p>
+
+          {/* Allow Custom Approver */}
+          <label className="mb-3 flex items-center gap-2 text-sm text-gray-700">
             <input
-              id="customApprover"
               type="checkbox"
               checked={formData.allowCustomApprover}
               onChange={(e) =>
@@ -80,9 +97,25 @@ const RuleModal = ({ isOpen, onClose, formData, setFormData, createRule }) => {
                   allowCustomApprover: e.target.checked,
                 })
               }
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             Allow Custom Approver
+          </label>
+
+          {/* Owner Auto Approve */}
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={formData.ownerAutoApprove}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  ownerAutoApprove: e.target.checked,
+                })
+              }
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            Owner Auto Approve
           </label>
         </div>
 
@@ -90,15 +123,15 @@ const RuleModal = ({ isOpen, onClose, formData, setFormData, createRule }) => {
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg cursor-pointer border text-sm border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm cursor-pointer text-gray-600 hover:bg-gray-100 transition"
           >
             Cancel
           </button>
           <button
             onClick={createRule}
-            className="px-5 py-2 rounded-lg cursor-pointer bg-primary text-sm text-white hover:bg-secondary transition shadow-sm"
+            className="rounded-lg bg-primary px-5 py-2 text-sm cursor-pointer text-white hover:bg-secondary transition"
           >
-            Save Rule
+            {isEdit ? "Update Rule" : "Save Rule"}
           </button>
         </div>
       </div>

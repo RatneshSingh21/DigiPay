@@ -14,10 +14,16 @@ const submenuMap = {
     "Work Type",
     "General Imports",
     "General Settings",
-    "FullEmployee Data"
+    "FullEmployee Data",
   ],
 
-  Role: ["Role Master", "Role Approval", "Emp. Role Mapping"],
+  Role: [
+    "Role Master",
+    "Role Approval",
+    "Emp. Role Mapping",
+    "Employee Reporting List",
+    "Department Manager Mapping",
+  ],
 
   Leave: [
     "Leave Types",
@@ -59,7 +65,7 @@ const submenuMap = {
     "Attendance Machine",
     "Emp Machine Mapping",
     "Machine Data Log",
-    "Attendance Lock"
+    "Attendance Lock",
   ],
 
   Reports: [
@@ -100,6 +106,7 @@ const submenuMap = {
     "Salary Calculation Type",
     "Status Master",
     "Component Lock",
+    "Employee Password Setup",
   ],
 };
 

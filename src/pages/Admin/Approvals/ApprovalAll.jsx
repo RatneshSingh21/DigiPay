@@ -33,6 +33,7 @@ const ApprovalAll = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedApproval, setSelectedApproval] = useState(null);
   const [selectedAction, setSelectedAction] = useState(null);
+  const [approvers, setApprovers] = useState([]);
 
   const [filters, setFilters] = useState({
     requestType: null,
@@ -74,14 +75,14 @@ const ApprovalAll = () => {
   }, []);
 
   const dashboardStatuses = statuses.filter((s) =>
-    DASHBOARD_STATUSES.includes(s.statusName)
+    DASHBOARD_STATUSES.includes(s.statusName),
   );
 
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const res = await axiosInstance.get(
-          `/user-auth/getEmployee/companyId/${companyId}`
+          `/user-auth/getEmployee/companyId/${companyId}`,
         );
         setEmployees(res.data.data || []);
       } catch (err) {
@@ -90,6 +91,32 @@ const ApprovalAll = () => {
     };
     fetchEmployees();
   }, []);
+
+  useEffect(() => {
+    const fetchApprovers = async () => {
+      try {
+        const res = await axiosInstance.get("/user-auth/unified-users");
+
+        const approverUsers = (res.data.data || [])
+          .filter(
+            (u) =>
+              
+              (u.roles.includes("Hod") || u.roles.includes("SuperAdmin")),
+          )
+          .map((u) => ({
+            id: u.employeeId ?? u.userId,
+            fullName: u.name,
+            role: u.roles?.[0] || "N/A", // 👈 store role
+          }));
+
+        setApprovers(approverUsers);
+      } catch (err) {
+        console.error("Failed to fetch approvers", err);
+      }
+    };
+
+    fetchApprovers();
+  }, [companyId]);
 
   // Open modal
   const openModal = (approval, action) => {
@@ -120,8 +147,8 @@ const ApprovalAll = () => {
                 comments: comments || item.comments,
                 updatedOn: new Date(),
               }
-            : item
-        )
+            : item,
+        ),
       );
       toast.success("Status updated successfully!");
     } catch (err) {
@@ -139,19 +166,19 @@ const ApprovalAll = () => {
   if (error) return <div className="p-4 text-red-600 text-center">{error}</div>;
 
   const approveStatusId = statuses.find(
-    (s) => s.statusName.toLowerCase() === "approved"
+    (s) => s.statusName.toLowerCase() === "approved",
   )?.statusId;
   const rejectStatusId = statuses.find(
-    (s) => s.statusName.toLowerCase() === "rejected"
+    (s) => s.statusName.toLowerCase() === "rejected",
   )?.statusId;
 
   // Filtered approvals
   const filteredApprovals = approvals.filter((approval) => {
     const employee = employees.find((e) => e.id === approval.employeeId);
-    const approver = employees.find((e) => e.id === approval.approverId);
+    const approver = approvers.find((a) => a.id === approval.approverId);
 
     const statusName = statuses.find(
-      (s) => s.statusId === approval.statusId
+      (s) => s.statusId === approval.statusId,
     )?.statusName;
 
     return (
@@ -177,7 +204,7 @@ const ApprovalAll = () => {
   FILTER_STATUSES.forEach((status) => {
     statusCounts[status] = filteredApprovals.filter(
       (a) =>
-        statuses.find((s) => s.statusId === a.statusId)?.statusName === status
+        statuses.find((s) => s.statusId === a.statusId)?.statusName === status,
     ).length;
   });
 
@@ -187,7 +214,7 @@ const ApprovalAll = () => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen">
+    <div className="bg-linear-to-b from-gray-50 to-gray-100 min-h-screen">
       {/* Header */}{" "}
       <div className="px-4 py-2 shadow mb-5 bg-white z-10 flex justify-between items-center">
         {" "}
@@ -208,7 +235,7 @@ const ApprovalAll = () => {
             (rt) => ({
               label: rt,
               value: rt,
-            })
+            }),
           )}
           value={filters.requestType}
           onChange={(val) => setFilters({ ...filters, requestType: val })}
@@ -238,9 +265,9 @@ const ApprovalAll = () => {
 
         <Select
           placeholder="Approver"
-          options={employees.map((e) => ({
-            label: e.fullName,
-            value: e.id,
+          options={approvers.map((a) => ({
+            label: a.fullName,
+            value: a.id,
           }))}
           value={filters.approver}
           onChange={(val) => setFilters({ ...filters, approver: val })}
@@ -296,7 +323,7 @@ const ApprovalAll = () => {
               const employee =
                 employees.find((e) => e.id === approval.employeeId) || {};
               const approver =
-                employees.find((e) => e.id === approval.approverId) || {};
+                approvers.find((a) => a.id === approval.approverId) || {};
 
               return (
                 <div
@@ -313,8 +340,8 @@ const ApprovalAll = () => {
                         currentStatus.toLowerCase() === "approved"
                           ? "bg-green-100 text-green-700"
                           : currentStatus.toLowerCase() === "rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-blue-100 text-blue-700"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-blue-100 text-blue-700"
                       }`}
                     >
                       {currentStatus}
@@ -336,7 +363,7 @@ const ApprovalAll = () => {
                       <strong>Approver:</strong>{" "}
                       {approver.fullName || "Unknown"}{" "}
                       <span className="text-gray-500 text-xs">
-                        ({approver.employeeCode || "N/A"})
+                        ({approver.role || "N/A"})
                       </span>
                     </p>
                   </div>
@@ -371,7 +398,7 @@ const ApprovalAll = () => {
                             "en-GB",
                             {
                               hour12: true,
-                            }
+                            },
                           )}
                         </span>
                       </div>
@@ -384,7 +411,7 @@ const ApprovalAll = () => {
                       {approveStatusId && (
                         <button
                           onClick={() => openModal(approval, approveStatusId)}
-                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-sm font-semibold py-2 rounded-lg shadow-md hover:shadow-lg cursor-pointer transition-all duration-300"
+                          className="flex-1 flex items-center justify-center gap-2 bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-sm font-semibold py-2 rounded-lg shadow-md hover:shadow-lg cursor-pointer transition-all duration-300"
                         >
                           <TiTick className="text-lg" /> Approve
                         </button>
@@ -392,7 +419,7 @@ const ApprovalAll = () => {
                       {rejectStatusId && (
                         <button
                           onClick={() => openModal(approval, rejectStatusId)}
-                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white text-sm font-semibold py-2 rounded-lg shadow-md hover:shadow-lg cursor-pointer transition-all duration-300"
+                          className="flex-1 flex items-center justify-center gap-2 bg-linear-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white text-sm font-semibold py-2 rounded-lg shadow-md hover:shadow-lg cursor-pointer transition-all duration-300"
                         >
                           <MdClose className="text-lg" /> Reject
                         </button>

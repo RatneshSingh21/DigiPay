@@ -35,7 +35,7 @@ import {
 } from "react-icons/md";
 import { GoLocation } from "react-icons/go";
 import { GiBookCover } from "react-icons/gi";
-import { RiShieldKeyholeLine } from "react-icons/ri";
+import { RiShieldKeyholeLine, RiUserSettingsLine } from "react-icons/ri";
 import {
   AiFillDashboard,
   AiOutlinePlusCircle,
@@ -101,11 +101,14 @@ const labelToPath = {
   "Status Master": "status-master",
   "Salary Calculation Type": "salary-calculation-type",
   "Component Lock": "component-lock",
+  "Employee Password Setup": "employee-password-setup",
 
   // Role
   "Role Master": "role-master",
   "Role Approval": "role-approval",
   "Emp. Role Mapping": "emp-role-mapping",
+  "Employee Reporting List": "employee-reporting-list",
+  "Department Manager Mapping": "department-manager-mapping",
 
   // Reports
   "Salary Register": "salary-register",
@@ -212,11 +215,14 @@ const labelToIcon = {
   "LetterField Master": <HiOutlineDocumentReport className="mr-2" />,
   "Salary Calculation Type": <TbMathFunction className="mr-2" />,
   "Component Lock": <HiLockClosed className="mr-2" />,
+  "Employee Password Setup": <RiUserSettingsLine className="mr-2" />,
 
   // Role
   "Role Master": <MdAdminPanelSettings className="mr-2" />,
   "Role Approval": <MdAdminPanelSettings className="mr-2" />,
   "Emp. Role Mapping": <MdAdminPanelSettings className="mr-2" />,
+  "Employee Reporting List": <FaProjectDiagram className="mr-2" />,
+  "Department Manager Mapping": <FaProjectDiagram className="mr-2" />,
 
   // Reports
   "Salary Register": <TbReportMoney className="mr-2" />,

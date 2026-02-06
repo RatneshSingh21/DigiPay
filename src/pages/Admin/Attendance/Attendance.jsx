@@ -29,6 +29,19 @@ const Attendance = () => {
   const [historyPage, setHistoryPage] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(5);
 
+  const formatTotalHours = (inTime, outTime) => {
+    if (!inTime || !outTime) return "-";
+
+    const diffMs = new Date(outTime) - new Date(inTime);
+    if (diffMs <= 0) return "-";
+
+    const totalMinutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    return `${hours}h ${minutes}m`;
+  };
+
   // ================= FETCH ATTENDANCE =================
   const fetchAttendance = async () => {
     try {
@@ -90,7 +103,10 @@ const Attendance = () => {
       });
 
       setAttendanceData(
-        Object.values(merged).map(({ _lastUpdated, ...rest }) => rest),
+        Object.values(merged).map(({ _lastUpdated, ...rest }) => ({
+          ...rest,
+          totalHoursFormatted: formatTotalHours(rest.inTime, rest.outTime),
+        })),
       );
     } catch {
       toast.error("Failed to fetch attendance");
