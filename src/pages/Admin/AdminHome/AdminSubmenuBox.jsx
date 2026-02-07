@@ -105,7 +105,8 @@ const labelToPath = {
 
   // Role
   "Role Master": "role-master",
-  "Role Approval": "role-approval",
+  "Approval Rules": "approval-rules",
+  "Approval RuleRoles": "approval-rule-roles",
   "Emp. Role Mapping": "emp-role-mapping",
   "Employee Reporting List": "employee-reporting-list",
   "Department Manager Mapping": "department-manager-mapping",
@@ -219,7 +220,8 @@ const labelToIcon = {
 
   // Role
   "Role Master": <MdAdminPanelSettings className="mr-2" />,
-  "Role Approval": <MdAdminPanelSettings className="mr-2" />,
+  "Approval Rules": <MdAdminPanelSettings className="mr-2" />,
+  "Approval RuleRoles": <MdAdminPanelSettings className="mr-2" />,
   "Emp. Role Mapping": <MdAdminPanelSettings className="mr-2" />,
   "Employee Reporting List": <FaProjectDiagram className="mr-2" />,
   "Department Manager Mapping": <FaProjectDiagram className="mr-2" />,

@@ -9,6 +9,9 @@ const Spinner = () => (
   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
 );
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const ShiftMapping = () => {
   const [shiftMappings, setShiftMappings] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -115,7 +118,7 @@ const ShiftMapping = () => {
   };
 
   const filtered = grouped.filter((g) =>
-    g.employeeName.toLowerCase().includes(search.toLowerCase())
+    g.employeeName.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -129,7 +132,7 @@ const ShiftMapping = () => {
             placeholder="Search employee..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm h-9"
+            className={inputClass + " h-9"}
           />
 
           <button
@@ -145,7 +148,7 @@ const ShiftMapping = () => {
             className="h-9 px-4 flex items-center gap-2 text-sm bg-primary hover:bg-secondary cursor-pointer text-white rounded-lg"
           >
             <FiPlus size={16} />
-            Assign Shift
+            AssignShift
           </button>
         </div>
       </div>
@@ -185,7 +188,7 @@ const ShiftMapping = () => {
                 className="flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-gray-50"
                 onClick={() =>
                   setExpandedId(
-                    expandedId === group.employeeId ? null : group.employeeId
+                    expandedId === group.employeeId ? null : group.employeeId,
                   )
                 }
               >
@@ -208,7 +211,7 @@ const ShiftMapping = () => {
                   expandedId === group.employeeId ? "max-h-[400px]" : "max-h-0"
                 }`}
               >
-                <div className="p-4 border-t bg-gray-50">
+                <div className="p-4 border-t border-gray-400 bg-gray-50">
                   <table className="min-w-full text-xs text-center">
                     <thead className="bg-gray-100">
                       <tr>
@@ -225,12 +228,12 @@ const ShiftMapping = () => {
                           </td>
                           <td className="px-3 py-2">
                             {new Date(r.effectiveFrom).toLocaleDateString(
-                              "en-GB"
+                              "en-GB",
                             )}
                           </td>
                           <td className="px-3 py-2">
                             {new Date(r.effectiveTo).toLocaleDateString(
-                              "en-GB"
+                              "en-GB",
                             )}
                           </td>
                         </tr>
@@ -249,7 +252,7 @@ const ShiftMapping = () => {
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-xl relative">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 cursor-pointer"
+              className="absolute top-3 right-3 text-gray-500 hover:text-red-700 cursor-pointer"
             >
               <FiX size={20} />
             </button>
@@ -285,7 +288,7 @@ const ShiftMapping = () => {
 
               <input
                 type="date"
-                className="border p-2 w-full rounded-lg"
+                className={inputClass}
                 onChange={(e) =>
                   setForm((p) => ({
                     ...p,
@@ -296,7 +299,7 @@ const ShiftMapping = () => {
 
               <input
                 type="date"
-                className="border p-2 w-full rounded-lg"
+                className={inputClass}
                 onChange={(e) =>
                   setForm((p) => ({
                     ...p,

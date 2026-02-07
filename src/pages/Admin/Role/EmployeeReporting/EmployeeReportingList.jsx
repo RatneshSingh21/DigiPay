@@ -193,8 +193,8 @@ const EmployeeReportingList = () => {
           <div className="overflow-x-auto border border-gray-200 rounded-lg">
             <table className="min-w-full text-xs">
               <thead className="bg-gray-100 text-gray-700 uppercase">
-                <tr>
-                  <th className="p-3 text-left">#</th>
+                <tr className="text-center">
+                  <th className="p-3">S.No</th>
                   <th className="p-3">Employee</th>
                   <th className="p-3">Manager</th>
                   <th className="p-3">Department</th>
@@ -210,8 +210,8 @@ const EmployeeReportingList = () => {
                     key={row.id}
                     className="border-t border-gray-200 hover:bg-blue-50 transition text-center"
                   >
-                    <td className="p-2 text-left text-gray-600">
-                      {(page - 1) * rowsPerPage + i + 1}
+                    <td className="p-2 text-gray-600">
+                      {(page - 1) * rowsPerPage + i + 1}.
                     </td>
 
                     <td className="p-2 font-medium text-gray-800">

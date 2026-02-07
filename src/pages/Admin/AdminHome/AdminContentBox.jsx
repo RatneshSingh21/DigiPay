@@ -19,7 +19,8 @@ const submenuMap = {
 
   Role: [
     "Role Master",
-    "Role Approval",
+    "Approval Rules",
+    "Approval RuleRoles",
     "Emp. Role Mapping",
     "Employee Reporting List",
     "Department Manager Mapping",

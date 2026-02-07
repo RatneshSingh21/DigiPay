@@ -5,6 +5,12 @@ import { Calendar, RefreshCw, Database, Clock, Users } from "lucide-react";
 import assets from "../../../../assets/assets.js";
 import { FiRefreshCw } from "react-icons/fi";
 
+
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
 /* ================= STATUS BADGE ================= */
 const StatusBadge = ({ status }) => {
   const map = {
@@ -160,13 +166,13 @@ const AttendanceMachineData = () => {
           <div className="relative">
             <Calendar
               size={16}
-              className="absolute left-3 top-2.5 text-gray-400"
+              className="absolute left-3 top-3.5 text-gray-400"
             />
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="border pl-9 cursor-pointer pr-3 py-2 rounded text-sm"
+              className={`${inputClass} pl-9 w-auto cursor-pointer`}
             />
           </div>
         </div>

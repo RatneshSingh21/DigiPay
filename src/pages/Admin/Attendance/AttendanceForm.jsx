@@ -3,8 +3,9 @@ import Select from "react-select";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
-import ImportExportAttendance from "./ImportExportAttendance"; // Import modal
+import ImportExportAttendance from "./ImportExportAttendance";
 import ExportAttendanceModal from "./ExportAttendanceModal";
+import BulkUpdateAttendance from "./BulkUpdateAttendance";
 
 const statusOptions = [
   { value: "Present", label: "Present" },
@@ -32,6 +33,7 @@ const AttendanceForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showImportExportModal, setShowImportExportModal] = useState(false); // Modal toggle state
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showBulkUpdateModal, setShowBulkUpdateModal] = useState(false);
 
   const [formData, setFormData] = useState({
     employee: null,
@@ -205,6 +207,12 @@ const AttendanceForm = () => {
 
         <div className="flex gap-2">
           <button
+            onClick={() => setShowBulkUpdateModal(true)}
+            className="bg-orange-600 text-white cursor-pointer px-4 py-2 text-sm rounded-md hover:bg-orange-700 transition"
+          >
+            Bulk Update (Excel)
+          </button>
+          <button
             onClick={() => setShowExportModal(true)}
             className="bg-green-600 text-white cursor-pointer px-4 py-2 text-sm rounded-md hover:bg-green-700 transition"
           >
@@ -363,6 +371,10 @@ const AttendanceForm = () => {
 
       {showExportModal && (
         <ExportAttendanceModal onClose={() => setShowExportModal(false)} />
+      )}
+
+      {showBulkUpdateModal && (
+        <BulkUpdateAttendance onClose={() => setShowBulkUpdateModal(false)} />
       )}
     </div>
   );

@@ -39,20 +39,28 @@ const EmpLeaveRequest = () => {
   // --------- Fetch Leave History ---------
   const fetchLeaveHistory = useCallback(async () => {
     if (!user?.userId) return;
+
+    const controller = new AbortController();
     setLoading(true);
+
     try {
-      const res = await axiosInstance.get("/EmployeeLeave");
-      const data = res.data?.data || [];
-      const filteredLeaves = data.filter(
-        (leave) => leave.employeeId === user.userId
+      const res = await axiosInstance.get(
+        `/EmployeeLeave/employee/${user.userId}`,
       );
-      setLeaveHistory(filteredLeaves);
+      let leaves = res.data?.data ?? [];
+
+      setLeaveHistory(leaves);
     } catch (err) {
-      console.error(err);
-      toast.error("Unable to load leave history.");
+      console.error("Leave history fetch failed:", err);
+      toast.error(
+        err.response?.data?.message || "Unable to load leave history",
+      );
     } finally {
       setLoading(false);
     }
+
+    // Cleanup (important)
+    return () => controller.abort();
   }, [user?.userId]);
 
   // --------- Fetch Leave Approvers ---------
@@ -64,7 +72,7 @@ const EmpLeaveRequest = () => {
       const ruleRes = await axiosInstance.get("/ApprovalRule");
       const rules = ruleRes.data?.data || [];
       const leaveRule = rules.find(
-        (r) => r.requestType?.toLowerCase() === "leave"
+        (r) => r.requestType?.toLowerCase() === "leave",
       );
       if (!leaveRule) return setLeaveApproverMapping({});
 
@@ -72,7 +80,7 @@ const EmpLeaveRequest = () => {
       const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
       const ruleRoles = ruleRoleRes.data?.data || [];
       const leaveRuleRoles = ruleRoles.filter(
-        (rr) => rr.ruleId === leaveRule.ruleId
+        (rr) => rr.ruleId === leaveRule.ruleId,
       );
       const allowedRoleIds = leaveRuleRoles.map((rr) => rr.roleId);
 
@@ -80,7 +88,7 @@ const EmpLeaveRequest = () => {
       const roleListRes = await axiosInstance.get("/RoleList/getall");
       const roleList = roleListRes.data || [];
       const superAdminRole = roleList.find(
-        (r) => r.roleName?.toLowerCase() === "superadmin"
+        (r) => r.roleName?.toLowerCase() === "superadmin",
       );
       const superAdminRoleId = superAdminRole?.roleID;
       const requiresSuperAdmin =
@@ -88,10 +96,10 @@ const EmpLeaveRequest = () => {
 
       // 4️⃣ Employee Approvers
       const empRes = await axiosInstance.get(
-        "/EmployeeRoleMapping/approvers/all"
+        "/EmployeeRoleMapping/approvers/all",
       );
       const leaveEmpRule = empRes.data?.find(
-        (r) => r.requestType?.toLowerCase() === "leave"
+        (r) => r.requestType?.toLowerCase() === "leave",
       );
       if (leaveEmpRule?.approvers?.length) {
         leaveEmpRule.approvers
@@ -108,9 +116,8 @@ const EmpLeaveRequest = () => {
           .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
           .sort((a, b) => a.userId - b.userId)[0];
         if (primarySuperAdmin) {
-          approverMap[
-            primarySuperAdmin.userId
-          ] = `${primarySuperAdmin.name} (SuperAdmin)`;
+          approverMap[primarySuperAdmin.userId] =
+            `${primarySuperAdmin.name} (SuperAdmin)`;
         }
       }
 
@@ -169,8 +176,7 @@ const EmpLeaveRequest = () => {
 
       {/* Leave History */}
       <div className="bg-white shadow rounded p-3">
-        <h3 className="text-xl font-semibold text-gray-700">Leave History</h3>
-        <div className="mt-4 mx-4 p-4 border overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh] bg-white shadow">
+        <div className="mt-4 mx-4 p-4 border overflow-x-scroll border-gray-200 rounded-lg max-h-[65vh] bg-white shadow">
           <table className="min-w-full divide-y divide-gray-200 text-xs text-center">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
@@ -206,7 +212,7 @@ const EmpLeaveRequest = () => {
                       }`}
                     >
                       <td className="px-4 py-3 border-r border-gray-200">
-                        {indexOfFirst + idx + 1}
+                        {indexOfFirst + idx + 1}.
                       </td>
                       <td className="px-4 py-3 border-r border-gray-200">
                         {leave.leaveName}

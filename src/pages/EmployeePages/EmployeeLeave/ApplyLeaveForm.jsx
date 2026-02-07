@@ -2,24 +2,23 @@ import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import Select from "react-select";
 import { toast } from "react-toastify";
-import { isBefore } from "date-fns";
 import useAuthStore from "../../../store/authStore";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
+
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
 const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
   const { user } = useAuthStore();
 
   const [leaveOptions, setLeaveOptions] = useState([]);
-  const [employeeOptions, setEmployeeOptions] = useState([]);
   const [leaveHistory, setLeaveHistory] = useState([]);
-  const [autoSelected, setAutoSelected] = useState(false);
   const [formData, setFormData] = useState({
     type: null,
     from: "",
     to: "",
     reason: "",
-    approvers: [],
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +31,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
       try {
         // 1️⃣ Employee allocations
         const allocationRes = await axiosInstance.get(
-          `/EmployeeLeaveAllocation/${user.userId}`
+          `/EmployeeLeaveAllocation/${user.userId}`,
         );
 
         const allocations = allocationRes.data?.data || [];
@@ -60,14 +59,14 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
                 a.leavesRemaining > 0
                   ? `${lt.leaveName} (Remaining: ${a.leavesRemaining})`
                   : `${lt.leaveName} (No Balance)`,
-
+              leaveName: lt.leaveName,
               code: lt.leaveCode,
               remainingLeaves: a.leavesRemaining,
               yearlyLimit: lt.maxLeavesPerYear,
               totalAllocated: a.totalLeavesAllocated,
               leavesTaken: a.leavesTaken,
 
-              isDisabled: a.leavesRemaining === 0, // ✅ THIS LINE IS IMPORTANT
+              isDisabled: a.leavesRemaining === 0, // THIS LINE IS IMPORTANT
             };
           })
           .filter(Boolean);
@@ -82,102 +81,6 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
     fetchAllocatedLeaves();
   }, [showModal, user?.userId]);
 
-  /* ===============================
-   FETCH APPROVERS (OPTIONS ONLY) WITH LOGS
-=============================== */
-  useEffect(() => {
-    if (!showModal) return;
-
-    const fetchApprovers = async () => {
-      try {
-        let approvers = [];
-
-        // 1️⃣ Fetch approval rules
-        const ruleRes = await axiosInstance.get("/ApprovalRule");
-        const rules = ruleRes.data?.data || [];
-
-        const leaveRule = rules.find(
-          (r) => r.requestType?.toLowerCase() === "leave"
-        );
-        if (!leaveRule) {
-          setEmployeeOptions([]);
-          return;
-        }
-
-        // 2️⃣ Allowed roles for this rule
-        const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
-        const ruleRoles = ruleRoleRes.data?.data || [];
-        const allowedRoleIds = ruleRoles
-          .filter((rr) => rr.ruleId === leaveRule.ruleId)
-          .map((rr) => rr.roleId);
-
-        // 3️⃣ Fetch all employees mapped as approvers
-        const empRes = await axiosInstance.get(
-          "/EmployeeRoleMapping/approvers/all"
-        );
-        const leaveEmpRule = empRes.data?.find(
-          (r) => r.requestType?.toLowerCase() === "leave"
-        );
-
-        if (leaveEmpRule?.approvers?.length) {
-          const filteredApprovers = leaveEmpRule.approvers
-            .filter((a) => allowedRoleIds.includes(a.roleId))
-            .map((a) => ({
-              value: `emp-${a.employeeId}`, // ✅ unique value
-              label: `${a.employeeName} (${a.roleName})`,
-              role: a.roleName,
-            }));
-          approvers.push(...filteredApprovers);
-        }
-
-        // 4️⃣ Add SuperAdmin as fallback
-        const usersRes = await axiosInstance.get("/user-auth/all");
-        const superAdmin = (usersRes.data || [])
-          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
-          .sort((a, b) => a.userId - b.userId)[0];
-
-        if (
-          superAdmin &&
-          !approvers.some((a) => a.value === `super-${superAdmin.userId}`)
-        ) {
-          approvers.push({
-            value: `super-${superAdmin.userId}`, // ✅ unique value
-            label: `${superAdmin.name} (SuperAdmin)`,
-            role: "SuperAdmin",
-          });
-        }
-
-        setEmployeeOptions(approvers);
-      } catch (err) {
-        console.error("Error fetching approvers:", err);
-        toast.error("Failed to load approvers");
-      }
-    };
-
-    fetchApprovers();
-  }, [showModal]);
-
-  /* ===============================
-     AUTO-SELECT SUPERADMIN (FIX)
-  =============================== */
-  useEffect(() => {
-    if (!showModal) return;
-    if (!employeeOptions.length) return;
-    if (autoSelected) return;
-
-    const superAdmin = employeeOptions.find(
-      (a) => a.role?.toLowerCase() === "superadmin"
-    );
-
-    if (superAdmin) {
-      setFormData((prev) => ({
-        ...prev,
-        approvers: [superAdmin],
-      }));
-      setAutoSelected(true);
-    }
-  }, [employeeOptions, showModal, autoSelected]);
-
   // -------- Fetch Leave History (for overlap validation) --------
   useEffect(() => {
     if (!showModal || !user?.userId) return;
@@ -186,7 +89,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
       .then((res) => {
         const data = res.data?.data || [];
         setLeaveHistory(
-          data.filter((leave) => leave.employeeId === user.userId)
+          data.filter((leave) => leave.employeeId === user.userId),
         );
       })
       .catch(() => toast.error("Unable to fetch leave history."));
@@ -207,7 +110,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
   // -------- Handle Submit --------
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { type, from, to, reason, approvers } = formData;
+    const { type, from, to, reason } = formData;
 
     if (!type || !from || !to || !reason) {
       setError("Please complete all fields.");
@@ -241,7 +144,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
 
     if (days > type.remainingLeaves) {
       setError(
-        `Only ${type.remainingLeaves} days remaining for ${type.label}.`
+        `Only ${type.remainingLeaves} days remaining for ${type.label}.`,
       );
       return;
     }
@@ -251,21 +154,17 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
       await axiosInstance.post("/EmployeeLeave", {
         employeeId: user.userId,
         leaveTypeId: type.value,
-        leaveName: type.label,
+        leaveName: type.leaveName,
         leaveCode: type.code,
         fromDate: startDate.toISOString(),
         toDate: endDate.toISOString(),
         reason,
-        customApproverIds:
-          approvers?.map((a) => {
-            const parts = a.value.split("-");
-            return parseInt(parts[1]); // original employee/user ID
-          }) || [],
+        customApproverIds: [],
       });
 
       toast.success(`Leave Applied Successfully for ${days} day(s)!`);
       refreshHistory?.();
-      setFormData({ type: null, from: "", to: "", reason: "", approvers: [] });
+      setFormData({ type: null, from: "", to: "", reason: "" });
       setError("");
       onClose();
     } catch (err) {
@@ -279,23 +178,24 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
   if (!showModal) return null;
 
   return (
-    <div className="fixed inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4">
-      <div className="bg-white p-6 rounded-lg shadow w-full max-w-md animate-fade-in">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-xl font-semibold text-gray-800">Apply Leave</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm px-4">
+      <div className="w-full max-w-md rounded-xl bg-white shadow-lg animate-fade-in">
+        <div className="flex items-center justify-between border-b border-gray-300 px-6 py-4">
+          <h3 className="text-lg font-semibold text-gray-800">Apply Leave</h3>
           <button onClick={onClose}>
-            <FaTimes className="text-gray-600 cursor-pointer hover:text-red-600" />
+            <FaTimes className="text-gray-500 hover:text-red-500 transition cursor-pointer" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-1">
+        <form onSubmit={handleSubmit} className="space-y-2 px-6 py-4">
           {error && (
-            <div className="bg-red-100 text-red-700 px-3 py-2 rounded text-sm">
+            <div className="rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
               {error}
             </div>
           )}
+
           {/* Leave Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="text-sm font-medium text-gray-700">
               Leave Type
             </label>
             <Select
@@ -304,15 +204,14 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
               onChange={(selected) =>
                 setFormData({ ...formData, type: selected })
               }
-              placeholder="Select Leave Type"
+              placeholder="Select leave type"
+              className="mt-1 text-sm"
               autoFocus
-              required
             />
           </div>
-          {/* Date range */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="text-sm font-medium text-gray-700">
                 From Date
               </label>
               <input
@@ -320,12 +219,13 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
                 name="from"
                 value={formData.from}
                 onChange={handleInputChange}
+                className={inputClass}
                 required
-                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="text-sm font-medium text-gray-700">
                 To Date
               </label>
               <input
@@ -333,44 +233,32 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
                 name="to"
                 value={formData.to}
                 onChange={handleInputChange}
+                className={inputClass}
                 required
-                className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
           </div>
           {/* Reason */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Reason
-            </label>
+            <label className="text-sm font-medium text-gray-700">Reason</label>
             <textarea
               name="reason"
               value={formData.reason}
               onChange={handleInputChange}
+              rows={3}
+              placeholder="Enter reason for leave"
+              className={inputClass}
               required
-              placeholder="Enter your reason for leave"
-              className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
-          {/* Approvers */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Approvers
-            </label>
-            <Select
-              options={employeeOptions}
-              value={formData.approvers}
-              onChange={(selected) =>
-                setFormData({ ...formData, approvers: selected })
-              }
-              isMulti
-              placeholder="Select approvers"
-            />
-          </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary cursor-pointer text-white py-2 mt-2 rounded hover:bg-secondary transition disabled:opacity-50"
+            className="mt-2 w-full rounded-md bg-primary py-2 text-sm cursor-pointer
+             font-medium text-white transition hover:bg-secondary
+             disabled:cursor-not-allowed disabled:opacity-50
+             flex items-center justify-center"
           >
             {loading ? <Spinner /> : "Submit Leave Request"}
           </button>

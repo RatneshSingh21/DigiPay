@@ -12,8 +12,6 @@ const inputClass =
 const EmployeeLeaveForm = ({ onClose }) => {
   const [employeeOptions, setEmployeeOptions] = useState([]);
   const [leaveTypes, setLeaveTypes] = useState([]);
-  const [approverOptions, setApproverOptions] = useState([]);
-  const [autoSelected, setAutoSelected] = useState(false);
 
   const [formData, setFormData] = useState({
     employee: null,
@@ -21,7 +19,6 @@ const EmployeeLeaveForm = ({ onClose }) => {
     fromDate: "",
     toDate: "",
     reason: "",
-    approvers: [],
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -80,6 +77,7 @@ const EmployeeLeaveForm = ({ onClose }) => {
             return {
               value: lt.leaveTypeId,
               label: `${lt.leaveName} (Remaining: ${a.leavesRemaining})`,
+              leaveName: lt.leaveName,
               leaveCode: lt.leaveCode,
               leavesRemaining: a.leavesRemaining,
             };
@@ -96,86 +94,6 @@ const EmployeeLeaveForm = ({ onClose }) => {
     fetchAllocatedLeaveTypes();
   }, [formData.employee]);
 
-  // Fetch Approvers
-  useEffect(() => {
-    const fetchApprovers = async () => {
-      try {
-        let approvers = [];
-
-        const ruleRes = await axiosInstance.get("/ApprovalRule");
-        const rules = ruleRes.data?.data || [];
-
-        const leaveRule = rules.find(
-          (r) => r.requestType?.toLowerCase() === "leave",
-        );
-        if (!leaveRule) return;
-
-        const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
-        const ruleRoles = ruleRoleRes.data?.data || [];
-
-        const allowedRoleIds = ruleRoles
-          .filter((rr) => rr.ruleId === leaveRule.ruleId)
-          .map((rr) => rr.roleId);
-
-        const empRes = await axiosInstance.get(
-          "/EmployeeRoleMapping/approvers/all",
-        );
-
-        const leaveEmpRule = empRes.data?.find(
-          (r) => r.requestType?.toLowerCase() === "leave",
-        );
-
-        if (leaveEmpRule?.approvers?.length) {
-          approvers.push(
-            ...leaveEmpRule.approvers
-              .filter((a) => allowedRoleIds.includes(a.roleId))
-              .map((a) => ({
-                value: `emp-${a.employeeId}`,
-                label: `${a.employeeName} (${a.roleName})`,
-                role: a.roleName,
-              })),
-          );
-        }
-
-        const usersRes = await axiosInstance.get("/user-auth/all");
-        const superAdmin = (usersRes.data || [])
-          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
-          .sort((a, b) => a.userId - b.userId)[0];
-
-        if (superAdmin) {
-          approvers.push({
-            value: `super-${superAdmin.userId}`,
-            label: `${superAdmin.name} (SuperAdmin)`,
-            role: "SuperAdmin",
-          });
-        }
-
-        setApproverOptions(approvers);
-      } catch (err) {
-        console.error("Error fetching approvers:", err);
-        toast.error("Failed to load approvers");
-      }
-    };
-
-    fetchApprovers();
-  }, []);
-
-  useEffect(() => {
-    if (!approverOptions.length || autoSelected) return;
-
-    const superAdmin = approverOptions.find(
-      (a) => a.role?.toLowerCase() === "superadmin",
-    );
-
-    if (superAdmin) {
-      setFormData((prev) => ({
-        ...prev,
-        approvers: [superAdmin],
-      }));
-      setAutoSelected(true);
-    }
-  }, [approverOptions, autoSelected]);
-
   // Handle Form Changes
   const handleInputChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -183,8 +101,7 @@ const EmployeeLeaveForm = ({ onClose }) => {
   // Submit Leave API
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { employee, leaveType, fromDate, toDate, reason, approvers } =
-      formData;
+    const { employee, leaveType, fromDate, toDate, reason } = formData;
 
     if (!employee || !leaveType || !fromDate || !toDate || !reason) {
       setError("All fields are required.");
@@ -203,15 +120,12 @@ const EmployeeLeaveForm = ({ onClose }) => {
       await axiosInstance.post("/EmployeeLeave", {
         employeeId: employee.value,
         leaveTypeId: leaveType.value,
-        leaveName: leaveType.label,
+        leaveName: leaveType.leaveName,
         leaveCode: leaveType.leaveCode,
         fromDate: new Date(fromDate).toISOString(),
         toDate: new Date(toDate).toISOString(),
         reason,
-        customApproverIds: approvers.map((a) => {
-          const parts = a.value.split("-");
-          return parseInt(parts[1], 10);
-        }),
+        customApproverIds: [],
       });
 
       toast.success("Leave successfully applied for the selected employee.");
@@ -221,8 +135,8 @@ const EmployeeLeaveForm = ({ onClose }) => {
         fromDate: "",
         toDate: "",
         reason: "",
-        approvers: [],
       });
+      onClose();
     } catch (err) {
       console.error(err?.response?.data);
       setError(err?.response?.data?.error || "Failed to apply leave.");
@@ -235,7 +149,7 @@ const EmployeeLeaveForm = ({ onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b bg-white">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
               Apply Employee Leave
@@ -348,26 +262,10 @@ const EmployeeLeaveForm = ({ onClose }) => {
               required
             />
           </div>
-
-          {/* Approvers */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Approvers
-            </label>
-            <Select
-              options={approverOptions}
-              value={formData.approvers}
-              onChange={(selected) =>
-                setFormData({ ...formData, approvers: selected })
-              }
-              isMulti
-              placeholder="Select approvers"
-            />
-          </div>
         </form>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t px-6 py-4 flex justify-end gap-3">
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
           <button
             type="button"
             onClick={onClose}

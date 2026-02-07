@@ -64,7 +64,8 @@ import EmployeePasswordSetup from "./pages/Admin/Settings/EmployeePasswordSetUp/
 
 //Admin Role Pages
 import RoleMaster from "./pages/Admin/Role/RoleMaster";
-import RoleApproval from "./pages/Admin/Role/RoleApproval/RoleApproval";
+import ApprovalRules from "./pages/Admin/Role/ApprovalRules/ApprovalRules";
+import ApprovalRuleRoles from "./pages/Admin/Role/ApprovalRuleRoles/ApprovalRuleRoles";
 import EmpRoleMapping from "./pages/Admin/Role/EmpRole/EmpRoleMapping";
 import EmployeeReportingList from "./pages/Admin/Role/EmployeeReporting/EmployeeReportingList";
 import DepartmentAuthorityList from "./pages/Admin/Role/DepartmentManager/DepartmentAuthorityList";
@@ -149,6 +150,7 @@ import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
+
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -292,7 +294,9 @@ const App = () => {
                   <Route path="role/*" element={<AdminContentBox />}>
                     <Route index element={<Navigate to="role-master" />} />
                     <Route path="role-master" element={<RoleMaster />} />
-                    <Route path="role-approval" element={<RoleApproval />} />
+                    <Route path="approval-rules" element={<ApprovalRules />} />
+                    <Route path="approval-rule-roles" element={<ApprovalRuleRoles />} />
+                    
                     <Route
                       path="emp-role-mapping"
                       element={<EmpRoleMapping />}

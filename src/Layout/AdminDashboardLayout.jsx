@@ -2,6 +2,7 @@ import AdminSidebar from "../pages/Admin/AdminHome/AdminSidebar";
 import AdminNavbar from "../pages/Admin/AdminHome/AdminNavbar";
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
+import SetupGuidePanel from "../components/setup/SetupGuidePanel";
 
 const AdminDashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -19,6 +20,7 @@ const AdminDashboardLayout = () => {
           <Outlet />
         </div>
       </div>
+      {/* <SetupGuidePanel /> */}
     </div>
   );
 };

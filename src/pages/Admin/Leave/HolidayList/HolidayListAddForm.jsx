@@ -5,6 +5,10 @@ import useAuthStore from "../../../../store/authStore";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import Spinner from "../../../../components/Spinner";
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(false);
@@ -80,9 +84,7 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
       description: "",
     });
 
-  const inputClass =
-    "w-full border rounded-lg px-3 py-2 text-xs border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
-
+  
   const renderInput = (label, name, type = "text", required = false) => (
     <div>
       <label className="block text-gray-700 font-medium text-sm mb-1">
@@ -143,11 +145,11 @@ const HolidayListAddForm = ({ onClose, isEdit, initialData, onSuccess }) => {
   return (
     <div className="fixed inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4">
       <div
-        className="bg-white p-6 rounded-lg shadow-lg max-w-2xl relative overflow-y-scroll max-h-[75vh]"
+        className="bg-white p-6 rounded-lg shadow-lg max-w-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          className="absolute cursor-pointer top-4 right-4 text-gray-600 hover:text-red-500 text-xl"
+          className="absolute cursor-pointer top-4 right-4 text-gray-600 hover:text-red-500 text-2xl"
           onClick={onClose}
         >
           &times;

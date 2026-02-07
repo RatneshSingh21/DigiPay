@@ -32,6 +32,10 @@ const BIOMETRIC_MACHINE_CATALOG = [
   },
 ];
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const emptyForm = {
   deviceCode: "",
   deviceName: "",
@@ -179,7 +183,7 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
           <CreatableSelect
             options={deviceCodeOptions}
             placeholder="Device Code"
-            isDisabled={!!editDevice} // ✅ DISABLE ON EDIT
+            isDisabled={!!editDevice} // DISABLE ON EDIT
             value={
               form.deviceCode
                 ? { value: form.deviceCode, label: form.deviceCode }
@@ -223,7 +227,7 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
           />
 
           <input
-            className="border rounded px-3 py-2"
+            className={inputClass}
             placeholder="IP Address"
             value={form.ipAddress}
             onChange={(e) => setForm({ ...form, ipAddress: e.target.value })}
@@ -231,7 +235,7 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
 
           <input
             type="number"
-            className="border rounded px-3 py-2"
+            className={inputClass}
             placeholder="Port"
             value={form.port}
             onChange={(e) => setForm({ ...form, port: Number(e.target.value) })}
@@ -241,14 +245,14 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
             placeholder="Model Number (optional)"
             value={form.modelNumber}
             onChange={(e) => setForm({ ...form, modelNumber: e.target.value })}
-            className="border px-3 py-2 rounded"
+            className={inputClass}
           />
 
           <input
             placeholder="Serial Number (optional)"
             value={form.serialNumber}
             onChange={(e) => setForm({ ...form, serialNumber: e.target.value })}
-            className="border px-3 py-2 rounded"
+            className={inputClass}
           />
           {/* INFO */}
           <div className="col-span-2 bg-gray-50 p-2 rounded text-xs text-gray-600">
@@ -285,21 +289,21 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
 
           {/* ADVANCED SECTION */}
           {showAdvanced && (
-            <div className="col-span-2 border-t pt-3">
+            <div className="col-span-2 border-t border-gray-400 pt-3">
               <input
                 placeholder="API Endpoint (eg: http://device-ip/api)"
                 value={form.apiEndpoint}
                 onChange={(e) =>
                   setForm({ ...form, apiEndpoint: e.target.value })
                 }
-                className="border px-3 py-2 rounded w-full mb-2"
+                className={inputClass}
               />
 
               <input
                 placeholder="API Key / Token"
                 value={form.apiKey}
                 onChange={(e) => setForm({ ...form, apiKey: e.target.value })}
-                className="border px-3 py-2 rounded w-full"
+                className={inputClass}
               />
 
               <p className="text-[11px] text-gray-400 mt-1">
@@ -316,8 +320,8 @@ const RegisterMachine = ({ open, onClose, onSuccess, editDevice }) => {
             {submitting
               ? "Saving..."
               : editDevice
-              ? "Update Device"
-              : "Add Device"}
+                ? "Update Device"
+                : "Add Device"}
           </button>
         </form>
       </div>

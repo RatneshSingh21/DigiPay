@@ -12,6 +12,10 @@ import { toast } from "react-toastify";
 import EmployeeLeaveAllocationForm from "./EmployeeLeaveAllocationForm";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 export default function EmployeeLeaveAllocation() {
   const [allocations, setAllocations] = useState([]);
   const [groupedAllocations, setGroupedAllocations] = useState([]);
@@ -221,13 +225,13 @@ export default function EmployeeLeaveAllocation() {
             placeholder="Search employee..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border rounded px-2 py-1 text-sm"
+            className={inputClass}
           />
 
           {/* IMPORT BUTTON */}
           <button
             onClick={() => fileInputRef.current.click()}
-            className="flex items-center cursor-pointer gap-2 px-3 py-1.5 border rounded hover:bg-gray-100"
+            className="flex items-center cursor-pointer gap-2 px-3 py-2 border rounded hover:bg-gray-100"
           >
             <FiUpload /> Import
           </button>
@@ -243,7 +247,7 @@ export default function EmployeeLeaveAllocation() {
           {/* EXPORT BUTTON */}
           <button
             onClick={handleExport}
-            className="flex items-center cursor-pointer gap-2 px-3 py-1.5 border rounded hover:bg-gray-100"
+            className="flex items-center cursor-pointer gap-2 px-3 py-2 border rounded hover:bg-gray-100"
           >
             <FiDownload /> Export
           </button>
