@@ -33,7 +33,7 @@ export default function AddOTRateSlabMaster({
   const [paymentAdjustments, setPaymentAdjustments] = useState([]);
 
   const inputClass =
-    "w-full border rounded-lg px-3 py-2 border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400";
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   useEffect(() => {
     axiosInstance
@@ -144,7 +144,7 @@ export default function AddOTRateSlabMaster({
         </button>
 
         {/* Header */}
-        <h2 className="text-2xl font-extrabold text-primary mb-1">
+        <h2 className="text-2xl font-bold mb-1">
           {isEdit ? "Edit" : "Create"} OT Rate Slab
         </h2>
         <p className="text-sm text-gray-500 mb-6">

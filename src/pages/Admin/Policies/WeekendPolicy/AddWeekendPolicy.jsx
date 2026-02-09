@@ -9,7 +9,7 @@ import WeekendRuleCard from "./WeekendRuleCard";
 /* ===================== TOGGLE CARD ===================== */
 const SettingCard = ({ title, description, children, warning }) => (
   <div
-    className={`rounded-lg border p-4 space-y-3 ${
+    className={`rounded-lg border border-gray-200 p-4 space-y-3 ${
       warning ? "bg-yellow-50 border-yellow-300" : "bg-gray-50"
     }`}
   >
@@ -112,14 +112,14 @@ const AddWeekendPolicy = ({ onClose, onSuccess, isEdit, initialData }) => {
       };
 
       if (isEdit === "Edit" && initialData?.weekendPolicyId) {
-        // ✅ UPDATE
+        // UPDATE
         await axiosInstance.put(
           `/WeekendPolicy/${initialData.weekendPolicyId}`,
           payload
         );
         toast.success("Weekend policy updated successfully");
       } else {
-        // ✅ CREATE
+        // CREATE
         await axiosInstance.post(
           "/WeekendPolicy/insert-Weekend-policy",
           payload
@@ -167,6 +167,10 @@ const AddWeekendPolicy = ({ onClose, onSuccess, isEdit, initialData }) => {
     }
   }, [isEdit, initialData]);
 
+  const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
   return (
     <div className="fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center">
       <div className="bg-white w-full max-w-4xl rounded-xl relative p-6 space-y-6 max-h-[80vh] overflow-y-scroll">
@@ -191,7 +195,7 @@ const AddWeekendPolicy = ({ onClose, onSuccess, isEdit, initialData }) => {
             description="Define which days are considered non-working by default."
           >
             <input
-              className="w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm"
+              className={inputClass}
               placeholder="Policy Name (e.g. IT Support - Sunday Allowed)"
               value={policy.policyName}
               onChange={(e) => updatePolicy("policyName", e.target.value)}

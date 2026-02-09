@@ -136,7 +136,7 @@ const EmployeePasswordModal = ({ isOpen, onClose, employee }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
       <div className="relative w-full max-w-3xl rounded-xl bg-white shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-400 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <h2 className="text-base font-semibold text-gray-800">
             Setup Employee Password
           </h2>

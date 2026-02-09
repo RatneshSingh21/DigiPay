@@ -73,7 +73,7 @@ const EmployeeNavbar = () => {
                 >
                   Profile Settings
                 </button>
-                <hr className="my-1" />
+                <hr className="my-1 text-gray-300" />
                 <button
                   onClick={handleLogout}
                   className="w-full text-left cursor-pointer px-4 py-2 text-red-500 hover:bg-gray-100 text-sm flex items-center gap-2"

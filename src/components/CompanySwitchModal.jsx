@@ -91,14 +91,14 @@ export default function CompanySwitchModal({
             className="w-full max-w-md rounded-xl bg-white shadow-2xl"
           >
             {/* ================= HEADER ================= */}
-            <div className="flex items-center justify-between border-b border-gray-500 px-5 py-4">
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
               <h2 className="text-base font-semibold">
                 {showAddForm ? "Add Company" : "Switch Company"}
               </h2>
 
               <button
                 onClick={onClose}
-                className="rounded-md p-1 cursor-pointer text-gray-500 hover:bg-gray-100"
+                className="rounded-md p-1 cursor-pointer text-gray-500 hover:bg-red-200 hover:text-red-600"
               >
                 <X size={18} />
               </button>
@@ -123,7 +123,7 @@ export default function CompanySwitchModal({
                         <button
                           key={c.companyId}
                           onClick={() => switchCompany(c.companyId)}
-                          className={`flex w-full items-center cursor-pointer justify-between rounded-lg border px-3 py-3 text-left transition
+                          className={`flex w-full items-center cursor-pointer justify-between rounded-lg border border-gray-200 px-3 py-3 text-left transition
                             ${
                               active
                                 ? "border-primary bg-gray-100"
@@ -149,7 +149,7 @@ export default function CompanySwitchModal({
                     })}
                   </div>
 
-                  <div className="mt-4 border-t pt-4">
+                  <div className="mt-4 border-t border-gray-400 pt-4">
                     <button
                       onClick={() => setShowAddForm(true)}
                       className="w-full rounded-md border border-dashed cursor-pointer border-primary py-2 text-sm font-medium text-primary hover:bg-primary hover:text-white"

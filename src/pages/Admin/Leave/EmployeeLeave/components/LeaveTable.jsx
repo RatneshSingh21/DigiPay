@@ -1,9 +1,41 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { format } from "date-fns";
-import { FiInbox } from "react-icons/fi"; // Empty state icon
 import assets from "../../../../../assets/assets";
+import ApprovalHistoryCell from "../../../../../components/ApprovalHistoryCell";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
+
+const getFinalApproval = (leave) => {
+  if (!leave.approvalHistory || leave.approvalHistory.length === 0) {
+    return {
+      status: "Pending",
+      approverName: null,
+      approverType: null,
+      actionDate: null,
+    };
+  }
+
+  // last approval = latest decision
+  return leave.approvalHistory[leave.approvalHistory.length - 1];
+};
+
+const ApprovalBadge = ({ status }) => {
+  const styles = {
+    Approved: "bg-green-100 text-green-800",
+    Rejected: "bg-red-100 text-red-800",
+    Pending: "bg-yellow-100 text-yellow-800",
+  };
+
+  return (
+    <span
+      className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+        styles[status] || "bg-gray-100 text-gray-700"
+      }`}
+    >
+      {status}
+    </span>
+  );
+};
 
 const LeaveTable = ({ leaves }) => {
   const [page, setPage] = useState(1);
@@ -67,13 +99,15 @@ const LeaveTable = ({ leaves }) => {
           </tr>
         </thead>
 
-        <tbody className="divide-y text-xs">
+        <tbody className="text-xs">
           {paginatedLeaves.map((leave, index) => (
             <tr
               key={leave.applyLeaveId}
-              className="hover:bg-gray-50 transition text-center"
+              className="hover:bg-gray-50 border-t border-gray-200 transition text-center"
             >
-              <td className="px-4 py-3">{(page - 1) * pageSize + index + 1}.</td>
+              <td className="px-4 py-3">
+                {(page - 1) * pageSize + index + 1}.
+              </td>
               <td className="px-4 py-3 font-medium">{leave.employeeDisplay}</td>
               <td className="px-4 py-3">
                 <div className="font-medium">{leave.leaveName}</div>
@@ -88,7 +122,10 @@ const LeaveTable = ({ leaves }) => {
               <td className="px-4 py-3 max-w-xs truncate">
                 {leave.reason || "-"}
               </td>
-              <td className="px-4 py-3">{getStatusBadge(leave)}</td>
+              {/* <td className="px-4 py-3">{getStatusBadge(leave)}</td> */}
+              <td className="px-4 py-3">
+                <ApprovalHistoryCell approvalHistory={leave.approvalHistory} />
+              </td>
               <td className="px-4 py-3">
                 {format(new Date(leave.createdOn), "dd MMM yyyy")}
               </td>
@@ -98,13 +135,13 @@ const LeaveTable = ({ leaves }) => {
       </table>
 
       {/* PAGINATION */}
-      <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-3 border-t">
+      <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-3 border-t border-gray-200">
         <div className="flex items-center gap-2 text-sm">
           <span>Rows per page:</span>
           <select
             value={pageSize}
             onChange={(e) => setPageSize(Number(e.target.value))}
-            className="border rounded px-2 py-1 text-sm"
+            className="border border-gray-200 rounded px-2 py-1 text-sm"
           >
             {PAGE_SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>
@@ -118,7 +155,7 @@ const LeaveTable = ({ leaves }) => {
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
-            className="px-3 py-1 border rounded cursor-pointer disabled:opacity-50"
+            className="px-3 py-1 border border-gray-200 rounded cursor-pointer disabled:opacity-50"
           >
             Prev
           </button>
@@ -128,7 +165,7 @@ const LeaveTable = ({ leaves }) => {
           <button
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className="px-3 py-1 border rounded cursor-pointer disabled:opacity-50"
+            className="px-3 py-1 border border-gray-200 rounded cursor-pointer disabled:opacity-50"
           >
             Next
           </button>

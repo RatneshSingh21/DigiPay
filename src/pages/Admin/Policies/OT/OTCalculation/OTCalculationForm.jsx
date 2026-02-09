@@ -4,6 +4,10 @@ import { FiX } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
 const OTCalculationForm = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     employeeId: "",
@@ -167,7 +171,7 @@ const OTCalculationForm = ({ onClose, onSuccess }) => {
               name="attendanceDate"
               value={formData.attendanceDate}
               onChange={handleChange}
-              className="w-full border rounded-md px-3 py-2 text-sm"
+              className={inputClass}
               required
             />
           </div>

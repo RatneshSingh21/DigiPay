@@ -46,7 +46,7 @@ const BlackoutStep = ({
       </button>
 
       {blackoutDates.map((bd, index) => (
-        <div key={index} className="border rounded-md p-4 space-y-3 bg-gray-50">
+        <div key={index} className="border border-gray-200 rounded-md p-4 space-y-3 bg-gray-50">
           {/* Row 1 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>

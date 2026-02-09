@@ -529,20 +529,14 @@ const ApprovalsByApprover = ({ approverId }) => {
                         </p>
                         <p>
                           <strong>From:</strong>
-                          {new Date(approval.details.fromDate).toLocaleString(
-                            "en-GB",
-                            {
-                              hour12: true,
-                            }
+                          {new Date(approval.details.fromDate).toLocaleDateString(
+                            "en-GB"
                           )}
                         </p>
                         <p>
                           <strong>To:</strong>
-                          {new Date(approval.details.toDate).toLocaleString(
-                            "en-GB",
-                            {
-                              hour12: true,
-                            }
+                          {new Date(approval.details.toDate).toLocaleDateString(
+                            "en-GB"
                           )}
                         </p>
                         <p>
@@ -611,18 +605,14 @@ const ApprovalsByApprover = ({ approverId }) => {
                           {approval.details.installmentAmount}
                         </p>
                         <p>
-                          <strong>Repayment:</strong>{" "}
+                          <strong>Repayment Starts:</strong>{" "}
                           {new Date(
                             approval.details.repaymentStartDate
-                          ).toLocaleString("en-GB", {
-                            hour12: true,
-                          })}{" "}
-                          →{" "}
+                          ).toLocaleDateString("en-GB")}{" "}
+                          {/* →{" "}
                           {new Date(
                             approval.details.repaymentEndDate
-                          ).toLocaleString("en-GB", {
-                            hour12: true,
-                          })}
+                          ).toLocaleDateString("en-GB")} */}
                         </p>
                       </>
                     )}

@@ -48,7 +48,7 @@ const SalaryCalculationTypeModal = ({
         </div>
 
         <div className="flex justify-end text-sm gap-3">
-          <button onClick={onClose} className="px-4 py-2 cursor-pointer rounded-md border">
+          <button onClick={onClose} className="px-4 py-2 cursor-pointer rounded-md border border-gray-300">
             Cancel
           </button>
 

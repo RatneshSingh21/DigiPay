@@ -51,6 +51,23 @@ const ApprovalRules = () => {
       return;
     }
 
+    if (formData.useMultiStageApproval) {
+      for (const stage of formData.stages) {
+        if (!stage.stageType) {
+          toast.error("Each stage must have a Stage Type");
+          return;
+        }
+
+        if (
+          stage.stageType === "SpecificDepartmentHOD" &&
+          !stage.departmentId
+        ) {
+          toast.error("Specific Department HOD requires a department");
+          return;
+        }
+      }
+    }
+
     const payload = {
       ...formData,
       stages: formData.useMultiStageApproval ? formData.stages : [],
@@ -198,7 +215,8 @@ const ApprovalRules = () => {
                                   className="text-xs border-l-2 border-blue-500 pl-2"
                                 >
                                   <div className="font-medium text-gray-800">
-                                    Stage {s.sequenceOrder} • {s.stageType}
+                                    Stage {s.sequenceOrder} •{" "}
+                                    {s.displayLabel || s.stageType}
                                   </div>
                                   <div className="text-gray-500">
                                     Department:{" "}
@@ -216,7 +234,22 @@ const ApprovalRules = () => {
                       <td className="p-2">
                         <button
                           onClick={() => {
-                            setFormData(r);
+                            setFormData({
+                              requestType: r.requestType,
+                              allowCustomApprover: r.allowCustomApprover,
+                              ownerAutoApprove: r.ownerAutoApprove,
+                              restrictToSpecificDepartment:
+                                r.restrictToSpecificDepartment,
+                              departmentId: r.departmentId,
+                              useMultiStageApproval: r.useMultiStageApproval,
+                              stages:
+                                r.stages?.map((s) => ({
+                                  sequenceOrder: s.sequenceOrder,
+                                  stageType: s.stageType,
+                                  departmentId: s.departmentId,
+                                })) || [],
+                            });
+
                             setEditingRuleId(r.ruleId);
                             setIsRuleModalOpen(true);
                           }}

@@ -313,9 +313,9 @@ const LeavePolicyForm = ({ policyId, onClose, onSuccess }) => {
   /* ================= UI ================= */
   return (
     <div>
-      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg border">
+      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg border border-gray-200">
         {/* Header */}
-        <div className="flex relative justify-between items-center px-6 py-2 border-b">
+        <div className="flex relative justify-between items-center px-6 py-2 border-b border-gray-200">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
               Leave Policy
@@ -397,14 +397,14 @@ const LeavePolicyForm = ({ policyId, onClose, onSuccess }) => {
         </div>
 
         {/* Footer Navigation */}
-        <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50">
+        <div className="flex justify-between items-center px-6 py-4 border-t border-gray-200 bg-gray-50">
           {/* Back */}
           <div className="flex gap-2">
             <button
               type="button"
               disabled={currentStep === 0}
               onClick={() => setCurrentStep((s) => s - 1)}
-              className="px-4 py-2 rounded border cursor-pointer bg-white text-gray-700 disabled:opacity-50 hover:bg-gray-100"
+              className="px-4 py-2 rounded border border-gray-400 cursor-pointer bg-white text-gray-700 disabled:opacity-50 hover:bg-gray-100"
             >
               Back
             </button>

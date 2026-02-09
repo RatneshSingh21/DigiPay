@@ -41,7 +41,7 @@ const EncashmentStep = ({ encashmentRules, setEncashmentRules, leaveTypes }) => 
       </div>
 
       {encashmentRules.map((rule, index) => (
-        <div key={index} className="border p-3 rounded space-y-3">
+        <div key={index} className="border border-gray-200 p-3 rounded space-y-3">
           {/* Row 1 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>

@@ -6,6 +6,10 @@ import { fetchAllHROptions } from "../../../services/workTypeService";
 import Spinner from "../../../components/Spinner";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 
+const inputClass =
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
 const EmpWorkTypeForm = ({ onClose, onSuccess }) => {
   const [form, setForm] = useState({
     workTypeName: "",
@@ -103,9 +107,7 @@ const EmpWorkTypeForm = ({ onClose, onSuccess }) => {
     }
   };
 
-  const inputClass =
-    "w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none";
-
+  
   if (loading) return <Spinner />; // show spinner while loading
 
   return (
@@ -113,7 +115,7 @@ const EmpWorkTypeForm = ({ onClose, onSuccess }) => {
       <div className="bg-white rounded-xl shadow-lg w-full max-w-xl p-6 relative overflow-y-auto max-h-[75vh]">
         <button
           onClick={onClose}
-          className="absolute cursor-pointer top-3 right-3 text-gray-500 hover:text-gray-800"
+          className="absolute cursor-pointer top-3 right-3 text-gray-500 hover:text-red-600"
         >
           <FiX size={20} />
         </button>
@@ -121,7 +123,7 @@ const EmpWorkTypeForm = ({ onClose, onSuccess }) => {
           Add Work Type
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-2 text-xs">
           {/* Text Inputs */}
           <Input
             label="Work Type Name *"
@@ -258,21 +260,14 @@ const EmpWorkTypeForm = ({ onClose, onSuccess }) => {
 const Input = ({ label, ...props }) => (
   <div>
     <label>{label}</label>
-    <input
-      {...props}
-      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
-    />
+    <input {...props} className={inputClass} />
   </div>
 );
 
 const Textarea = ({ label, ...props }) => (
   <div>
     <label>{label}</label>
-    <textarea
-      {...props}
-      rows={2}
-      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none"
-    />
+    <textarea {...props} rows={2} className={inputClass} />
   </div>
 );
 

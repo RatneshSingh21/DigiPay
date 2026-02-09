@@ -27,16 +27,14 @@ const WeekendPolicy = () => {
   const fetchWeekendPolicy = async () => {
     try {
       const response = await axiosInstance.get(
-        "/WeekendPolicy/get-all-Weekend-policy"
+        "/WeekendPolicy/get-all-Weekend-policy",
       );
 
-      // ✅ IMPORTANT FIX
       setWeekendPolicy(response.data?.data || []);
     } catch (error) {
       console.error("Error fetching weekend policies:", error);
       toast.error(
-        error?.response?.data?.message ||
-          "Failed to load weekend policies"
+        error?.response?.data?.message || "Failed to load weekend policies",
       );
     }
   };

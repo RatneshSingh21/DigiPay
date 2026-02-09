@@ -61,7 +61,7 @@ const ShiftList = ({
                       : "bg-gray-50 text-center"
                   }
                 >
-                  <td className="px-6 py-2">{index + 1}</td>
+                  <td className="px-6 py-2">{index + 1}.</td>
                   <td className="px-6 py-2 font-medium">{shift.shiftName}</td>
                   <td className="px-6 py-2">{shift.shiftStart}</td>
                   <td className="px-6 py-2">{shift.shiftEnd}</td>

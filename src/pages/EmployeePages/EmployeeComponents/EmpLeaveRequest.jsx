@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import Pagination from "../../../components/Pagination";
 import { FaPlus } from "react-icons/fa";
 import ApplyLeaveForm from "../EmployeeLeave/ApplyLeaveForm";
+import ApprovalHistoryCell from "../../../components/ApprovalHistoryCell";
 
 // ================= Status Pill =================
 const StatusPill = ({ status }) => {
@@ -30,7 +31,6 @@ const EmpLeaveRequest = () => {
   const [leaveHistory, setLeaveHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [statusMap, setStatusMap] = useState({});
-  const [leaveApproverMapping, setLeaveApproverMapping] = useState({});
 
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,70 +63,6 @@ const EmpLeaveRequest = () => {
     return () => controller.abort();
   }, [user?.userId]);
 
-  // --------- Fetch Leave Approvers ---------
-  const fetchLeaveApprovers = useCallback(async () => {
-    try {
-      const approverMap = {};
-
-      // 1️⃣ Approval Rules
-      const ruleRes = await axiosInstance.get("/ApprovalRule");
-      const rules = ruleRes.data?.data || [];
-      const leaveRule = rules.find(
-        (r) => r.requestType?.toLowerCase() === "leave",
-      );
-      if (!leaveRule) return setLeaveApproverMapping({});
-
-      // 2️⃣ Rule Roles
-      const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
-      const ruleRoles = ruleRoleRes.data?.data || [];
-      const leaveRuleRoles = ruleRoles.filter(
-        (rr) => rr.ruleId === leaveRule.ruleId,
-      );
-      const allowedRoleIds = leaveRuleRoles.map((rr) => rr.roleId);
-
-      // 3️⃣ Role list & SuperAdmin check
-      const roleListRes = await axiosInstance.get("/RoleList/getall");
-      const roleList = roleListRes.data || [];
-      const superAdminRole = roleList.find(
-        (r) => r.roleName?.toLowerCase() === "superadmin",
-      );
-      const superAdminRoleId = superAdminRole?.roleID;
-      const requiresSuperAdmin =
-        superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
-
-      // 4️⃣ Employee Approvers
-      const empRes = await axiosInstance.get(
-        "/EmployeeRoleMapping/approvers/all",
-      );
-      const leaveEmpRule = empRes.data?.find(
-        (r) => r.requestType?.toLowerCase() === "leave",
-      );
-      if (leaveEmpRule?.approvers?.length) {
-        leaveEmpRule.approvers
-          .filter((a) => allowedRoleIds.includes(a.roleId))
-          .forEach((a) => {
-            approverMap[a.employeeId] = a.employeeName;
-          });
-      }
-
-      // 5️⃣ SuperAdmin if required
-      if (requiresSuperAdmin) {
-        const userRes = await axiosInstance.get("/user-auth/all");
-        const primarySuperAdmin = (userRes.data || [])
-          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
-          .sort((a, b) => a.userId - b.userId)[0];
-        if (primarySuperAdmin) {
-          approverMap[primarySuperAdmin.userId] =
-            `${primarySuperAdmin.name} (SuperAdmin)`;
-        }
-      }
-
-      setLeaveApproverMapping(approverMap);
-    } catch (err) {
-      console.error("Failed to fetch Leave approvers", err);
-    }
-  }, []);
-
   // --------- Fetch Status Master ---------
   const fetchStatusMaster = useCallback(async () => {
     try {
@@ -142,10 +78,9 @@ const EmpLeaveRequest = () => {
 
   // --------- Effects ---------
   useEffect(() => {
-    fetchLeaveApprovers();
     fetchStatusMaster();
     fetchLeaveHistory();
-  }, [fetchLeaveApprovers, fetchStatusMaster, fetchLeaveHistory]);
+  }, [fetchStatusMaster, fetchLeaveHistory]);
 
   // --------- Render Date ---------
   const renderDate = (date) => {
@@ -175,8 +110,8 @@ const EmpLeaveRequest = () => {
       </div>
 
       {/* Leave History */}
-      <div className="bg-white shadow rounded p-3">
-        <div className="mt-4 mx-4 p-4 border overflow-x-scroll border-gray-200 rounded-lg max-h-[65vh] bg-white shadow">
+      <div className="bg-white shadow rounded p-4">
+        <div className="mt-4 border overflow-x-scroll border-gray-200 rounded-lg max-h-[65vh] bg-white shadow">
           <table className="min-w-full divide-y divide-gray-200 text-xs text-center">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
@@ -190,7 +125,7 @@ const EmpLeaveRequest = () => {
                 <th className="px-4 py-3 border-r border-gray-200">
                   Applied On
                 </th>
-                <th className="px-4 py-3 border-r border-gray-200">Status</th>
+                {/* <th className="px-4 py-3 border-r border-gray-200">Status</th> */}
                 <th className="px-4 py-3 border-r border-gray-200">
                   Approved By
                 </th>
@@ -235,17 +170,15 @@ const EmpLeaveRequest = () => {
                       <td className="px-4 py-3 border-r border-gray-200">
                         {renderDate(leave.createdOn)}
                       </td>
-                      <td className="px-4 py-3 border-r border-gray-200">
+                      {/* <td className="px-4 py-3 border-r border-gray-200">
                         <StatusPill
                           status={statusMap[leave.status] || "Unknown"}
                         />
-                      </td>
-                      <td className="px-4 py-3 border-r border-gray-200">
-                        {leave.approvedBy?.length
-                          ? leave.approvedBy
-                              .map((id) => leaveApproverMapping[id] || "N/A")
-                              .join(", ")
-                          : "—"}
+                      </td> */}
+                      <td className="px-4 py-3 border-r border-gray-200 text-left">
+                        <ApprovalHistoryCell
+                          approvalHistory={leave.approvalHistory}
+                        />
                       </td>
                     </tr>
                   );

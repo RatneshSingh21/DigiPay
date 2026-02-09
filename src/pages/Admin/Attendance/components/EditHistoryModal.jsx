@@ -71,20 +71,20 @@ const EditHistoryModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm text-sm">
       <div className="w-full max-w-3xl rounded-xl bg-white shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <h3 className="text-lg font-semibold text-gray-800">
             Attendance Edit History
           </h3>
           <button
             onClick={onClose}
-            className="rounded-md p-1 text-gray-400 hover:bg-gray-100 cursor-pointer hover:text-gray-600"
+            className="rounded-md p-1 text-gray-400 hover:bg-red-100 cursor-pointer hover:text-red-600"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Search */}
-        <div className="border-b bg-gray-50 px-6 py-4">
+        <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
           <div className="relative max-w-md">
             <Search
               size={16}
@@ -225,7 +225,8 @@ const EditHistoryModal = ({
                         {highlightText(h.source)}
                       </span>
                       <span>
-                        Edited on {new Date(h.editedAt).toLocaleDateString("en-Gb")}{" "}
+                        Edited on{" "}
+                        {new Date(h.editedAt).toLocaleDateString("en-Gb")}{" "}
                         {new Date(h.editedAt).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -240,7 +241,7 @@ const EditHistoryModal = ({
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t bg-gray-50 px-6 py-4 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 bg-gray-50 px-6 py-4 text-sm">
           <div className="flex items-center gap-2">
             <span className="text-gray-600">Show</span>
             <select

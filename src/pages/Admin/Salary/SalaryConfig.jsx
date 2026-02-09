@@ -89,11 +89,11 @@ const SalaryConfig = () => {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y capitalize">
+                <tbody className="capitalize border-b border-gray-200">
                   {componentConfigs.map((item, idx) => (
                     <tr
                       key={item.componentConfigId}
-                      className="hover:bg-gray-50 transition"
+                      className="hover:bg-gray-50 border-t border-gray-200 transition"
                     >
                       <td className="px-4 py-2">{idx + 1}</td>
 

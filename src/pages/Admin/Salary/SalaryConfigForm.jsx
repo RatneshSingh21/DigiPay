@@ -161,7 +161,7 @@ const SalaryConfigForm = ({
             onChange={(e) =>
               setFormData({ ...formData, percentageValue: e.target.value })
             }
-            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             required
           />
         </div>
@@ -175,7 +175,7 @@ const SalaryConfigForm = ({
             onChange={(e) =>
               setFormData({ ...formData, fixedAmount: e.target.value })
             }
-            className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Enter Amount"
             required
           />

@@ -3,17 +3,18 @@ import { FiPrinter, FiX } from "react-icons/fi";
 import { useReactToPrint } from "react-to-print";
 import QRCode from "react-qr-code";
 
-const GatePassCard = ({ data, approverMapping, onClose }) => {
+const GatePassCard = ({ data, onClose }) => {
   const printRef = useRef(null);
   const employee = data.employee;
 
-  // Approver Handling
-  const approverNames =
-    data.approvers?.length > 0
-      ? data.approvers
-          .map((id) => approverMapping?.onDuty?.[id] || `ID ${id}`)
-          .join(", ")
-      : "N/A";
+  const approverNames = data.approvalHistory?.length
+    ? data.approvalHistory
+        .map(
+          (a) =>
+            `${a.approverName || "System"} (${a.approverType}) - ${a.status}`,
+        )
+        .join(", ")
+    : "N/A";
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,

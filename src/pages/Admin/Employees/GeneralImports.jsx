@@ -143,7 +143,7 @@ export default function GeneralImports() {
 
       {/* Table */}
       <div className="p-6">
-        <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-400 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
@@ -157,7 +157,7 @@ export default function GeneralImports() {
               {data.map((item, i) => (
                 <tr
                   key={item.id}
-                  className={`border-t hover:bg-primary/5 transition ${
+                  className={`border-t border-gray-400 hover:bg-primary/5 transition ${
                     i % 2 === 1 ? "bg-gray-50" : "bg-white"
                   }`}
                 >

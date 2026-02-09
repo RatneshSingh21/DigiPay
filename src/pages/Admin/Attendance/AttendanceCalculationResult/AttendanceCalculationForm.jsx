@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import Spinner from "../../../../components/Spinner";
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
 const AttendanceCalculationForm = ({ onSuccess }) => {
   const [employees, setEmployees] = useState([]);
@@ -90,7 +92,7 @@ const AttendanceCalculationForm = ({ onSuccess }) => {
                 type="datetime-local"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-300"
+                className={inputClass}
               />
             </div>
             <div>
@@ -101,7 +103,7 @@ const AttendanceCalculationForm = ({ onSuccess }) => {
                 type="datetime-local"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-300"
+                className={inputClass}
               />
             </div>
           </div>

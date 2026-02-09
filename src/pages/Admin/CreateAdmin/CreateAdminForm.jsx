@@ -60,8 +60,9 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
     });
   };
 
-  const inputClass =
-    "w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";
+ const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 
   const customSelectStyles = {
     control: (provided) => ({
@@ -89,7 +90,7 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
       >
         <button
           type="button"
-          className="absolute cursor-pointer top-4 right-4 text-gray-600 hover:text-red-500 text-xl"
+          className="absolute cursor-pointer top-4 right-4 text-gray-600 hover:text-red-500 text-2xl"
           onClick={onClose}
         >
           &times;
@@ -99,7 +100,7 @@ const CreateAdminForm = ({ onClose, onSuccess }) => {
           Create Admin
         </h2>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-2" onSubmit={handleSubmit}>
           {/* Name */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">

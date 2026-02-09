@@ -1,4 +1,5 @@
 import React from "react";
+import { FiX } from "react-icons/fi";
 
 const ModalWrapper = ({ show, onClose, title, children }) => {
   if (!show) return null;
@@ -10,9 +11,9 @@ const ModalWrapper = ({ show, onClose, title, children }) => {
 
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-600 hover:text-black text-xl"
+          className="absolute top-3 right-3 cursor-pointer text-gray-600 bg-gray-100 hover:bg-red-100 rounded hover:text-red-600 text-xl"
         >
-          ✕
+          <FiX />
         </button>
 
         {children}

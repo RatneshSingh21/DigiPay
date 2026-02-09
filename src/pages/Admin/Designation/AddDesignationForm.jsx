@@ -52,11 +52,14 @@ const AddDesignationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
     }
   };
 
+  const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
   return (
     <>
       <div
         className="fixed inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4"
-        onClick={onClose}
       >
         <div
           className="bg-white p-6 rounded-lg shadow-lg max-w-xl w-full relative"
@@ -64,7 +67,7 @@ const AddDesignationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
         >
           <button
             type="button"
-            className="absolute top-4 right-4 cursor-pointer text-gray-600 hover:text-red-500 text-xl"
+            className="absolute top-4 right-4 cursor-pointer text-gray-600 hover:text-red-500 text-2xl"
             onClick={onClose}
           >
             &times;
@@ -86,7 +89,7 @@ const AddDesignationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                 onChange={handleChange}
                 autoFocus
                 placeholder="Designation Name"
-                className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className={inputClass}
                 required
               />
             </div>
@@ -100,7 +103,7 @@ const AddDesignationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                 value={formData.level}
                 onChange={handleChange}
                 placeholder="Designation Level"
-                className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className={inputClass}
                 required
               />
             </div>

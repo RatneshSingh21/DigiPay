@@ -360,16 +360,17 @@ export default function AddLatePolicy({
     }));
   };
 
-  const inputClass =
-    "w-full border rounded-lg px-2 py-1 border-blue-300 focus:ring-2 focus:ring-blue-400";
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 
   /* ================= UI ================= */
 
   return (
-    <div className="fixed inset-0 bg-black/30 z-40 flex items-center justify-center">
+    <div className="fixed inset-0 backdrop-blur-sm z-40 flex items-center justify-center">
       <form
         onSubmit={handleSubmit}
-        className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-4 max-h-[85vh] overflow-y-auto relative text-[11px]"
+        className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-4 max-h-[95vh] overflow-y-auto relative text-[11px]"
       >
         <button
           type="button"
@@ -699,7 +700,7 @@ export default function AddLatePolicy({
               return (
                 <div
                   key={i}
-                  className="border rounded-lg p-3 bg-gray-50 space-y-3"
+                  className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-3"
                 >
                   {/* RULE HEADER */}
                   <div className="flex justify-between items-center">
@@ -866,7 +867,7 @@ export default function AddLatePolicy({
         )}
 
         {/* FOOTER */}
-        <div className="flex justify-between mt-4 pt-3 border-t">
+        <div className="flex justify-between mt-4 pt-3 border-t border-gray-200">
           <button
             type="button"
             disabled={step === 1}

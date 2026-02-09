@@ -7,6 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import ApprovalHistoryCell from "../../../../components/ApprovalHistoryCell";
 
 const ExpenseDocuments = () => {
   const [groupedExpenses, setGroupedExpenses] = useState([]);
@@ -15,7 +16,7 @@ const ExpenseDocuments = () => {
   const [expandedId, setExpandedId] = useState(null);
 
   const inputClass =
-    "w-full px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm";
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -68,7 +69,7 @@ const ExpenseDocuments = () => {
             ...e,
             approverNames: Array.isArray(e.customApproverIds)
               ? e.customApproverIds.map(
-                  (id) => employeeMap[id]?.name || "Unknown"
+                  (id) => employeeMap[id]?.name || "Unknown",
                 )
               : [],
           }));
@@ -98,8 +99,8 @@ const ExpenseDocuments = () => {
       e.employeeName.toLowerCase().includes(search.toLowerCase()) ||
       e.employeeCode.toLowerCase().includes(search.toLowerCase()) ||
       e.expenses.some((ex) =>
-        ex.expenseDetailsName?.toLowerCase().includes(search.toLowerCase())
-      )
+        ex.expenseDetailsName?.toLowerCase().includes(search.toLowerCase()),
+      ),
   );
 
   const toggleExpand = (empId) => {
@@ -162,7 +163,7 @@ const ExpenseDocuments = () => {
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  className="px-4 py-2 rounded-lg mt-2 border cursor-pointer text-sm hover:bg-gray-100"
+                  className="px-4 py-2 rounded-lg mt-2 border border-gray-400 cursor-pointer text-sm hover:bg-gray-100"
                 >
                   Clear Search
                 </button>
@@ -231,7 +232,7 @@ const ExpenseDocuments = () => {
                           {group.expenses.map((item, idx) => (
                             <tr
                               key={item.expenseDetailsId}
-                              className="border-b hover:bg-gray-50"
+                              className="border-b border-gray-200 hover:bg-gray-50"
                             >
                               <td className="py-2 px-3 text-gray-500">
                                 {idx + 1}
@@ -246,7 +247,7 @@ const ExpenseDocuments = () => {
                                     day: "2-digit",
                                     month: "short",
                                     year: "numeric",
-                                  }
+                                  },
                                 )}
                               </td>
                               <td className="py-2 px-3 text-gray-700">
@@ -275,7 +276,7 @@ const ExpenseDocuments = () => {
                                               item.filePath,
                                               {
                                                 responseType: "blob",
-                                              }
+                                              },
                                             );
                                           const blob = new Blob([
                                             response.data,
@@ -295,7 +296,7 @@ const ExpenseDocuments = () => {
                                         } catch (error) {
                                           console.error(
                                             "Download failed:",
-                                            error
+                                            error,
                                           );
                                           alert("⚠️ Failed to download file.");
                                         }
@@ -326,9 +327,9 @@ const ExpenseDocuments = () => {
                                 )}
                               </td>
                               <td className="py-2 px-3 text-gray-600">
-                                {item.approverNames?.length > 0
-                                  ? item.approverNames.join(", ")
-                                  : "—"}
+                                <ApprovalHistoryCell
+                                  approvalHistory={item.approvalHistory}
+                                />
                               </td>
                             </tr>
                           ))}

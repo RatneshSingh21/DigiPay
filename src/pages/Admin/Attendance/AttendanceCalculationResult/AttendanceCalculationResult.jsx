@@ -4,6 +4,7 @@ import AttendanceCalculationForm from "./AttendanceCalculationForm";
 import AttendanceResultTable from "./AttendanceResultTable";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import Spinner from "../../../../components/Spinner";
+import { FiPlus } from "react-icons/fi";
 
 const AttendanceCalculationResult = () => {
   const [loading, setLoading] = useState(false);
@@ -68,6 +69,10 @@ const AttendanceCalculationResult = () => {
         )
       );
   };
+  
+  const inputClass =
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 
   return (
     <>
@@ -82,13 +87,13 @@ const AttendanceCalculationResult = () => {
             placeholder="Search by employee name or code"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border px-3 py-1 rounded-md text-sm w-full md:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
+            className={`${inputClass} w-full md:w-64 text-sm`}
           />
           <button
             onClick={() => setShowForm(true)}
-            className="bg-primary cursor-pointer text-white px-4 py-1 rounded-lg hover:bg-secondary"
+            className="bg-primary cursor-pointer text-white px-4 py-1.5 rounded-lg hover:bg-secondary"
           >
-            Add
+           <FiPlus className="inline mr-1" /> Add
           </button>
         </div>
       </div>

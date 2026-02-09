@@ -9,7 +9,7 @@ const UploadedDocuments = () => {
   const [expandedId, setExpandedId] = useState(null);
 
   const inputClass =
-    "w-full px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm";
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   useEffect(() => {
     const fetchDocuments = async () => {
@@ -75,8 +75,8 @@ const UploadedDocuments = () => {
       g.employeeName.toLowerCase().includes(search.toLowerCase()) ||
       g.employeeCode.toLowerCase().includes(search.toLowerCase()) ||
       g.docs.some((d) =>
-        d.documnetModelName?.toLowerCase().includes(search.toLowerCase())
-      )
+        d.documnetModelName?.toLowerCase().includes(search.toLowerCase()),
+      ),
   );
 
   const toggleExpand = (empId) => {
@@ -139,7 +139,7 @@ const UploadedDocuments = () => {
               {search && (
                 <button
                   onClick={() => setSearch("")}
-                  className="px-4 py-2 rounded-lg mt-2 border cursor-pointer text-sm hover:bg-gray-100"
+                  className="px-4 py-2 rounded-lg mt-2 border border-gray-400 cursor-pointer text-sm hover:bg-gray-100"
                 >
                   Clear Search
                 </button>
@@ -205,7 +205,7 @@ const UploadedDocuments = () => {
                           {group.docs.map((item, idx) => (
                             <tr
                               key={item.documnetModelId}
-                              className="border-b hover:bg-gray-50"
+                              className="border-b border-gray-200 hover:bg-gray-50"
                             >
                               <td className="py-2 px-3 text-gray-500">
                                 {idx + 1}
@@ -225,7 +225,7 @@ const UploadedDocuments = () => {
                                     year: "numeric",
                                     hour: "2-digit",
                                     minute: "2-digit",
-                                  }
+                                  },
                                 )}
                               </td>
                               <td className="py-2 px-3 text-center">
@@ -246,7 +246,7 @@ const UploadedDocuments = () => {
                                           const response =
                                             await axiosInstance.get(
                                               item.documentUrl,
-                                              { responseType: "blob" }
+                                              { responseType: "blob" },
                                             );
                                           const blob = new Blob([
                                             response.data,
@@ -266,7 +266,7 @@ const UploadedDocuments = () => {
                                         } catch (error) {
                                           console.error(
                                             "Download failed:",
-                                            error
+                                            error,
                                           );
                                           alert("⚠️ Failed to download file.");
                                         }

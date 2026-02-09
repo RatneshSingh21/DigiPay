@@ -187,7 +187,7 @@ const AdminNavbar = () => {
                   >
                     Profile Settings
                   </button>
-                  <hr className="my-1" />
+                  <hr className="my-1 text-gray-300" />
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 cursor-pointer text-red-500 hover:bg-red-200 text-sm flex items-center gap-2 transition"

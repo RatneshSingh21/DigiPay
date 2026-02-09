@@ -3,6 +3,9 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import ModalWrapper from "./ModalWrapper";
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const GenerateDateModal = ({ show, onClose, onSuccess }) => {
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
@@ -12,7 +15,9 @@ const GenerateDateModal = ({ show, onClose, onSuccess }) => {
 
     try {
       setLoading(true);
-      await axiosInstance.post(`/AttendanceRecord/GenerateForDate?date=${date}`);
+      await axiosInstance.post(
+        `/AttendanceRecord/GenerateForDate?date=${date}`,
+      );
 
       toast.success("Generated successfully");
       onSuccess();
@@ -25,13 +30,17 @@ const GenerateDateModal = ({ show, onClose, onSuccess }) => {
   };
 
   return (
-    <ModalWrapper show={show} onClose={onClose} title="Generate Attendance for Date">
+    <ModalWrapper
+      show={show}
+      onClose={onClose}
+      title="Generate Attendance for Date"
+    >
       <div className="space-y-4">
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
+          className={inputClass}
         />
 
         <button

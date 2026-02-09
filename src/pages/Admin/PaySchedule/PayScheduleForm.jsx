@@ -62,7 +62,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
 
   const toggleDay = (day) => {
     setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
   };
 
@@ -113,7 +113,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
       const totalDays = new Date(
         baseDate.getFullYear(),
         baseDate.getMonth() + 1,
-        0
+        0,
       ).getDate();
 
       const allDates = Array.from({ length: totalDays }, (_, i) => {
@@ -214,7 +214,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
       if (onSuccess) onSuccess(); // Optional callback
     } catch (err) {
       toast.error(
-        err?.response?.data?.message || "Failed to save. Please try again."
+        err?.response?.data?.message || "Failed to save. Please try again.",
       );
       console.error(err);
     } finally {
@@ -250,7 +250,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
         "-" +
         isoDate.getFullYear();
       const matchedMonth = getNext12Months().find(
-        (m) => m.value === monthLabel
+        (m) => m.value === monthLabel,
       );
       setStartMonth(matchedMonth || null);
       setPayOptionSelected(true);
@@ -332,7 +332,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
                 <Select
                   isDisabled={salaryBasis !== "org"}
                   value={orgWorkingDayOptions.find(
-                    (opt) => opt.value === orgWorkingDays.value
+                    (opt) => opt.value === orgWorkingDays.value,
                   )}
                   onChange={(selected) => setOrgWorkingDays(selected)}
                   options={orgWorkingDayOptions}
@@ -380,7 +380,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
                 <Select
                   isDisabled={payOn !== "fixedDay"}
                   value={payDayOptions.find(
-                    (opt) => opt.value === payDay.value
+                    (opt) => opt.value === payDay.value,
                   )}
                   onChange={(selected) => setPayDay(selected)}
                   options={payDayOptions}
@@ -434,14 +434,14 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
                 }
                 onChange={(option) => {
                   const selected = calendarDates.find(
-                    (d) => d.date === option.value
+                    (d) => d.date === option.value,
                   );
                   setSelectedPayDate(selected);
                 }}
               />
             </div>
 
-            <div className="bg-white p-2 rounded shadow border w-full max-w-xs">
+            <div className="bg-white p-2 rounded shadow border border-gray-200 w-full max-w-xs">
               <div className="text-center font-semibold text-gray-800 mb-2 text-sm">
                 {startMonth?.value}
               </div>
@@ -463,7 +463,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
                   const prevMonthLastDate = new Date(
                     year,
                     monthIndex,
-                    0
+                    0,
                   ).getDate();
                   return [...Array(firstDayIndex)].map((_, i) => (
                     <div
@@ -511,8 +511,7 @@ const PayScheduleForm = ({ schedule, onSuccess, onCancel }) => {
             </div>
           </div>
         )}
-
-        <hr className="my-6" />
+        <hr className="my-6 text-gray-300" />
 
         <div className="flex items-center justify-between">
           <button

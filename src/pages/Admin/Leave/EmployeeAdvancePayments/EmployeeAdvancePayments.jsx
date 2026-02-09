@@ -6,10 +6,10 @@ import Spinner from "../../../../components/Spinner";
 import { toast } from "react-toastify";
 import EmployeeAdvancePaymentForm from "./EmployeeAdvancePaymentForm";
 import assets from "../../../../assets/assets";
+import ApprovalHistoryCell from "../../../../components/ApprovalHistoryCell";
 
 const inputClass =
   "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
-
 
 const EmployeeAdvancePayments = () => {
   const [payments, setPayments] = useState([]);
@@ -188,11 +188,11 @@ const EmployeeAdvancePayments = () => {
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="border-b border-gray-200">
               {filteredPayments.map((p, i) => (
                 <tr
                   key={p.advancePaymentId}
-                  className="border-b hover:bg-gray-50 transition"
+                  className="border-t border-gray-200 hover:bg-gray-50 transition"
                 >
                   <td className="px-4 py-2">{i + 1}.</td>
 
@@ -218,8 +218,11 @@ const EmployeeAdvancePayments = () => {
 
                   <td className="px-4 py-2">{p.repaymentMode}</td>
 
-                  <td className="px-4 py-2">
+                  {/* <td className="px-4 py-2">
                     {getStatusBadge(p.statusId, p.isFullyRepaid)}
+                  </td> */}
+                  <td className="px-4 py-2">
+                    <ApprovalHistoryCell approvalHistory={p.approvalHistory} />
                   </td>
 
                   <td className="px-4 py-2">

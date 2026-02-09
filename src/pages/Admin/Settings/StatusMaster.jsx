@@ -51,7 +51,7 @@ const StatusMaster = () => {
 
     // ✅ DUPLICATE STATUS NAME CHECK (case-insensitive)
     const alreadyExists = statuses.some(
-      (s) => s.statusName?.toLowerCase() === formData.statusName.toLowerCase()
+      (s) => s.statusName?.toLowerCase() === formData.statusName.toLowerCase(),
     );
 
     if (alreadyExists) {
@@ -118,7 +118,7 @@ const StatusMaster = () => {
               setFormData({ ...formData, statusCode: e.target.value })
             }
             required
-            className="w-72 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
           <button
             type="submit"
@@ -165,7 +165,10 @@ const StatusMaster = () => {
                   </thead>
                   <tbody>
                     {statuses.map((status, idx) => (
-                      <tr key={status.statusId} className="hover:bg-gray-50">
+                      <tr
+                        key={status.statusId}
+                        className="hover:bg-gray-50 border-t border-gray-200 transition"
+                      >
                         <td className="px-4 py-2">{idx + 1}.</td>
                         <td className="px-4 py-2">{status.statusName}</td>
                         <td className="px-4 py-2">{status.statusCode}</td>

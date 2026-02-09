@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 
 const inputClass =
-  "w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 outline-none";
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
 export default function EmployeeOtPermissionForm({
   initialData = null,
@@ -104,7 +104,7 @@ export default function EmployeeOtPermissionForm({
       // API is a POST createOrUpdate (single endpoint)
       const res = await axiosInstance.post(
         "/EmployeeOTPermission/createOTPermission",
-        payload
+        payload,
       );
 
       toast.success(isEdit ? "Updated OT permission" : "Created OT permission");
@@ -184,7 +184,7 @@ export default function EmployeeOtPermissionForm({
           <div className="flex justify-end gap-3 text-sm">
             <button
               type="button"
-              className="px-4 py-2 rounded-lg border cursor-pointer"
+              className="px-4 py-2 rounded-lg border border-gray-400 cursor-pointer"
               onClick={onClose}
               disabled={saving}
             >

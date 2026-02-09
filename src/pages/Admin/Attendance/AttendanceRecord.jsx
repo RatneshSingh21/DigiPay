@@ -132,6 +132,10 @@ const AttendanceRecord = () => {
     }),
   };
 
+  const inputClass =
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
   return (
     <>
       {/* TOP BAR */}
@@ -178,8 +182,9 @@ const AttendanceRecord = () => {
             type="date"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
-            className="border px-3 py-2 rounded h-[42px] text-sm"
+            className={`${inputClass} h-[38px]`}
           />
+
 
           {/* Month */}
           <div className="relative">
@@ -193,7 +198,8 @@ const AttendanceRecord = () => {
               type="month"
               value={filterMonth}
               onChange={(e) => setFilterMonth(e.target.value)}
-              className="border px-3 py-2 rounded h-[42px] text-sm w-full relative"
+              className={`${inputClass} h-[38px] text-sm w-full relative`}
+             
             />
           </div>
 

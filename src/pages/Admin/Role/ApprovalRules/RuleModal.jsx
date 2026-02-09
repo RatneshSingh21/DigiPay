@@ -11,13 +11,16 @@ const selectStyles = {
     minHeight: "40px",
     fontSize: "0.875rem",
   }),
-  menu: (base) => ({ ...base, zIndex: 70 }),
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
 };
 
 const stageTypeOptions = [
   { value: "EmployeeHOD", label: "Employee HOD" },
-  { value: "DepartmentHead", label: "Department Head" },
-  { value: "Admin", label: "Admin" },
+  { value: "SpecificDepartmentHOD", label: "Specific Department HOD" },
+  { value: "SuperAdmin", label: "Super Admin" },
 ];
 
 const requestOptions = [
@@ -43,7 +46,7 @@ const RuleModal = ({
         res.data.map((d) => ({
           value: d.id,
           label: d.name,
-        }))
+        })),
       );
     });
   }, []);
@@ -79,7 +82,6 @@ const RuleModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
-        
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold">
@@ -90,7 +92,6 @@ const RuleModal = ({
 
         {/* Content */}
         <div className="px-6 py-4 overflow-y-auto space-y-2">
-
           {/* Request Type */}
           <div>
             <label className="text-sm font-medium mb-1 block">
@@ -98,6 +99,7 @@ const RuleModal = ({
             </label>
             <CreatableSelect
               styles={selectStyles}
+              menuPortalTarget={document.body}
               options={requestOptions}
               value={
                 formData.requestType
@@ -143,11 +145,14 @@ const RuleModal = ({
               <label className="text-sm font-medium mb-1 block">
                 Department
               </label>
+
               <Select
                 styles={selectStyles}
+                menuPortalTarget={document.body}
                 options={departments}
+                placeholder="Select Department"
                 value={departments.find(
-                  (d) => d.value === formData.departmentId
+                  (d) => d.value === formData.departmentId,
                 )}
                 onChange={(opt) =>
                   setFormData({
@@ -164,9 +169,10 @@ const RuleModal = ({
             <div className="border border-gray-400 rounded-xl p-4 space-y-3">
               <div className="flex justify-between items-center">
                 <p className="font-medium text-sm">Approval Stages</p>
+
                 <button
                   onClick={addStage}
-                  className="text-blue-600 text-sm flex items-center gap-1"
+                  className=" flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer"
                 >
                   <Plus size={14} /> Add Stage
                 </button>
@@ -192,29 +198,41 @@ const RuleModal = ({
                     <div className="grid grid-cols-2 gap-2">
                       <Select
                         styles={selectStyles}
+                        menuPortalTarget={document.body}
                         options={stageTypeOptions}
                         placeholder="Stage Type"
                         value={stageTypeOptions.find(
-                          (s) => s.value === stage.stageType
+                          (s) => s.value === stage.stageType,
                         )}
-                        onChange={(opt) =>
-                          updateStage(i, "stageType", opt?.value || "")
-                        }
+                        onChange={(opt) => {
+                          updateStage(i, "stageType", opt?.value || "");
+
+                          // 🔥 IMPORTANT: clear department if not required
+                          if (opt?.value !== "SpecificDepartmentHOD") {
+                            updateStage(i, "departmentId", null);
+                          }
+                        }}
                       />
 
                       <Select
                         styles={selectStyles}
+                        menuPortalTarget={document.body}
                         options={departments}
-                        placeholder="Department"
-                        value={departments.find(
-                          (d) => d.value === stage.departmentId
-                        )}
+                        placeholder={
+                          stage.stageType === "SpecificDepartmentHOD"
+                            ? "Select Department"
+                            : "Department not required"
+                        }
+                        isDisabled={stage.stageType !== "SpecificDepartmentHOD"}
+                        value={
+                          stage.stageType === "SpecificDepartmentHOD"
+                            ? departments.find(
+                                (d) => d.value === stage.departmentId,
+                              )
+                            : null
+                        }
                         onChange={(opt) =>
-                          updateStage(
-                            i,
-                            "departmentId",
-                            opt?.value || null
-                          )
+                          updateStage(i, "departmentId", opt?.value || null)
                         }
                       />
                     </div>

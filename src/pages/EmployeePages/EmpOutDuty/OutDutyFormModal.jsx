@@ -1,143 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
-import Select from "react-select";
+import { FiX } from "react-icons/fi";
+import { FaTimes } from "react-icons/fa";
 
 const OutDutyFormModal = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     inDateTime: "",
     outDateTime: "",
     reason: "",
-    approvers: [],
   });
 
   const [loading, setLoading] = useState(false);
-  const [loadingApprovers, setLoadingApprovers] = useState(false);
   const [error, setError] = useState("");
-  const [approverOptions, setApproverOptions] = useState([]);
 
   // ---------------- Handle Input ----------------
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  // ---------------- Fetch Approvers ----------------
-  // ---------------- Fetch Approvers ----------------
-  useEffect(() => {
-    const fetchApprovers = async () => {
-      try {
-        setLoadingApprovers(true);
-        let approvers = [];
-
-        // ===============================
-        // 1️⃣ Fetch Approval Rules
-        // ===============================
-        const ruleRes = await axiosInstance.get("/ApprovalRule");
-        const rules = ruleRes.data?.data || [];
-
-        const outDutyRule = rules.find(
-          (r) => r.requestType?.toLowerCase() === "onduty"
-        );
-
-        if (!outDutyRule) {
-          setApproverOptions([]);
-          return;
-        }
-
-        // ===============================
-        // 2️⃣ Fetch Approval Rule Roles
-        // ===============================
-        const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
-        const ruleRoles = ruleRoleRes.data?.data || [];
-
-        const outDutyRuleRoles = ruleRoles.filter(
-          (rr) => rr.ruleId === outDutyRule.ruleId
-        );
-
-        const allowedRoleIds = outDutyRuleRoles.map((rr) => rr.roleId);
-
-        // ===============================
-        // 3️⃣ Fetch Role List
-        // ===============================
-        const roleListRes = await axiosInstance.get("/RoleList/getall");
-        const roleList = roleListRes.data || [];
-
-        const superAdminRole = roleList.find(
-          (r) => r.roleName?.toLowerCase() === "superadmin"
-        );
-
-        const superAdminRoleId = superAdminRole?.roleID;
-        const requiresSuperAdmin =
-          superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
-
-        // ===============================
-        // 4️⃣ Fetch Employee Approvers (if any)
-        // ===============================
-        const empRes = await axiosInstance.get(
-          "/EmployeeRoleMapping/approvers/all"
-        );
-
-        const outDutyEmpRule = empRes.data?.find(
-          (r) => r.requestType?.toLowerCase() === "onduty"
-        );
-
-        if (outDutyEmpRule?.approvers?.length) {
-          const employeeApprovers = outDutyEmpRule.approvers
-            .filter((a) => allowedRoleIds.includes(a.roleId))
-            .map((a) => ({
-              value: a.employeeId,
-              label: `${a.employeeName} (${a.roleName})`,
-              role: a.roleName,
-              source: "EMPLOYEE",
-            }));
-
-          approvers = [...approvers, ...employeeApprovers];
-        }
-
-        // ===============================
-        // 5️⃣ Fetch ONLY ONE SuperAdmin (AUTHORIZED)
-        // ===============================
-        if (requiresSuperAdmin) {
-          const userRes = await axiosInstance.get("/user-auth/all");
-
-          const primarySuperAdmin = (userRes.data || [])
-            .filter(
-              (u) => u.isVerified && u.role?.toLowerCase() === "superadmin"
-            )
-            // 🔑 pick ONE deterministic SuperAdmin
-            .sort((a, b) => a.userId - b.userId)[0];
-
-          if (primarySuperAdmin) {
-            const superAdminApprover = {
-              value: primarySuperAdmin.userId,
-              label: `${primarySuperAdmin.name} (SuperAdmin)`,
-              role: "SuperAdmin",
-              source: "USER",
-            };
-
-            approvers.push(superAdminApprover);
-
-            // Auto-select
-            setFormData((prev) => ({
-              ...prev,
-              approvers: [superAdminApprover],
-            }));
-          }
-        }
-
-        setApproverOptions(approvers);
-      } catch (err) {
-        console.error("Failed to load approvers:", err);
-        toast.error("Failed to load approvers");
-      } finally {
-        setLoadingApprovers(false);
-      }
-    };
-
-    fetchApprovers();
-  }, []);
 
   // ---------------- Validation ----------------
   const validateForm = () => {
@@ -185,7 +67,7 @@ const OutDutyFormModal = ({ onClose, onSuccess }) => {
         outDateTime: formData.outDateTime,
         reason: formData.reason.trim(),
         isActive: true,
-        customApproverIds: formData.approvers?.map((a) => a.value) || [],
+        customApproverIds: [], // ✅ ALWAYS EMPTY
       };
 
       await axiosInstance.post("/OnDuty", payload);
@@ -197,62 +79,62 @@ const OutDutyFormModal = ({ onClose, onSuccess }) => {
       console.error(err);
       setError(
         err?.response?.data?.error ||
-          "Failed to submit request. Please try again."
+          "Failed to submit request. Please try again.",
       );
     } finally {
       setLoading(false);
     }
   };
 
+  const inputClass =
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
   return (
-    <div className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center px-2 sm:px-4">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md sm:max-w-xl p-4 sm:p-6 relative animate-fade-in">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-3 cursor-pointer text-gray-500 hover:text-red-600 text-2xl"
-        >
-          &times;
-        </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm px-4">
+      <div className="w-full max-w-md rounded-xl bg-white shadow-lg animate-fade-in">
+        <div className="flex items-center justify-between border-b border-gray-300 px-6 py-4">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Out Duty Request
+          </h3>
+          <button onClick={onClose}>
+            <FaTimes className="text-gray-500 hover:text-red-500 transition cursor-pointer" />
+          </button>
+        </div>
 
-        <h2 className="text-lg sm:text-xl font-semibold mb-5 text-gray-800">
-          Submit Out Duty Request
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-          {/* 🔹 Error Message */}
+        <form onSubmit={handleSubmit} className="space-y-2 px-6 py-4">
+          {/* Error */}
           {error && (
-            <div className="bg-red-100 text-red-700 px-3 py-2 rounded text-sm">
+            <div className="rounded-md bg-red-100 text-red-700 px-4 py-2 text-sm">
               {error}
             </div>
           )}
 
-          {/* In Date & Time */}
+          {/* In Date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              In Date & Time
+              In Date & Time <span className="text-red-500">*</span>
             </label>
             <input
               type="datetime-local"
               name="inDateTime"
-              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm sm:text-base"
               value={formData.inDateTime}
               onChange={handleChange}
+              className={inputClass}
               required
             />
           </div>
 
-          {/* Out Date & Time */}
+          {/* Out Date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Out Date & Time
+              Out Date & Time <span className="text-red-500">*</span>
             </label>
             <input
               type="datetime-local"
               name="outDateTime"
-              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm sm:text-base"
               value={formData.outDateTime}
               onChange={handleChange}
+              className={inputClass}
               required
             />
           </div>
@@ -260,44 +142,27 @@ const OutDutyFormModal = ({ onClose, onSuccess }) => {
           {/* Reason */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Reason
+              Reason <span className="text-red-500">*</span>
             </label>
             <textarea
               name="reason"
-              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm sm:text-base"
-              rows={3}
-              placeholder="Reason for Out Duty"
+              rows={4}
               value={formData.reason}
               onChange={handleChange}
+              placeholder="Explain the reason for Out Duty"
+              className={inputClass}
               required
             />
           </div>
 
-          {/* Approvers */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Approvers
-            </label>
-            <Select
-              options={approverOptions}
-              value={formData.approvers}
-              onChange={(val) =>
-                setFormData((prev) => ({ ...prev, approvers: val || [] }))
-              }
-              isMulti
-              isLoading={loadingApprovers}
-              placeholder="Select approvers"
-            />
-          </div>
-
-          {/* Submit Button */}
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className={`bg-primary flex items-center justify-center text-white px-4 sm:px-6 py-2 rounded transition w-full sm:w-auto ${
+            className={`w-full flex items-center justify-center gap-2 cursor-pointer rounded-lg py-2.5 text-white font-medium transition ${
               loading
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-secondary cursor-pointer"
+                ? "bg-primary/70 cursor-not-allowed"
+                : "bg-primary hover:bg-secondary"
             }`}
           >
             {loading ? <Spinner /> : "Submit Request"}

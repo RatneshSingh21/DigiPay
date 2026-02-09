@@ -196,7 +196,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
           {/* Leave Type */}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Leave Type
+              Leave Type <span className="text-red-500">*</span>
             </label>
             <Select
               options={leaveOptions}
@@ -207,12 +207,13 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
               placeholder="Select leave type"
               className="mt-1 text-sm"
               autoFocus
+              required
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-700">
-                From Date
+                From Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="datetime-local"
@@ -226,7 +227,7 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
 
             <div>
               <label className="text-sm font-medium text-gray-700">
-                To Date
+                To Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="datetime-local"
@@ -240,7 +241,9 @@ const ApplyLeaveForm = ({ showModal, onClose, refreshHistory }) => {
           </div>
           {/* Reason */}
           <div>
-            <label className="text-sm font-medium text-gray-700">Reason</label>
+            <label className="text-sm font-medium text-gray-700">
+              Reason <span className="text-red-500">*</span>
+            </label>
             <textarea
               name="reason"
               value={formData.reason}

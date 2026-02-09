@@ -43,7 +43,7 @@ const EmpForgetPassword = () => {
   };
 
   const isDisabled = loading || !emailOrPhone.trim();
-npm
+
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover"

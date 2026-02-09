@@ -5,8 +5,12 @@ import Select from "react-select";
 import Spinner from "../../../components/Spinner";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
+import { FaTimes } from "react-icons/fa";
 
 const EmpExpensesForm = ({ onClose, onSuccess }) => {
+  const User = useAuthStore((state) => state.user);
+  const employeeId = User?.userId;
+
   const [formData, setFormData] = useState({
     headerId: "",
     expenseDetailsName: "",
@@ -15,29 +19,20 @@ const EmpExpensesForm = ({ onClose, onSuccess }) => {
     amount: "",
     description: "",
     file: null,
-    approvers: [],
   });
 
-  const User = useAuthStore((state) => state.user);
-  const employeeId = User?.userId;
-  // console.log(employeeId);
-
   const [headers, setHeaders] = useState([]);
-  const [approverOptions, setApproverOptions] = useState([]);
   const [selectedHeader, setSelectedHeader] = useState(null);
-  const [resHeaders, setResHeaders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const inputClass =
-    "w-full px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400";
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   // ---------- Fetch Headers ----------
   const fetchHeaders = async () => {
     try {
       const res = await axiosInstance.get(`/Header/employee/${employeeId}`);
-      console.log(res.data);
-
       if (res.data?.statusCode === 200 && res.data?.response) {
         const formatted = res.data.response.map((h) => ({
           value: h.headerId,
@@ -45,143 +40,24 @@ const EmpExpensesForm = ({ onClose, onSuccess }) => {
           maxAllowedAmount: h.maxAllowedAmount,
         }));
         setHeaders(formatted);
-        setResHeaders(formatted);
-      } else {
-        toast.error("No headers found");
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Failed to load headers");
     }
   };
 
-    // ---------- Fetch Approvers ----------
-const fetchApprovers = async () => {
-  try {
-    let approvers = [];
-
-    // ===============================
-    // 1️⃣ Fetch Approval Rules
-    // ===============================
-    const ruleRes = await axiosInstance.get("/ApprovalRule");
-    const rules = ruleRes.data?.data || [];
-
-    const expenseRule = rules.find(
-      (r) => r.requestType?.toLowerCase() === "expense"
-    );
-
-    if (!expenseRule) {
-      setApproverOptions([]);
-      return;
-    }
-
-    // ===============================
-    // 2️⃣ Fetch Approval Rule Roles
-    // ===============================
-    const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
-    const ruleRoles = ruleRoleRes.data?.data || [];
-
-    const expenseRuleRoles = ruleRoles.filter(
-      (rr) => rr.ruleId === expenseRule.ruleId
-    );
-
-    const allowedRoleIds = expenseRuleRoles.map((rr) => rr.roleId);
-
-    // ===============================
-    // 3️⃣ Fetch Role List
-    // ===============================
-    const roleListRes = await axiosInstance.get("/RoleList/getall");
-    const roleList = roleListRes.data || [];
-
-    const superAdminRole = roleList.find(
-      (r) => r.roleName?.toLowerCase() === "superadmin"
-    );
-
-    const superAdminRoleId = superAdminRole?.roleID;
-    const requiresSuperAdmin =
-      superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
-
-    // ===============================
-    // 4️⃣ Fetch Employee Approvers (filtered by rule)
-    // ===============================
-    const empRes = await axiosInstance.get(
-      "/EmployeeRoleMapping/approvers/all"
-    );
-
-    const expenseEmpRule = empRes.data?.find(
-      (r) => r.requestType?.toLowerCase() === "expense"
-    );
-
-    if (expenseEmpRule?.approvers?.length) {
-      const employeeApprovers = expenseEmpRule.approvers
-        .filter((a) => allowedRoleIds.includes(a.roleId))
-        .map((a) => ({
-          value: a.employeeId,
-          label: `${a.employeeName} (${a.roleName})`,
-          role: a.roleName,
-          source: "EMPLOYEE",
-        }));
-
-      approvers = [...approvers, ...employeeApprovers];
-    }
-
-    // ===============================
-    // 5️⃣ Fetch ONLY ONE SuperAdmin (AUTHORIZED)
-    // ===============================
-    if (requiresSuperAdmin) {
-      const userRes = await axiosInstance.get("/user-auth/all");
-
-      // 🔒 Deterministic rule: ONE SuperAdmin only
-      const primarySuperAdmin = (userRes.data || [])
-        .filter(
-          (u) =>
-            u.isVerified &&
-            u.role?.toLowerCase() === "superadmin"
-        )
-        // 🔑 pick ONE (oldest / lowest userId)
-        .sort((a, b) => a.userId - b.userId)[0];
-
-      if (primarySuperAdmin) {
-        const superAdminApprover = {
-          value: primarySuperAdmin.userId,
-          label: `${primarySuperAdmin.name} (SuperAdmin)`,
-          role: "SuperAdmin",
-          source: "USER",
-        };
-
-        approvers.push(superAdminApprover);
-
-        // Auto-select
-        setFormData((prev) => ({
-          ...prev,
-          approvers: [superAdminApprover],
-        }));
-      }
-    }
-
-    // ===============================
-    // 6️⃣ Set options
-    // ===============================
-    setApproverOptions(approvers);
-  } catch (err) {
-    console.error("Error fetching approvers:", err);
-    toast.error("Failed to load approvers");
-  }
-};
-
   useEffect(() => {
     fetchHeaders();
-    fetchApprovers();
   }, []);
 
-  // ---------- Input Handlers ----------
+  // ---------- Handlers ----------
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((p) => ({ ...p, [name]: value }));
   };
 
   const handleFileChange = (e) => {
-    setFormData((prev) => ({ ...prev, file: e.target.files[0] }));
+    setFormData((p) => ({ ...p, file: e.target.files[0] }));
   };
 
   // ---------- Submit ----------
@@ -189,104 +65,86 @@ const fetchApprovers = async () => {
     e.preventDefault();
     setError("");
 
-    if (!formData.expenseDetailsName || !formData.amount) {
-      setError("Please fill all required fields.");
+    if (!formData.headerId || !formData.amount) {
+      setError("Header and Amount are required.");
       return;
     }
 
     try {
       setLoading(true);
+
       const uploadData = new FormData();
-      uploadData.append("HeaderId", formData.headerId || 0);
+      uploadData.append("HeaderId", formData.headerId);
       uploadData.append("ExpenseDetailsName", formData.expenseDetailsName);
       uploadData.append("ExpenseDate", formData.expenseDate);
       uploadData.append("ExpenseLastDate", formData.expenseLastDate);
       uploadData.append("Amount", formData.amount);
-      uploadData.append("Description", formData.description);
+      uploadData.append("Description", formData.description || "");
+
       if (formData.file) uploadData.append("File", formData.file);
 
-      // Append approver IDs
-      const approverIds = formData.approvers.map((a) => a.value);
-      approverIds.forEach((id) => uploadData.append("CustomApproverIds", id));
+      await axiosInstance.post("/ExpenseDetails/create", uploadData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      const res = await axiosInstance.post(
-        "/ExpenseDetails/create",
-        uploadData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-
-      if (res.data?.message || res.status === 201) {
-        toast.success("Expense added successfully!");
-        onSuccess?.();
-        onClose?.();
-      }
+      toast.success("Expense added successfully!");
+      onSuccess?.();
+      onClose?.();
     } catch (err) {
-      console.error(err);
-      setError(
-        err?.response?.data?.message + " || " + err?.response?.data?.detail ||
-          "Failed to add expense."
-      );
+      setError(err?.response?.data?.message || "Failed to add expense.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative animate-fade-in max-h-[70vh] overflow-y-scroll">
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-2xl cursor-pointer"
-        >
-          <FiX />
-        </button>
-
-        <h2 className="text-lg font-semibold mb-5 text-gray-800">
-          Add New Expense
-        </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm px-4">
+      <div className="w-full max-w-md rounded-xl bg-white shadow-lg animate-fade-in">
+        <div className="flex items-center justify-between border-b border-gray-300 px-6 py-4">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Add New Expense
+          </h3>
+          <button onClick={onClose}>
+            <FaTimes className="text-gray-500 hover:text-red-500 transition cursor-pointer" />
+          </button>
+        </div>
 
         {error && (
-          <div className="bg-red-100 text-red-700 px-3 py-2 rounded text-sm mb-3">
+          <div className="mb-4 rounded-md bg-red-100 px-3 py-2 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-2">
-          {/* Header Dropdown */}
+        <form onSubmit={handleSubmit} className="space-y-2 px-6 py-4">
+          {/* Header */}
           <div>
-            <label className="block text-xs font-medium mb-1">
+            <label className="text-sm font-medium">
               Header <span className="text-red-500">*</span>
             </label>
             <Select
               options={headers}
               value={headers.find((h) => h.value === formData.headerId) || null}
               onChange={(selected) => {
-                const header = resHeaders.find(
-                  (h) => h.value === selected?.value
-                );
-                setSelectedHeader(header || null);
-                setFormData((prev) => ({
-                  ...prev,
-                  headerId: selected ? selected.value : "",
-                  expenseDetailsName: selected ? selected.label : "",
+                setSelectedHeader(selected);
+                setFormData((p) => ({
+                  ...p,
+                  headerId: selected?.value || "",
+                  expenseDetailsName: selected?.label || "",
                 }));
               }}
-              placeholder="Select Header"
-              autoFocus
+              placeholder="Select expense header"
+              required
             />
-
-            {/* Show max allowed amount */}
-            {selectedHeader && selectedHeader.maxAllowedAmount && (
-              <p className="text-xs font-bold text-red-500 mt-1">
-                Max Allowed Amount for {selectedHeader.label} is : ₹
-                {selectedHeader.maxAllowedAmount}
+            {selectedHeader?.maxAllowedAmount && (
+              <p className="text-xs text-red-500 mt-1 font-semibold">
+                Max Allowed: ₹{selectedHeader.maxAllowedAmount}
               </p>
             )}
           </div>
 
           {/* Amount */}
           <div>
-            <label className="block text-xs font-medium mb-1">
+            <label className="text-sm font-medium">
               Amount <span className="text-red-500">*</span>
             </label>
             <input
@@ -296,14 +154,15 @@ const fetchApprovers = async () => {
               onChange={handleChange}
               className={inputClass}
               placeholder="Enter amount"
+              required
             />
           </div>
 
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium mb-1">
-                Expense Date
+              <label className="text-sm font-medium">
+                Expense Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -311,11 +170,12 @@ const fetchApprovers = async () => {
                 value={formData.expenseDate}
                 onChange={handleChange}
                 className={inputClass}
+                required
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">
-                Last Date
+              <label className="text-sm font-medium">
+                Last Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -323,59 +183,42 @@ const fetchApprovers = async () => {
                 value={formData.expenseLastDate}
                 onChange={handleChange}
                 className={inputClass}
+                required
               />
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-medium mb-1">
-              Description
-            </label>
+            <label className="text-sm font-medium">Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className={inputClass}
               rows={3}
-              placeholder="Enter description"
+              className={inputClass}
+              placeholder="Optional description"
             />
           </div>
 
-          {/* File Upload */}
+          {/* File */}
           <div>
-            <label className="block text-xs font-medium mb-1">
-              File Upload
-            </label>
+            <label className="text-sm font-medium">Upload Bill</label>
             <input
               type="file"
-              name="file"
               onChange={handleFileChange}
               className={inputClass}
             />
           </div>
 
-          {/* Custom Approvers */}
-          <div>
-            <label className="block text-xs font-medium mb-1">Approvers</label>
-            <Select
-              options={approverOptions}
-              value={formData.approvers}
-              onChange={(selected) =>
-                setFormData((prev) => ({ ...prev, approvers: selected }))
-              }
-              isMulti
-              placeholder="Select approvers"
-            />
-          </div>
-
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className={`bg-primary text-white flex items-center justify-center px-5 py-2 rounded w-full transition ${
+            className={`w-full rounded-lg py-2.5 cursor-pointer text-white font-medium transition ${
               loading
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-secondary cursor-pointer"
+                ? "bg-primary cursor-not-allowed"
+                : "bg-primary hover:bg-secondary"
             }`}
           >
             {loading ? <Spinner /> : "Add Expense"}

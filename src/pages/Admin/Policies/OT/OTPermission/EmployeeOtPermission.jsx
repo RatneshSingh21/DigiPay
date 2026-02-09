@@ -105,6 +105,10 @@ export default function EmployeeOtPermission() {
     (p.employeeName || "").toLowerCase().includes(search.trim().toLowerCase())
   );
 
+  const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
   return (
     <>
       {/* HEADER */}
@@ -119,7 +123,7 @@ export default function EmployeeOtPermission() {
             placeholder="Search by employee name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border border-blue-400 outline-none rounded px-2 py-1 text-sm"
+            className={inputClass}
           />
 
           <button

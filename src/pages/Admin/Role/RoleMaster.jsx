@@ -80,6 +80,10 @@ const RoleMaster = () => {
     fetchRoles();
   }, []);
 
+  const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
   return (
     <div>
       {/* Header */}
@@ -120,7 +124,7 @@ const RoleMaster = () => {
             }
             required
             minLength={3}
-            className="w-72 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className={inputClass}
           />
           <button
             type="submit"
@@ -158,7 +162,7 @@ const RoleMaster = () => {
               <tbody>
                 {roles.length > 0 ? (
                   roles.map((role, idx) => (
-                    <tr key={role.roleID} className="hover:bg-gray-50">
+                    <tr key={role.roleID} className="hover:bg-gray-50 border border-gray-200 transition">
                       <td className="p-2">{idx + 1}.</td>
                       <td className="p-2">{role.roleName}</td>
                       <td className="p-2">{role.description}</td>

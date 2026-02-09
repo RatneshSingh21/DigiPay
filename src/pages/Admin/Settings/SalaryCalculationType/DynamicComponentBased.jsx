@@ -215,7 +215,7 @@ const DynamicComponentBased = ({ open, onClose }) => {
           {form.components.map((comp, index) => (
             <div
               key={index}
-              className="grid grid-cols-12 gap-2 items-end border rounded p-2 mb-2"
+              className="grid grid-cols-12 gap-2 items-end border border-gray-300 bg-gray-50 rounded p-2 mb-2"
             >
               <div className="col-span-3">
                 <Label>Component Name</Label>
@@ -229,7 +229,7 @@ const DynamicComponentBased = ({ open, onClose }) => {
                       e.target.value
                     )
                   }
-                  className="w-full px-3 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -246,11 +246,11 @@ const DynamicComponentBased = ({ open, onClose }) => {
                     )
                   }
                   placeholder="e.g. Basic * 0.40"
-                  className="w-full px-3 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
-              <div className="col-span-3 flex items-center gap-2">
+              <div className="col-span-3 flex items-center justify-center gap-2">
                 <input
                   type="checkbox"
                   checked={comp.isAttendanceSensitive}
@@ -283,7 +283,7 @@ const DynamicComponentBased = ({ open, onClose }) => {
         <div className="flex justify-end gap-3 mt-4">
           <button
             onClick={onClose}
-            className="px-4 py-1.5 border cursor-pointer rounded"
+            className="px-4 py-1.5 border border-gray-400 cursor-pointer rounded"
           >
             Cancel
           </button>
@@ -317,7 +317,7 @@ const TextInput = ({ label, name, value, onChange }) => (
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full px-3 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
     />
   </div>
 );
@@ -329,7 +329,7 @@ const NumberInput = ({ label, value, onChange }) => (
       type="number"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full px-3 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
     />
   </div>
 );

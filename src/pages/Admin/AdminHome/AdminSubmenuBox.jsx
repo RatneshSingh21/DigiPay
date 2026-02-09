@@ -276,7 +276,7 @@ const AdminSubmenuBox = ({ items, selectedMenu }) => {
   const base = `/admin-dashboard/${selectedMenu.toLowerCase()}`;
 
   return (
-    <div className="bg-white border-r p-4 h-full w-52 fixed shadow-md">
+    <div className="bg-white border-r border-gray-400 p-4 h-full w-52 fixed shadow-md">
       <h3 className="text-xl font-semibold mb-3 text-gray-700">
         {selectedMenu}
       </h3>

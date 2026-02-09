@@ -33,6 +33,9 @@ const RuleRoleModal = ({
     }
   };
 
+  const inputClass =
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
   return (
     <div
       className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
@@ -48,7 +51,7 @@ const RuleRoleModal = ({
           </h3>
           <button
             onClick={onClose}
-            className="cursor-pointer text-gray-400 hover:text-gray-600 transition"
+            className="cursor-pointer text-gray-400 hover:text-red-600 transition"
           >
             <X size={20} />
           </button>
@@ -65,7 +68,7 @@ const RuleRoleModal = ({
               placeholder="Choose a rule"
               value={
                 ruleOptions.find(
-                  (opt) => opt.value === roleAssignment.ruleId
+                  (opt) => opt.value === roleAssignment.ruleId,
                 ) || null
               }
               onChange={(selected) =>
@@ -90,7 +93,7 @@ const RuleRoleModal = ({
               placeholder="Choose a role"
               value={
                 roleOptions.find(
-                  (opt) => opt.value === roleAssignment.roleId
+                  (opt) => opt.value === roleAssignment.roleId,
                 ) || null
               }
               onChange={(selected) =>
@@ -119,7 +122,7 @@ const RuleRoleModal = ({
                   sequenceOrder: parseInt(e.target.value, 10) || 1,
                 })
               }
-              className="w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm"
+              className={inputClass}
               placeholder="Enter sequence order"
             />
           </div>
@@ -128,7 +131,7 @@ const RuleRoleModal = ({
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border text-sm rounded-lg hover:bg-gray-100"
+            className="px-4 py-2 border border-gray-400 text-sm rounded-lg hover:bg-gray-100"
           >
             Cancel
           </button>

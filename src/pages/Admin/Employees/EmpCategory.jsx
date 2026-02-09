@@ -70,7 +70,7 @@ const EmpCategory = () => {
   };
 
   const inputClass =
-    "w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none";
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   return (
     <div>
@@ -163,7 +163,7 @@ const EmpCategory = () => {
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative animate-fadeIn">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 cursor-pointer"
+              className="absolute top-3 right-3 text-gray-500 hover:text-red-600 cursor-pointer"
             >
               <FiX size={20} />
             </button>

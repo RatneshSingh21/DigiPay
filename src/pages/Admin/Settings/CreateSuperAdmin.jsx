@@ -89,7 +89,7 @@ const CreateSuperAdmin = () => {
   return (
     <>
       {/* Header */}
-      <div className="px-6 py-3 sticky top-14 z-20 bg-white border-b flex justify-between items-center">
+      <div className="px-6 py-3 sticky top-14 z-10 bg-white border-b border-gray-200 flex justify-between items-center">
         <div>
           <h2 className="text-xl font-semibold tracking-tight">Admins</h2>
           <p className="text-xs text-gray-500">
@@ -194,13 +194,13 @@ const CreateSuperAdmin = () => {
                                 })
                               }
                               className={`w-full appearance-none rounded-full border px-4 py-2 pr-9 text-xs font-medium transition
-      ${
-        companyId
-          ? "bg-white border-gray-300 text-gray-800"
-          : "bg-gray-50 border-gray-200 text-gray-400"
-      }
-      focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
-      hover:border-gray-400`}
+                              ${
+                                companyId
+                                  ? "bg-white border-gray-300 text-gray-800"
+                                  : "bg-gray-50 border-gray-200 text-gray-400"
+                              }
+                              focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+                              hover:border-gray-400`}
                             >
                               <option value="">Select company</option>
                               {companies.map((c) => (

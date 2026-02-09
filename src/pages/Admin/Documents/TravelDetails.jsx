@@ -19,7 +19,7 @@ const TravelDetails = () => {
   const [endDate, setEndDate] = useState("");
 
   const inputClass =
-    "w-full px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm";
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   useEffect(() => {
     const fetchTravelData = async () => {
@@ -60,7 +60,7 @@ const TravelDetails = () => {
 
     if (search.trim()) {
       temp = temp.filter((g) =>
-        g.employeeName.toLowerCase().includes(search.toLowerCase())
+        g.employeeName.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
@@ -123,7 +123,7 @@ const TravelDetails = () => {
             placeholder="🔎 Search by employee name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="sm:w-64 px-3 py-1.5 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+            className={`${inputClass} sm:w-64`}
           />
           <div className="flex items-center gap-2">
             <input
@@ -167,7 +167,7 @@ const TravelDetails = () => {
                     setStartDate("");
                     setEndDate("");
                   }}
-                  className="px-4 py-2 rounded-lg border cursor-pointer text-sm hover:bg-gray-100"
+                  className="px-4 py-2 rounded-lg border border-gray-400 cursor-pointer text-sm hover:bg-gray-100"
                 >
                   Clear Search
                 </button>
@@ -228,7 +228,7 @@ const TravelDetails = () => {
                         {group.trips.map((trip, idx) => (
                           <tr
                             key={trip.id}
-                            className="border-b hover:bg-gray-50"
+                            className="border-b border-gray-200 hover:bg-gray-50"
                           >
                             <td className="py-2 px-3 text-gray-500">
                               {idx + 1}.
@@ -246,7 +246,7 @@ const TravelDetails = () => {
                                   year: "numeric",
                                   hour: "2-digit",
                                   minute: "2-digit",
-                                }
+                                },
                               )}
                             </td>
                             <td className="py-2 px-3 text-gray-700 flex items-center">
@@ -266,7 +266,7 @@ const TravelDetails = () => {
                                       year: "numeric",
                                       hour: "2-digit",
                                       minute: "2-digit",
-                                    }
+                                    },
                                   )
                                 : "—"}
                             </td>

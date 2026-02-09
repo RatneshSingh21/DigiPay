@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import Select from "react-select";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
 const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
   const [employees, setEmployees] = useState([]);
 
@@ -40,7 +44,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
   }));
 
   return (
-    <div className="border rounded-xl p-5 bg-white shadow-sm space-y-2">
+    <div className="border border-gray-200 rounded-xl p-5 bg-white shadow-sm space-y-2">
       {/* Work Day */}
       <div className="space-y-1">
         <label className="text-sm font-medium text-gray-700">Work Day</label>
@@ -148,7 +152,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
                 onChange={(e) =>
                   onChange({ ...rule, startTime: e.target.value })
                 }
-                className="w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm"
+                className={inputClass}
               />
             </div>
 
@@ -158,7 +162,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
                 type="time"
                 value={rule.endTime || ""}
                 onChange={(e) => onChange({ ...rule, endTime: e.target.value })}
-                className="w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm"
+                className={inputClass}
               />
             </div>
           </div>
@@ -191,7 +195,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
           onChange={(e) =>
             onChange({ ...rule, workingDayCredit: Number(e.target.value) })
           }
-          className="w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm"
+          className={inputClass}
         />
       </div>
 
@@ -208,7 +212,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
       </label>
 
       {/* Remove */}
-      <div className="pt-2 border-t">
+      <div className="pt-2 border-t border-gray-400">
         <button
           type="button"
           onClick={onRemove}

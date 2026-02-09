@@ -3,8 +3,22 @@ import { X } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
+
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const AttendanceBased = ({ open, onClose }) => {
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1);
+const totalSteps = 6;
+
+const nextStep = () => {
+  if (step < totalSteps) setStep(step + 1);
+};
+
+const prevStep = () => {
+  if (step > 1) setStep(step - 1);
+};
 
   const [form, setForm] = useState({
     prorateEarningsByPresentDays: true,
@@ -138,266 +152,103 @@ const AttendanceBased = ({ open, onClose }) => {
           <X size={18} />
         </button>
 
-        <h2 className="text-base font-semibold mb-3">
+        <h2 className="text-base font-semibold mb-3 border-b border-gray-300 pb-2">
           Attendance Based Salary Rules
         </h2>
 
-        <Section title="Proration & Attendance">
-          <Toggle
-            label="Prorate Earnings By Present Days"
-            name="prorateEarningsByPresentDays"
-            value={form.prorateEarningsByPresentDays}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Prorate Deductions By Present Days"
-            name="prorateDeductionsByPresentDays"
-            value={form.prorateDeductionsByPresentDays}
-            onChange={handleChange}
-          />
-          <Input
-            label="Min Days For Full Salary"
-            name="minDaysForFullSalary"
-            value={form.minDaysForFullSalary}
-            onChange={handleChange}
-          />
-          <Input
-            label="Rounding Policy"
-            name="roundingPolicyForPresentDays"
-            value={form.roundingPolicyForPresentDays}
-            onChange={handleChange}
-            type="text"
-          />
-        </Section>
+        <Stepper step={step} />
 
-        <Section title="Presence Rules">
-          <Toggle
-            label="Include Week Off As Present"
-            name="includeWeekOffAsPresent"
-            value={form.includeWeekOffAsPresent}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Include Holidays As Present"
-            name="includeHolidaysAsPresent"
-            value={form.includeHolidaysAsPresent}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Include Half Day As Half"
-            name="includeHalfDayAsHalf"
-            value={form.includeHalfDayAsHalf}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Count OT As Present"
-            name="countOTAsPresent"
-            value={form.countOTAsPresent}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Reduce Present Days If Min Hours Not Met"
-            name="reducePresentDaysIfNoMinHours"
-            value={form.reducePresentDaysIfNoMinHours}
-            onChange={handleChange}
-          />
-        </Section>
+        {step === 1 && (
+  <>
+    <Section title="Proration & Attendance">
+      <Toggle label="Prorate Earnings By Present Days" name="prorateEarningsByPresentDays" value={form.prorateEarningsByPresentDays} onChange={handleChange} />
+      <Toggle label="Prorate Deductions By Present Days" name="prorateDeductionsByPresentDays" value={form.prorateDeductionsByPresentDays} onChange={handleChange} />
+      <Input label="Min Days For Full Salary" name="minDaysForFullSalary" value={form.minDaysForFullSalary} onChange={handleChange} />
+      <Input label="Rounding Policy" name="roundingPolicyForPresentDays" value={form.roundingPolicyForPresentDays} onChange={handleChange} type="text" />
+    </Section>
 
-        <Section title="Working Hours">
-          <Input
-            label="Full Day Hours"
-            name="fullDayHours"
-            value={form.fullDayHours}
-            onChange={handleChange}
-          />
-          <Input
-            label="Half Day Hours"
-            name="halfDayHours"
-            value={form.halfDayHours}
-            onChange={handleChange}
-          />
-          <Input
-            label="Min Hours For Full Day"
-            name="minimumPresentHoursForFullDay"
-            value={form.minimumPresentHoursForFullDay}
-            onChange={handleChange}
-          />
-          <Input
-            label="Min Hours For Half Day"
-            name="minimumPresentHoursForHalfDay"
-            value={form.minimumPresentHoursForHalfDay}
-            onChange={handleChange}
-          />
-        </Section>
+    <Section title="Presence Rules">
+      <Toggle label="Include Week Off As Present" name="includeWeekOffAsPresent" value={form.includeWeekOffAsPresent} onChange={handleChange} />
+      <Toggle label="Include Holidays As Present" name="includeHolidaysAsPresent" value={form.includeHolidaysAsPresent} onChange={handleChange} />
+      <Toggle label="Include Half Day As Half" name="includeHalfDayAsHalf" value={form.includeHalfDayAsHalf} onChange={handleChange} />
+      <Toggle label="Count OT As Present" name="countOTAsPresent" value={form.countOTAsPresent} onChange={handleChange} />
+    </Section>
+  </>
+)}
 
-        <Section title="Leave Conversion & Short Hours">
-          <Toggle
-            label="Auto Convert Absent To Leave"
-            name="autoConvertAbsentToLeave"
-            value={form.autoConvertAbsentToLeave}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Auto Convert Late To Leave"
-            name="autoConvertLateToLeave"
-            value={form.autoConvertLateToLeave}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Auto Convert Short Hours To Leave"
-            name="autoConvertShortHoursToLeave"
-            value={form.autoConvertShortHoursToLeave}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Apply Short Hours Deduction"
-            name="applyShortHoursDeduction"
-            value={form.applyShortHoursDeduction}
-            onChange={handleChange}
-          />
-          <Input
-            label="Leave Conversion Priority"
-            name="leaveConversionPriority"
-            value={form.leaveConversionPriority}
-            onChange={handleChange}
-            type="text"
-          />
-          <Input
-            label="Allowed Short Hours / Month"
-            name="allowedShortHoursPerMonth"
-            value={form.allowedShortHoursPerMonth}
-            onChange={handleChange}
-          />
-          <Input
-            label="Short Hours Deduction Type"
-            name="shortHoursDeductionType"
-            value={form.shortHoursDeductionType}
-            onChange={handleChange}
-            type="text"
-          />
-        </Section>
+{step === 2 && (
+  <Section title="Working Hours">
+    <Input label="Full Day Hours" name="fullDayHours" value={form.fullDayHours} onChange={handleChange} />
+    <Input label="Half Day Hours" name="halfDayHours" value={form.halfDayHours} onChange={handleChange} />
+    <Input label="Min Hours For Full Day" name="minimumPresentHoursForFullDay" value={form.minimumPresentHoursForFullDay} onChange={handleChange} />
+    <Input label="Min Hours For Half Day" name="minimumPresentHoursForHalfDay" value={form.minimumPresentHoursForHalfDay} onChange={handleChange} />
+  </Section>
+)}
 
-        <Section title="Grace, LOP & Salary">
-          <Input
-            label="Grace Minutes / Day"
-            name="graceMinutesPerDay"
-            value={form.graceMinutesPerDay}
-            onChange={handleChange}
-          />
-          <Input
-            label="Grace Minutes / Month"
-            name="graceMinutesPerMonth"
-            value={form.graceMinutesPerMonth}
-            onChange={handleChange}
-          />
-          <Input
-            label="Max Grace Count"
-            name="maxGraceCount"
-            value={form.maxGraceCount}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Allow Half Day LOP"
-            name="allowHalfDayLOP"
-            value={form.allowHalfDayLOP}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Allow Quarter Day LOP"
-            name="allowQuarterDayLOP"
-            value={form.allowQuarterDayLOP}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Auto LOP If Min Hours Not Met"
-            name="autoLOPIfMinHoursNotMet"
-            value={form.autoLOPIfMinHoursNotMet}
-            onChange={handleChange}
-          />
-        </Section>
+{step === 3 && (
+  <Section title="Leave Conversion & Short Hours">
+    <Toggle label="Auto Convert Absent To Leave" name="autoConvertAbsentToLeave" value={form.autoConvertAbsentToLeave} onChange={handleChange} />
+    <Toggle label="Auto Convert Late To Leave" name="autoConvertLateToLeave" value={form.autoConvertLateToLeave} onChange={handleChange} />
+    <Toggle label="Auto Convert Short Hours To Leave" name="autoConvertShortHoursToLeave" value={form.autoConvertShortHoursToLeave} onChange={handleChange} />
+    <Input label="Leave Conversion Priority" name="leaveConversionPriority" value={form.leaveConversionPriority} onChange={handleChange} type="text" />
+    <Input label="Allowed Short Hours / Month" name="allowedShortHoursPerMonth" value={form.allowedShortHoursPerMonth} onChange={handleChange} />
+  </Section>
+)}
 
-        <Section title="Salary Policies">
-          <Toggle
-            label="Make CTC Equal Net Salary"
-            name="makeCTCEqualNetSalary"
-            value={form.makeCTCEqualNetSalary}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Allow Negative Salary"
-            name="allowNegativeSalary"
-            value={form.allowNegativeSalary}
-            onChange={handleChange}
-          />
-          <Input
-            label="Net Salary Rounding Policy"
-            name="netSalaryRoundingPolicy"
-            value={form.netSalaryRoundingPolicy}
-            onChange={handleChange}
-            type="text"
-          />
-          <Input
-            label="Rounding Nearest Value"
-            name="roundingNearestValue"
-            value={form.roundingNearestValue}
-            onChange={handleChange}
-          />
-        </Section>
+{step === 4 && (
+  <Section title="Grace & LOP">
+    <Input label="Grace Minutes / Day" name="graceMinutesPerDay" value={form.graceMinutesPerDay} onChange={handleChange} />
+    <Input label="Grace Minutes / Month" name="graceMinutesPerMonth" value={form.graceMinutesPerMonth} onChange={handleChange} />
+    <Toggle label="Allow Half Day LOP" name="allowHalfDayLOP" value={form.allowHalfDayLOP} onChange={handleChange} />
+    <Toggle label="Allow Quarter Day LOP" name="allowQuarterDayLOP" value={form.allowQuarterDayLOP} onChange={handleChange} />
+  </Section>
+)}
 
-        <Section title="Compliance & Misc">
-          <Toggle
-            label="Apply Minimum Wage Check"
-            name="applyMinimumWageCheck"
-            value={form.applyMinimumWageCheck}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Apply PF / ESI Rules"
-            name="applyPFESIEligibilityRules"
-            value={form.applyPFESIEligibilityRules}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Treat WFH As Present"
-            name="treatWorkFromHomeAsPresent"
-            value={form.treatWorkFromHomeAsPresent}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Treat On Duty As Present"
-            name="treatOnDutyAsPresent"
-            value={form.treatOnDutyAsPresent}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Holiday Multiplier On Overtime"
-            name="applyHolidayMultiplierOnOvertime"
-            value={form.applyHolidayMultiplierOnOvertime}
-            onChange={handleChange}
-          />
-          <Toggle
-            label="Auto Approve Attendance If Geo Fence Fails"
-            name="autoApproveAttendanceIfGeoFenceFails"
-            value={form.autoApproveAttendanceIfGeoFenceFails}
-            onChange={handleChange}
-          />
-        </Section>
+{step === 5 && (
+  <Section title="Salary Policies">
+    <Toggle label="Make CTC Equal Net Salary" name="makeCTCEqualNetSalary" value={form.makeCTCEqualNetSalary} onChange={handleChange} />
+    <Toggle label="Allow Negative Salary" name="allowNegativeSalary" value={form.allowNegativeSalary} onChange={handleChange} />
+    <Input label="Net Salary Rounding Policy" name="netSalaryRoundingPolicy" value={form.netSalaryRoundingPolicy} onChange={handleChange} type="text" />
+    <Input label="Rounding Nearest Value" name="roundingNearestValue" value={form.roundingNearestValue} onChange={handleChange} />
+  </Section>
+)}
 
-        <div className="flex justify-end gap-3 mt-4">
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 border cursor-pointer rounded"
-          >
-            Cancel
-          </button>
-          <button
-            disabled={loading}
-            onClick={handleSubmit}
-            className="px-5 py-1.5 bg-primary text-white cursor-pointer rounded"
-          >
-            {loading ? "Saving..." : "Save Rules"}
-          </button>
-        </div>
+{step === 6 && (
+  <Section title="Compliance & Misc">
+    <Toggle label="Apply Minimum Wage Check" name="applyMinimumWageCheck" value={form.applyMinimumWageCheck} onChange={handleChange} />
+    <Toggle label="Apply PF / ESI Rules" name="applyPFESIEligibilityRules" value={form.applyPFESIEligibilityRules} onChange={handleChange} />
+    <Toggle label="Treat WFH As Present" name="treatWorkFromHomeAsPresent" value={form.treatWorkFromHomeAsPresent} onChange={handleChange} />
+    <Toggle label="Treat On Duty As Present" name="treatOnDutyAsPresent" value={form.treatOnDutyAsPresent} onChange={handleChange} />
+  </Section>
+)}
+
+
+        <div className="flex justify-between mt-6 border-t border-gray-400 pt-4">
+  <button
+    onClick={prevStep}
+    disabled={step === 1}
+    className="px-4 py-1.5 border border-gray-400 rounded disabled:opacity-50"
+  >
+    Back
+  </button>
+
+  {step < totalSteps ? (
+    <button
+      onClick={nextStep}
+      className="px-5 py-1.5 bg-primary text-white rounded"
+    >
+      Next
+    </button>
+  ) : (
+    <button
+      disabled={loading}
+      onClick={handleSubmit}
+      className="px-5 py-1.5 bg-primary text-white rounded"
+    >
+      {loading ? "Saving..." : "Save Rules"}
+    </button>
+  )}
+</div>
       </div>
     </div>
   );
@@ -419,7 +270,7 @@ const Input = ({ label, name, value, onChange, type = "number" }) => (
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full px-3 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+      className={inputClass}
     />
   </div>
 );
@@ -430,5 +281,40 @@ const Toggle = ({ label, name, value, onChange }) => (
     <span className="text-xs">{label}</span>
   </label>
 );
+
+const Stepper = ({ step }) => {
+  const steps = [
+    "Proration",
+    "Working Hours",
+    "Leave Rules",
+    "Grace & LOP",
+    "Salary",
+    "Compliance",
+  ];
+
+  return (
+    <div className="flex justify-between mb-4">
+      {steps.map((label, index) => {
+        const current = index + 1;
+        return (
+          <div key={label} className="flex-1 text-center">
+            <div
+              className={`mx-auto h-8 w-8 rounded-full flex items-center justify-center text-xs font-medium
+                ${
+                  step >= current
+                    ? "bg-primary text-white"
+                    : "bg-gray-200 text-gray-500"
+                }`}
+            >
+              {current}
+            </div>
+            <p className="text-[11px] mt-1 text-gray-600">{label}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 
 export default AttendanceBased;

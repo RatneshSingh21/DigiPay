@@ -19,9 +19,7 @@ const repaymentModeOptions = [
 
 const EmployeeAdvancePaymentForm = ({ onClose, onSuccess }) => {
   const [employees, setEmployees] = useState([]);
-  const [approverOptions, setApproverOptions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingApprovers, setLoadingApprovers] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -33,7 +31,6 @@ const EmployeeAdvancePaymentForm = ({ onClose, onSuccess }) => {
     advancePaymentType: null,
     repaymentMode: null,
     comments: "",
-    approvers: [],
   });
 
   // Fetch employees for dropdown
@@ -54,121 +51,6 @@ const EmployeeAdvancePaymentForm = ({ onClose, onSuccess }) => {
     fetchEmployees();
   }, []);
 
-  // Fetch approvers
-  useEffect(() => {
-    const fetchApprovers = async () => {
-      try {
-        setLoadingApprovers(true);
-        let approvers = [];
-
-        // ===============================
-        // 1️⃣ Fetch Approval Rules
-        // ===============================
-        const ruleRes = await axiosInstance.get("/ApprovalRule");
-        const rules = ruleRes.data?.data || [];
-
-        const advanceRule = rules.find(
-          (r) => r.requestType?.toLowerCase() === "advancepayment",
-        );
-
-        if (!advanceRule) {
-          setApproverOptions([]);
-          return;
-        }
-
-        // ===============================
-        // 2️⃣ Fetch Approval Rule Roles
-        // ===============================
-        const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
-        const ruleRoles = ruleRoleRes.data?.data || [];
-
-        const advanceRuleRoles = ruleRoles.filter(
-          (rr) => rr.ruleId === advanceRule.ruleId,
-        );
-
-        const allowedRoleIds = advanceRuleRoles.map((rr) => rr.roleId);
-
-        // ===============================
-        // 3️⃣ Fetch Role List
-        // ===============================
-        const roleListRes = await axiosInstance.get("/RoleList/getall");
-        const roleList = roleListRes.data || [];
-
-        const superAdminRole = roleList.find(
-          (r) => r.roleName?.toLowerCase() === "superadmin",
-        );
-
-        const superAdminRoleId = superAdminRole?.roleID;
-        const requiresSuperAdmin =
-          superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
-
-        // ===============================
-        // 4️⃣ Fetch Employee Approvers (if any)
-        // ===============================
-        const empRes = await axiosInstance.get(
-          "/EmployeeRoleMapping/approvers/all",
-        );
-
-        const advanceEmpRule = empRes.data?.find(
-          (r) => r.requestType?.toLowerCase() === "advancepayment",
-        );
-
-        if (advanceEmpRule?.approvers?.length) {
-          const employeeApprovers = advanceEmpRule.approvers
-            .filter((a) => allowedRoleIds.includes(a.roleId))
-            .map((a) => ({
-              value: a.employeeId,
-              label: `${a.employeeName} (${a.roleName})`,
-              role: a.roleName,
-              source: "EMPLOYEE",
-            }));
-
-          approvers = [...approvers, ...employeeApprovers];
-        }
-
-        // ===============================
-        // 5️⃣ Fetch ONLY ONE SuperAdmin (AUTHORIZED)
-        // ===============================
-        if (requiresSuperAdmin) {
-          const userRes = await axiosInstance.get("/user-auth/all");
-
-          const primarySuperAdmin = (userRes.data || [])
-            .filter(
-              (u) => u.isVerified && u.role?.toLowerCase() === "superadmin",
-            )
-            // 🔑 deterministic: ONE approver only
-            .sort((a, b) => a.userId - b.userId)[0];
-
-          if (primarySuperAdmin) {
-            const superAdminApprover = {
-              value: primarySuperAdmin.userId,
-              label: `${primarySuperAdmin.name} (SuperAdmin)`,
-              role: "SuperAdmin",
-              source: "USER",
-            };
-
-            approvers.push(superAdminApprover);
-
-            // Auto-select
-            setFormData((prev) => ({
-              ...prev,
-              approvers: [superAdminApprover],
-            }));
-          }
-        }
-
-        setApproverOptions(approvers);
-      } catch (err) {
-        console.error("Error fetching approvers:", err);
-        toast.error("Failed to load approvers");
-      } finally {
-        setLoadingApprovers(false);
-      }
-    };
-
-    fetchApprovers();
-  }, []);
-
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -183,7 +65,6 @@ const EmployeeAdvancePaymentForm = ({ onClose, onSuccess }) => {
       installments,
       advancePaymentType,
       repaymentMode,
-      approvers,
     } = formData;
 
     if (
@@ -215,7 +96,7 @@ const EmployeeAdvancePaymentForm = ({ onClose, onSuccess }) => {
         repaymentStartDate: new Date(repaymentDate).toISOString(),
         reason,
         comments: formData.comments,
-        customApproverIds: approvers?.map((a) => a.value) || [],
+        customApproverIds: [],
         repaymentMode: repaymentMode.value,
       };
 
@@ -231,8 +112,8 @@ const EmployeeAdvancePaymentForm = ({ onClose, onSuccess }) => {
         advancePaymentType: null,
         repaymentMode: null,
         comments: "",
-        approvers: approvers, // keep selected approvers
       });
+      onClose();
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.error || "Failed to submit request");
@@ -247,7 +128,7 @@ const EmployeeAdvancePaymentForm = ({ onClose, onSuccess }) => {
   return (
     <div className="w-full max-w-3xl bg-white rounded-xl shadow-lg flex flex-col max-h-[90vh]">
       {/* ================= HEADER ================= */}
-      <div className="px-6 py-4 border-b flex justify-between sticky top-0 bg-white z-10">
+      <div className="px-6 py-4 border-b border-gray-200 flex justify-between sticky top-0 bg-white z-10">
         <div>
           <h2 className="text-lg font-semibold">Employee Advance Payment</h2>
           <p className="text-sm text-muted-foreground">
@@ -368,20 +249,6 @@ const EmployeeAdvancePaymentForm = ({ onClose, onSuccess }) => {
           />
         </div>
 
-        {/* Approvers */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Approvers
-          </label>
-          <Select
-            options={approverOptions}
-            value={formData.approvers}
-            isMulti
-            isLoading={loadingApprovers}
-            onChange={(v) => handleChange("approvers", v || [])}
-          />
-        </div>
-
         {/* Comments */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -398,11 +265,11 @@ const EmployeeAdvancePaymentForm = ({ onClose, onSuccess }) => {
       </form>
 
       {/* ================= FOOTER ================= */}
-      <div className="px-6 py-4 border-t flex justify-end gap-3 sticky bottom-0 bg-white">
+      <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 sticky bottom-0 bg-white">
         <button
           type="button"
           onClick={onClose}
-          className="px-5 py-2 rounded-md border cursor-pointer hover:bg-muted"
+          className="px-5 py-2 rounded-md border border-gray-400 cursor-pointer hover:bg-muted"
         >
           Cancel
         </button>

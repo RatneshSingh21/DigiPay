@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaPlus,
-  FaFileInvoiceDollar,
-  FaDownload,
-  FaRupeeSign,
-  FaCommentDots,
-} from "react-icons/fa";
+import { FaPlus, FaDownload, FaRupeeSign, FaCommentDots } from "react-icons/fa";
 
 import {
   FiCalendar, // From
   FiCheckSquare, // To
   FiClock, // Submitted
 } from "react-icons/fi";
-
-import { toast } from "react-toastify";
 import EmpExpensesForm from "./EmpExpensesForm";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 import Select from "react-select";
+import ApprovalHistoryCell from "../../../components/ApprovalHistoryCell";
 
 const EmpExpenses = () => {
   const [expenses, setExpenses] = useState([]);
@@ -27,7 +20,6 @@ const EmpExpenses = () => {
   const [headerOptions, setHeaderOptions] = useState([]);
   const [selectedHeader, setSelectedHeader] = useState(null);
   const [statusList, setStatusList] = useState([]);
-  const [approverMap, setApproverMap] = useState({});
 
   const fetchStatusList = async () => {
     try {
@@ -40,110 +32,20 @@ const EmpExpenses = () => {
     }
   };
 
-  const fetchExpenseApproverMap = async () => {
-    try {
-      const map = {};
-
-      // ===============================
-      // 1️⃣ Approval Rule
-      // ===============================
-      const ruleRes = await axiosInstance.get("/ApprovalRule");
-      const rules = ruleRes.data?.data || [];
-
-      const expenseRule = rules.find(
-        (r) => r.requestType?.toLowerCase() === "expense"
-      );
-
-      if (!expenseRule) {
-        setApproverMap({});
-        return;
-      }
-
-      // ===============================
-      // 2️⃣ Rule Roles
-      // ===============================
-      const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
-      const ruleRoles = ruleRoleRes.data?.data || [];
-
-      const allowedRoleIds = ruleRoles
-        .filter((rr) => rr.ruleId === expenseRule.ruleId)
-        .map((rr) => rr.roleId);
-
-      // ===============================
-      // 3️⃣ Role List (SuperAdmin check)
-      // ===============================
-      const roleListRes = await axiosInstance.get("/RoleList/getall");
-      const roleList = roleListRes.data || [];
-
-      const superAdminRole = roleList.find(
-        (r) => r.roleName?.toLowerCase() === "superadmin"
-      );
-
-      const requiresSuperAdmin =
-        superAdminRole && allowedRoleIds.includes(superAdminRole.roleID);
-
-      // ===============================
-      // 4️⃣ Employee Approvers → USER MAPPING (IMPORTANT)
-      // ===============================
-      const empRes = await axiosInstance.get(
-        "/EmployeeRoleMapping/approvers/all"
-      );
-
-      const expenseEmpRule = empRes.data?.find(
-        (r) => r.requestType?.toLowerCase() === "expense"
-      );
-
-      // 🔑 Fetch users ONCE
-      const userRes = await axiosInstance.get("/user-auth/all");
-      const users = userRes.data || [];
-
-      if (expenseEmpRule?.approvers?.length) {
-        expenseEmpRule.approvers
-          .filter((a) => allowedRoleIds.includes(a.roleId))
-          .forEach((a) => {
-            const user = users.find((u) => u.employeeId === a.employeeId);
-
-            if (user) {
-              map[user.userId] = `${user.name} (${a.roleName})`;
-            }
-          });
-      }
-
-      // ===============================
-      // 5️⃣ SuperAdmin (ONLY if rule allows)
-      // ===============================
-      if (requiresSuperAdmin) {
-        const primarySuperAdmin = users
-          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
-          .sort((a, b) => a.userId - b.userId)[0];
-
-        if (primarySuperAdmin) {
-          map[
-            primarySuperAdmin.userId
-          ] = `${primarySuperAdmin.name} (SuperAdmin)`;
-        }
-      }
-
-      setApproverMap(map);
-    } catch (err) {
-      console.error("Failed to fetch expense approvers", err);
-    }
-  };
-
   // Fetch all expenses
   const fetchExpenses = async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(
-        `/ExpenseDetails/by-employee/${employeeId}`
+        `/ExpenseDetails/by-employee/${employeeId}`,
       );
       // console.log(res.data);
 
       if (res.data?.data) {
         setExpenses(
           res.data.data.sort(
-            (a, b) => new Date(b.expenseDate) - new Date(a.expenseDate)
-          )
+            (a, b) => new Date(b.expenseDate) - new Date(a.expenseDate),
+          ),
         );
         const uniqueHeaders = [
           ...new Set(res.data.data.map((e) => e.expenseDetailsName)),
@@ -162,7 +64,6 @@ const EmpExpenses = () => {
   useEffect(() => {
     fetchExpenses();
     fetchStatusList();
-    fetchExpenseApproverMap();
   }, []);
 
   const getStatusBadge = (statusId) => {
@@ -226,7 +127,7 @@ const EmpExpenses = () => {
             .filter((exp) =>
               selectedHeader
                 ? exp.expenseDetailsName === selectedHeader.value
-                : true
+                : true,
             )
             .map((exp) => {
               const status = getStatusBadge(exp.statusId);
@@ -259,7 +160,7 @@ const EmpExpenses = () => {
                         <strong>From:</strong>{" "}
                         {exp.expenseDate
                           ? new Date(exp.expenseDate).toLocaleDateString(
-                              "en-GB"
+                              "en-GB",
                             )
                           : "N/A"}
                       </p>
@@ -269,7 +170,7 @@ const EmpExpenses = () => {
                         <strong>To:</strong>{" "}
                         {exp.expenseLastDate
                           ? new Date(exp.expenseLastDate).toLocaleDateString(
-                              "en-GB"
+                              "en-GB",
                             )
                           : "N/A"}
                       </p>
@@ -293,14 +194,9 @@ const EmpExpenses = () => {
                     </p>
 
                     {/* Approvers */}
-                    {exp.customApproverIds?.length > 0 && (
-                      <div className="mt-3 text-xs text-gray-600">
-                        <strong>Approver:</strong>{" "}
-                        {exp.customApproverIds
-                          .map((id) => approverMap[id] || `User ${id}`)
-                          .join(", ")}
-                      </div>
-                    )}
+                    <ApprovalHistoryCell
+                      approvalHistory={exp.approvalHistory}
+                    />
 
                     {/* File + Footer */}
                     <div className="mt-auto flex justify-between items-center pt-3 border-t border-gray-100">

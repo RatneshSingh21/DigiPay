@@ -4,7 +4,7 @@ import { fetchMasterLookups } from "../leaveService";
 
 /* ================= SECTION ================= */
 const Section = ({ title, description, children }) => (
-  <div className="border rounded-lg p-4 bg-white space-y-3">
+  <div className="border border-gray-200 rounded-lg p-4 bg-white space-y-3">
     <div>
       <h4 className="font-semibold text-gray-800">{title}</h4>
       {description && (

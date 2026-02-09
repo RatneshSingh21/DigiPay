@@ -19,6 +19,9 @@ const stateOptions = indianStates.map((state) => ({
   value: state,
 }));
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -74,7 +77,6 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
     <>
       <div
         className="fixed inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4"
-        onClick={onClose}
       >
         <div
           className="bg-white p-6 rounded-lg shadow-lg max-w-xl w-full relative"
@@ -82,7 +84,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
         >
           <button
             type="button"
-            className="absolute top-4 cursor-pointer right-4 text-gray-600 hover:text-red-500 text-xl"
+            className="absolute top-4 cursor-pointer right-4 text-gray-600 hover:text-red-500 text-2xl"
             onClick={onClose}
           >
             &times;
@@ -103,7 +105,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Work Location Name"
-                className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className={inputClass}
                 required
               />
             </div>
@@ -118,7 +120,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                 placeholder="Address Line 1"
                 value={formData.addressLine1}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className={inputClass}
                 required
               />
               <input
@@ -127,7 +129,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                 placeholder="Address Line 2"
                 value={formData.addressLine2}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className={inputClass}
               />
               <div className="flex gap-2">
                 <div className="w-1/3">
@@ -151,7 +153,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                   placeholder="City"
                   value={formData.city}
                   onChange={handleChange}
-                  className="w-1/3 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className={`w-1/3 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                   required
                 />
                 <input
@@ -160,7 +162,7 @@ const WorkLocationForm = ({ onClose, isEdit, initialData, onSuccess }) => {
                   placeholder="PIN Code"
                   value={formData.pinCode}
                   onChange={handleChange}
-                  className="w-1/3 px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                   className={`w-1/3 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                   required
                 />
               </div>

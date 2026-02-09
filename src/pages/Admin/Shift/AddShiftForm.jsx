@@ -179,8 +179,7 @@ const AddShiftForm = ({ onClose, onSuccess, initialData, isEdit }) => {
 
   return (
     <div
-      className=" fixed text-sm inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4"
-      onClick={onClose}
+      className="fixed text-sm inset-0 bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center px-4"
     >
       <div
         className="bg-white max-h-[80vh] overflow-y-auto p-6 rounded-lg shadow-lg max-w-xl w-full relative"

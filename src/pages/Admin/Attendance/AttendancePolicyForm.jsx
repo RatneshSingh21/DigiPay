@@ -13,7 +13,8 @@ const selectStyles = {
 };
 
 const input =
-  "w-full border border-gray-300 rounded px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500";
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 
 /* ===================== STEP META ===================== */
 const STEPS = [
@@ -673,7 +674,7 @@ const AttendancePolicyForm = ({ onClose, onSuccess, initialData }) => {
         </div>
 
         {/* FOOTER */}
-        <div className="flex justify-between items-center mt-6 border-t pt-4">
+        <div className="flex justify-between items-center mt-6 border-t border-gray-200 pt-4">
           <button
             disabled={step === 0}
             onClick={() => setStep(step - 1)}

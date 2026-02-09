@@ -7,13 +7,13 @@ import Pagination from "../../../components/Pagination";
 import useAuthStore from "../../../store/authStore";
 import OutDutyFormModal from "../EmpOutDuty/OutDutyFormModal";
 import GatePassCard from "../EmpOutDuty/GatePassCard";
+import ApprovalHistoryCell from "../../../components/ApprovalHistoryCell";
 
 const EmpOutDuty = () => {
   const [requests, setRequests] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [onDutyApproverMap, setOnDutyApproverMap] = useState({});
   const userId = useAuthStore((state) => state.user?.userId);
   const [selectedGatePass, setSelectedGatePass] = useState(null);
   const companyId = useAuthStore((state) => state.companyId);
@@ -50,7 +50,7 @@ const EmpOutDuty = () => {
   const fetchEmployees = async () => {
     try {
       const res = await axiosInstance.get(
-        `/user-auth/getEmployee/companyId/${companyId}`
+        `/user-auth/getEmployee/companyId/${companyId}`,
       );
       if (res.data?.status === 200) {
         setEmployees(res.data.data);
@@ -80,93 +80,6 @@ const EmpOutDuty = () => {
     return { name, color };
   };
 
-  const fetchOnDutyApprovers = async () => {
-    try {
-      const approverMap = {};
-
-      // ===============================
-      // 1️⃣ Approval Rule
-      // ===============================
-      const ruleRes = await axiosInstance.get("/ApprovalRule");
-      const rules = ruleRes.data?.data || [];
-
-      const onDutyRule = rules.find(
-        (r) => r.requestType?.toLowerCase() === "onduty"
-      );
-
-      if (!onDutyRule) {
-        setOnDutyApproverMap({});
-        return;
-      }
-
-      // ===============================
-      // 2️⃣ Rule Roles
-      // ===============================
-      const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
-      const ruleRoles = ruleRoleRes.data?.data || [];
-
-      const onDutyRuleRoles = ruleRoles.filter(
-        (rr) => rr.ruleId === onDutyRule.ruleId
-      );
-
-      const allowedRoleIds = onDutyRuleRoles.map((rr) => rr.roleId);
-
-      // ===============================
-      // 3️⃣ Role List (SuperAdmin check)
-      // ===============================
-      const roleListRes = await axiosInstance.get("/RoleList/getall");
-      const roleList = roleListRes.data || [];
-
-      const superAdminRole = roleList.find(
-        (r) => r.roleName?.toLowerCase() === "superadmin"
-      );
-
-      const superAdminRoleId = superAdminRole?.roleID;
-      const requiresSuperAdmin =
-        superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
-
-      // ===============================
-      // 4️⃣ Employee Approvers
-      // ===============================
-      const empRes = await axiosInstance.get(
-        "/EmployeeRoleMapping/approvers/all"
-      );
-
-      const onDutyEmpRule = empRes.data?.find(
-        (r) => r.requestType?.toLowerCase() === "onduty"
-      );
-
-      if (onDutyEmpRule?.approvers?.length) {
-        onDutyEmpRule.approvers
-          .filter((a) => allowedRoleIds.includes(a.roleId))
-          .forEach((a) => {
-            approverMap[a.employeeId] = a.employeeName;
-          });
-      }
-
-      // ===============================
-      // 5️⃣ SuperAdmin (ONLY if rule allows)
-      // ===============================
-      if (requiresSuperAdmin) {
-        const userRes = await axiosInstance.get("/user-auth/all");
-
-        const primarySuperAdmin = (userRes.data || [])
-          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
-          .sort((a, b) => a.userId - b.userId)[0];
-
-        if (primarySuperAdmin) {
-          approverMap[
-            primarySuperAdmin.userId
-          ] = `${primarySuperAdmin.name} (SuperAdmin)`;
-        }
-      }
-
-      setOnDutyApproverMap(approverMap);
-    } catch (err) {
-      console.error("Failed to fetch OnDuty approvers", err);
-    }
-  };
-
   const fetchOnDuty = async () => {
     try {
       setLoading(true);
@@ -174,7 +87,7 @@ const EmpOutDuty = () => {
       if (res.data?.status === 200) {
         // 🔹 Filter only records for logged-in user
         const filtered = res.data.data.filter(
-          (item) => item.appliedByInt === userId
+          (item) => item.appliedByInt === userId,
         );
         setRequests(filtered || []);
         console.log(filtered);
@@ -190,7 +103,6 @@ const EmpOutDuty = () => {
   useEffect(() => {
     fetchOnDuty();
     fetchStatuses();
-    fetchOnDutyApprovers(); // ✅ NEW
     fetchEmployees();
   }, []);
 
@@ -214,130 +126,131 @@ const EmpOutDuty = () => {
       </div>
 
       {/* Table (Updated to Salary UI Style) */}
-      <div
-        className="mt-4 mx-4 p-4 border
-        overflow-x-scroll border-gray-200 rounded-lg max-h-[70vh] bg-white shadow"
-      >
-        <table className="min-w-full divide-y divide-gray-200 text-xs text-center">
-          <thead className="bg-gray-100 text-gray-600">
-            <tr>
-              <th className="p-2 border-r border-gray-200">S.No</th>
-              <th className="p-2 border-r border-gray-200">In Date & Time</th>
-              <th className="p-2 border-r border-gray-200">Out Date & Time</th>
-              <th className="p-2 border-r border-gray-200">Reason</th>
-              <th className="p-2 border-r border-gray-200">Time (hrs)</th>
-              <th className="p-2 border-r border-gray-200">Applied On</th>
-              <th className="p-2 border-r border-gray-200">Status</th>
-              <th className="p-2 border-r border-gray-200">Approvers</th>
-              <th className="p-2 border-r border-gray-200">Gate Pass</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-gray-100">
-            {loading ? (
+      <div className="bg-white shadow rounded p-4">
+        <div className="mt-4 border overflow-x-scroll border-gray-200 rounded-lg max-h-[65vh] bg-white shadow">
+          <table className="min-w-full divide-y divide-gray-200 text-xs text-center">
+            <thead className="bg-gray-100 text-gray-600">
               <tr>
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  Loading...
-                </td>
+                <th className="p-2 border-r border-gray-200">S.No</th>
+                <th className="p-2 border-r border-gray-200">In Date & Time</th>
+                <th className="p-2 border-r border-gray-200">
+                  Out Date & Time
+                </th>
+                <th className="p-2 border-r border-gray-200">Reason</th>
+                <th className="p-2 border-r border-gray-200">Time (hrs)</th>
+                <th className="p-2 border-r border-gray-200">Applied On</th>
+                <th className="p-2 border-r border-gray-200">Status</th>
+                <th className="p-2 border-r border-gray-200">Approvers</th>
+                <th className="p-2 border-r border-gray-200">Gate Pass</th>
               </tr>
-            ) : currentRequests.length > 0 ? (
-              currentRequests.map((req, index) => (
-                <tr
-                  key={req.onDutyID || index}
-                  className={`hover:bg-gray-50 transition-all ${
-                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  }`}
-                >
-                  <td className="p-2 border-r border-gray-200">
-                    {indexOfFirst + index + 1}
-                  </td>
+            </thead>
 
-                  <td className="p-2 border-r border-gray-200 whitespace-nowrap">
-                    {format(new Date(req.inDateTime), "dd MMM yyyy HH:mm a")}
-                  </td>
-
-                  <td className="p-2 border-r border-gray-200 whitespace-nowrap">
-                    {format(new Date(req.outDateTime), "dd MMM yyyy HH:mm a")}
-                  </td>
-
-                  <td className="p-2 border-r border-gray-200">{req.reason}</td>
-
-                  <td className="p-2 border-r border-gray-200">
-                    {(req.totalTime / 60).toFixed(1)} hrs
-                  </td>
-
-                  <td className="p-2 border-r border-gray-200 whitespace-nowrap">
-                    {req.appliedAt
-                      ? format(new Date(req.appliedAt), "dd MMM yyyy HH:mm a")
-                      : "-"}
-                  </td>
-
-                  <td className="p-2 border-r border-gray-200">
-                    {(() => {
-                      const { name, color } = getStatusInfo(req.statusId);
-                      return (
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${color}`}
-                        >
-                          {name}
-                        </span>
-                      );
-                    })()}
-                  </td>
-
-                  <td className="p-2 border-r border-gray-200">
-                    {req.approvers?.length
-                      ? req.approvers
-                          .map((id) => onDutyApproverMap?.[id] || "N/A")
-                          .join(", ")
-                      : "N/A"}
-                  </td>
-
-                  <td className="p-2 border-r border-gray-200">
-                    {getStatusInfo(req.statusId)
-                      .name.toLowerCase()
-                      .includes("approve") ? (
-                      <button
-                        onClick={() => {
-                          const emp = employees.find(
-                            (e) => e.id === req.appliedByInt
-                          );
-                          setSelectedGatePass({ ...req, employee: emp });
-                        }}
-                        className="px-3 py-1 bg-primary hover:bg-secondary cursor-pointer text-white rounded-md"
-                      >
-                        Print Gate Pass
-                      </button>
-                    ) : (
-                      "-"
-                    )}
+            <tbody className="divide-y divide-gray-100">
+              {loading ? (
+                <tr>
+                  <td colSpan="9" className="text-center py-6 text-gray-500">
+                    Loading...
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  No out duty requests found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-      {/* 🔹 Pagination Component */}
-      {requests.length > 0 && (
-        <div className="p-4 pt-0 flex gap-4 justify-end">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            paginate={paginate}
-            perPageData={perPageData}
-            setPerPageData={setPerPageData}
-            filteredData={requests}
-            totalDataLength={totalDataLength}
-          />
+              ) : currentRequests.length > 0 ? (
+                currentRequests.map((req, index) => (
+                  <tr
+                    key={req.onDutyID || index}
+                    className={`hover:bg-gray-50 transition-all ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    }`}
+                  >
+                    <td className="p-2 border-r border-gray-200">
+                      {indexOfFirst + index + 1}.
+                    </td>
+
+                    <td className="p-2 border-r border-gray-200 whitespace-nowrap">
+                      {format(new Date(req.inDateTime), "dd MMM yyyy HH:mm a")}
+                    </td>
+
+                    <td className="p-2 border-r border-gray-200 whitespace-nowrap">
+                      {format(new Date(req.outDateTime), "dd MMM yyyy HH:mm a")}
+                    </td>
+
+                    <td className="p-2 border-r border-gray-200">
+                      {req.reason}
+                    </td>
+
+                    <td className="p-2 border-r border-gray-200">
+                      {(req.totalTime / 60).toFixed(1)} hrs
+                    </td>
+
+                    <td className="p-2 border-r border-gray-200 whitespace-nowrap">
+                      {req.appliedAt
+                        ? format(new Date(req.appliedAt), "dd MMM yyyy HH:mm a")
+                        : "-"}
+                    </td>
+
+                    <td className="p-2 border-r border-gray-200">
+                      {(() => {
+                        const { name, color } = getStatusInfo(req.statusId);
+                        return (
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-semibold ${color}`}
+                          >
+                            {name}
+                          </span>
+                        );
+                      })()}
+                    </td>
+
+                    <td className="px-4 py-3 border-r border-gray-200 text-left">
+                      <ApprovalHistoryCell
+                        approvalHistory={req.approvalHistory}
+                      />
+                    </td>
+
+                    <td className="p-2 border-r border-gray-200">
+                      {getStatusInfo(req.statusId)
+                        .name.toLowerCase()
+                        .includes("approve") ? (
+                        <button
+                          onClick={() => {
+                            const emp = employees.find(
+                              (e) => e.id === req.appliedByInt,
+                            );
+                            setSelectedGatePass({ ...req, employee: emp });
+                          }}
+                          className="px-3 py-1 bg-primary hover:bg-secondary cursor-pointer text-white rounded-md"
+                        >
+                          Print Gate Pass
+                        </button>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="9" className="text-center py-6 text-gray-500">
+                    No out duty requests found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+        {/* 🔹 Pagination Component */}
+        {requests.length > 0 && (
+          <div className="p-4 pt-0 flex gap-4 justify-end">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              paginate={paginate}
+              perPageData={perPageData}
+              setPerPageData={setPerPageData}
+              filteredData={requests}
+              totalDataLength={totalDataLength}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Modal */}
       {showModal && (
@@ -351,7 +264,6 @@ const EmpOutDuty = () => {
       {selectedGatePass && (
         <GatePassCard
           data={selectedGatePass}
-          approverMapping={onDutyApproverMap}
           onClose={() => setSelectedGatePass(null)}
         />
       )}

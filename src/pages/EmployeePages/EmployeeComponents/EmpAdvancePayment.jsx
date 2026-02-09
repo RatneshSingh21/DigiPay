@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "../../../store/authStore";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import AdvancePaymentForm from "../EmpAdvance/AdvancePaymentForm";
+import ApprovalHistoryCell from "../../../components/ApprovalHistoryCell";
 
 // Status badge helper
 const StatusBadge = ({ status }) => {
@@ -69,13 +70,7 @@ const InstallmentRow = ({ inst, statusMap }) => {
 };
 
 // Advance request card
-const AdvanceRequestCard = ({
-  req,
-  statusMap,
-  approverMap,
-  isExpanded,
-  onToggle,
-}) => {
+const AdvanceRequestCard = ({ req, statusMap, isExpanded, onToggle }) => {
   const status = statusMap[req.statusId] || "Pending";
   const progress =
     req.advancePaymentAmount > 0
@@ -145,7 +140,7 @@ const AdvanceRequestCard = ({
                   Starts{" "}
                   {new Date(req.repaymentStartDate).toLocaleDateString(
                     "default",
-                    { month: "short", year: "2-digit" }
+                    { month: "short", year: "2-digit" },
                   )}
                 </span>
               )}
@@ -182,40 +177,14 @@ const AdvanceRequestCard = ({
           </div>
         )}
 
-        {/* Approvers */}
-        {req.approvedBy?.length > 0 && (
-          <div className="flex items-center gap-2 mt-2 pt-3 border-t border-gray-50">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="text-xs text-gray-500">Approved by:</span>
-            <div className="flex -space-x-2">
-              {req.approvedBy.map((id, idx) => {
-                const [hover, setHover] = useState(false);
-                return (
-                  <div
-                    key={idx}
-                    className="relative"
-                    onMouseEnter={() => setHover(true)}
-                    onMouseLeave={() => setHover(false)}
-                  >
-                    <div className="flex gap-2">
-                      <div className="w-6 h-6 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-indigo-700 cursor-help">
-                        {approverMap[id]?.charAt(0) || "U"}
-                      </div>
-                      <p className="font-medium text-primary">
-                        {" "}
-                        {approverMap[id]}
-                      </p>
-                    </div>
+        {/* Approval Status */}
+        {req.approvalHistory?.length > 0 && (
+          <div className="mt-4 pt-3 border-t border-gray-100">
+            <p className="text-xs font-semibold text-gray-500 mb-2">
+              Approval Status
+            </p>
 
-                    {hover && (
-                      <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 px-2 py-1 text-xs bg-gray-900 text-white rounded whitespace-nowrap">
-                        {approverMap[id] || `User ${id}`}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            <ApprovalHistoryCell approvalHistory={req.approvalHistory} />
           </div>
         )}
       </div>
@@ -254,7 +223,6 @@ const AdvanceRequestCard = ({
 export default function EmpAdvancePayment() {
   const [requests, setRequests] = useState([]);
   const [statusMap, setStatusMap] = useState({});
-  const [approverMap, setApproverMap] = useState({});
   const [expandedRequests, setExpandedRequests] = useState({});
   const [showApplyModal, setShowApplyModal] = useState(false);
 
@@ -267,17 +235,14 @@ export default function EmpAdvancePayment() {
         const statusRes = await axiosInstance.get("/StatusMaster");
         const statusMapTemp = {};
         statusRes.data.data.forEach(
-          (s) => (statusMapTemp[s.statusId] = s.statusName)
+          (s) => (statusMapTemp[s.statusId] = s.statusName),
         );
         setStatusMap(statusMapTemp);
-
-        // ✅ Rule-based approvers
-        await fetchAdvanceApprovers();
 
         // Requests
         if (User?.userId) {
           const reqRes = await axiosInstance.get(
-            `/AdvancePayment/employee/${User.userId}`
+            `/AdvancePayment/employee/${User.userId}`,
           );
           setRequests(reqRes.data?.data || []);
         }
@@ -289,101 +254,14 @@ export default function EmpAdvancePayment() {
     fetchData();
   }, [User?.userId]);
 
-  const fetchAdvanceApprovers = async () => {
-    try {
-      const map = {};
-
-      // ===============================
-      // 1️⃣ Approval Rule
-      // ===============================
-      const ruleRes = await axiosInstance.get("/ApprovalRule");
-      const rules = ruleRes.data?.data || [];
-
-      const advanceRule = rules.find(
-        (r) => r.requestType?.toLowerCase() === "advancepayment"
-      );
-
-      if (!advanceRule) {
-        setApproverMap({});
-        return;
-      }
-
-      // ===============================
-      // 2️⃣ Rule Roles
-      // ===============================
-      const ruleRoleRes = await axiosInstance.get("/ApprovalRuleRole");
-      const ruleRoles = ruleRoleRes.data?.data || [];
-
-      const advanceRuleRoles = ruleRoles.filter(
-        (rr) => rr.ruleId === advanceRule.ruleId
-      );
-
-      const allowedRoleIds = advanceRuleRoles.map((rr) => rr.roleId);
-
-      // ===============================
-      // 3️⃣ Role List (SuperAdmin check)
-      // ===============================
-      const roleListRes = await axiosInstance.get("/RoleList/getall");
-      const roleList = roleListRes.data || [];
-
-      const superAdminRole = roleList.find(
-        (r) => r.roleName?.toLowerCase() === "superadmin"
-      );
-
-      const superAdminRoleId = superAdminRole?.roleID;
-      const requiresSuperAdmin =
-        superAdminRoleId && allowedRoleIds.includes(superAdminRoleId);
-
-      // ===============================
-      // 4️⃣ Employee Approvers
-      // ===============================
-      const empRes = await axiosInstance.get(
-        "/EmployeeRoleMapping/approvers/all"
-      );
-
-      const advanceEmpRule = empRes.data?.find(
-        (r) => r.requestType?.toLowerCase() === "advancepayment"
-      );
-
-      if (advanceEmpRule?.approvers?.length) {
-        advanceEmpRule.approvers
-          .filter((a) => allowedRoleIds.includes(a.roleId))
-          .forEach((a) => {
-            map[a.employeeId] = `${a.employeeName} (${a.roleName})`;
-          });
-      }
-
-      // ===============================
-      // 5️⃣ SuperAdmin (ONLY if rule allows)
-      // ===============================
-      if (requiresSuperAdmin) {
-        const userRes = await axiosInstance.get("/user-auth/all");
-
-        const primarySuperAdmin = (userRes.data || [])
-          .filter((u) => u.isVerified && u.role?.toLowerCase() === "superadmin")
-          .sort((a, b) => a.userId - b.userId)[0];
-
-        if (primarySuperAdmin) {
-          map[
-            primarySuperAdmin.userId
-          ] = `${primarySuperAdmin.name} (SuperAdmin)`;
-        }
-      }
-
-      setApproverMap(map);
-    } catch (err) {
-      console.error("Failed to fetch advance approvers", err);
-    }
-  };
-
   const toggleExpand = (id) =>
     setExpandedRequests((prev) => ({ ...prev, [id]: !prev[id] }));
   const totalAdvance = requests.reduce(
     (acc, curr) => acc + curr.advancePaymentAmount,
-    0
+    0,
   );
   const activeRequests = requests.filter(
-    (r) => r.statusId !== 3 && r.statusId !== 4
+    (r) => r.statusId !== 3 && r.statusId !== 4,
   ).length;
 
   return (
@@ -452,7 +330,6 @@ export default function EmpAdvancePayment() {
               key={req.advancePaymentId}
               req={req}
               statusMap={statusMap}
-              approverMap={approverMap}
               isExpanded={expandedRequests[req.advancePaymentId]}
               onToggle={() => toggleExpand(req.advancePaymentId)}
             />
@@ -461,35 +338,19 @@ export default function EmpAdvancePayment() {
       </div>
 
       {/* Apply Modal */}
-      <AnimatePresence>
-        {showApplyModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-xl"
-            >
-              <AdvancePaymentForm
-                onSuccess={() => {
-                  setShowApplyModal(false);
-                  // Refresh the requests list after successful submission
-                  axiosInstance
-                    .get(`/AdvancePayment/employee/${User.userId}`)
-                    .then((res) => setRequests(res.data?.data || []))
-                    .catch(console.error);
-                }}
-                onClose={() => setShowApplyModal(false)}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showApplyModal && (
+        <AdvancePaymentForm
+          onSuccess={() => {
+            setShowApplyModal(false);
+            // Refresh the requests list after successful submission
+            axiosInstance
+              .get(`/AdvancePayment/employee/${User.userId}`)
+              .then((res) => setRequests(res.data?.data || []))
+              .catch(console.error);
+          }}
+          onClose={() => setShowApplyModal(false)}
+        />
+      )}
     </div>
   );
 }

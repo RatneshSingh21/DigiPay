@@ -115,8 +115,9 @@ const LeavePolicy = () => {
 
       {/* ================= MODAL ================= */}
       {showForm && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-[50]">
-          <div className="bg-white max-w-4xl w-full max-h-[85vh] overflow-y-auto rounded-xl p-5 shadow-xl">
+        <div className="fixed inset-0 backdrop-blur-sm z-[50] flex items-center justify-center">
+          {/* Modal */}
+          <div className="relative bg-white w-full max-w-4xl max-h-[85vh] overflow-y-auto rounded-xl p-4 shadow-xl">
             <LeavePolicyForm
               policyId={editData?.leavePolicyId || null}
               onClose={() => setShowForm(false)}
@@ -187,7 +188,7 @@ const LeavePolicy = () => {
                 <Row
                   label="Effective Period"
                   value={`${formatDate(p.effectiveFrom)} → ${formatDate(
-                    p.effectiveTo
+                    p.effectiveTo,
                   )}`}
                 />
                 <Row

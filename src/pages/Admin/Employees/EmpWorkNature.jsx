@@ -73,10 +73,13 @@ const EmpWorkNature = () => {
       fetchWorkNatures();
     } catch (err) {
       toast.error(
-        err?.response?.data?.message || "Failed to create work nature"
+        err?.response?.data?.message || "Failed to create work nature",
       );
     }
   };
+
+  const inputClass =
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   return (
     <div>
@@ -162,7 +165,7 @@ const EmpWorkNature = () => {
             {/* Close Button */}
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 cursor-pointer"
+              className="absolute top-3 right-3 text-gray-500 hover:text-red-600 cursor-pointer"
             >
               <FiX size={20} />
             </button>
@@ -184,7 +187,7 @@ const EmpWorkNature = () => {
                   value={form.workNatureName}
                   onChange={handleChange}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className={inputClass}
                   placeholder="Enter work nature name"
                   autoFocus
                 />
@@ -200,7 +203,7 @@ const EmpWorkNature = () => {
                   value={form.description}
                   onChange={handleChange}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className={inputClass}
                   placeholder="Enter description"
                   rows={3}
                 />

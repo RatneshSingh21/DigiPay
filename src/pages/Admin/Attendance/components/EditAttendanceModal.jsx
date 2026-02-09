@@ -44,14 +44,14 @@ const EditAttendanceModal = ({
       <div className="relative w-full max-w-md rounded-xl bg-white shadow-lg">
         
         {/* Header */}
-        <div className="flex items-center justify-between border-b px-5 py-4">
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <h3 className="text-lg font-semibold text-gray-800">
             Edit Attendance
           </h3>
 
           <button
             onClick={onClose}
-            className="text-gray-400 cursor-pointer hover:text-gray-600"
+            className="text-gray-400 cursor-pointer hover:text-red-600"
           >
             <X size={18} />
           </button>
@@ -113,10 +113,10 @@ const EditAttendanceModal = ({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 border-t bg-gray-50 px-5 py-3 rounded-b-xl">
+        <div className="flex justify-end gap-2 border-t border-gray-300 bg-gray-50 px-5 py-3 rounded-b-xl">
           <button
             onClick={onClose}
-            className="rounded-md border cursor-pointer px-4 py-2 text-sm hover:bg-gray-100"
+            className="rounded-md border border-gray-400 cursor-pointer px-4 py-2 text-sm hover:bg-gray-100"
           >
             Cancel
           </button>
