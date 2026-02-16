@@ -7,7 +7,7 @@ import AttendanceList from "./components/AttendanceList";
 import EditAttendanceModal from "./components/EditAttendanceModal";
 import EditHistoryModal from "./components/EditHistoryModal";
 import useAuthStore from "../../../store/authStore";
-import ExportMonthlyAttendancePdfModal from "./ExportMonthlyAttendancePdf/ExportMonthlyAttendancePdf";
+// import ExportMonthlyAttendancePdfModal from "./ExportMonthlyAttendancePdf/ExportMonthlyAttendancePdf";
 
 const Attendance = () => {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -204,7 +204,7 @@ const Attendance = () => {
         setSearchQuery={setSearchQuery}
         onRefresh={fetchAttendance}
         onOpenHistory={fetchAllEditHistory}
-        onOpenExport={() => setIsExportOpen(true)}
+        // onOpenExport={() => setIsExportOpen(true)}
       />
 
       <AttendanceList
@@ -246,10 +246,10 @@ const Attendance = () => {
         onSave={handleUpdateAttendance}
       />
 
-      <ExportMonthlyAttendancePdfModal
-  isOpen={isExportOpen}
-  onClose={() => setIsExportOpen(false)}
-/>
+      {/* <ExportMonthlyAttendancePdfModal
+      isOpen={isExportOpen}
+      onClose={() => setIsExportOpen(false)}
+      /> */}
     </>
   );
 };

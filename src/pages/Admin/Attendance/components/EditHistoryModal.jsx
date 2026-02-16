@@ -247,7 +247,7 @@ const EditHistoryModal = ({
             <select
               value={pageSize}
               onChange={(e) => setPageSize(Number(e.target.value))}
-              className="rounded-md border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded-md border border-gray-200 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {[5, 10, 20, 50].map((n) => (
                 <option key={n} value={n}>
@@ -262,7 +262,7 @@ const EditHistoryModal = ({
             <button
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
-              className="rounded-md border px-3 py-1 cursor-pointer hover:bg-gray-100 disabled:opacity-50"
+              className="rounded-md border border-gray-200 px-3 py-1 cursor-pointer hover:bg-gray-100 disabled:opacity-50"
             >
               Prev
             </button>
@@ -274,7 +274,7 @@ const EditHistoryModal = ({
             <button
               disabled={page === totalPages}
               onClick={() => setPage(page + 1)}
-              className="rounded-md border px-3 py-1 cursor-pointer hover:bg-gray-100 disabled:opacity-50"
+              className="rounded-md border border-gray-200 px-3 py-1 cursor-pointer hover:bg-gray-100 disabled:opacity-50"
             >
               Next
             </button>

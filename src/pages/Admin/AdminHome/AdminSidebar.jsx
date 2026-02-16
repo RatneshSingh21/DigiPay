@@ -1,98 +1,99 @@
-import { AiFillDashboard, AiFillSetting } from "react-icons/ai";
-import { RiArticleFill, RiFolderOpenFill } from "react-icons/ri";
 import {
-  FaBusinessTime,
-  FaUsers,
-  FaUserFriends,
-  FaShieldAlt,
-} from "react-icons/fa";
-import { IoDocuments } from "react-icons/io5";
-import {
-  MdAdminPanelSettings,
-  MdEventAvailable,
-  MdFingerprint,
-} from "react-icons/md";
+  LayoutDashboard,
+  Users,
+  CalendarDays,
+  ShieldCheck,
+  FileText,
+  FolderOpen,
+  Settings,
+  Fingerprint,
+  ClipboardList,
+  Scale,
+  Wallet,
+  UserCheck,
+  BadgeCheck,
+} from "lucide-react";
+
 import AdminSidebarItem from "./AdminSidebarItem";
 import assets from "../../../assets/assets";
 import { Link } from "react-router-dom";
-import { Gavel } from "lucide-react";
 
 const menuItems = [
   {
     label: "Dashboard",
-    icon: <AiFillDashboard />,
+    icon: <LayoutDashboard size={15} />,
     to: "/admin-dashboard/dashboard",
     collapseOnClick: false,
   },
   {
     label: "Employees",
-    icon: <FaUsers />,
+    icon: <Users size={15} />,
     to: "/admin-dashboard/employees",
     collapseOnClick: true,
   },
   {
-    label: "Payschedule",
-    icon: <RiArticleFill />,
-    to: "/admin-dashboard/payschedule",
+    label: "Payschedule & Shifts",
+    icon: <CalendarDays size={15} />,
+    to: "/admin-dashboard/payschedule-shifts",
     collapseOnClick: false,
   },
   {
     label: "Role",
-    icon: <MdAdminPanelSettings />,
+    icon: <BadgeCheck size={15} />,
     to: "/admin-dashboard/role",
     collapseOnClick: true,
   },
   {
-    label: "Shifts",
-    icon: <FaBusinessTime />,
-    to: "/admin-dashboard/shifts",
-    collapseOnClick: true,
-  },
-  {
     label: "Leave",
-    icon: <MdEventAvailable />,
+    icon: <ClipboardList size={15} />,
     to: "/admin-dashboard/leave",
     collapseOnClick: true,
   },
   {
     label: "Policy",
-    icon: <Gavel size={20} />,
+    icon: <Scale size={15} />,
     to: "/admin-dashboard/policy",
     collapseOnClick: true,
   },
   {
     label: "Compliance",
-    icon: <FaShieldAlt size={16} />,
+    icon: <ShieldCheck size={15} />,
     to: "/admin-dashboard/compliance",
     collapseOnClick: true,
   },
   {
     label: "Attendance",
-    icon: <MdFingerprint />,
+    icon: <Fingerprint size={15} />,
     to: "/admin-dashboard/attendance",
     collapseOnClick: true,
   },
   {
     label: "Reports",
-    icon: <RiFolderOpenFill />,
+    icon: <FolderOpen size={15} />,
     to: "/admin-dashboard/reports",
     collapseOnClick: true,
   },
   {
+    label: "Letters",
+    icon: <FileText size={15} />,
+    to: "/admin-dashboard/letters",
+    collapseOnClick: true,
+  },
+  {
     label: "Expenses",
-    icon: <IoDocuments />,
+    icon: <Wallet size={15} />,
     to: "/admin-dashboard/expenses",
     collapseOnClick: true,
   },
   {
     label: "Approvals",
-    icon: <FaUserFriends />,
+    icon: <UserCheck size={15} />,
     to: "/admin-dashboard/approvals",
     collapseOnClick: true,
   },
   {
     label: "Settings",
-    icon: <AiFillSetting />,
+    icon: <Settings size={15} />,
     to: "/admin-dashboard/settings",
     collapseOnClick: true,
   },

@@ -70,8 +70,7 @@ const submenuMap = {
     "Attendance Lock",
   ],
 
-  Reports: [
-    // "Salary Register",
+  Letters: [
     "Payslip Templates",
     "Letter of Intent",
     "Offer Letter",
@@ -87,6 +86,11 @@ const submenuMap = {
     // "Job Posting",
   ],
 
+  Reports: [
+    "Attendance Report",
+    // "Salary Register",
+  ],
+
   Expenses: [
     "Expense Header",
     "Expense Documents",
@@ -94,7 +98,7 @@ const submenuMap = {
     "Travel Details",
   ],
 
-  Shifts: ["Add Shift", "Shift Mapping"],
+  "Payschedule-Shifts": ["PaySchedule", "Add Shift", "Shift Mapping"],
 
   Settings: [
     "Organisation Profile",
@@ -107,7 +111,7 @@ const submenuMap = {
     "Salary Configuration",
     "Salary Calculation Type",
     "Status Master",
-    "Component Lock",
+    // "Component Lock",
     "Employee Password Setup",
   ],
 };
@@ -118,10 +122,10 @@ const getMenuFromPath = (pathname) => {
   if (pathname.includes("/reports")) return "Reports";
   if (pathname.includes("/expenses")) return "Expenses";
   if (pathname.includes("/role")) return "Role";
-  if (pathname.includes("/shifts")) return "Shifts";
+  if (pathname.includes("/letters")) return "Letters";
   if (pathname.includes("/reports")) return "Reports";
   if (pathname.includes("/attendance")) return "Attendance";
-  if (pathname.includes("/payschedule")) return "Payschedule";
+  if (pathname.includes("/payschedule-shifts")) return "Payschedule-Shifts";
   if (pathname.includes("/approvals")) return "Approvals";
   if (pathname.includes("/leave")) return "Leave";
   if (pathname.includes("/policy")) return "Policy";

@@ -89,20 +89,24 @@ import AttendanceMachineData from "./pages/Admin/Attendance/AttendanceMachine/At
 import AttendanceLock from "./pages/Admin/Attendance/AttendanceLock/AttendanceLock";
 
 // Admin Reports Pages
-import AttendanceReport from "./pages/Admin/Reports/AttendanceReport";
+import AttendanceReport from "./pages/Admin/Reports/AttendanceReport/AttendanceReport";
 import SalaryRegister from "./pages/Admin/Reports/SalaryRegister";
-import PayslipTemplates from "./pages/Admin/Reports/PayslipTemplates";
-import LetterOfIntent from "./pages/Admin/Reports/PayrollReport/LetterOfIntent";
-import OfferLetter from "./pages/Admin/Reports/PayrollReport/OfferLetter";
-import AppointmentLetter from "./pages/Admin/Reports/PayrollReport/AppointmentLetter";
-import ConfirmationLetter from "./pages/Admin/Reports/PayrollReport/ConfirmationLetter";
-import IncrementLetter from "./pages/Admin/Reports/PayrollReport/IncrementLetter";
-import PromotionLetter from "./pages/Admin/Reports/PayrollReport/PromotionLetter";
-import RelievingLetter from "./pages/Admin/Reports/PayrollReport/RelievingLetter";
-import ExperienceCertificateEditor from "./pages/Admin/Reports/PayrollReport/ExperienceCertificate";
-import FullFinalStatement from "./pages/Admin/Reports/PayrollReport/FullFinalStatement";
-import JobPosting from "./pages/Admin/Reports/PayrollReport/JobPosting";
-import AdminReports from "./pages/Admin/Reports/AdminReports";
+
+
+//Admin Letter Pages
+import PayslipTemplates from "./pages/Admin/Letters/PayslipTemplates";
+import LetterOfIntent from "./pages/Admin/Letters/PayrollReport/LetterOfIntent";
+import OfferLetter from "./pages/Admin/Letters/PayrollReport/OfferLetter";
+import AppointmentLetter from "./pages/Admin/Letters/PayrollReport/AppointmentLetter";
+import ConfirmationLetter from "./pages/Admin/Letters/PayrollReport/ConfirmationLetter";
+import IncrementLetter from "./pages/Admin/Letters/PayrollReport/IncrementLetter";
+import PromotionLetter from "./pages/Admin/Letters/PayrollReport/PromotionLetter";
+import RelievingLetter from "./pages/Admin/Letters/PayrollReport/RelievingLetter";
+import ExperienceCertificateEditor from "./pages/Admin/Letters/PayrollReport/ExperienceCertificate";
+import FullFinalStatement from "./pages/Admin/Letters/PayrollReport/FullFinalStatement";
+import JobPosting from "./pages/Admin/Letters/PayrollReport/JobPosting";
+import AdminReports from "./pages/Admin/Letters/AdminReports";
+
 
 //Admin Leave Pages
 import Leave from "./pages/Admin/Leave/LeaveType/Leave";
@@ -151,6 +155,7 @@ import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
+
 
 
 
@@ -315,8 +320,9 @@ const App = () => {
                   </Route>
 
                   {/* Shift SubRoutes */}
-                  <Route path="shifts/*" element={<AdminContentBox />}>
-                    <Route index element={<Navigate to="add-shift" />} />
+                  <Route path="payschedule-shifts/*" element={<AdminContentBox />}>
+                    <Route index element={<Navigate to="payschedule" />} />
+                    <Route path="payschedule" element={<PaySchedule />} />
                     <Route path="add-shift" element={<Shifts />} />
                     <Route path="mapp-shift" element={<ShiftMapping />} />
                   </Route>
@@ -361,7 +367,7 @@ const App = () => {
                   </Route>
 
                   {/* Reports SubRoutes */}
-                  <Route path="reports/*" element={<AdminContentBox />}>
+                  <Route path="letters/*" element={<AdminContentBox />}>
                     <Route
                       index
                       element={<Navigate to="payslip-templates" />}
@@ -407,6 +413,19 @@ const App = () => {
                       element={<FullFinalStatement />}
                     />
                     <Route path="all-reports" element={<AdminReports />} />
+                  </Route>
+
+
+                  <Route path="reports/*" element={<AdminContentBox />}>
+                    <Route
+                      index
+                      element={<Navigate to="attendance-report" />}
+                    />
+                    <Route
+                      path="attendance-report"
+                      element={<AttendanceReport />}
+                    />
+                    
                   </Route>
 
                   {/* Documents SubRoutes */}

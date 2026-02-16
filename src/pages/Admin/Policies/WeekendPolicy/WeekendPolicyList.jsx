@@ -115,7 +115,7 @@ const WeekendPolicyList = ({
           className="bg-white border border-gray-200 rounded-md shadow-sm"
         >
           {/* ================= HEADER ================= */}
-          <div className="flex justify-between items-center px-4 py-3 border-b">
+          <div className="flex justify-between items-center px-4 py-3 border-b border-gray-400">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-gray-800">
                 {policy.policyName}
