@@ -5,37 +5,6 @@ import ApprovalHistoryCell from "../../../../../components/ApprovalHistoryCell";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 
-const getFinalApproval = (leave) => {
-  if (!leave.approvalHistory || leave.approvalHistory.length === 0) {
-    return {
-      status: "Pending",
-      approverName: null,
-      approverType: null,
-      actionDate: null,
-    };
-  }
-
-  // last approval = latest decision
-  return leave.approvalHistory[leave.approvalHistory.length - 1];
-};
-
-const ApprovalBadge = ({ status }) => {
-  const styles = {
-    Approved: "bg-green-100 text-green-800",
-    Rejected: "bg-red-100 text-red-800",
-    Pending: "bg-yellow-100 text-yellow-800",
-  };
-
-  return (
-    <span
-      className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-        styles[status] || "bg-gray-100 text-gray-700"
-      }`}
-    >
-      {status}
-    </span>
-  );
-};
 
 const LeaveTable = ({ leaves }) => {
   const [page, setPage] = useState(1);
@@ -123,9 +92,12 @@ const LeaveTable = ({ leaves }) => {
                 {leave.reason || "-"}
               </td>
               {/* <td className="px-4 py-3">{getStatusBadge(leave)}</td> */}
-              <td className="px-4 py-3">
-                <ApprovalHistoryCell approvalHistory={leave.approvalHistory} />
-              </td>
+              {leave.approvalHistory && leave.approvalHistory.length > 0 ? (
+                <td className="px-4 py-3">
+                  <ApprovalHistoryCell approvalHistory={leave.approvalHistory} />
+              </td>):(
+                <td className="px-4 py-3">{getStatusBadge(leave)}</td>
+              )}  
               <td className="px-4 py-3">
                 {format(new Date(leave.createdOn), "dd MMM yyyy")}
               </td>

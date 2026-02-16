@@ -231,7 +231,7 @@ export default function EmployeeLeaveAllocation() {
           {/* IMPORT BUTTON */}
           <button
             onClick={() => fileInputRef.current.click()}
-            className="flex items-center cursor-pointer gap-2 px-3 py-2 border rounded hover:bg-gray-100"
+            className="flex items-center cursor-pointer gap-2 px-3 py-2 border border-gray-200 rounded hover:bg-gray-100"
           >
             <FiUpload /> Import
           </button>
@@ -247,7 +247,7 @@ export default function EmployeeLeaveAllocation() {
           {/* EXPORT BUTTON */}
           <button
             onClick={handleExport}
-            className="flex items-center cursor-pointer gap-2 px-3 py-2 border rounded hover:bg-gray-100"
+            className="flex items-center cursor-pointer gap-2 px-3 py-2 border border-gray-200 rounded hover:bg-gray-100"
           >
             <FiDownload /> Export
           </button>
@@ -317,7 +317,7 @@ export default function EmployeeLeaveAllocation() {
                       {group.rows.map((row) => (
                         <tr
                           key={row.allocationId}
-                          className="border-b hover:bg-gray-50"
+                          className="border-b border-gray-200  hover:bg-gray-50"
                         >
                           <td className="px-3 py-2">{row.leaveTypeName}</td>
                           <td className="px-3 py-2">

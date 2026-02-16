@@ -37,7 +37,7 @@ const AttendanceRecord = () => {
         res.data.map((emp) => ({
           value: emp.id,
           label: `${emp.fullName} (${emp.employeeCode})`,
-        }))
+        })),
       );
     } catch {
       toast.error("Failed loading employees");
@@ -49,7 +49,7 @@ const AttendanceRecord = () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(
-        "/AttendanceRecord/getAttendancerecord/all"
+        "/AttendanceRecord/getAttendancerecord/all",
       );
       const list = res.data.data || [];
 
@@ -72,11 +72,18 @@ const AttendanceRecord = () => {
 
     try {
       const res = await axiosInstance.get(`/Employee/${id}`);
+      const emp = res.data.data;
+
       setEmployeeCache((prev) => ({
         ...prev,
-        [id]: res.data.data.fullName,
+        [id]: {
+          name: emp.fullName,
+          code: emp.employeeCode,
+        },
       }));
-    } catch {}
+    } catch (err) {
+      console.error("Failed to fetch employee details:", err);
+    }
   };
 
   // Filters
@@ -135,7 +142,6 @@ const AttendanceRecord = () => {
   const inputClass =
     "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
-
   return (
     <>
       {/* TOP BAR */}
@@ -167,7 +173,7 @@ const AttendanceRecord = () => {
         </div>
 
         {/* FILTERS */}
-        <div className="bg-white grid grid-cols-1 sm:grid-cols-5 gap-4 p-6">
+        <div className="bg-white grid grid-cols-1 sm:grid-cols-5 gap-4 p-6 border-t border-gray-200 shadow-sm">
           {/* Employee Select */}
           <Select
             options={employees}
@@ -185,7 +191,6 @@ const AttendanceRecord = () => {
             className={`${inputClass} h-[38px]`}
           />
 
-
           {/* Month */}
           <div className="relative">
             {!filterMonth && (
@@ -199,7 +204,6 @@ const AttendanceRecord = () => {
               value={filterMonth}
               onChange={(e) => setFilterMonth(e.target.value)}
               className={`${inputClass} h-[38px] text-sm w-full relative`}
-             
             />
           </div>
 

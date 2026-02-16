@@ -146,7 +146,7 @@ const PFTransaction = () => {
               type="month"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="border px-2 py-1 text-sm rounded-md h-[38px] w-full relative"
+              className="border border-gray-200  px-2 py-1 text-sm rounded-md h-[38px] w-full relative"
             />
           </div>
 
@@ -203,7 +203,7 @@ const PFTransaction = () => {
                 <React.Fragment key={t.pfTransactionId}>
                   {/* Main Transaction Row */}
                   <tr className="hover:bg-gray-50">
-                    <td className="p-2">{t.pfTransactionId}</td>
+                    <td className="p-2">{t.pfTransactionId}.</td>
                     <td className="p-2">
                       {employeeMap[t.employeeId] || "Loading..."}
                     </td>

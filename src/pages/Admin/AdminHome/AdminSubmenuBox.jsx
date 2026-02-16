@@ -76,6 +76,7 @@ const labelToPath = {
 
   //Attendance
   Attendance: "attendance",
+  "Attendance Punches": "attendance-punches",
   "Add Attendance": "add-attendance",
   "Manual Attendance": "manual-attendance",
   Punch: "punch",
@@ -184,6 +185,7 @@ const labelToIcon = {
 
   // Attendance
   Attendance: <FaUserCheck className="mr-2" />,
+  "Attendance Punches": <FaUserCheck className="mr-2" />,
   "Add Attendance": <TbCalendarStats className="mr-2" />,
   "Manual Attendance": <TbCalendarStats className="mr-2" />,
   Punch: <MdPunchClock className="mr-2" />,

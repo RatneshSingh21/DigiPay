@@ -233,7 +233,7 @@ const SalaryCalculate = () => {
                   }`}
                 >
                   <td className="px-2 py-2 border-r border-gray-200">
-                    {i + 1}
+                    {i + 1}.
                   </td>
                   <td className="px-2 py-2 border-r border-gray-200">
                     {s.employeeName}({s.employeeCode})

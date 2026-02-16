@@ -338,7 +338,7 @@ const EmpSalaryDetails = () => {
                       idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                     } hover:bg-gray-100 transition-all`}
                   >
-                    <td className="p-2 border-r border-gray-200">{idx + 1}</td>
+                    <td className="p-2 border-r border-gray-200">{idx + 1}.</td>
                     <td className="p-2 border-r border-gray-200">
                       {emp.code || "-"}
                     </td>

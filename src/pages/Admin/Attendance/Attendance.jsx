@@ -7,6 +7,7 @@ import AttendanceList from "./components/AttendanceList";
 import EditAttendanceModal from "./components/EditAttendanceModal";
 import EditHistoryModal from "./components/EditHistoryModal";
 import useAuthStore from "../../../store/authStore";
+import ExportMonthlyAttendancePdfModal from "./ExportMonthlyAttendancePdf/ExportMonthlyAttendancePdf";
 
 const Attendance = () => {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -25,6 +26,7 @@ const Attendance = () => {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyData, setHistoryData] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   const [historyPage, setHistoryPage] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(5);
@@ -32,12 +34,29 @@ const Attendance = () => {
   const formatTotalHours = (inTime, outTime) => {
     if (!inTime || !outTime) return "-";
 
-    const diffMs = new Date(outTime) - new Date(inTime);
-    if (diffMs <= 0) return "-";
+    let start = new Date(inTime);
+    let end = new Date(outTime);
 
+    // 👇 HANDLE OVERNIGHT PUNCH
+    if (end < start) {
+      end.setDate(end.getDate() + 1);
+    }
+
+    const diffMs = end - start;
     const totalMinutes = Math.floor(diffMs / 60000);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
+
+    return `${hours}h ${minutes}m`;
+  };
+
+  const formatDecimalHours = (decimalHours) => {
+    if (decimalHours === null || decimalHours === undefined) return "-";
+
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+
+    if (minutes === 60) return `${hours + 1}h 0m`;
 
     return `${hours}h ${minutes}m`;
   };
@@ -61,6 +80,7 @@ const Attendance = () => {
             attendanceDate: item.attendanceDate,
             inTime: null,
             outTime: null,
+            totalHours: null,
             inRemark: null,
             outRemark: null,
             inAttendanceId: null,
@@ -87,6 +107,10 @@ const Attendance = () => {
           current.outRemark = item.remarks || null;
         }
 
+        if (item.totalHours !== null && item.totalHours !== undefined) {
+          current.totalHours = item.totalHours;
+        }
+
         if (item.isManual) current.isManual = true;
 
         const priority = { ADMIN: 4, WEB: 3, EMPLOYEE: 2, SYSTEM: 1, null: 0 };
@@ -105,7 +129,10 @@ const Attendance = () => {
       setAttendanceData(
         Object.values(merged).map(({ _lastUpdated, ...rest }) => ({
           ...rest,
-          totalHoursFormatted: formatTotalHours(rest.inTime, rest.outTime),
+          totalHoursFormatted:
+            rest.totalHours !== null
+              ? formatDecimalHours(rest.totalHours)
+              : formatTotalHours(rest.inTime, rest.outTime),
         })),
       );
     } catch {
@@ -177,6 +204,7 @@ const Attendance = () => {
         setSearchQuery={setSearchQuery}
         onRefresh={fetchAttendance}
         onOpenHistory={fetchAllEditHistory}
+        onOpenExport={() => setIsExportOpen(true)}
       />
 
       <AttendanceList
@@ -217,6 +245,11 @@ const Attendance = () => {
         onClose={() => setIsEditOpen(false)}
         onSave={handleUpdateAttendance}
       />
+
+      <ExportMonthlyAttendancePdfModal
+  isOpen={isExportOpen}
+  onClose={() => setIsExportOpen(false)}
+/>
     </>
   );
 };

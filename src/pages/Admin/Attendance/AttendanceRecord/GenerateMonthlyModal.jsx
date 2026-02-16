@@ -62,7 +62,7 @@ const GenerateMonthlyModal = ({ show, onClose, employees, onSuccess }) => {
         <button
           onClick={handleGenerate}
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg"
+          className="w-full bg-primary cursor-pointer hover:bg-secondary text-white py-2 rounded-lg"
         >
           {loading ? "Processing..." : "Generate"}
         </button>

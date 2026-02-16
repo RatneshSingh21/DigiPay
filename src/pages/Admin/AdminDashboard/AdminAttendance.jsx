@@ -21,7 +21,7 @@ const AdminAttendance = () => {
 
   // pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPageData, setPerPageData] = useState(3);
+  const [perPageData, setPerPageData] = useState(5);
   const [pageGroup, setPageGroup] = useState(0);
 
   // Convert latitude & longitude to a readable location name
@@ -314,7 +314,7 @@ const AdminAttendance = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-5">
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -353,7 +353,7 @@ const AdminAttendance = () => {
           <>
             <table className="w-full text-sm border-collapse text-center">
               <thead>
-                <tr className="text-gray-500 border-b">
+                <tr className="text-gray-500 border-b border-gray-400">
                   <th className="py-3 font-medium">E.Name</th>
                   <th className="font-medium">Date</th>
                   <th className="font-medium">Status</th>
@@ -368,7 +368,7 @@ const AdminAttendance = () => {
                   currentData.map((att) => (
                     <tr
                       key={`${att.employeeId}-${att.attendanceDate}`}
-                      className="border-b hover:bg-gray-50 transition-colors"
+                      className="border-b border-gray-400 hover:bg-gray-50 transition-colors"
                     >
                       <td className="py-3 text-gray-800">
                         {employeeMap[att.employeeId] || `ID: ${att.employeeId}`}

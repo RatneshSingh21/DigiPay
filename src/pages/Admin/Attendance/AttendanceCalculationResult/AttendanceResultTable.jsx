@@ -64,7 +64,7 @@ const AttendanceResultTable = ({ results, highlightText, getEmployeeName }) => {
               return (
                 <tr
                   key={item.attendanceCalculationResultID}
-                  className="border-t hover:bg-gray-50"
+                  className="border-t border-gray-200 hover:bg-gray-50"
                 >
                   <td className="p-2">{index + 1}</td>
                   <td className="p-2 text-center">

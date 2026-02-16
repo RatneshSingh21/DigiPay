@@ -75,6 +75,7 @@ import Shifts from "./pages/Admin/Shift/Shifts";
 import ShiftMapping from "./pages/Admin/Shift/ShiftMapping";
 
 //Admin Attendance Pages
+import AttendanceAllPunches from "./pages/Admin/Attendance/AttendanceAllPunches/AttendanceAllPunches";
 import Attendance from "./pages/Admin/Attendance/Attendance";
 import AttendanceForm from "./pages/Admin/Attendance/AttendanceForm";
 import ManualAttendance from "./pages/Admin/Attendance/ManualAttendance/ManualAttendance";
@@ -150,6 +151,7 @@ import EmpExpenses from "./pages/EmployeePages/EmployeeExpense/EmpExpenses";
 import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
+
 
 
 const App = () => {
@@ -323,6 +325,7 @@ const App = () => {
                   <Route path="attendance/*" element={<AdminContentBox />}>
                     <Route index element={<Navigate to="attendance" />} />
                     <Route path="attendance" element={<Attendance />} />
+                    <Route path="attendance-punches" element={<AttendanceAllPunches />} />
                     <Route path="add-attendance" element={<AttendanceForm />} />
                     <Route
                       path="manual-attendance"

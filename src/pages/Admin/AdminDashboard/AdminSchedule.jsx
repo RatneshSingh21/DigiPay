@@ -43,15 +43,15 @@ const AdminSchedule = () => {
       status: "In Progress",
       priority: "Medium",
     },
-    {
-      id: 3,
-      time: "05:00 PM",
-      title: "Preparing for next day",
-      duration: "05:00 - 06:00 PM",
-      avatars: ["M"],
-      status: "Completed",
-      priority: "Low",
-    },
+    // {
+    //   id: 3,
+    //   time: "05:00 PM",
+    //   title: "Preparing for next day",
+    //   duration: "05:00 - 06:00 PM",
+    //   avatars: ["M"],
+    //   status: "Completed",
+    //   priority: "Low",
+    // },
   ]);
 
   // Mark task as completed
@@ -100,7 +100,7 @@ const AdminSchedule = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5 h-full">
+    <div className="bg-white rounded-2xl shadow-sm p-5">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold flex items-center gap-2">

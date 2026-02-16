@@ -1,47 +1,106 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
-import { toast } from "react-toastify";
 import Select from "react-select";
+import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+const selectStyles = {
+  control: (base, state) => ({
+    ...base,
+    minHeight: "42px",
+    borderRadius: "0.375rem",
+    borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
+    boxShadow: state.isFocused ? "0 0 0 1px #3b82f6" : "none",
+    "&:hover": {
+      borderColor: "#3b82f6",
+    },
+    fontSize: "0.875rem",
+  }),
+
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999, // FIXES hidden dropdown
+  }),
+
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+    fontSize: "0.875rem",
+  }),
+
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isFocused
+      ? "#eff6ff"
+      : state.isSelected
+        ? "#dbeafe"
+        : "white",
+    color: "#111827",
+    cursor: "pointer",
+    fontSize: "0.875rem",
+  }),
+};
+
+const steps = [
+  "Eligibility",
+  "Base & Calculation",
+  "Contribution",
+  "Effective Period",
+];
+
 const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
+  const [step, setStep] = useState(0);
+
   const [formData, setFormData] = useState(
     initialData || {
-      isPfEnabled: true,
+      eligibilityRule: "AlwaysEligible",
+      baseRule: "AttendanceBasedActual",
       calculationType: "Percentage",
-      percentage: 0,
-      fixedAmount: 0,
-      appliesOn: "Basic",
-      customFormula: "",
-      employeeShare: 0,
-      employerShare: 0,
-      wageLimit: 0,
-      isRestrictedToWageLimit: true,
-      minServiceMonths: 0,
+      percentage: 12,
+      fixedAmount: null,
       roundingMethod: "Up",
+      employeeShare: 12,
+      employerShare: 12,
+      wageLimit: 15000,
+      minServiceMonths: null,
       effectiveFrom: "",
       effectiveTo: "",
       isActive: true,
-    }
+    },
   );
 
-  const [activeTab, setActiveTab] = useState("overview");
-
-  const calculationTypeOptions = [
-    { value: "Percentage", label: "Percentage" },
-    { value: "Fixed", label: "Fixed Amount" },
+  const eligibilityOptions = [
+    { value: "AlwaysEligible", label: "Always Eligible" },
+    { value: "SalaryLessThanWageLimit", label: "Salary < Wage Limit" },
   ];
 
-  const appliesOnOptions = [
-    { value: "Basic", label: "Basic" },
-    { value: "Gross", label: "Gross" },
-    { value: "CustomFormula", label: "Custom Formula" },
+  const baseRuleOptions = [
+    {
+      value: "AttendanceBasedActual",
+      label: "Attendance Based (Actual Salary)",
+    },
+    {
+      value: "AttendanceBasedStatutoryCap",
+      label: "Attendance Based (Statutory Cap)",
+    },
+    {
+      value: "EmployeeFixedOverride",
+      label: "Employee Fixed Override",
+    },
+  ];
+
+  const calculationTypeOptions = [
+    { value: "Percentage", label: "Percentage (%)" },
+    { value: "Fixed", label: "Fixed Amount (₹)" },
   ];
 
   const roundingOptions = [
-    { value: "Up", label: "Up" },
-    { value: "Down", label: "Down" },
-    { value: "Nearest", label: "Nearest" },
+    { value: "Up", label: "Round Up" },
+    { value: "Down", label: "Round Down" },
+    { value: "Nearest", label: "Nearest Value" },
   ];
 
   const yesNoOptions = [
@@ -49,338 +108,323 @@ const PFSettingsForm = ({ initialData, onClose, refreshList }) => {
     { value: false, label: "No" },
   ];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     const payload = {
-      ...formData,
-      percentage: Number(formData.percentage),
-      fixedAmount: Number(formData.fixedAmount),
+      eligibilityRule: formData.eligibilityRule,
+      baseRule: formData.baseRule,
+      calculationType: formData.calculationType,
+      percentage:
+        formData.calculationType === "Percentage"
+          ? Number(formData.percentage)
+          : null,
+      fixedAmount:
+        formData.calculationType === "Fixed"
+          ? Number(formData.fixedAmount)
+          : null,
+      roundingMethod: formData.roundingMethod,
       employeeShare: Number(formData.employeeShare),
       employerShare: Number(formData.employerShare),
       wageLimit: Number(formData.wageLimit),
-      minServiceMonths: Number(formData.minServiceMonths),
+      minServiceMonths: formData.minServiceMonths
+        ? Number(formData.minServiceMonths)
+        : null,
+      effectiveFrom: formData.effectiveFrom,
+      effectiveTo: formData.effectiveTo || null,
+      isActive: formData.isActive,
     };
 
     try {
       if (initialData) {
         await axiosInstance.put(
           `/PFSettings/${initialData.pfSettingsId}`,
-          payload
+          payload,
         );
-        toast.success("PF Setting updated successfully!");
+        toast.success("PF Setting updated successfully");
       } else {
         await axiosInstance.post("/PFSettings", payload);
-        toast.success("PF Setting created successfully!");
+        toast.success("PF Setting created successfully");
       }
       refreshList();
       onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error(err?.response?.data?.message || "Error saving PF Setting");
+    } catch {
+      toast.error("Failed to save PF Setting");
     }
   };
 
-  // input class css
-  const inputClass =
-    "w-full px-3 py-1.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm";
-
   return (
-    <div className="fixed inset-0 backdrop-blur-sm z-50 flex justify-center items-center">
-      <div className="bg-white overflow-hidden relative rounded-lg w-full max-w-2xl h-[80vh] flex flex-col shadow-xl">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 cursor-pointer text-gray-600 hover:text-gray-900"
-        >
-          <X size={24} />
-        </button>
+    <div className="fixed inset-0 z-50 flex justify-center items-center backdrop-blur-sm">
+      <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl flex flex-col">
+        {/* Header */}
+        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold">
+            {initialData ? "Edit PF Rule" : "Create PF Rule"}
+          </h2>
+          <X onClick={onClose} className="cursor-pointer hover:text-red-500" />
+        </div>
 
-        <h2 className="text-xl font-bold px-6 pt-6">
-          {initialData ? "Edit PF Setting" : "Add PF Setting"}
-        </h2>
-
-        <div className="border-b px-6 flex space-x-6">
-          {["overview", "advanced"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`py-2 px-3 cursor-pointer text-sm font-medium ${
-                activeTab === tab
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-gray-500 hover:text-gray-800"
+        {/* Step Indicator */}
+        <div className="flex justify-between px-6 py-3 bg-gray-50">
+          {steps.map((s, i) => (
+            <div
+              key={i}
+              className={`text-sm font-medium ${
+                i === step ? "text-primary" : "text-gray-400"
               }`}
             >
-              {tab === "overview" && "Overview"}
-              {tab === "advanced" && "Advanced"}
-            </button>
+              {i + 1}. {s}
+            </div>
           ))}
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto px-6 py-4 space-y-4"
-        >
-          {/* Overview */}
-          {activeTab === "overview" && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  PF Enabled
-                </label>
+        {/* Content */}
+        <div className="p-6 space-y-4 flex-1 overflow-y-auto">
+          {/* STEP 1 */}
+          {step === 0 && (
+            <>
+              <div className="space-y-1">
+                <span className="text-sm font-medium">PF Eligibility Rule</span>
+                <p className="text-xs text-gray-500">
+                  Decide who is eligible for PF
+                </p>
                 <Select
-                  options={yesNoOptions}
-                  value={yesNoOptions.find(
-                    (opt) => opt.value === formData.isPfEnabled
+                  styles={selectStyles}
+                  menuPortalTarget={document.body}
+                  options={eligibilityOptions}
+                  value={eligibilityOptions.find(
+                    (o) => o.value === formData.eligibilityRule,
                   )}
-                  onChange={(opt) =>
-                    setFormData({ ...formData, isPfEnabled: opt.value })
+                  onChange={(o) =>
+                    setFormData({ ...formData, eligibilityRule: o.value })
                   }
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Active</label>
-                <Select
-                  options={yesNoOptions}
-                  value={yesNoOptions.find(
-                    (opt) => opt.value === formData.isActive
-                  )}
-                  onChange={(opt) =>
-                    setFormData({ ...formData, isActive: opt.value })
-                  }
-                />
-              </div>
-
-              <div className="col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  Calculation Type
-                </label>
-                <Select
-                  options={calculationTypeOptions}
-                  value={calculationTypeOptions.find(
-                    (opt) => opt.value === formData.calculationType
-                  )}
-                  onChange={(selected) =>
-                    setFormData({
-                      ...formData,
-                      calculationType: selected.value,
-                    })
-                  }
-                  autoFocus
-                  required
-                />
-              </div>
-
-              {formData.calculationType === "Percentage" && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Percentage
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.percentage}
-                    onChange={(e) =>
-                      setFormData({ ...formData, percentage: e.target.value })
-                    }
-                    className={inputClass}
-                  />
-                </div>
-              )}
-
-              {formData.calculationType === "Fixed" && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Fixed Amount
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.fixedAmount}
-                    onChange={(e) =>
-                      setFormData({ ...formData, fixedAmount: e.target.value })
-                    }
-                    className={inputClass}
-                  />
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Applies On
-                </label>
-                <Select
-                  options={appliesOnOptions}
-                  value={appliesOnOptions.find(
-                    (opt) => opt.value === formData.appliesOn
-                  )}
-                  onChange={(opt) =>
-                    setFormData({ ...formData, appliesOn: opt.value })
-                  }
-                />
-              </div>
-
-              <div className="col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  Custom Formula
-                </label>
-                <input
-                  type="text"
-                  value={formData.customFormula}
-                  onChange={(e) =>
-                    setFormData({ ...formData, customFormula: e.target.value })
-                  }
-                  disabled={formData.appliesOn !== "CustomFormula"}
-                  className={`w-full border rounded px-3 py-2 ${
-                    formData.appliesOn !== "CustomFormula"
-                      ? "bg-gray-100 cursor-not-allowed"
-                      : ""
-                  }`}
-                  placeholder="e.g. (Basic + DA) * 12%"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Advanced */}
-          {activeTab === "advanced" && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Employee Share %
-                </label>
+              <label>
+                <span className="font-medium">Wage Limit (₹)</span>
+                <p className="text-xs text-gray-500">PF wage ceiling amount</p>
                 <input
                   type="number"
-                  value={formData.employeeShare}
-                  onChange={(e) =>
-                    setFormData({ ...formData, employeeShare: e.target.value })
-                  }
                   className={inputClass}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Employer Share %
-                </label>
-                <input
-                  type="number"
-                  value={formData.employerShare}
-                  onChange={(e) =>
-                    setFormData({ ...formData, employerShare: e.target.value })
-                  }
-                  className={inputClass}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Wage Limit
-                </label>
-                <input
-                  type="number"
                   value={formData.wageLimit}
                   onChange={(e) =>
                     setFormData({ ...formData, wageLimit: e.target.value })
                   }
-                  className={inputClass}
                 />
-              </div>
+              </label>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Min Service Months
+              <label>
+                <span className="font-medium">Is Active?</span>
+                <Select
+                  styles={selectStyles}
+                  menuPortalTarget={document.body}
+                  options={yesNoOptions}
+                  value={yesNoOptions.find(
+                    (o) => o.value === formData.isActive,
+                  )}
+                  onChange={(o) =>
+                    setFormData({ ...formData, isActive: o.value })
+                  }
+                />
+              </label>
+            </>
+          )}
+
+          {/* STEP 2 */}
+          {step === 1 && (
+            <>
+              <label>
+                <span className="font-medium">PF Base Rule</span>
+                <p className="text-xs text-gray-500">
+                  How PF base salary should be calculated
+                </p>
+                <Select
+                  styles={selectStyles}
+                  menuPortalTarget={document.body}
+                  options={baseRuleOptions}
+                  value={baseRuleOptions.find(
+                    (o) => o.value === formData.baseRule,
+                  )}
+                  onChange={(o) =>
+                    setFormData({ ...formData, baseRule: o.value })
+                  }
+                />
+              </label>
+
+              <label>
+                <span className="font-medium">Calculation Type</span>
+                <Select
+                  styles={selectStyles}
+                  menuPortalTarget={document.body}
+                  options={calculationTypeOptions}
+                  value={calculationTypeOptions.find(
+                    (o) => o.value === formData.calculationType,
+                  )}
+                  onChange={(o) =>
+                    setFormData({ ...formData, calculationType: o.value })
+                  }
+                />
+              </label>
+
+              {formData.calculationType === "Percentage" && (
+                <label>
+                  <span className="font-medium">PF Percentage (%)</span>
+                  <input
+                    type="number"
+                    className={inputClass}
+                    value={formData.percentage}
+                    onChange={(e) =>
+                      setFormData({ ...formData, percentage: e.target.value })
+                    }
+                  />
                 </label>
+              )}
+
+              {formData.calculationType === "Fixed" && (
+                <label>
+                  <span className="font-medium">Fixed Amount (₹)</span>
+                  <input
+                    type="number"
+                    className={inputClass}
+                    value={formData.fixedAmount || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        fixedAmount: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+              )}
+            </>
+          )}
+
+          {/* STEP 3 */}
+          {step === 2 && (
+            <>
+              <label>
+                <span className="font-medium">Employee Share (%)</span>
                 <input
                   type="number"
-                  value={formData.minServiceMonths}
+                  className={inputClass}
+                  value={formData.employeeShare}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      employeeShare: e.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                <span className="font-medium">Employer Share (%)</span>
+                <input
+                  type="number"
+                  className={inputClass}
+                  value={formData.employerShare}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      employerShare: e.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                <span className="font-medium">Rounding Method</span>
+                <Select
+                  styles={selectStyles}
+                  menuPortalTarget={document.body}
+                  options={roundingOptions}
+                  value={roundingOptions.find(
+                    (o) => o.value === formData.roundingMethod,
+                  )}
+                  onChange={(o) =>
+                    setFormData({ ...formData, roundingMethod: o.value })
+                  }
+                />
+              </label>
+
+              <label>
+                <span className="font-medium">Min Service Months</span>
+                <input
+                  type="number"
+                  className={inputClass}
+                  value={formData.minServiceMonths || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
                       minServiceMonths: e.target.value,
                     })
                   }
-                  className={inputClass}
                 />
-              </div>
+              </label>
+            </>
+          )}
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Restricted to Wage Limit
-                </label>
-                <Select
-                  options={yesNoOptions}
-                  value={yesNoOptions.find(
-                    (opt) => opt.value === formData.isRestrictedToWageLimit
-                  )}
-                  onChange={(opt) =>
+          {/* STEP 4 */}
+          {step === 3 && (
+            <>
+              <label>
+                <span className="font-medium">Effective From</span>
+                <input
+                  type="date"
+                  className={inputClass}
+                  value={formData.effectiveFrom?.split("T")[0] || ""}
+                  onChange={(e) =>
                     setFormData({
                       ...formData,
-                      isRestrictedToWageLimit: opt.value,
+                      effectiveFrom: e.target.value,
                     })
                   }
                 />
-              </div>
+              </label>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Rounding
-                </label>
-                <Select
-                  options={roundingOptions}
-                  value={roundingOptions.find(
-                    (opt) => opt.value === formData.roundingMethod
-                  )}
-                  onChange={(opt) =>
-                    setFormData({ ...formData, roundingMethod: opt.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Effective From
-                </label>
+              <label>
+                <span className="font-medium">Effective To</span>
                 <input
                   type="date"
-                  value={formData.effectiveFrom?.split("T")[0] || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, effectiveFrom: e.target.value })
-                  }
                   className={inputClass}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Effective To
-                </label>
-                <input
-                  type="date"
                   value={formData.effectiveTo?.split("T")[0] || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, effectiveTo: e.target.value })
+                    setFormData({
+                      ...formData,
+                      effectiveTo: e.target.value,
+                    })
                   }
-                  className={inputClass}
                 />
-              </div>
-
-              <div className="flex justify-start space-x-3 pt-4 col-span-2">
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-primary cursor-pointer hover:bg-secondary text-white rounded"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-5 py-2 bg-gray-400 cursor-pointer text-white rounded"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
+              </label>
+            </>
           )}
-        </form>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t text-sm border-gray-200 flex justify-between">
+          <button
+            disabled={step === 0}
+            onClick={() => setStep(step - 1)}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 cursor-pointer"
+          >
+            Back
+          </button>
+
+          {step < steps.length - 1 ? (
+            <button
+              onClick={() => setStep(step + 1)}
+              className="px-4 py-2 bg-primary hover:bg-secondary cursor-pointer text-white rounded"
+            >
+              Next
+            </button>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              className="px-4 py-2 bg-primary hover:bg-secondary cursor-pointer text-white rounded"
+            >
+              Save PF Rule
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

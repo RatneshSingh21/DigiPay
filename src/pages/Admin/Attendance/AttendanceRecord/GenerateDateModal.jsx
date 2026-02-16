@@ -46,7 +46,7 @@ const GenerateDateModal = ({ show, onClose, onSuccess }) => {
         <button
           onClick={handleGenerate}
           disabled={loading}
-          className="w-full bg-green-600 text-white py-2 rounded-lg"
+          className="w-full bg-green-400 hover:bg-green-600 cursor-pointer text-white py-2 rounded-lg"
         >
           {loading ? "Generating..." : "Generate"}
         </button>

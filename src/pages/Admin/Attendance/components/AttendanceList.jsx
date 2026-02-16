@@ -96,7 +96,7 @@ const AttendanceList = ({
                     <tbody>
                       {groupedByDate[date].map((item, index) => (
                         <tr key={index} className="hover:bg-gray-50">
-                          <td className="py-2 px-3">{index + 1}</td>
+                          <td className="py-2 px-3">{index + 1}.</td>
 
                           <td className="py-2 px-3">
                             <div className="flex items-center justify-center gap-2">

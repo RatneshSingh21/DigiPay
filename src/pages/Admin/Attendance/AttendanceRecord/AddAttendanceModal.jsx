@@ -27,7 +27,7 @@ const AddAttendanceModal = ({ show, onClose, employees, onSuccess }) => {
 
       toast.success("Attendance created");
       onSuccess(); // reload list
-      onClose();   // close modal
+      onClose(); // close modal
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed");
     } finally {
@@ -54,14 +54,14 @@ const AddAttendanceModal = ({ show, onClose, employees, onSuccess }) => {
         <input
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
-           className={inputClass}
+          className={inputClass}
           placeholder="Remarks"
         />
 
         <button
           onClick={handleCreate}
           disabled={loading}
-          className="w-full bg-primary text-white py-2 rounded-lg"
+          className="w-full bg-primary hover:bg-secondary cursor-pointer text-white py-2 rounded-lg"
         >
           {loading ? "Saving..." : "Submit"}
         </button>

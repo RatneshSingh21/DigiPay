@@ -181,7 +181,7 @@ export default function EmployeeOtPermission() {
                       {search && (
                         <button
                           onClick={() => setSearch("")}
-                          className="px-4 py-2 rounded border text-sm hover:bg-gray-50"
+                          className="px-4 py-2 rounded border border-gray-200 cursor-pointer text-sm hover:bg-gray-50"
                         >
                           Clear Search
                         </button>
@@ -200,8 +200,8 @@ export default function EmployeeOtPermission() {
               </tr>
             ) : (
               filtered.map((row, idx) => (
-                <tr key={row.id} className="border-t">
-                  <td className="px-3 py-2">{idx + 1}</td>
+                <tr key={row.id} className="border-t border-gray-200 text-xs">
+                  <td className="px-3 py-2">{idx + 1}.</td>
 
                   <td className="px-3 py-2 font-medium">{row.employeeName}</td>
 

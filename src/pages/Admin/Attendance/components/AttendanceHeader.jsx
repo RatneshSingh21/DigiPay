@@ -5,6 +5,7 @@ const AttendanceHeader = ({
   setSearchQuery,
   onRefresh,
   onOpenHistory,
+  onOpenExport,
 }) => (
   <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
     <h2 className="font-semibold text-xl">Attendance</h2>
@@ -16,6 +17,13 @@ const AttendanceHeader = ({
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
+
+      <button
+        onClick={onOpenExport}
+        className="bg-primary text-white cursor-pointer px-4 py-2 rounded-md hover:opacity-90 transition"
+      >
+        MonthlyAttendance
+      </button>
 
       <button
         onClick={onRefresh}

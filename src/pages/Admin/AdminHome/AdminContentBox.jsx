@@ -56,6 +56,7 @@ const submenuMap = {
 
   Attendance: [
     "Attendance",
+    "Attendance Punches",
     "Add Attendance",
     "Manual Attendance",
     "Punch",

@@ -171,7 +171,7 @@ const EmpBasicSalary = () => {
                     index % 2 === 0 ? "bg-white" : "bg-gray-50"
                   }`}
                 >
-                  <td className="p-2 border-r border-gray-200">{index + 1}</td>
+                  <td className="p-2 border-r border-gray-200">{index + 1}.</td>
                   <td className="p-2 border-r border-gray-200">
                     {emp.employeeCode}
                   </td>
