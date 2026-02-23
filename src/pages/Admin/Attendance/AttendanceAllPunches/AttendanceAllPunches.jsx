@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import AttendanceToolbar from "./AttendanceToolbar";
 import DailyAttendanceTable from "./DailyAttendanceTable";
 
 const AttendanceAllPunches = () => {
-  const [selectedDate, setSelectedDate] = useState("2026-01-01");
+  const today = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState(today);
 
-  const handleSync = async () => {
+  const handleSync = useCallback(async () => {
     try {
       await axiosInstance.post(
         `/DailyAttendanceStatus/generate?date=${selectedDate}`,
@@ -15,9 +16,8 @@ const AttendanceAllPunches = () => {
       toast.success("Attendance generated successfully");
     } catch (err) {
       console.error("Attendance generation error:", err);
-      toast.error("Attendance generation failed");
     }
-  };
+  }, [selectedDate]);
 
   return (
     <div className="min-h-screen space-y-2">

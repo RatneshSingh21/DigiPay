@@ -40,8 +40,9 @@ const DailyAttendanceTable = () => {
 
       const uniqueEmpIds = [...new Set(data.map((r) => r.employeeId))];
       fetchEmployees(uniqueEmpIds);
-    } catch {
-      toast.error("Failed to load attendance");
+    } catch (err) {
+      // toast.error("Failed to load attendance");
+      console.error("Attendance fetch error:", err);
     } finally {
       setLoading(false);
     }

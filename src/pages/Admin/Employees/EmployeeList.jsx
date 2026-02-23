@@ -8,6 +8,11 @@ import { toast } from "react-toastify";
 import { format } from "date-fns";
 import assets from "../../../assets/assets";
 
+
+const inputClass =
+  "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
 /* 🔹 Status Pill */
 const StatusPill = ({ enabled }) => (
   <span
@@ -203,7 +208,8 @@ const EmployeeList = () => {
                 placeholder="Search by name or employee code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary text-sm"
+                className={`${inputClass} pr-10`}
+                autoFocus
               />
             </div>
             <div className="min-w-[200px]">
@@ -228,7 +234,6 @@ const EmployeeList = () => {
                 styles={{
                   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                 }}
-                autoFocus
               />
             </div>
 

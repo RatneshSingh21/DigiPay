@@ -4,6 +4,9 @@ import { toast } from "react-toastify";
 import Spinner from "../../../components/Spinner";
 import assets from "../../../assets/assets";
 
+const inputClass =
+  "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
 const EmpBasicSalary = () => {
   const [salaries, setSalaries] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -107,7 +110,7 @@ const EmpBasicSalary = () => {
             placeholder="Search by Name or Code"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-2 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm min-w-[220px]"
+            className={`${inputClass} min-w-[220px]`}
           />
           {searchTerm && (
             <button

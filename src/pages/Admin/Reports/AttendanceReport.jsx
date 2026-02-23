@@ -6,7 +6,7 @@ import assets from "../../../assets/assets";
 const dummyTemplates = [
   {
     id: 1,
-    name: "Daily Attendance Template",
+    name: "Daily Attendance Employee Wise",
     description: "Download this Excel template to report daily attendance.",
     fileUrl: "#",
     imageUrl: assets.SampleAttendance,

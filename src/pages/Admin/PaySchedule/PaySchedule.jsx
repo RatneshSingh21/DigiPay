@@ -125,7 +125,7 @@ const PaySchedule = () => {
           <table className="min-w-full bg-white border border-gray-200 text-xs rounded-md overflow-hidden shadow">
             <thead className="bg-gray-100 text-gray-700 uppercase">
               <tr className="text-center">
-                <th className="px-4 py-3 text-left">Id</th>
+                <th className="px-4 py-3">S.No</th>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Pay Frequency</th>
                 <th className="px-4 py-3">Start Date</th>
@@ -145,20 +145,20 @@ const PaySchedule = () => {
                       : "bg-gray-50 border-t text-center"
                   }
                 >
-                  <td className="px-4 py-3 font-medium text-left">{item.id}</td>
+                  <td className="px-4 py-3 font-medium">{index + 1}.</td>
                   <td className="px-4 py-3 font-medium">{item.name}</td>
                   <td className="px-4 py-3 capitalize">{item.payFrequency}</td>
                   <td className="px-4 py-3">
                     {new Date(item.firstPayrollStartFrom).toLocaleDateString(
-                      "en-GB"
+                      "en-GB",
                     )}
                   </td>
                   <td className="px-4 py-3 capitalize">
                     {item.payOnType === "fixedDay"
                       ? `Day ${item.specificPayDay}`
                       : item.payOnType === "lastDay"
-                      ? "Last Day"
-                      : item.payOnType}
+                        ? "Last Day"
+                        : item.payOnType}
                   </td>
                   <td className="px-4 py-3">
                     {item.workWeekDays?.length > 0
@@ -169,8 +169,8 @@ const PaySchedule = () => {
                     {item.salaryBasedOn === "actual"
                       ? "Actual Days Worked"
                       : item.salaryBasedOn === "org"
-                      ? "Organization Working Days"
-                      : item.salaryBasedOn}
+                        ? "Organization Working Days"
+                        : item.salaryBasedOn}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-3 items-center justify-center">

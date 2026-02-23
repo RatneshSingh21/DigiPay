@@ -80,6 +80,7 @@ import Attendance from "./pages/Admin/Attendance/Attendance";
 import AttendanceForm from "./pages/Admin/Attendance/AttendanceForm";
 import ManualAttendance from "./pages/Admin/Attendance/ManualAttendance/ManualAttendance";
 import AttendancePunch from "./pages/Admin/Attendance/AttendancePunch";
+import AttendanceRejectedPunches from "./pages/Admin/Attendance/AttendanceRejectedPunches/AttendanceRejectedPunches";
 import AttendancePolicy from "./pages/Admin/Attendance/AttendancePolicy";
 import AttendanceRecord from "./pages/Admin/Attendance/AttendanceRecord";
 import AttendanceCalculationResult from "./pages/Admin/Attendance/AttendanceCalculationResult/AttendanceCalculationResult";
@@ -156,6 +157,8 @@ import EmpDocuments from "./pages/EmployeePages/EmployeeDocuments/EmpDocuments";
 import EmpTravel from "./pages/EmployeePages/EmployeeTravel/EmpTravel";
 import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals";
 
+//Admin Salary Pages
+import SalaryPolicy from "./pages/NEWSALARYLOGIC/SalaryPolicy";
 
 
 
@@ -262,8 +265,18 @@ const App = () => {
                   {/* Dashboard Main Page */}
                   <Route path="dashboard" element={<AdminDashboard />} />
 
-                  {/* PaySchedule Main Page */}
-                  <Route path="payschedule" element={<PaySchedule />} />
+                  {/* Salary SubRoutes */}
+                  <Route path="salary/*" element={<AdminContentBox />}>
+                    <Route
+                      index
+                      element={<Navigate to="salary-policy" />}
+                    />
+                    <Route
+                      path="salary-policy"
+                      element={<SalaryPolicy />}
+                    />
+                    
+                  </Route>
 
                   {/* Settings SubRoutes */}
                   <Route path="settings/*" element={<AdminContentBox />}>
@@ -337,6 +350,7 @@ const App = () => {
                       path="manual-attendance"
                       element={<ManualAttendance />}
                     />
+                    <Route path="rejected-punches" element={<AttendanceRejectedPunches />} />
                     <Route path="punch" element={<AttendancePunch />} />
                     <Route path="atten-policy" element={<AttendancePolicy />} />
                     <Route path="atten-record" element={<AttendanceRecord />} />

@@ -5,11 +5,9 @@ import { Calendar, RefreshCw, Database, Clock, Users } from "lucide-react";
 import assets from "../../../../assets/assets.js";
 import { FiRefreshCw } from "react-icons/fi";
 
-
 const inputClass =
   "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm " +
   "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
-
 
 /* ================= STATUS BADGE ================= */
 const StatusBadge = ({ status }) => {
@@ -117,7 +115,7 @@ const AttendanceMachineData = () => {
               code: emp.employeeCode,
             };
           }
-        })
+        }),
       );
 
       setEmployeeMap(employeeData);
@@ -137,6 +135,7 @@ const AttendanceMachineData = () => {
       return null;
     }
   };
+
 
   return (
     <div className="space-y-2">

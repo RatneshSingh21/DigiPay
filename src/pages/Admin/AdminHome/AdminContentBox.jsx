@@ -59,11 +59,11 @@ const submenuMap = {
     "Attendance Punches",
     "Add Attendance",
     "Manual Attendance",
+    "Rejected Punches",
     "Punch",
     "Attendance Policy",
     "Attendance Record",
     "Attendance Calculation",
-    // "Attendance Report",
     "Attendance Machine",
     "Emp Machine Mapping",
     "Machine Data Log",
@@ -114,11 +114,14 @@ const submenuMap = {
     // "Component Lock",
     "Employee Password Setup",
   ],
+
+  Salary: ["Salary Policy"],
 };
 
 const getMenuFromPath = (pathname) => {
   if (pathname.includes("/employees")) return "Employees";
   if (pathname.includes("/settings")) return "Settings";
+  if (pathname.includes("/salary")) return "Salary";
   if (pathname.includes("/reports")) return "Reports";
   if (pathname.includes("/expenses")) return "Expenses";
   if (pathname.includes("/role")) return "Role";

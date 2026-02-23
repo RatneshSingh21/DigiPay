@@ -5,6 +5,10 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
 import assets from "../../../assets/assets";
 
+const inputClass =
+  "w-full rounded-md border border-gray-300 px-3 ml-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+
 const StatusPill = ({ enabled }) => (
   <span
     className={`text-xs font-semibold px-2 py-1 rounded-full ${
@@ -214,16 +218,16 @@ const EmpSalaryDetails = () => {
   return (
     <div className="bg-white shadow rounded-xl">
       {/* Header */}
-      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex flex-wrap justify-between items-center gap-4">
+      <div className="px-4 py-3 shadow sticky top-14 bg-white z-10 flex flex-wrap justify-between items-center gap-4">
         <h2 className="font-semibold text-xl">Employee Salary Details</h2>
 
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex gap-2 items-center flex-nowrap overflow-x-auto">
           <input
             type="text"
             placeholder="Search by Employee Name"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-2 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm min-w-[200px]"
+            className={`${inputClass} w-[100px] min-w-[80px]`}
           />
 
           {searchTerm && (
@@ -269,15 +273,15 @@ const EmpSalaryDetails = () => {
               type="number"
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="px-3 py-2 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm w-[100px]"
+              className={`${inputClass} w-[100px] min-w-[80px]`}
             />
           )}
 
           <button
             onClick={handleExportSalaries}
-            className="px-4 py-2 bg-green-600 cursor-pointer text-white rounded-md text-sm font-medium hover:bg-green-700 transition"
+            className="px-4 py-2 bg-green-600 cursor-pointer text-white rounded-md text-xs font-medium hover:bg-green-700 transition"
           >
-            Export Excel
+            Export_Excel
           </button>
         </div>
       </div>

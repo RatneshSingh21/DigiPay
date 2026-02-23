@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { format } from "date-fns";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import Spinner from "../../../components/Spinner";
@@ -30,9 +30,26 @@ const AdminAttendanceChart = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAttendance();
+  const handleSync = useCallback(async () => {
+    try {
+      await axiosInstance.post(`/DailyAttendanceStatus/generate?date=${date}`);
+      // optional toast
+      // toast.success("Attendance generated successfully");
+    } catch (err) {
+      console.error("Attendance generation error:", err);
+    }
   }, [date]);
+
+  useEffect(() => {
+    if (!date) return;
+
+    const timeout = setTimeout(async () => {
+      await handleSync();
+      await fetchAttendance();
+    }, 300); // debounce
+
+    return () => clearTimeout(timeout);
+  }, [date, handleSync]);
 
   const chartData = useMemo(() => {
     if (!data.length) {

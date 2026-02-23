@@ -1,343 +1,214 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
-import { format, isSameDay, isSameWeek, isSameMonth } from "date-fns";
+import { format } from "date-fns";
 import Pagination from "../../../components/Pagination";
+import { MapPin, Clock, LogIn, LogOut } from "lucide-react";
 
 const statusColors = {
   Present: "bg-green-100 text-green-700",
   Late: "bg-yellow-100 text-yellow-800",
   Absent: "bg-red-100 text-red-700",
-  active: "bg-blue-100 text-blue-700",
 };
 
-// 🔥 Cache must be outside component to survive re-renders
-const locationCache = {};
+const sourceColors = {
+  MobileApp: "bg-blue-100 text-blue-700",
+  ESSL: "bg-purple-100 text-purple-700",
+  EXCEL: "bg-emerald-100 text-emerald-700", // New
+  ADMIN_PANEL: "bg-orange-100 text-orange-700",
+};
+
+const sourceLabels = {
+  ESSL: "Device",
+  ADMIN_PANEL: "Admin Panel",
+  EXCEL: "Excel",
+  MobileApp: "Mobile App",
+};
+
+const FILTER_MAP = {
+  Today: "today",
+  Week: "week",
+  Month: "month",
+};
 
 const AdminAttendance = () => {
   const [activeTab, setActiveTab] = useState("Today");
   const [attendanceData, setAttendanceData] = useState([]);
-  const [employeeMap, setEmployeeMap] = useState({});
-  const [loading, setLoading] = useState(true);
-
-  // pagination states
+  const [loading, setLoading] = useState(false);
+  const [employeeCache, setEmployeeCache] = useState({});
+  const [tooltip, setTooltip] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPageData, setPerPageData] = useState(5);
-  const [pageGroup, setPageGroup] = useState(0);
+  const tooltipTimeout = useRef(null);
 
-  // Convert latitude & longitude to a readable location name
-  const getLocationName = async (lat, lon) => {
-    try {
-      if (!lat || !lon) return "-";
-
-      const key = `${lat}-${lon}`;
-
-      // ✔ Use cache (avoids multiple API calls)
-      if (locationCache[key]) return locationCache[key];
-
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-        {
-          headers: {
-            "User-Agent": "MyAttendanceApp/1.0",
-            "Accept-Language": "en",
-          },
-        },
+  /* ================= FETCH EMPLOYEE ================= */
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      const ids = [...new Set(attendanceData.map((a) => a.employeeId))].filter(
+        (id) => !employeeCache[id],
       );
 
-      const data = await res.json();
-      const formatted = data?.display_name || "-";
+      if (ids.length === 0) return;
 
-      // ✔ Store in cache
-      locationCache[key] = formatted;
+      const updates = {};
 
-      return formatted;
-    } catch (err) {
-      console.error("Location API error:", err);
-      return "-";
-    }
-  };
+      await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const res = await axiosInstance.get(`/Employee/${id}`);
+            updates[id] = res.data?.data;
+          } catch {
+            updates[id] = null;
+          }
+        }),
+      );
 
-  // const formatGoogleStyleAddress = (data) => {
-  //   if (!data || !data.address) return data.display_name || "-";
+      setEmployeeCache((prev) => ({ ...prev, ...updates }));
+    };
 
-  //   const a = data.address;
+    fetchEmployees();
+  }, [attendanceData]);
 
-  //   const sector = a.suburb || a.neighbourhood || a.residential;
-  //   const block = a.hamlet || a.quarter;
-  //   const city = a.city || a.town || a.village;
-  //   const district = a.county || a.state_district;
-  //   const state = a.state;
-  //   const country = a.country;
-
-  //   return [sector, block, city, district, state, country]
-  //     .filter(Boolean)
-  //     .join(", ");
-  // };
-
-  //   const getLocationName = async (lat, lon) => {
-  //     try {
-  //       if (!lat || !lon) return "-";
-
-  //       const key = `${lat}-${lon}`;
-
-  //       // ✔ Use cache (unlimited and persistent)
-  //       if (locationCache[key]) return locationCache[key];
-
-  //       const res = await fetch(
-  //         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-  //         {
-  //           headers: {
-  //             "User-Agent": "YourAppName/1.0 (your-email@example.com)",
-  //             "Accept-Language": "en",
-  //           },
-  //         }
-  //       );
-
-  //       if (!res.ok) {
-  //         console.warn("⚠ Error from Nominatim:", res.status);
-  //         return "-";
-  //       }
-
-  //       const data = await res.json();
-  //       const formatted = formatGoogleStyleAddress(data);
-
-  //       locationCache[key] = formatted || "-";
-  //       return formatted || "-";
-  //     } catch (err) {
-  //       console.error("Location API error:", err);
-  //       return "-";
-  //     }
-  //   };
-
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
         setLoading(true);
 
-        /* ===========================
-         1️⃣ FETCH ATTENDANCE DATA
-      ============================ */
-        const [recordsRes, basicRes] = await Promise.allSettled([
-          axiosInstance.get("/AttendanceRecord/getAttendancerecord/all"),
-          axiosInstance.get("/Attendance/all"),
-        ]);
+        const res = await axiosInstance.get(
+          "/Attendance/attendancewithlocation",
+          { params: { filter: FILTER_MAP[activeTab] } },
+        );
 
-        const records =
-          recordsRes.status === "fulfilled"
-            ? recordsRes.value.data?.data || []
+        const rawData = res.data;
+
+        // Extract array safely (VERY IMPORTANT)
+        const data = Array.isArray(rawData)
+          ? rawData
+          : Array.isArray(rawData?.data)
+            ? rawData.data
             : [];
 
-        const basic =
-          basicRes.status === "fulfilled" ? basicRes.value.data || [] : [];
+        // Safety check (prevents crash completely)
+        if (!Array.isArray(data)) {
+          console.error("Invalid attendance response:", rawData);
+          setAttendanceData([]);
+          return;
+        }
 
-        /* ===========================
-         2️⃣ GROUP RAW PUNCHES
-      ============================ */
-        const groupedBasic = {};
+        // Now sorting is safe
+        data.sort(
+          (a, b) => new Date(b.attendanceDate) - new Date(a.attendanceDate),
+        );
 
-        basic.forEach((b) => {
-          const dateKey = new Date(b.attendanceDate).toDateString();
-          const key = `${b.employeeId}-${dateKey}`;
+        const merged = Object.values(
+          data.reduce((acc, curr) => {
+            const dateKey = format(new Date(curr.attendanceDate), "yyyy-MM-dd");
+            const key = `${curr.employeeId}-${dateKey}`;
 
-          if (!groupedBasic[key]) {
-            groupedBasic[key] = {
-              attendanceId: b.attendanceId,
-              employeeId: b.employeeId,
-              attendanceDate: b.attendanceDate,
-              inTime: null,
-              outTime: null,
-              latitude: b.latitude,
-              longitude: b.longitude,
-            };
-          }
-
-          if (b.punchType === "IN") {
-            if (
-              !groupedBasic[key].inTime ||
-              new Date(b.inTime) < new Date(groupedBasic[key].inTime)
-            ) {
-              groupedBasic[key].inTime = b.inTime || b.attendanceDate;
-            }
-          }
-
-          if (b.punchType === "OUT") {
-            if (
-              !groupedBasic[key].outTime ||
-              new Date(b.outTime) > new Date(groupedBasic[key].outTime)
-            ) {
-              groupedBasic[key].outTime = b.outTime || b.attendanceDate;
-            }
-          }
-        });
-
-        /* ===========================
-         3️⃣ MERGE PROCESSED + RAW
-      ============================ */
-        const mergedData = Object.values(groupedBasic).map((punch) => {
-          const punchDate = new Date(
-            punch.inTime || punch.outTime || punch.attendanceDate,
-          ).toDateString();
-
-          const processed = records.find(
-            (rec) =>
-              rec.employeeId === punch.employeeId &&
-              new Date(rec.attendanceDate).toDateString() === punchDate,
-          );
-
-          return processed
-            ? {
-                attendanceId: processed.attendanceRecordId,
-                employeeId: processed.employeeId,
-                attendanceDate: processed.attendanceDate,
-                inTime: processed.inTime,
-                outTime: processed.outTime,
-                totalHours: processed.totalHoursWorked,
-                status: processed.isAbsent ? "Absent" : "Present",
-                latitude: punch.latitude,
-                longitude: punch.longitude,
-              }
-            : {
-                attendanceId: punch.attendanceId,
-                employeeId: punch.employeeId,
-                attendanceDate: punch.attendanceDate,
-                inTime: punch.inTime,
-                outTime: punch.outTime,
-                totalHours:
-                  punch.inTime && punch.outTime
-                    ? (new Date(punch.outTime) - new Date(punch.inTime)) /
-                      3600000
-                    : null,
-                status: punch.inTime || punch.outTime ? "Present" : "Absent",
-                latitude: punch.latitude,
-                longitude: punch.longitude,
+            if (!acc[key]) {
+              acc[key] = {
+                ...curr,
+                inTime: null,
+                outTime: null,
+                inLocation: null,
+                outLocation: null,
               };
-        });
+            }
 
-        /* ===========================
-         4️⃣ RESOLVE LOCATIONS (SAFE)
-      ============================ */
-        const locationResults = await Promise.allSettled(
-          mergedData.map((item) =>
-            item.latitude && item.longitude
-              ? getLocationName(item.latitude, item.longitude)
-              : Promise.resolve("-"),
-          ),
+            // 🟢 IN punch
+            if (curr.inTime) {
+              if (
+                !acc[key].inTime ||
+                new Date(curr.inTime) < new Date(acc[key].inTime)
+              ) {
+                acc[key].inTime = curr.inTime;
+              }
+
+              if (curr.locationId) {
+                acc[key].inLocation = {
+                  address: curr.address,
+                  city: curr.city,
+                  state: curr.state,
+                  country: curr.country,
+                  latitude: curr.latitude,
+                  longitude: curr.longitude,
+                };
+              }
+            }
+
+            // 🔴 OUT punch
+            if (curr.outTime) {
+              if (
+                !acc[key].outTime ||
+                new Date(curr.outTime) > new Date(acc[key].outTime)
+              ) {
+                acc[key].outTime = curr.outTime;
+              }
+
+              if (curr.locationId) {
+                acc[key].outLocation = {
+                  address: curr.address,
+                  city: curr.city,
+                  state: curr.state,
+                  country: curr.country,
+                  latitude: curr.latitude,
+                  longitude: curr.longitude,
+                };
+              }
+            }
+
+            return acc;
+          }, {}),
         );
 
-        const updatedData = mergedData.map((item, i) => ({
-          ...item,
-          location:
-            locationResults[i].status === "fulfilled"
-              ? locationResults[i].value
-              : "-",
-        }));
-
-        setAttendanceData(updatedData);
-
-        /* ===========================
-         5️⃣ FETCH EMPLOYEES (SAFE)
-      ============================ */
-        const employeeIds = [...new Set(updatedData.map((a) => a.employeeId))];
-
-        const employeeResults = await Promise.allSettled(
-          employeeIds.map((id) => axiosInstance.get(`/Employee/${id}`)),
-        );
-
-        const empMap = {};
-        employeeResults.forEach((res) => {
-          if (res.status === "fulfilled") {
-            const emp = res.value.data?.data;
-            if (emp) empMap[emp.id] = emp.fullName;
-          }
-        });
-
-        setEmployeeMap(empMap);
+        setAttendanceData(merged);
+        setCurrentPage(1);
       } catch (err) {
         console.error("Attendance fetch error:", err);
+        setAttendanceData([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchAttendance();
-  }, []);
+  }, [activeTab]);
 
-  const formatTime = (time) => {
-    if (!time) return "-";
-    return format(new Date(time), "hh:mma");
-  };
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(attendanceData.length / perPageData);
 
-  const formatTotalHours = (inTime, outTime, totalHours) => {
-    // If backend already sends totalHours in minutes or hh:mm, handle separately
-    if (!inTime || !outTime) return "-";
-
-    const diffMs = new Date(outTime) - new Date(inTime);
-    if (diffMs <= 0) return "-";
-
-    const totalMinutes = Math.floor(diffMs / 60000);
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-
-    return `${hours}h ${minutes}m`;
-  };
-
-  // 🔹 Filter attendance by active tab
-  const filterByTab = (data) => {
-    const today = new Date();
-
-    return data.filter((att) => {
-      const date = new Date(att.attendanceDate);
-
-      if (activeTab === "Today") {
-        return isSameDay(date, today);
-      }
-      if (activeTab === "Week") {
-        return isSameWeek(date, today, { weekStartsOn: 1 });
-      }
-      if (activeTab === "Month") {
-        return isSameMonth(date, today);
-      }
-
-      return true;
-    });
-  };
-
-  const filteredData = filterByTab(attendanceData);
-
-  // 🔹 Pagination
-  const totalDataLength = filteredData.length;
-  const totalPages = Math.ceil(totalDataLength / perPageData);
-  const indexOfLast = currentPage * perPageData;
-  const indexOfFirst = indexOfLast - perPageData;
-  const currentData = filteredData.slice(indexOfFirst, indexOfLast);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * perPageData;
+    return attendanceData.slice(start, start + perPageData);
+  }, [attendanceData, currentPage, perPageData]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white rounded-2xl shadow-xl p-6">
+      {/* ================= HEADER ================= */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">Attendance</h3>
-          <p className="text-sm text-gray-500">
-            Showing {totalDataLength} records
+          <h2 className="text-xl font-semibold text-gray-800">
+            Attendance Overview
+          </h2>
+          <p className="text-xs text-gray-500">
+            {attendanceData.length} total records
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-gray-100 rounded-lg">
+        <div className="flex bg-gray-100 rounded-xl p-1">
           {["Today", "Week", "Month"].map((tab) => (
             <button
               key={tab}
-              className={`px-4 py-1.5 cursor-pointer text-sm rounded-md transition-all ${
-                activeTab === tab
-                  ? "bg-primary text-white shadow-sm"
-                  : "text-gray-600 hover:text-gray-800"
-              }`}
               onClick={() => {
                 setActiveTab(tab);
-                setCurrentPage(1); // reset pagination
+                setCurrentPage(1);
               }}
+              className={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === tab
+                  ? "bg-white text-primary shadow"
+                  : "text-gray-600 hover:text-primary"
+              }`}
             >
               {tab}
             </button>
@@ -345,95 +216,244 @@ const AdminAttendance = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        {loading ? (
-          <p className="text-center text-gray-500 py-4">Loading...</p>
-        ) : (
-          <>
-            <table className="w-full text-sm border-collapse text-center">
-              <thead>
-                <tr className="text-gray-500 border-b border-gray-400">
-                  <th className="py-3 font-medium">E.Name</th>
-                  <th className="font-medium">Date</th>
-                  <th className="font-medium">Status</th>
-                  <th className="font-medium">In Time</th>
-                  <th className="font-medium">Out Time</th>
-                  <th className="font-medium">T. Hours</th>
-                  <th className="font-medium">Location</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentData.length > 0 ? (
-                  currentData.map((att) => (
-                    <tr
-                      key={`${att.employeeId}-${att.attendanceDate}`}
-                      className="border-b border-gray-400 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="py-3 text-gray-800">
-                        {employeeMap[att.employeeId] || `ID: ${att.employeeId}`}
-                      </td>
-                      <td className="py-3 text-gray-800">
-                        {new Date(att.attendanceDate).toLocaleDateString(
-                          "en-GB",
-                        )}
-                      </td>
-                      <td>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            statusColors[att.status] ||
-                            "bg-gray-100 text-gray-700"
-                          }`}
-                        >
-                          {att.status}
-                        </span>
-                      </td>
-                      <td className="text-gray-700">
-                        {formatTime(att.inTime)}
-                      </td>
-                      <td className="text-gray-700">
-                        {formatTime(att.outTime)}
-                      </td>
-                      <td className="text-gray-700">
-                        {formatTotalHours(
-                          att.inTime,
-                          att.outTime,
-                          att.totalHours,
-                        )}
-                      </td>
-                      <td
-                        className="text-gray-600 text-xs max-w-[100px] truncate cursor-help"
-                        title={att.location}
-                      >
-                        {att.location || "-"}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="text-center py-4 text-gray-500">
-                      No records found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+      {/* ================= TABLE ================= */}
+      <div className="overflow-x-auto overflow-visible rounded-xl border border-gray-200">
+        <table className="min-w-full text-xs">
+          <thead className="bg-gray-50 sticky top-0 z-10">
+            <tr className="text-gray-600 uppercase text-xs text-center">
+              <th className="px-4 py-3">S.No</th>
+              <th className="px-4 py-3">Employee</th>
+              <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">In_Time</th>
+              <th className="px-4 py-3">Out_Time</th>
+              <th className="px-4 py-3">Source</th>
+              {/* <th className="px-4 py-3">Location</th> */}
+              <th className="px-4 py-3">Status</th>
+            </tr>
+          </thead>
 
-            {/* Pagination */}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              paginate={paginate}
-              pageGroup={pageGroup}
-              setPageGroup={setPageGroup}
-              perPageData={perPageData}
-              setPerPageData={setPerPageData}
-              filteredData={filteredData}
-              totalDataLength={totalDataLength}
-            />
-          </>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan="7" className="py-10 text-center text-gray-500">
+                  Loading attendance data...
+                </td>
+              </tr>
+            ) : paginatedData.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="py-10 text-center text-gray-400">
+                  No attendance records found
+                </td>
+              </tr>
+            ) : (
+              paginatedData.map((att, index) => (
+                <tr
+                  key={att.attendanceId}
+                  className="border-t border-gray-200 hover:bg-gray-50 transition text-center"
+                >
+                  {/* S.No */}
+                  <td className="px-4 py-3">
+                    {(currentPage - 1) * perPageData + index + 1}.
+                  </td>
+                  {/* Employee */}
+                  <td className="px-4 py-3 font-medium text-gray-800">
+                    {employeeCache[att.employeeId]
+                      ? `${employeeCache[att.employeeId].fullName}(${employeeCache[att.employeeId].employeeCode})`
+                      : `#${att.employeeId}`}
+                  </td>
+
+                  {/* Date */}
+                  <td className="px-4 py-3">
+                    {format(new Date(att.attendanceDate), "dd MMM yyyy")}
+                  </td>
+
+                  {/* In Time */}
+                  <td className="px-4 py-3 text-center">
+                    {att.inTime ? (
+                      <span
+                        className={`flex items-center gap-2 font-medium ${
+                          att.inLocation
+                            ? "cursor-pointer text-green-600"
+                            : "text-green-400"
+                        }`}
+                        onMouseEnter={(e) => {
+                          if (!att.inLocation) return;
+
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setTooltip({
+                            x: rect.right - 260,
+                            y: rect.top - 10,
+                            data: att.inLocation,
+                            label: "IN Location",
+                          });
+                        }}
+                        onMouseLeave={() => {
+                          tooltipTimeout.current = setTimeout(() => {
+                            setTooltip(null);
+                          }, 150);
+                        }}
+                      >
+                        <LogIn size={14} />
+                        {format(new Date(att.inTime), "hh:mm a")}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+
+                  {/* Out Time */}
+                  <td className="px-4 py-3">
+                    {att.outTime ? (
+                      <span
+                        className={`flex items-center gap-2 font-medium ${
+                          att.outLocation
+                            ? "cursor-pointer text-red-600"
+                            : "text-red-400"
+                        }`}
+                        onMouseEnter={(e) => {
+                          if (!att.outLocation) return;
+
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setTooltip({
+                            x: rect.right - 260,
+                            y: rect.top - 10,
+                            data: att.outLocation,
+                            label: "OUT Location",
+                          });
+                        }}
+                        onMouseLeave={() => {
+                          tooltipTimeout.current = setTimeout(() => {
+                            setTooltip(null);
+                          }, 150);
+                        }}
+                      >
+                        <LogOut size={14} />
+                        {format(new Date(att.outTime), "hh:mm a")}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">Not Marked</span>
+                    )}
+                  </td>
+
+                  {/* Source */}
+                  <td className="px-4 py-3">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        sourceColors[att.source] || "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {sourceLabels[att.source] || att.source}
+                    </span>
+                  </td>
+
+                  {/* Location with Advanced Tooltip */}
+                  {/* <td className="px-4 py-3">
+                    {att.city || att.address ? (
+                      <div
+                        className="flex items-center gap-1 cursor-pointer"
+                        onMouseEnter={(e) => {
+                          if (tooltipTimeout.current) {
+                            clearTimeout(tooltipTimeout.current);
+                          }
+
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setTooltip({
+                            x: rect.right - 260,
+                            y: rect.top - 10,
+                            data: att,
+                          });
+                        }}
+                        onMouseLeave={() => {
+                          tooltipTimeout.current = setTimeout(() => {
+                            setTooltip(null);
+                          }, 150);
+                        }}
+                      >
+                        <MapPin size={14} className="text-primary" />
+                        <span className="text-gray-700 text-xs truncate max-w-[80px]">
+                          {att.city || "Location"}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-xs">No Location</span>
+                    )}
+                  </td> */}
+
+                  {/* Status */}
+                  <td className="px-4 py-3">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        statusColors[att.status] || "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {att.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        {/* GLOBAL LOCATION TOOLTIP */}
+        {tooltip && (
+          <div
+            className="fixed z-[99999] w-64 bg-white border border-gray-200 rounded-lg shadow-2xl p-3 text-xs text-gray-700"
+            style={{ top: tooltip.y, left: tooltip.x }}
+            onMouseEnter={() => {
+              if (tooltipTimeout.current) {
+                clearTimeout(tooltipTimeout.current);
+              }
+            }}
+            onMouseLeave={() => {
+              tooltipTimeout.current = setTimeout(() => {
+                setTooltip(null);
+              }, 150);
+            }}
+          >
+            <div className="font-semibold text-gray-800 mb-2">
+              Location Details
+            </div>
+
+            <div className="space-y-1">
+              <div>
+                <strong>Address:</strong> {tooltip.data.address || "N/A"}
+              </div>
+              <div>
+                <strong>City:</strong> {tooltip.data.city || "N/A"}
+              </div>
+              <div>
+                <strong>State:</strong> {tooltip.data.state || "N/A"}
+              </div>
+              <div>
+                <strong>Country:</strong> {tooltip.data.country || "N/A"}
+              </div>
+            </div>
+
+            {tooltip.data.latitude && tooltip.data.longitude && (
+              <a
+                href={`https://www.google.com/maps?q=${tooltip.data.latitude},${tooltip.data.longitude}`}
+                target="_blank"
+                rel="noreferrer"
+                className="block mt-2 text-blue-600 hover:underline font-medium"
+              >
+                View on Maps
+              </a>
+            )}
+          </div>
         )}
       </div>
+
+      {/* ================= PAGINATION ================= */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginate={setCurrentPage}
+        perPageData={perPageData}
+        setPerPageData={setPerPageData}
+        filteredData={attendanceData}
+        totalDataLength={attendanceData.length}
+      />
     </div>
   );
 };

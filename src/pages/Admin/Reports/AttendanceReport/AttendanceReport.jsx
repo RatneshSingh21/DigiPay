@@ -3,26 +3,26 @@ import { FiDownload } from "react-icons/fi";
 
 import ExportDailyAttendancePdfModel from "./ExportAttendancePdf/ExportDailyAttendancePdfModel";
 import ExportMonthlyAttendancePdfModal from "./ExportAttendancePdf/ExportMonthlyAttendancePdf";
-import assets from "../../../../assets/assets";
+import ExportMonthlyAttendanceEmployeewisePdfModal from "./ExportAttendancePdf/ExportMonthlyAttendanceEmployeewisePdfModal";
 
 const dummyTemplates = [
-  // {
-  //   id: 1,
-  //   name: "Daily Attendance Template",
-  //   description: "Download Excel template to upload daily attendance.",
-  //   imageUrl: assets.SampleAttendance,
-  //   type: "template",
-  // },
+  {
+    id: 1,
+    name: "Daily Attendance Employee Wise",
+    description: "Download employee-wise daily attendance.",
+    imageUrl: "https://placehold.co/400x200?text=Employee+Daily+PDF",
+    type: "employee-daily-pdf",
+  },
   {
     id: 2,
-    name: "Employee Monthly Attendance PDF",
+    name: "Employee Monthly Attendance Record PDF",
     description: "Download month-wise attendance PDF for a single employee.",
     imageUrl: "https://placehold.co/400x200?text=Employee+PDF",
     type: "employee-pdf",
   },
   {
     id: 3,
-    name: "Company Monthly Attendance PDF",
+    name: "Company Wise Monthly Attendance PDF",
     description: "Download month-wise attendance PDF for all employees.",
     imageUrl: "https://placehold.co/400x200?text=Company+PDF",
     type: "company-pdf",
@@ -33,11 +33,17 @@ const AttendanceReport = () => {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showEmployeePdfModal, setShowEmployeePdfModal] = useState(false);
   const [showCompanyPdfModal, setShowCompanyPdfModal] = useState(false);
+  const [showEmployeeWisePdfModal, setShowEmployeeWisePdfModal] =
+    useState(false);
 
   const handleAction = (template) => {
     switch (template.type) {
       case "template":
         setShowTemplateModal(true);
+        break;
+
+      case "employee-daily-pdf":
+        setShowEmployeeWisePdfModal(true);
         break;
 
       case "employee-pdf":
@@ -106,6 +112,13 @@ const AttendanceReport = () => {
         <ExportDailyAttendancePdfModel
           isOpen={showEmployeePdfModal}
           onClose={() => setShowEmployeePdfModal(false)}
+        />
+      )}
+
+      {showEmployeeWisePdfModal && (
+        <ExportMonthlyAttendanceEmployeewisePdfModal
+          isOpen={showEmployeeWisePdfModal}
+          onClose={() => setShowEmployeeWisePdfModal(false)}
         />
       )}
 
