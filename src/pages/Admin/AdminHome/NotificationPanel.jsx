@@ -51,7 +51,7 @@ const NotificationPanel = ({ notifications, onClose }) => {
   const fetchEmployees = async () => {
     try {
       const res = await axiosInstance.get(
-        `/user-auth/getEmployee/companyId/${companyId}`
+        `/user-auth/getEmployee/companyId/${companyId}`,
       );
       const map = {};
       res.data.data.forEach((emp) => {
@@ -88,7 +88,7 @@ const NotificationPanel = ({ notifications, onClose }) => {
 
   const requestTypeOptions = useMemo(() => {
     const types = Array.from(
-      new Set(notifications.map((n) => n.requestTypeId))
+      new Set(notifications.map((n) => n.requestTypeId)),
     );
     return types.map((typeId) => ({
       value: typeId,
@@ -100,7 +100,7 @@ const NotificationPanel = ({ notifications, onClose }) => {
   return (
     <div className="absolute right-0 mt-2 w-96 bg-white shadow-2xl rounded-xl z-30 max-h-[400px] overflow-y-auto">
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-3 border-b bg-gray-50 rounded-t-xl">
+      <div className="flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-gray-50 rounded-t-xl">
         <div className="flex items-center gap-2">
           <Bell className="w-5 h-5 text-blue-600" />
           <span className="font-semibold text-gray-700">Notifications</span>
@@ -119,7 +119,7 @@ const NotificationPanel = ({ notifications, onClose }) => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-2 p-3 border-b bg-gray-50">
+      <div className="flex flex-col gap-2 p-3 border-b border-gray-300 bg-gray-50">
         <Select
           value={filterStatus}
           onChange={setFilterStatus}
@@ -146,7 +146,7 @@ const NotificationPanel = ({ notifications, onClose }) => {
           {filteredNotifications.map((item) => (
             <li
               key={item.approvalId}
-              className="p-4 hover:bg-gray-50 transition-colors cursor-pointer rounded-lg m-2 border shadow-sm flex flex-col gap-2"
+              className="p-4 hover:bg-gray-50 transition-colors cursor-pointer rounded-lg m-2 border border-gray-300 shadow-sm flex flex-col gap-2"
             >
               <div className="flex justify-between items-start">
                 {/* Request Info */}
@@ -156,8 +156,7 @@ const NotificationPanel = ({ notifications, onClose }) => {
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
                     <span className="font-medium">Applied by:</span>{" "}
-                    {employeesMap[item.employeeId] ||
-                      item.employeeId}
+                    {employeesMap[item.employeeId] || item.employeeId}
                   </p>
                   <p className="text-xs text-gray-600">
                     <span className="font-medium">Approved by:</span>{" "}

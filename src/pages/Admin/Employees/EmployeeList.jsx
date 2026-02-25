@@ -7,11 +7,11 @@ import Spinner from "../../../components/Spinner";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
 import assets from "../../../assets/assets";
-
+import TerminateEmployeeModal from "./TerminateEmployeeModal";
+import RehireEmployeeModal from "./RehireEmployeeModal";
 
 const inputClass =
   "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
-
 
 /* 🔹 Status Pill */
 const StatusPill = ({ enabled }) => (
@@ -32,6 +32,33 @@ const createSelectValue = (id, dataArray, labelKey = "name") => {
     : { label: "Deleted", value: Number(id) };
 };
 
+/* 🔹 Employment Status Pill */
+const EmploymentStatusPill = ({ status }) => {
+  if (!status) return <span className="text-gray-400 text-xs">-</span>;
+
+  const baseClass =
+    "text-xs font-semibold px-3 py-1 rounded-full inline-flex items-center";
+
+  const statusStyles = {
+    Resignation: "bg-yellow-100 text-yellow-700",
+    Termination: "bg-red-100 text-red-700",
+    Retirement: "bg-blue-100 text-blue-700",
+    Absconded: "bg-orange-100 text-orange-700",
+    Death: "bg-gray-200 text-gray-700",
+    Active: "bg-green-100 text-green-700",
+  };
+
+  return (
+    <span
+      className={`${baseClass} ${
+        statusStyles[status] || "bg-gray-100 text-gray-600"
+      }`}
+    >
+      {status}
+    </span>
+  );
+};
+
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +67,8 @@ const EmployeeList = () => {
   const [locations, setLocations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [uploadingId, setUploadingId] = useState(null);
+  const [terminateModal, setTerminateModal] = useState(false);
+  const [rehireModal, setRehireModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -80,7 +109,7 @@ const EmployeeList = () => {
           toast.error("You don't have permission to view employees.");
         } else {
           toast.error(
-            error?.response?.data?.message || "Error fetching employee data"
+            error?.response?.data?.message || "Error fetching employee data",
           );
         }
       } finally {
@@ -95,7 +124,7 @@ const EmployeeList = () => {
     a.employeeCode.localeCompare(b.employeeCode, undefined, {
       numeric: true,
       sensitivity: "base",
-    })
+    }),
   );
 
   /* 🔹 Filter Employees */
@@ -137,7 +166,7 @@ const EmployeeList = () => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
 
     return res.data;
@@ -157,12 +186,12 @@ const EmployeeList = () => {
         prev.map((emp) =>
           emp.id === empId
             ? { ...emp, profileImageUrl: res.profileImageUrl }
-            : emp
-        )
+            : emp,
+        ),
       );
     } catch (err) {
       toast.error(
-        err?.response?.data?.message || "Failed to update profile image"
+        err?.response?.data?.message || "Failed to update profile image",
       );
     } finally {
       setUploadingId(null); // stop spinner
@@ -182,6 +211,23 @@ const EmployeeList = () => {
 
         {employees.length > 0 && (
           <div className="flex gap-2 items-center">
+            {/* 🔴 Terminate Button */}
+            <button
+              className="bg-red-600 hover:bg-red-700 cursor-pointer text-white text-sm px-4 py-2 rounded-lg font-medium"
+              onClick={() => setTerminateModal(true)}
+            >
+              Terminate
+            </button>
+
+            {/* 🟢 Rehire Button */}
+            <button
+              className="bg-green-600 hover:bg-green-700 cursor-pointer text-white text-sm px-4 py-2 rounded-lg font-medium"
+              onClick={() => setRehireModal(true)}
+            >
+              Rehire
+            </button>
+
+            {/* ➕ Add Employee */}
             <button
               className="bg-primary text-sm hover:bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg font-medium"
               onClick={() => navigate("/admin-dashboard/employees/add")}
@@ -279,7 +325,7 @@ const EmployeeList = () => {
                     ? createSelectValue(
                         filters.designation,
                         designations,
-                        "title"
+                        "title",
                       )
                     : null
                 }
@@ -359,6 +405,9 @@ const EmployeeList = () => {
                       Aadhar
                     </th>
                     <th scope="col" className="px-2 py-2 bg-gray-100">
+                      Employment Status
+                    </th>
+                    <th scope="col" className="px-2 py-2 bg-gray-100">
                       Portal Access
                     </th>
                   </tr>
@@ -371,7 +420,7 @@ const EmployeeList = () => {
                         index % 2 === 0 ? "bg-white" : "bg-gray-50"
                       } hover:bg-gray-100 transition-all`}
                     >
-                      <td className="px-2 py-2">{index + 1}</td>
+                      <td className="px-2 py-2">{index + 1}.</td>
                       <td className="px-2 py-2">{emp.employeeCode}</td>
                       {/* Profile Image */}
                       <td className="px-2 py-2 text-center relative">
@@ -428,8 +477,12 @@ const EmployeeList = () => {
                           ? format(new Date(emp.dateOfJoining), "dd MMM yyyy")
                           : "N/A"}
                       </td>
+
                       <td className="px-2 py-2">
                         {emp.aadhaarCardNumber ? emp.aadhaarCardNumber : "-"}
+                      </td>
+                      <td className="px-2 py-2">
+                        <EmploymentStatusPill status={emp.employmentStatus} />
                       </td>
                       <td className="px-2 py-2">
                         <StatusPill enabled={emp.portalAccessEnabled} />
@@ -469,6 +522,18 @@ const EmployeeList = () => {
           </div>
         </div>
       )}
+
+      <TerminateEmployeeModal
+        open={terminateModal}
+        onClose={() => setTerminateModal(false)}
+        employees={employees}
+      />
+
+      <RehireEmployeeModal
+        open={rehireModal}
+        onClose={() => setRehireModal(false)}
+        employees={employees}
+      />
     </div>
   );
 };

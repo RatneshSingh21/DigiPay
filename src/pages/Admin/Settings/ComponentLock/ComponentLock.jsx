@@ -47,7 +47,7 @@ const ComponentLock = () => {
         <h2 className="font-semibold text-xl">Component Locks</h2>
 
         <button
-          className="bg-primary hover:bg-secondary text-sm text-white px-4 py-2 rounded-lg font-medium"
+          className="bg-primary hover:bg-secondary text-sm cursor-pointer text-white px-4 py-2 rounded-lg font-medium"
           onClick={() => {
             setEditData(null);
             setIsModalOpen(true);

@@ -1,200 +1,207 @@
-// EmployeeOtPermissionForm.jsx
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../../axiosInstance/axiosInstance";
+import { X } from "lucide-react";
 
 const inputClass =
-  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+  "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
 export default function EmployeeOtPermissionForm({
-  initialData = null,
+  initialData,
   onClose,
   onSuccess,
 }) {
   const isEdit = Boolean(initialData);
 
   const [employees, setEmployees] = useState([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(false);
-
   const [saving, setSaving] = useState(false);
-
   const [form, setForm] = useState({
+    id: null,
     employeeId: null,
     isAllowed: false,
     maxOTHoursPerDay: "",
+    startAfterMinutes: "",
   });
 
-  // Load employees for react-select
-  const loadEmployees = async () => {
-    setLoadingEmployees(true);
-    try {
-      const res = await axiosInstance.get("/Employee");
-      const list = res?.data ?? [];
-      const opts = list.map((e) => ({
-        label: `${e.fullName} ${e.employeeCode ? `(${e.employeeCode})` : ""}`,
-        value: e.id,
-      }));
-      setEmployees(opts);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load employees");
-    } finally {
-      setLoadingEmployees(false);
-    }
-  };
-
+  // Fetch employee list
   useEffect(() => {
-    loadEmployees();
+    axiosInstance.get("/Employee").then((res) => {
+      const list = res?.data ?? [];
+      setEmployees(
+        list.map((e) => ({
+          label: `${e.fullName} (${e.employeeCode})`,
+          value: e.id,
+        })),
+      );
+    });
   }, []);
 
-  // Populate form when initialData arrives (edit mode)
+  // Prefill form on edit
   useEffect(() => {
     if (initialData) {
       setForm({
-        employeeId:
-          typeof initialData.employeeId === "number"
-            ? initialData.employeeId
-            : Number(initialData.employeeId) || null,
-        isAllowed:
-          typeof initialData.isAllowed === "boolean"
-            ? initialData.isAllowed
-            : initialData.isAllowed === 1 || initialData.isAllowed === "true",
-        maxOTHoursPerDay:
-          initialData.maxOTHoursPerDay ?? initialData.maxHours ?? "",
-      });
-    } else {
-      // reset for create
-      setForm({
-        employeeId: null,
-        isAllowed: false,
-        maxOTHoursPerDay: "",
+        id: initialData.id,
+        employeeId: initialData.employeeId,
+        isAllowed: initialData.isAllowed,
+        maxOTHoursPerDay: initialData.maxOTHoursPerDay,
+        startAfterMinutes: initialData.startAfterMinutes,
       });
     }
   }, [initialData]);
 
-  // Ensure react-select shows selected option (it needs employees loaded)
-  const selectedEmployeeOption =
-    employees.find((o) => o.value === form.employeeId) || null;
+  const handleSave = async (e) => {
+    e.preventDefault();
 
-  const validate = () => {
     if (!form.employeeId) {
       toast.error("Please select an employee");
-      return false;
+      return;
     }
-    if (form.maxOTHoursPerDay === "" || isNaN(Number(form.maxOTHoursPerDay))) {
-      toast.error("Please enter valid max OT hours per day (number)");
-      return false;
-    }
-    return true;
-  };
 
-  const handleSave = async (e) => {
-    e?.preventDefault();
-    if (!validate()) return;
+    const payload = {
+      ...form,
+      employeeId: Number(form.employeeId),
+      maxOTHoursPerDay: Number(form.maxOTHoursPerDay),
+      startAfterMinutes: Number(form.startAfterMinutes),
+    };
 
-    setSaving(true);
     try {
-      const payload = {
-        employeeId: Number(form.employeeId),
-        isAllowed: Boolean(form.isAllowed),
-        maxOTHoursPerDay: Number(form.maxOTHoursPerDay),
-      };
+      setSaving(true);
 
-      // API is a POST createOrUpdate (single endpoint)
-      const res = await axiosInstance.post(
-        "/EmployeeOTPermission/createOTPermission",
-        payload,
-      );
+      if (isEdit) {
+        await axiosInstance.put(
+          "/EmployeeOTPermission/updateOTPermission",
+          payload,
+        );
+        toast.success("Updated successfully");
+      } else {
+        await axiosInstance.post(
+          "/EmployeeOTPermission/createOTPermission",
+          payload,
+        );
+        toast.success("Created successfully");
+      }
 
-      toast.success(isEdit ? "Updated OT permission" : "Created OT permission");
-      onSuccess?.();
-    } catch (err) {
-      console.error(err);
-      toast.error(err?.response?.data?.message || "Failed to save");
+      onSuccess();
+    } catch {
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div
-      className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          className="absolute top-3 cursor-pointer right-3 text-gray-600"
-          onClick={onClose}
-        >
-          ✕
-        </button>
+    <div className="fixed inset-0 z-50 backdrop-blur-sm flex justify-center items-center px-4">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden">
+        {/* HEADER */}
+        <div className="flex justify-between items-center p-4 border-b border-gray-300">
+          <h2 className="text-lg font-semibold text-gray-800">
+            {isEdit ? "Edit OT Permission" : "Create OT Permission"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 cursor-pointer hover:text-red-600"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
-        <h2 className="text-lg font-semibold mb-4">
-          {isEdit ? "Edit" : "Create"} Employee OT Permission
-        </h2>
-
-        <form onSubmit={handleSave} className="space-y-4">
+        {/* FORM */}
+        <form onSubmit={handleSave} className="p-6 space-y-3">
+          {/* Employee Select */}
           <div>
-            <label className="block text-xs font-medium mb-1">Employee</label>
+            <label className="block text-gray-600 mb-1">Employee</label>
             <Select
               options={employees}
-              isLoading={loadingEmployees}
-              value={selectedEmployeeOption}
+              value={employees.find((e) => e.value === form.employeeId)}
               onChange={(opt) =>
-                setForm((p) => ({ ...p, employeeId: opt?.value || null }))
+                setForm((p) => ({ ...p, employeeId: opt?.value }))
               }
               placeholder="Select employee..."
-              isClearable
+              className="text-sm"
             />
+            <p className="text-gray-400 text-xs mt-1">
+              Select the employee for whom this OT permission applies.
+            </p>
           </div>
 
+          {/* OT Allowed Toggle */}
           <div className="flex items-center gap-3">
-            <input
-              id="isAllowed"
-              type="checkbox"
-              checked={Boolean(form.isAllowed)}
-              onChange={() =>
+            <label
+              className="flex items-center cursor-pointer"
+              onClick={() =>
                 setForm((p) => ({ ...p, isAllowed: !p.isAllowed }))
               }
-            />
-            <label htmlFor="isAllowed" className="text-sm">
-              Allow OT
+            >
+              <div
+                className={`relative w-11 h-6 transition-colors rounded-full ${
+                  form.isAllowed ? "bg-green-500" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                    form.isAllowed ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </div>
+              <span className="ml-3 text-gray-700 font-medium">Allow OT</span>
             </label>
+            <p className="text-gray-400 text-xs">
+              Enable to allow this employee to log overtime.
+            </p>
           </div>
 
+          {/* Max OT Hours */}
           <div>
-            <label className="block text-xs font-medium mb-1">
+            <label className="block text-gray-600 mb-1">
               Max OT Hours per Day
             </label>
             <input
               type="number"
-              className={inputClass}
+              placeholder="Enter max OT hours"
               value={form.maxOTHoursPerDay}
               onChange={(e) =>
                 setForm((p) => ({ ...p, maxOTHoursPerDay: e.target.value }))
               }
-              min={0}
+              className={inputClass}
             />
+            <p className="text-gray-400 text-xs mt-1">
+              Maximum hours allowed for OT per day.
+            </p>
           </div>
 
-          <div className="flex justify-end gap-3 text-sm">
+          {/* Start After Minutes */}
+          <div>
+            <label className="block text-gray-600 mb-1">
+              Start After Minutes
+            </label>
+            <input
+              type="number"
+              placeholder="Enter start after minutes"
+              value={form.startAfterMinutes}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, startAfterMinutes: e.target.value }))
+              }
+              className={inputClass}
+            />
+            <p className="text-gray-400 text-xs mt-1">
+              Employee can log OT only after these many minutes.
+            </p>
+          </div>
+
+          {/* FOOTER */}
+          <div className="flex justify-end border-t border-gray-300 text-sm gap-3 pt-4">
             <button
               type="button"
-              className="px-4 py-2 rounded-lg border border-gray-400 cursor-pointer"
               onClick={onClose}
-              disabled={saving}
+              className="px-4 py-2 rounded-lg border border-gray-300 cursor-pointer text-gray-700 hover:bg-gray-100"
             >
               Cancel
             </button>
-
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-primary cursor-pointer text-white disabled:opacity-60"
               disabled={saving}
+              className="px-4 py-2 rounded-lg bg-primary text-white cursor-pointer hover:opacity-90 disabled:opacity-50"
             >
               {saving ? "Saving..." : isEdit ? "Update" : "Create"}
             </button>

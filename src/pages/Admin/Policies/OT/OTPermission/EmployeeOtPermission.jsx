@@ -1,12 +1,10 @@
-// EmployeeOtPermission.jsx
 import React, { useEffect, useState } from "react";
-import { FiPlus, FiEdit2 } from "react-icons/fi";
+import { FiPlus, FiEdit2, FiSearch } from "react-icons/fi";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 import EmployeeOtPermissionForm from "./EmployeeOtPermissionForm";
 import assets from "../../../../../assets/assets";
 
-// GLOBAL CACHE — survives re-renders
 const employeeCache = {};
 
 export default function EmployeeOtPermission() {
@@ -16,26 +14,20 @@ export default function EmployeeOtPermission() {
   const [editData, setEditData] = useState(null);
   const [search, setSearch] = useState("");
 
-  // Fetch employee name + code
+  // Fetch employee name with cache
   const fetchEmployeeName = async (id) => {
     if (!id) return "";
-
-    // return from cache
     if (employeeCache[id]) return employeeCache[id];
 
     try {
       const res = await axiosInstance.get(`/Employee/${id}`);
       const emp = res?.data?.data;
-
-      const fullName = emp?.fullName || "";
-      const code = emp?.employeeCode || "";
-
-      const finalName = `${fullName} (${code})`;
-
-      employeeCache[id] = finalName; // store in cache
+      const finalName = `${emp?.fullName || ""} ${
+        emp?.employeeCode ? `(${emp.employeeCode})` : ""
+      }`;
+      employeeCache[id] = finalName;
       return finalName;
-    } catch (error) {
-      console.log("Employee fetch error:", error);
+    } catch {
       employeeCache[id] = "Unknown";
       return "Unknown";
     }
@@ -46,19 +38,15 @@ export default function EmployeeOtPermission() {
     try {
       const res = await axiosInstance.get("/EmployeeOTPermission/all");
       const list = res?.data?.data ?? [];
-
-      // enrich rows with employee name + code
       const enriched = await Promise.all(
         list.map(async (p) => ({
           ...p,
           employeeName: await fetchEmployeeName(p.employeeId),
-        }))
+        })),
       );
-
       setPermissions(enriched);
-    } catch (err) {
-      console.error(err);
-      // toast.error("Failed to load OT permissions");
+    } catch {
+      toast.error("Failed to fetch OT permissions");
     } finally {
       setLoading(false);
     }
@@ -68,67 +56,32 @@ export default function EmployeeOtPermission() {
     fetchPermissions();
   }, []);
 
-  const openCreate = () => {
-    setEditData(null);
-    setShowForm(true);
-  };
-
-  const openEdit = (row) => {
-    setEditData(row);
-    setShowForm(true);
-  };
-
-  const toggleAllowed = async (row) => {
-    try {
-      const payload = {
-        employeeId: row.employeeId,
-        isAllowed: !row.isAllowed,
-        maxOTHoursPerDay: row.maxOTHoursPerDay ?? 0,
-      };
-
-      await axiosInstance.post("/EmployeeOTPermission/createOrUpdate", payload);
-
-      toast.success(
-        `${row.employeeName || "Employee"} OT ${
-          payload.isAllowed ? "allowed" : "disallowed"
-        }`
-      );
-
-      fetchPermissions();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update permission");
-    }
-  };
-
   const filtered = permissions.filter((p) =>
-    (p.employeeName || "").toLowerCase().includes(search.trim().toLowerCase())
+    p.employeeName?.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const inputClass =
-  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
-
-
   return (
-    <>
+    <div className="bg-white min-h-screen">
       {/* HEADER */}
-      <div className="sticky top-14 bg-white shadow-sm px-4 py-2 mb-2 flex justify-between items-center z-10">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Employee OT Permissions
-        </h2>
 
-        <div className="flex gap-2 items-center">
+      <div className="px-4 py-2 shadow sticky top-14 bg-white z-10 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
+        <h2 className="font-semibold text-xl">Employee OT Permissions</h2>
+
+        <div className="relative flex gap-2 w-full md:w-64">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by employee name..."
+            placeholder="Search employees..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={inputClass}
+            className="pl-10 pr-3 py-1 w-full rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
-
           <button
-            onClick={openCreate}
-            className="flex items-center cursor-pointer text-xs gap-2 px-3 py-2 bg-primary text-white rounded"
+            onClick={() => {
+              setEditData(null);
+              setShowForm(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 cursor-pointer text-sm transition"
           >
             <FiPlus /> Add
           </button>
@@ -136,96 +89,67 @@ export default function EmployeeOtPermission() {
       </div>
 
       {/* TABLE */}
-      <div className="bg-white shadow rounded overflow-x-auto">
-        <table className="min-w-full text-sm text-center">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="px-3 py-2">S.No</th>
-              <th className="px-3 py-2">Employee Name</th>
-              <th className="px-3 py-2">Allowed</th>
-              <th className="px-3 py-2">Max OT / day</th>
-              <th className="px-3 py-2">Actions</th>
+      <div className="bg-white shadow-md rounded-xl overflow-x-auto p-4">
+        <table className="min-w-full text-xs text-center border-collapse">
+          <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
+            <tr className="border-b border-gray-200">
+              <th className="px-4 py-3">S.No</th>
+              <th className="px-4 py-3">Employee</th>
+              <th className="px-4 py-3">Allowed</th>
+              <th className="px-4 py-3">Max OT</th>
+              <th className="px-4 py-3">Start After (min)</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
+                <td colSpan={6} className="p-6 text-gray-500 font-medium">
                   Loading...
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-10">
-                  <div className="flex flex-col items-center justify-center text-center">
-                    <img
-                      src={assets.NoData}
-                      alt="No Data Found"
-                      className="w-64 mb-2 opacity-90"
-                    />
-
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      {search
-                        ? "No Matching Employees"
-                        : "No OT Permissions Configured"}
-                    </h3>
-
-                    <p className="mt-2 text-sm text-gray-500 max-w-md">
-                      {search
-                        ? "Try adjusting your search or clear the filter to see all employees."
-                        : "Overtime permissions have not been configured yet. Add a permission to allow employees to work overtime."}
-                    </p>
-
-                    <div className="mt-6 flex gap-3">
-                      {search && (
-                        <button
-                          onClick={() => setSearch("")}
-                          className="px-4 py-2 rounded border border-gray-200 cursor-pointer text-sm hover:bg-gray-50"
-                        >
-                          Clear Search
-                        </button>
-                      )}
-
-                      <button
-                        onClick={openCreate}
-                        className="px-4 py-2 rounded bg-primary cursor-pointer text-white text-sm hover:bg-secondary"
-                      >
-                        <FiPlus className="inline mr-1" />
-                        Add OT Permission
-                      </button>
-                    </div>
-                  </div>
+                <td colSpan={6} className="py-16 text-center text-gray-400">
+                  <img
+                    src={assets.NoData}
+                    alt="No Data"
+                    className="w-64 mx-auto mb-3"
+                  />
+                  No OT Permissions Found
                 </td>
               </tr>
             ) : (
               filtered.map((row, idx) => (
-                <tr key={row.id} className="border-t border-gray-200 text-xs">
-                  <td className="px-3 py-2">{idx + 1}.</td>
-
-                  <td className="px-3 py-2 font-medium">{row.employeeName}</td>
-
-                  <td className="px-3 py-2">
-                    <button
-                      onClick={() => toggleAllowed(row)}
-                      className={`px-2 py-1 rounded text-xs ${
+                <tr
+                  key={row.id}
+                  className="border-t border-gray-200 hover:bg-gray-50 transition"
+                >
+                  <td className="px-4 py-2">{idx + 1}.</td>
+                  <td className="px-4 py-2">{row.employeeName}</td>
+                  <td className="px-4 py-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         row.isAllowed
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
                       }`}
                     >
-                      {row.isAllowed ? "Allowed" : "Not allowed"}
-                    </button>
+                      {row.isAllowed ? "Allowed" : "Not Allowed"}
+                    </span>
                   </td>
-
-                  <td className="px-3 py-2">{row.maxOTHoursPerDay ?? "—"}</td>
-
-                  <td className="px-3 py-2 flex justify-center">
+                  <td className="px-4 py-2">{row.maxOTHoursPerDay} hr.</td>
+                  <td className="px-4 py-2">{row.startAfterMinutes} min</td>
+                  <td className="px-4 py-2 flex items-center justify-center gap-2">
                     <button
-                      onClick={() => openEdit(row)}
-                      className="flex items-center gap-1 text-blue-600 px-2 py-1 rounded bg-blue-50 hover:bg-blue-100 cursor-pointer"
+                      onClick={() => {
+                        setEditData(row);
+                        setShowForm(true);
+                      }}
+                      className="flex items-center gap-1 text-blue-600 cursor-pointer bg-blue-50 px-2 py-1 rounded-lg text-xs hover:bg-blue-100 transition"
                     >
-                      <FiEdit2 size={16} /> Edit
+                      <FiEdit2 size={14} /> Edit
                     </button>
                   </td>
                 </tr>
@@ -235,20 +159,17 @@ export default function EmployeeOtPermission() {
         </table>
       </div>
 
+      {/* MODAL FORM */}
       {showForm && (
         <EmployeeOtPermissionForm
           initialData={editData}
-          onClose={() => {
-            setShowForm(false);
-            setEditData(null);
-          }}
+          onClose={() => setShowForm(false)}
           onSuccess={() => {
             setShowForm(false);
-            setEditData(null);
             fetchPermissions();
           }}
         />
       )}
-    </>
+    </div>
   );
 }

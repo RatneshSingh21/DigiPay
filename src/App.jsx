@@ -73,6 +73,7 @@ import DepartmentAuthorityList from "./pages/Admin/Role/DepartmentManager/Depart
 //Admin Shift Pages
 import Shifts from "./pages/Admin/Shift/Shifts";
 import ShiftMapping from "./pages/Admin/Shift/ShiftMapping";
+import ShiftPatternPage from "./pages/Admin/Shift/ShiftPattern/ShiftPatternPage";
 
 //Admin Attendance Pages
 import AttendanceAllPunches from "./pages/Admin/Attendance/AttendanceAllPunches/AttendanceAllPunches";
@@ -159,6 +160,7 @@ import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals"
 
 //Admin Salary Pages
 import SalaryPolicy from "./pages/NEWSALARYLOGIC/SalaryPolicy";
+
 
 
 
@@ -338,6 +340,7 @@ const App = () => {
                     <Route path="payschedule" element={<PaySchedule />} />
                     <Route path="add-shift" element={<Shifts />} />
                     <Route path="mapp-shift" element={<ShiftMapping />} />
+                    <Route path="shift-patterns" element={<ShiftPatternPage />} />
                   </Route>
 
                   {/* Attendance SubRoutes */}

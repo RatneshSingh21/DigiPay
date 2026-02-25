@@ -114,13 +114,13 @@ const AdminAttendanceChart = () => {
       ) : (
         <>
           {/* ===== DONUT CHART ===== */}
-          <div className="relative h-72">
+          <div className="relative h-60">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={chartData}
-                  innerRadius={70}
-                  outerRadius={100}
+                  innerRadius={55}
+                  outerRadius={80}
                   dataKey="value"
                   label={({ percent, value }) =>
                     `${value} (${(percent * 100).toFixed(0)}%)`

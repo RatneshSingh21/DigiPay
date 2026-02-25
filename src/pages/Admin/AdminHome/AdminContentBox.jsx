@@ -98,7 +98,7 @@ const submenuMap = {
     "Travel Details",
   ],
 
-  "Payschedule-Shifts": ["PaySchedule", "Add Shift", "Shift Mapping"],
+  "Payschedule-Shifts": ["PaySchedule", "Add Shift", "Shift Mapping","Shift Patterns"],
 
   Settings: [
     "Organisation Profile",

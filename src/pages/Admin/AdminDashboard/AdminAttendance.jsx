@@ -271,7 +271,7 @@ const AdminAttendance = () => {
                   <td className="px-4 py-3 text-center">
                     {att.inTime ? (
                       <span
-                        className={`flex items-center gap-2 font-medium ${
+                        className={`flex items-center justify-center gap-2 font-medium ${
                           att.inLocation
                             ? "cursor-pointer text-green-600"
                             : "text-green-400"
@@ -302,10 +302,10 @@ const AdminAttendance = () => {
                   </td>
 
                   {/* Out Time */}
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center">
                     {att.outTime ? (
                       <span
-                        className={`flex items-center gap-2 font-medium ${
+                        className={`flex items-center justify-center gap-2 font-medium ${
                           att.outLocation
                             ? "cursor-pointer text-red-600"
                             : "text-red-400"

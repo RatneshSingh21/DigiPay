@@ -3,7 +3,8 @@ import AdminSchedule from "./AdminSchedule";
 import AdminSummaryCards from "./AdminSummaryCards";
 import PayrollExpenseTrend from "./PayrollExpenseTrend";
 import AdminAttendanceChart from "./AdminAttendanceChart";
-
+import ShiftDashboard from "./ShiftDashboard";
+import AdminUpcomingBirthdays from "./AdminUpcomingBirthdays";
 
 const AdminDashboard = () => {
   return (
@@ -16,13 +17,15 @@ const AdminDashboard = () => {
         {/* LEFT SIDE */}
         <div className="lg:col-span-2 space-y-6">
           <AdminAttendance />
-          <PayrollExpenseTrend />
+          <ShiftDashboard />
+          {/* <PayrollExpenseTrend /> */}
         </div>
 
         {/* RIGHT SIDE */}
         <div className="space-y-6">
           <AdminAttendanceChart />
-          <AdminSchedule />
+          <AdminUpcomingBirthdays />
+          {/* <AdminSchedule /> */}
         </div>
       </div>
     </div>

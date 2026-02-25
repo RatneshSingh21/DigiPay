@@ -69,6 +69,7 @@ const labelToPath = {
   //Shifts
   "Add Shift": "add-shift",
   "Shift Mapping": "mapp-shift",
+  "Shift Patterns": "shift-patterns",
 
   //Attendance
   Attendance: "attendance",
@@ -182,6 +183,7 @@ const labelToIcon = {
   // Shifts
   "Add Shift": <CalendarDays size={16} className="mr-2" />,
   "Shift Mapping": <GitBranch size={16} className="mr-2" />,
+  "Shift Patterns": <CalendarCheck size={16} className="mr-2" />,
 
   // Attendance
   Attendance: <UserCheck size={16} className="mr-2" />,
