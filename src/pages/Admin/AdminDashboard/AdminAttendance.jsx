@@ -204,7 +204,7 @@ const AdminAttendance = () => {
                 setActiveTab(tab);
                 setCurrentPage(1);
               }}
-              className={`px-4 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              className={`px-4 py-1.5 text-xs font-medium rounded-lg cursor-pointer transition-all ${
                 activeTab === tab
                   ? "bg-white text-primary shadow"
                   : "text-gray-600 hover:text-primary"

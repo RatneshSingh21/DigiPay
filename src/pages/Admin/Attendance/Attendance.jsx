@@ -7,6 +7,7 @@ import AttendanceList from "./components/AttendanceList";
 import EditAttendanceModal from "./components/EditAttendanceModal";
 import EditHistoryModal from "./components/EditHistoryModal";
 import useAuthStore from "../../../store/authStore";
+import EmployeeWiseAttendance from "./components/EmployeeWiseAttendance";
 // import ExportMonthlyAttendancePdfModal from "./ExportMonthlyAttendancePdf/ExportMonthlyAttendancePdf";
 
 const Attendance = () => {
@@ -30,6 +31,8 @@ const Attendance = () => {
 
   const [historyPage, setHistoryPage] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(5);
+
+  const [viewMode, setViewMode] = useState("DATE");
 
   const formatTotalHours = (inTime, outTime) => {
     if (!inTime || !outTime) return "-";
@@ -204,22 +207,32 @@ const Attendance = () => {
         setSearchQuery={setSearchQuery}
         onRefresh={fetchAttendance}
         onOpenHistory={fetchAllEditHistory}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
         // onOpenExport={() => setIsExportOpen(true)}
       />
 
-      <AttendanceList
-        attendanceData={attendanceData}
-        employees={employees}
-        searchQuery={searchQuery}
-        openDates={openDates}
-        setOpenDates={setOpenDates}
-        onEdit={(item) => {
-          setEditData(item);
-          setEditPunchType("IN");
-          setRemark("");
-          setIsEditOpen(true);
-        }}
-      />
+      {viewMode === "DATE" ? (
+        <AttendanceList
+          attendanceData={attendanceData}
+          employees={employees}
+          searchQuery={searchQuery}
+          openDates={openDates}
+          setOpenDates={setOpenDates}
+          onEdit={(item) => {
+            setEditData(item);
+            setEditPunchType("IN");
+            setRemark("");
+            setIsEditOpen(true);
+          }}
+        />
+      ) : (
+        <EmployeeWiseAttendance
+          employees={employees}
+          attendanceData={attendanceData}
+          searchQuery={searchQuery}
+        />
+      )}
 
       <EditHistoryModal
         isOpen={isHistoryOpen}

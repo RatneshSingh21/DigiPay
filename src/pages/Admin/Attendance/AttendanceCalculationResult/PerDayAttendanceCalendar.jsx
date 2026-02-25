@@ -1,181 +1,286 @@
-import React from "react";
-import Tippy from "@tippyjs/react";
-import "tippy.js/dist/tippy.css";
+import React, { useState, useMemo } from "react";
 
 const PerDayAttendanceCalendar = ({ perDayDetails = [] }) => {
-  if (!perDayDetails.length)
-    return (
-      <p className="text-gray-500 text-center mt-4">
-        No per-day data available.
-      </p>
-    );
+  const today = new Date();
 
-  // Sort days
-  const sortedDays = [...perDayDetails].sort(
-    (a, b) => new Date(a.date) - new Date(b.date)
-  );
+  // Detect default month/year from API data if exists
+  const defaultDate = perDayDetails.length
+    ? new Date(perDayDetails[0].date)
+    : today;
 
-  const firstDate = new Date(sortedDays[0].date);
-  const year = firstDate.getFullYear();
-  const month = firstDate.getMonth();
+  const [selectedMonth, setSelectedMonth] = useState(defaultDate.getMonth());
+  const [selectedYear, setSelectedYear] = useState(defaultDate.getFullYear());
 
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  // Map data for faster lookup
+  const mappedData = useMemo(() => {
+    const map = {};
+    perDayDetails.forEach((d) => {
+      const date = new Date(d.date);
+      const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      map[key] = d;
+    });
+    return map;
+  }, [perDayDetails]);
+
+  const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+
+  const firstDayOfWeek = new Date(selectedYear, selectedMonth, 1).getDay();
+
   const calendar = [];
-  const firstDayOfWeek = new Date(year, month, 1).getDay();
 
-  for (let i = 0; i < firstDayOfWeek; i++) calendar.push(null);
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dayData = sortedDays.find((d) => new Date(d.date).getDate() === day);
-    calendar.push(dayData || { date: new Date(year, month, day) });
+  // Empty slots before month start
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    calendar.push(null);
   }
 
-  const getStatusColor = (day) => {
-    if (!day || (!day.inTime && !day.outTime)) return "bg-white";
-    if (day.isAbsent) return "bg-red-100 text-red-800";
-    if (day.isHalfDay) return "bg-yellow-100 text-yellow-800";
-    return "bg-green-100 text-green-800"; // Present
-  };
+  // Fill month days
+  for (let day = 1; day <= daysInMonth; day++) {
+    const key = `${selectedYear}-${selectedMonth}-${day}`;
+    const existingData = mappedData[key];
 
-  const getStatusDotColor = (day) => {
-    if (!day || (!day.inTime && !day.outTime)) return "";
-    if (day.isAbsent) return "bg-red-500";
-    if (day.isHalfDay) return "bg-yellow-500";
-    return "bg-green-500";
-  };
+    calendar.push(
+      existingData || {
+        date: new Date(selectedYear, selectedMonth, day),
+      },
+    );
+  }
 
   const isWeekend = (date) => {
     const d = new Date(date);
     return d.getDay() === 0 || d.getDay() === 6;
   };
 
+  const getStatusColor = (day) => {
+    // No record
+    if (!day.inTime && !day.outTime && !day.isAbsent && !day.isHalfDay)
+      return "bg-gray-100 border-gray-200";
+
+    // Absent
+    if (day.isAbsent) return "bg-red-50 border-red-200";
+
+    // Half Day
+    if (day.isHalfDay) return "bg-yellow-50 border-yellow-200";
+
+    // Present
+    if (day.inTime || day.outTime) return "bg-green-50 border-green-200";
+
+    return "bg-gray-100 border-gray-200";
+  };
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const yearOptions = [];
+  for (let y = selectedYear - 5; y <= selectedYear + 2; y++) {
+    yearOptions.push(y);
+  }
+
   return (
-    <div className="max-h-[70vh] overflow-y-auto p-2">
-      {/* Show Month Name */}
-    <h3 className="text-center text-md font-bold mb-2">
-      {firstDate.toLocaleString("default", { month: "long", year: "numeric" })}
-    </h3>
+    <div className="max-h-[70vh] overflow-y-auto p-3 relative">
+      {/* Month & Year Selector */}
+      <div className="flex justify-center items-center gap-4 mb-4 absolute  right-4">
+        {/* Month Selector */}
+        <div className="relative">
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+            className="
+              appearance-none
+              bg-white
+              border border-gray-300
+              rounded-lg
+              px-4 pr-10 py-2
+              text-sm font-medium text-gray-700
+              shadow-sm
+              focus:outline-none
+              focus:ring-2 focus:ring-indigo-500
+              focus:border-indigo-500
+              transition
+              cursor-pointer
+            "
+          >
+            {Array.from({ length: 12 }).map((_, index) => (
+              <option key={index} value={index}>
+                {new Date(0, index).toLocaleString("default", {
+                  month: "long",
+                })}
+              </option>
+            ))}
+          </select>
 
-    <h4 className="font-semibold text-gray-700 mb-4 text-center text-md">
-      Daily Attendance (Monthly Calendar)
-    </h4>
+          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+            ▼
+          </div>
+        </div>
 
-      {/* Weekday headers */}
+        {/* Year Selector */}
+        <div className="relative">
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            className="
+              appearance-none
+              bg-white
+              border border-gray-300
+              rounded-lg
+              px-4 pr-10 py-2
+              text-sm font-medium text-gray-700
+              shadow-sm
+              focus:outline-none
+              focus:ring-2 focus:ring-indigo-500
+              focus:border-indigo-500
+              transition
+              cursor-pointer
+            "
+                >
+            {Array.from({ length: 5 }).map((_, index) => {
+              const year = today.getFullYear() - 2 + index;
+              return (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              );
+            })}
+          </select>
+
+          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+            ▼
+          </div>
+        </div>
+      </div>
+
+      <h4 className="text-center font-semibold text-gray-700 mb-3">
+        Monthly Attendance Calculations
+      </h4>
+
+      {/* Weekdays */}
       <div className="grid grid-cols-7 gap-1 text-center font-medium text-gray-600 mb-2">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
           <div key={d}>{d}</div>
         ))}
       </div>
 
-      {/* Calendar grid */}
+      {/* Calendar */}
       <div className="grid grid-cols-7 gap-1 text-xs">
         {calendar.map((day, idx) => {
-          if (!day) return <div key={idx} className="p-3"></div>;
+          if (!day) return <div key={idx} />;
 
           const hasData = day.inTime || day.outTime;
 
           return (
-            <Tippy
+            <div
               key={idx}
-              content={
-                hasData ? (
-                  <div className="text-xs text-white space-y-1">
-                    <div>
-                      <strong>In:</strong>{" "}
-                      {day.inTime
-                        ? new Date(day.inTime).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "-"}
-                    </div>
-                    <div>
-                      <strong>Out:</strong>{" "}
-                      {day.outTime
-                        ? new Date(day.outTime).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "-"}
-                    </div>
-                    <div>
-                      <strong>Total Hours:</strong>{" "}
-                      {day.totalHoursWorked.toFixed(4) || 0}
-                    </div>
-                    <div>
-                      <strong>Late:</strong> {day.lateMinutes || 0} min
-                    </div>
-                    <div>
-                      <strong>Early Leave:</strong> {day.earlyLeaveMinutes || 0}{" "}
-                      min
-                    </div>
-                  </div>
-                ) : (
-                  "No data"
-                )
-              }
-              placement="top"
-              animation="scale"
+              className={`
+                relative
+                min-h-[110px]
+                p-2
+                rounded-xl
+                border
+                shadow-sm
+                transition-all
+                flex
+                flex-col
+                ${getStatusColor(day)}
+                ${isWeekend(day.date) ? "opacity-90" : ""}
+                hover:shadow-md
+              `}
             >
-              <div
-                className={`relative cursor-pointer flex flex-col items-center justify-center p-2 rounded-lg shadow-sm border transition-all
-                ${isWeekend(day.date) ? "bg-gray-50" : getStatusColor(day)}
-                hover:shadow-md`}
-              >
-                {hasData && (
-                  <span
-                    className={`absolute top-1 right-1 w-2 h-2 rounded-full ${getStatusDotColor(
-                      day
-                    )}`}
-                  />
-                )}
-
-                {/* Day Number */}
-                <div className="text-sm font-semibold">
-                  {new Date(day.date).getDate()}
-                </div>
-
-                {/* Hours */}
-                {day.totalHoursWorked && (
-                  <div className="text-xs text-gray-700 mt-1">
-                    {day.totalHoursWorked.toFixed(4)} hrs
-                  </div>
-                )}
-
-                {/* Late/Early label */}
-                {(day.lateMinutes || day.earlyLeaveMinutes) && (
-                  <div className="mt-1 flex space-x-1">
-                    {day.lateMinutes > 0 && (
-                      <span className="text-xs text-orange-600 font-medium">
-                        L:{day.lateMinutes}
-                      </span>
-                    )}
-                    {day.earlyLeaveMinutes > 0 && (
-                      <span className="text-xs text-red-600 font-medium">
-                        E:{day.earlyLeaveMinutes}
-                      </span>
-                    )}
-                  </div>
-                )}
+              {/* Date */}
+              <div className="font-semibold text-sm mb-1">
+                {new Date(day.date).getDate()}
               </div>
-            </Tippy>
+
+              {hasData ? (
+                <div className="space-y-1 text-[10px]">
+                  {/* In */}
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">In</span>
+                    <span>
+                      {new Date(day.inTime).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+
+                  {/* Out */}
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Out</span>
+                    <span>
+                      {new Date(day.outTime).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+
+                  {/* Hours */}
+                  <div className="flex justify-between border-t border-gray-300 pt-1">
+                    <span className="text-gray-500">Hrs</span>
+                    <span className="font-semibold text-indigo-600">
+                      {day.totalHoursWorked?.toFixed(2)}
+                    </span>
+                  </div>
+
+                  {/* Late */}
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Late</span>
+                    <span className="text-yellow-600">
+                      {day.lateMinutes || 0}m
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between gap-1">
+                    {/* OT */}
+                    <div className="flex justify-between gap-2">
+                      <span className="text-gray-500">OT</span>
+                      <span className="text-green-600">
+                        {day.otMinutes || 0}m
+                      </span>
+                    </div>
+
+                    {/* Early Leave */}
+                    <div className="flex justify-between gap-2">
+                      <span className="text-gray-500">Early</span>
+                      <span className="text-red-600">
+                        {day.earlyLeaveMinutes || 0}m
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-400 text-center mt-4">No Record</div>
+              )}
+            </div>
           );
         })}
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center space-x-4 mt-4 text-xs">
-        <div className="flex items-center space-x-1">
+      <div className="flex justify-center gap-4 mt-4 text-xs">
+        <div className="flex items-center gap-1">
           <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-          <span>Present</span>
+          Present
         </div>
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center gap-1">
           <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
-          <span>Half Day</span>
+          Half Day
         </div>
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center gap-1">
           <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-          <span>Absent</span>
+          Absent
         </div>
       </div>
     </div>

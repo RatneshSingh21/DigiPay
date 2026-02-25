@@ -5,27 +5,6 @@ const inputClass =
   "h-10 rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white";
 
 const AttendanceToolbar = ({ selectedDate, setSelectedDate, onSync }) => {
-  
-  useEffect(() => {
-  if (!onSync) return;
-
-  const autoSync = () => {
-    if (document.hidden) return; // optional safety
-    onSync();
-    console.log("Auto-sync executed (5 hours)");
-  };
-
-  // ▶️ Optional: run once when component loads
-  autoSync();
-
-  // ⏰ Run every 5 hours
-  const interval = setInterval(() => {
-    autoSync();
-  }, 5 * 60 * 60 * 1000); // 5 hours
-
-  return () => clearInterval(interval);
-}, [onSync]);
-  
   return (
     <div
       className="

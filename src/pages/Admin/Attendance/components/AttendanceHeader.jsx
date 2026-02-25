@@ -5,12 +5,38 @@ const AttendanceHeader = ({
   setSearchQuery,
   onRefresh,
   onOpenHistory,
+  viewMode,
+  setViewMode,
   // onOpenExport,
 }) => (
   <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
     <h2 className="font-semibold text-xl">Attendance</h2>
 
-    <div className="flex gap-2">
+    <div className="flex gap-3 items-center">
+      {/* Toggle Switch */}
+      <div className="flex bg-gray-100 rounded-lg p-1 text-xs">
+        <button
+          onClick={() => setViewMode("DATE")}
+          className={`px-4 py-1.5 rounded-md font-medium cursor-pointer transition ${
+            viewMode === "DATE"
+              ? "bg-white shadow text-indigo-600"
+              : "text-gray-600"
+          }`}
+        >
+          Date_Wise
+        </button>
+
+        <button
+          onClick={() => setViewMode("EMPLOYEE")}
+          className={`px-4 py-1.5 rounded-md font-medium cursor-pointer transition ${
+            viewMode === "EMPLOYEE"
+              ? "bg-white shadow text-primary"
+              : "text-gray-600"
+          }`}
+        >
+          Employee_Wise
+        </button>
+      </div>
       <input
         className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         placeholder="Search employee..."

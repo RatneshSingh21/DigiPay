@@ -5,6 +5,7 @@ import AttendanceResultTable from "./AttendanceResultTable";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import Spinner from "../../../../components/Spinner";
 import { FiPlus } from "react-icons/fi";
+import { XIcon } from "lucide-react";
 
 const AttendanceCalculationResult = () => {
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,7 @@ const AttendanceCalculationResult = () => {
       setLoading(true);
       const res = await axiosInstance.get("/AttendanceCalculationResult/all");
       setResults(res.data.response || []);
+      console.log(res.data.response);
     } catch {
       toast.error("Failed to fetch attendance results");
     } finally {
@@ -106,7 +108,7 @@ const AttendanceCalculationResult = () => {
               onClick={() => setShowForm(false)}
               className="absolute cursor-pointer text-lg top-3 right-3 text-gray-500 hover:text-gray-800"
             >
-              ✕
+              <XIcon className="h-5 w-5" />
             </button>
             <AttendanceCalculationForm
               onSuccess={() => {

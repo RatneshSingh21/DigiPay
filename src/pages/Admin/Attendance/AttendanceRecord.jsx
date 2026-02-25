@@ -9,6 +9,7 @@ import AddAttendanceModal from "./AttendanceRecord/AddAttendanceModal";
 import GenerateMonthlyModal from "./AttendanceRecord/GenerateMonthlyModal";
 import GenerateDateModal from "./AttendanceRecord/GenerateDateModal";
 import AttendanceTable from "./AttendanceRecord/AttendanceTable";
+import EmployeeWiseRecord from "./AttendanceRecord/EmployeeWiseRecord";
 
 const AttendanceRecord = () => {
   const [employees, setEmployees] = useState([]);
@@ -17,9 +18,8 @@ const AttendanceRecord = () => {
   const [filteredRecords, setFilteredRecords] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [filterEmployee, setFilterEmployee] = useState(null);
-  const [filterDate, setFilterDate] = useState("");
-  const [filterMonth, setFilterMonth] = useState("");
+  const [viewMode, setViewMode] = useState("date");
+  // "date" | "employee"
 
   // Modals
   const [showAdd, setShowAdd] = useState(false);
@@ -86,61 +86,10 @@ const AttendanceRecord = () => {
     }
   };
 
-  // Filters
-  const applyFilters = () => {
-    let list = [...records];
-
-    if (filterEmployee) {
-      list = list.filter((r) => r.employeeId === filterEmployee.value);
-    }
-
-    if (filterDate) {
-      list = list.filter((r) => r.attendanceDate.startsWith(filterDate));
-    }
-
-    if (filterMonth) {
-      const [yr, mo] = filterMonth.split("-");
-      list = list.filter((r) => {
-        const d = new Date(r.attendanceDate);
-        return (
-          d.getFullYear().toString() === yr &&
-          (d.getMonth() + 1).toString().padStart(2, "0") === mo
-        );
-      });
-    }
-
-    setFilteredRecords(list);
-  };
-
-  // Reset Filters
-  const resetFilters = () => {
-    setFilterEmployee(null);
-    setFilterDate("");
-    setFilterMonth("");
-    setFilteredRecords(records);
-  };
-
   useEffect(() => {
     loadEmployees();
     loadRecords();
   }, []);
-
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: "42px",
-      height: "42px",
-      fontSize: "14px",
-    }),
-    valueContainer: (base) => ({
-      ...base,
-      height: "42px",
-      padding: "0 8px",
-    }),
-  };
-
-  const inputClass =
-    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
   return (
     <>
@@ -150,87 +99,67 @@ const AttendanceRecord = () => {
           <h2 className="font-semibold text-xl">Attendance Records</h2>
           <div className="flex gap-3 text-sm">
             <button
-              className="bg-primary text-white cursor-pointer px-4 py-2 rounded flex items-center gap-2"
+              className="bg-primary text-white cursor-pointer px-4 py-2 rounded-md flex items-center gap-2"
               onClick={() => setShowAdd(true)}
             >
               <FaPlus /> Add Attendance
             </button>
 
             <button
-              className="bg-blue-600 text-white px-4 cursor-pointer py-2 rounded flex items-center gap-2"
+              className="bg-blue-600 text-white px-4 cursor-pointer py-2 rounded-md flex items-center gap-2"
               onClick={() => setShowMonthly(true)}
             >
               <FaRegCalendarAlt /> Generate Monthly
             </button>
 
             <button
-              className="bg-green-600 text-white cursor-pointer px-4 py-2 rounded flex items-center gap-2"
+              className="bg-green-600 text-white cursor-pointer px-4 py-2 rounded-md flex items-center gap-2"
               onClick={() => setShowDate(true)}
             >
               <FaCalendarDay /> Generate Date
             </button>
           </div>
         </div>
+      </div>
 
-        {/* FILTERS */}
-        <div className="bg-white grid grid-cols-1 sm:grid-cols-5 gap-4 p-6 border-t border-gray-200 shadow-sm">
-          {/* Employee Select */}
-          <Select
-            options={employees}
-            value={filterEmployee}
-            onChange={setFilterEmployee}
-            placeholder="Employee"
-            styles={selectStyles}
-          />
+      <div className="flex gap-2 px-4 mt-4">
+        <button
+          onClick={() => setViewMode("date")}
+          className={`px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition ${
+            viewMode === "date"
+              ? "bg-primary text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          Date_Wise
+        </button>
 
-          {/* Date */}
-          <input
-            type="date"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            className={`${inputClass} h-[38px]`}
-          />
-
-          {/* Month */}
-          <div className="relative">
-            {!filterMonth && (
-              <span className="absolute left-3 top-[10px] text-gray-400 font-bold pointer-events-none text-sm">
-                Select Month
-              </span>
-            )}
-
-            <input
-              type="month"
-              value={filterMonth}
-              onChange={(e) => setFilterMonth(e.target.value)}
-              className={`${inputClass} h-[38px] text-sm w-full relative`}
-            />
-          </div>
-
-          {/* Apply */}
-          <button
-            onClick={applyFilters}
-            className="bg-primary cursor-pointer text-white px-4 rounded h-[42px]"
-          >
-            Apply
-          </button>
-
-          {/* Reset */}
-          <button
-            onClick={resetFilters}
-            className="bg-gray-300 cursor-pointer px-4 rounded h-[42px]"
-          >
-            Reset
-          </button>
-        </div>
+        <button
+          onClick={() => setViewMode("employee")}
+          className={`px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition ${
+            viewMode === "employee"
+              ? "bg-primary text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          Employee_Wise
+        </button>
       </div>
 
       {/* RECORDS TABLE (SEPARATE COMPONENT) */}
-      <AttendanceTable
-        records={filteredRecords}
-        employeeCache={employeeCache}
-        loading={loading}
-      />
+      {viewMode === "date" ? (
+        <AttendanceTable
+          records={filteredRecords}
+          employeeCache={employeeCache}
+          loading={loading}
+        />
+      ) : (
+        <EmployeeWiseRecord
+          records={filteredRecords}
+          employees={employees}
+          employeeCache={employeeCache}
+        />
+      )}
 
       {/* MODALS */}
       <AddAttendanceModal

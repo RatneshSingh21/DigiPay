@@ -4,7 +4,7 @@ import AttendanceRow from "./AttendanceRow";
 import { toast } from "react-toastify";
 import { SearchX, CalendarX } from "lucide-react";
 
-const DailyAttendanceTable = () => {
+const DailyAttendanceTable = ({ date }) => {
   const [groupedData, setGroupedData] = useState({});
   const [employees, setEmployees] = useState({});
   const [openDate, setOpenDate] = useState(null);
@@ -36,7 +36,7 @@ const DailyAttendanceTable = () => {
       });
 
       setGroupedData(sortedGrouped);
-      setOpenDate(sortedDates[0]);
+      setOpenDate(date);
 
       const uniqueEmpIds = [...new Set(data.map((r) => r.employeeId))];
       fetchEmployees(uniqueEmpIds);
@@ -68,7 +68,7 @@ const DailyAttendanceTable = () => {
 
   useEffect(() => {
     fetchAttendance();
-  }, []);
+  }, [date]);
 
   const formatDateDDMMYYYY = (dateStr) => {
     const [year, month, day] = dateStr.split("-");

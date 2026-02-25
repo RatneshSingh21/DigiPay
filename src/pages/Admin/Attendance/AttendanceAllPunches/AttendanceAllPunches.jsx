@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import AttendanceToolbar from "./AttendanceToolbar";
 import DailyAttendanceTable from "./DailyAttendanceTable";
 
 const AttendanceAllPunches = () => {
+  const isFirstRender = useRef(true);
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
 
@@ -17,6 +18,15 @@ const AttendanceAllPunches = () => {
     } catch (err) {
       console.error("Attendance generation error:", err);
     }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    handleSync();
   }, [selectedDate]);
 
   return (
