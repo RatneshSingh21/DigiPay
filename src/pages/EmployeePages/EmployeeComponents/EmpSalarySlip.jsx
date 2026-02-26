@@ -156,7 +156,7 @@ const EmpSalarySlip = () => {
           <select
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
-            className="border border-gray-300 rounded px-3 py-2 text-sm"
+            className="mt-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             {months.map((m, i) => (
               <option key={i + 1} value={i + 1}>
@@ -168,7 +168,7 @@ const EmpSalarySlip = () => {
           <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="border border-gray-300 rounded px-3 py-2 text-sm"
+            className="mt-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             {years.map((y) => (
               <option key={y} value={y}>
@@ -180,7 +180,7 @@ const EmpSalarySlip = () => {
           {data && (
             <button
               onClick={handlePrint}
-              className="px-4 py-2 bg-primary text-white rounded shadow hover:bg-secondary transition cursor-pointer"
+              className="px-4 py-2 bg-primary text-white rounded text-sm shadow hover:bg-secondary transition cursor-pointer"
             >
               Print Slip
             </button>

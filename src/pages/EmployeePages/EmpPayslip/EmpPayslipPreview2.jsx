@@ -109,7 +109,7 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
   /* ================= UI (UNCHANGED) ================= */
 
   return (
-    <div className="bg-white shadow-lg p-8 border rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
+    <div className="bg-white shadow-lg p-8 border border-gray-200 rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
       {/* ================= HEADER ================= */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1 pr-6">
@@ -133,12 +133,12 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
       </div>
 
       {/* ================= TITLE ================= */}
-      <h2 className="text-base font-bold border-b pb-1 mb-4">
+      <h2 className="text-base font-bold border-b border-gray-400 pb-1 mb-4">
         Payslip for the month of {payMonthYear}
       </h2>
 
       {/* ================= EMPLOYEE INFO ================= */}
-      <table className="w-full border mb-6 text-sm">
+      <table className="w-full border border-gray-400 mb-6 text-sm">
         <tbody>
           <Row label="Employee Name" value={employee.fullName} />
           <Row label="Employee Code" value={employee.employeeCode} />
@@ -182,7 +182,7 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
 
       {/* ================= NET PAY ================= */}
       <div className="flex justify-end mb-6">
-        <div className="border p-4 bg-gray-50 rounded w-64 text-right">
+        <div className="border border-gray-400 p-4 bg-gray-50 rounded w-64 text-right">
           <p className="text-gray-600">Total Net Pay</p>
           <p className="text-green-600 text-2xl font-bold">
             ₹{netPay.toLocaleString("en-IN")}
@@ -232,7 +232,7 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
       </div>
 
       {/* ================= FOOTER ================= */}
-      <div className="bg-green-100 p-4 rounded font-semibold">
+      <div className="bg-green-100 border border-green-400 p-4 rounded font-semibold">
         Total Net Payable: ₹{netPay.toLocaleString("en-IN")} (
         <AmountInWords amount={netPay} currency="Indian Rupee" />)
       </div>
@@ -271,25 +271,27 @@ const EmpPayslipPreview2 = ({ config = {}, data, month, year }) => {
 
 const Row = ({ label, value }) => (
   <tr>
-    <td className="border p-2 font-medium">{label}</td>
-    <td className="border p-2">{value || "-"}</td>
+    <td className="border border-gray-400 p-2 font-medium">{label}</td>
+    <td className="border border-gray-400 p-2">{value || "-"}</td>
   </tr>
 );
 
 const SalaryTable = ({ title, rows, showYTD }) => (
   <div>
     <h3 className="font-semibold mb-2">{title}</h3>
-    <table className="w-full border text-sm">
+    <table className="w-full border border-gray-400 text-sm">
       <thead className="bg-gray-100">
         <tr>
-          <th className="p-2">Component</th>
-          <th className="p-2 text-right">Amount</th>
-          {showYTD && <th className="p-2 text-right">YTD</th>}
+          <th className="p-2 border border-gray-400 text-left">Component</th>
+          <th className="p-2 border border-gray-400 text-right">Amount</th>
+          {showYTD && (
+            <th className="p-2 border border-gray-400 text-right">YTD</th>
+          )}
         </tr>
       </thead>
       <tbody>
         {rows.map((r) => (
-          <tr key={r.label} className="border-t">
+          <tr key={r.label} className="border-t border-gray-400">
             <td className="p-2">{r.label}</td>
             <td className="p-2 text-right">
               ₹{Number(r.amount).toLocaleString("en-IN")}
@@ -304,7 +306,7 @@ const SalaryTable = ({ title, rows, showYTD }) => (
 
 const SummaryBox = ({ title, value, color, align }) => (
   <div
-    className={`bg-${color}-50 text-${color}-800 border rounded p-3 text-${align}`}
+    className={`bg-${color}-50 text-${color}-800 border border-gray-400 rounded p-3 text-${align}`}
   >
     <p>{title}</p>
     <p className="text-lg font-bold">₹{value.toLocaleString("en-IN")}</p>

@@ -17,94 +17,79 @@ import useAuthStore from "../../../store/authStore";
 const TimesheetCalendar = () => {
   const { user } = useAuthStore();
 
+  // Convert decimal hours → "Xhr Ym"
+  const formatHours = (decimalHours) => {
+    if (!decimalHours) return "0hr 0m";
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+    return `${hours}hr ${minutes}m`;
+  };
+
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [records, setRecords] = useState({}); // yyyy-MM-dd -> perDayDetails
+  const [records, setRecords] = useState({});
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const handleNextMonth = () =>
-    setCurrentMonth((prev) => addMonths(prev, 1));
+  const month = currentMonth.getMonth() + 1;
+  const year = currentMonth.getFullYear();
 
-  const handlePrevMonth = () =>
-    setCurrentMonth((prev) => subMonths(prev, 1));
+  const handleNextMonth = () => setCurrentMonth((prev) => addMonths(prev, 1));
 
-  // Fetch attendance calculation results
+  const handlePrevMonth = () => setCurrentMonth((prev) => subMonths(prev, 1));
+
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
         setLoading(true);
 
-        let data = [];
-
-        // 1️⃣ First API call
-        const resAll = await axiosInstance.get(
-          "/AttendanceCalculationResult/all"
+        const res = await axiosInstance.get(
+          `/AttendanceRecord/employee/${user.userId}/month`,
+          { params: { month, year } },
         );
 
-        data = resAll.data?.response || [];
+        const apiData = res.data?.data || [];
+        const apiSummary = res.data?.summary || null;
 
-        // Filter by employee if data exists
-        if (data.length > 0 && user?.userId) {
-          data = data.filter(
-            (item) => item.employeeId === user.userId
-          );
-        }
+        setSummary(apiSummary);
 
-        // 2️⃣ If still no data → fallback API
-        if (data.length === 0 && user?.userId) {
-          const resEmployee = await axiosInstance.get(
-            `/Attendance/GetByEmployeeId/${user.userId}`
-          );
-
-          // Support both wrapped & direct responses
-          data =
-            resEmployee.data?.response ||
-            resEmployee.data ||
-            [];
-        }
-
-        console.log("FINAL ATTENDANCE DATA:", data);
-
-        // 3️⃣ Map data
         const mapped = {};
 
-        data.forEach((d) => {
-          const key = format(
-            new Date(d.attendanceDate || d.date),
-            "yyyy-MM-dd"
-          );
+        apiData.forEach((item) => {
+          if (!item.attendanceDate) return;
 
-          if (!mapped[key]) {
-            mapped[key] = {
-              inTime: null,
-              outTime: null,
-              hours: 0,
-              status: "Absent",
-            };
+          const dateObj = new Date(item.attendanceDate);
+          if (isNaN(dateObj)) return;
+
+          const key = format(dateObj, "yyyy-MM-dd");
+
+          let status = "Absent";
+
+          switch (item.dayStatus) {
+            case 1:
+              status = "Present";
+              break;
+            case 2:
+              status = "Absent";
+              break;
+            case 3:
+              status = "Holiday";
+              break;
+            case 4:
+              status = "Week Off";
+              break;
+            case 5:
+              status = "Leave";
+              break;
+            default:
+              status = "Absent";
           }
 
-          // Merge IN & OUT
-          if (d.inTime) mapped[key].inTime = d.inTime;
-          if (d.outTime) mapped[key].outTime = d.outTime;
-        });
-
-        // Calculate hours + status
-        Object.keys(mapped).forEach((key) => {
-          const record = mapped[key];
-
-          if (record.inTime && record.outTime) {
-            const inTime = new Date(record.inTime);
-            const outTime = new Date(record.outTime);
-
-            const diffMs = outTime - inTime;
-            const hours = diffMs / (1000 * 60 * 60);
-
-            record.hours = Math.max(hours, 0);
-            record.status = "Present";
-          } else if (record.inTime || record.outTime) {
-            record.status = "MisPunch";
-          } else {
-            record.status = "Absent";
-          }
+          mapped[key] = {
+            inTime: item.inTime,
+            outTime: item.outTime,
+            hours: item.totalHoursWorked || 0,
+            status,
+          };
         });
 
         setRecords(mapped);
@@ -118,25 +103,27 @@ const TimesheetCalendar = () => {
     if (user?.userId) {
       fetchAttendance();
     }
-  }, [user]);
+  }, [user, month, year]);
 
   const days = eachDayOfInterval({
     start: startOfMonth(currentMonth),
     end: endOfMonth(currentMonth),
   });
 
-  const firstDayIndex = getDay(startOfMonth(currentMonth)); // Padding days
+  const firstDayIndex = getDay(startOfMonth(currentMonth));
+
+  // Month-wise total hours
+  const monthlyTotalHours = Object.values(records).reduce(
+    (sum, day) => sum + (day.hours || 0),
+    0,
+  );
 
   if (loading)
-    return (
-      <p className="text-center text-gray-500">
-        Loading attendance...
-      </p>
-    );
+    return <p className="text-center text-gray-500">Loading attendance...</p>;
 
   return (
     <div className="bg-white rounded-xl shadow p-4 w-full mx-auto">
-      {/* Header with arrows */}
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-3">
           <button onClick={handlePrevMonth}>
@@ -152,21 +139,35 @@ const TimesheetCalendar = () => {
           </button>
         </div>
 
-        <span className="text-sm text-gray-500">
-          Time Format: hh:mm
-        </span>
+        <span className="text-sm text-gray-500">Time Format: hh:mm</span>
       </div>
 
-      {/* Days header */}
+      {/* Summary */}
+      {summary && (
+        <div className="flex justify-between text-sm mb-4 bg-gray-50 p-3 rounded-lg">
+          <div>
+            Total Hours:{" "}
+            <span className="font-semibold text-green-600">
+              {formatHours(monthlyTotalHours)}
+            </span>
+          </div>
+          <div>
+            OT Minutes:{" "}
+            <span className="font-semibold text-blue-600">
+              {summary.totalOTMinutes}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Days Header */}
       <div className="grid grid-cols-7 text-center text-sm font-medium text-gray-600">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-          (d) => (
-            <div key={d}>{d}</div>
-          )
-        )}
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+          <div key={d}>{d}</div>
+        ))}
       </div>
 
-      {/* Days Grid */}
+      {/* Calendar Grid */}
       <div className="grid grid-cols-7 text-center gap-2 mt-2 text-xs">
         {Array.from({ length: firstDayIndex }).map((_, idx) => (
           <div key={`pad-${idx}`} />
@@ -174,7 +175,7 @@ const TimesheetCalendar = () => {
 
         {days.map((date) => (
           <DayCell
-            key={date}
+            key={format(date, "yyyy-MM-dd")}
             date={date}
             data={records[format(date, "yyyy-MM-dd")]}
           />

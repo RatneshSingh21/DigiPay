@@ -111,7 +111,7 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
   /* ================= UI (UNCHANGED) ================= */
 
   return (
-    <div className="bg-white p-8 shadow-md max-w-4xl mx-auto text-sm text-gray-800 border rounded-md">
+    <div className="bg-white p-8 shadow-md max-w-4xl mx-auto text-sm text-gray-800 border border-gray-200 rounded-md">
       {/* ================= HEADER ================= */}
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -181,7 +181,7 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
           </p> */}
         </div>
 
-        <div className="bg-green-50 border rounded p-4">
+        <div className="bg-green-50 border border-green-400 rounded p-4">
           <p className="text-sm text-gray-500">Total Net Pay</p>
           <p className="text-2xl font-bold text-green-600">
             ₹{netPay.toLocaleString("en-IN")}
@@ -231,7 +231,7 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
       </div>
 
       {/* ================= EARNINGS & DEDUCTIONS TABLE ================= */}
-      <div className="mb-6 border rounded overflow-hidden">
+      <div className="mb-6 border border-gray-400 rounded overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
             <tr>
@@ -248,7 +248,7 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
               const showDeduction = i === 0; // ✅ only first row
 
               return (
-                <tr key={i} className="border-t">
+                <tr key={i} className="border-t border-gray-400">
                   {/* EARNINGS */}
                   <td className="p-2">{e.label}</td>
                   <td className="p-2 text-right">
@@ -273,7 +273,7 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
             })}
 
             {/* TOTAL ROW */}
-            <tr className="bg-gray-50 border-t font-semibold">
+            <tr className="bg-gray-50 border-t border-gray-400 font-semibold">
               <td className="p-2">Gross Earnings</td>
               <td className="p-2 text-right">
                 ₹{totalEarnings.toLocaleString("en-IN")}
@@ -290,7 +290,7 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
       </div>
 
       {/* ================= NET PAY ================= */}
-      <div className="border rounded p-4 mb-2 bg-gray-50">
+      <div className="border border-gray-400 rounded p-4 mb-2 bg-gray-50">
         <p className="text-xs text-gray-500 mb-1">TOTAL NET PAYABLE</p>
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-500">

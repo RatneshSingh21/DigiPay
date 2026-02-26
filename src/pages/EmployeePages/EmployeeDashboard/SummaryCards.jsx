@@ -1,132 +1,108 @@
 import React, { useEffect, useState } from "react";
-import { CalendarDays, UserX, Clock, Briefcase } from "lucide-react";
+import {
+  CalendarDays,
+  UserX,
+  Clock,
+  Briefcase,
+  ChevronLeft,
+  ChevronRight,
+  CalendarCheck,
+  PartyPopper,
+} from "lucide-react";
+import { format, addMonths, subMonths } from "date-fns";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import useAuthStore from "../../../store/authStore";
 
 const SummaryCards = () => {
   const { user } = useAuthStore();
+
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
   const [summary, setSummary] = useState({
     presentDays: 0,
     absentDays: 0,
     leavesTaken: 0,
+    weekendDays: 0,
+    holidayDays: 0,
     overtimeHours: 0,
   });
+
   const [loading, setLoading] = useState(true);
+
+  const month = currentMonth.getMonth() + 1;
+  const year = currentMonth.getFullYear();
+
+  const handleNextMonth = () => setCurrentMonth((prev) => addMonths(prev, 1));
+
+  const handlePrevMonth = () => setCurrentMonth((prev) => subMonths(prev, 1));
 
   useEffect(() => {
     const fetchSummary = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get("/AttendanceCalculationResult/all");
-        let data = res.data.response || [];
 
-        console.log(data);
+        const res = await axiosInstance.get(
+          `/AttendanceRecord/employee/${user.userId}/month`,
+          { params: { month, year } },
+        );
 
-        // Filter for current employee
-        if (user?.userId) {
-          data = data.filter((item) => item.employeeId === user.userId);
-        }
+        const apiData = res.data?.data || [];
+        const apiSummary = res.data?.summary || null;
 
-        // Variables
         let presentDays = 0;
         let absentDays = 0;
         let leavesTaken = 0;
-        let overtimeHours = 0;
+        let weekendDays = 0;
+        let holidayDays = 0;
 
-        // Filter current month data
-        const currentMonth = new Date().getMonth(); // 0-11
-        const currentYear = new Date().getFullYear();
+        apiData.forEach((item) => {
+          switch (item.dayStatus) {
+            case 1: // Present
+              presentDays += 1;
+              break;
 
-        data.forEach((record) => {
-          // Build a set of explicit leave dates for this record (ISO yyyy-mm-dd)
-          const leaveDates = new Set();
+            case 2: // Absent
+              absentDays += 1;
+              break;
 
-          // 1) If the record has leaveAdjustments (month-level), expand them
-          if (
-            Array.isArray(record.leaveAdjustments) &&
-            record.leaveAdjustments.length
-          ) {
-            record.leaveAdjustments.forEach((adj) => {
-              // adj might have fromDate/toDate or a single date — handle both defensively
-              const from = adj.fromDate || adj.date;
-              const to = adj.toDate || adj.date;
+            case 3: // Holiday
+              holidayDays += 1;
+              break;
 
-              if (from) {
-                const start = new Date(from);
-                const end = to ? new Date(to) : start;
+            case 4: // Weekend
+              weekendDays += 1;
+              break;
 
-                // iterate each day in range (inclusive)
-                for (
-                  let d = new Date(start);
-                  d <= end;
-                  d.setDate(d.getDate() + 1)
-                ) {
-                  leaveDates.add(d.toISOString().split("T")[0]);
-                }
-              }
-            });
+            case 5: // Leave
+              leavesTaken += 1;
+              break;
+
+            default:
+              break;
           }
-
-          // 2) Also gather perDayDetails that explicitly mark leave (if API provides flags)
-          record.perDayDetails.forEach((day) => {
-            // If API provides a leave flag or leaveType inside day, consider it explicit leave
-            if (
-              day.isLeave ||
-              day.leaveType ||
-              (day.isAbsent === true && day.leaveType)
-            ) {
-              const key = new Date(day.date).toISOString().split("T")[0];
-              leaveDates.add(key);
-            }
-          });
-
-          // Now process only current-month days
-          record.perDayDetails
-            .filter((day) => {
-              const d = new Date(day.date);
-              return (
-                d.getMonth() === currentMonth && d.getFullYear() === currentYear
-              );
-            })
-            .forEach((day) => {
-              const dayKey = new Date(day.date).toISOString().split("T")[0];
-              const hours = day.totalHoursWorked || 0;
-
-              // If this date is explicitly a leave date -> count as leave (full/partial)
-              if (leaveDates.has(dayKey)) {
-                // If employee worked some hours on a leave day it's a partial leave — still counted as leave
-                leavesTaken += 1;
-              } else {
-                // No explicit leave recorded for this date
-                if (hours > 0) {
-                  // Employee came to office (even if < 8) -> count as present
-                  presentDays += 1;
-                } else {
-                  // No hours and no leave record -> absent
-                  absentDays += 1;
-                }
-              }
-
-              // Overtime (always sum if provided)
-              overtimeHours += (day.otMinutes || 0) / 60;
-            });
         });
 
         setSummary({
           presentDays,
           absentDays,
           leavesTaken,
-          overtimeHours: parseFloat(overtimeHours.toFixed(1)),
+          weekendDays,
+          holidayDays,
+          overtimeHours: apiSummary
+            ? parseFloat((apiSummary.totalOTMinutes / 60).toFixed(1))
+            : 0,
         });
       } catch (err) {
-        console.error("Error fetching attendance summary:", err);
+        console.error("Error fetching summary:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSummary();
-  }, [user]);
+    if (user?.userId) {
+      fetchSummary();
+    }
+  }, [user, month, year]);
 
   const summaryData = [
     {
@@ -148,6 +124,18 @@ const SummaryCards = () => {
       bg: "bg-yellow-50",
     },
     {
+      label: "Weekend Days",
+      value: summary.weekendDays,
+      icon: <CalendarCheck className="w-6 h-6 text-purple-600" />,
+      bg: "bg-purple-50",
+    },
+    {
+      label: "Holiday Days",
+      value: summary.holidayDays,
+      icon: <PartyPopper className="w-6 h-6 text-pink-600" />,
+      bg: "bg-pink-50",
+    },
+    {
       label: "Overtime Hours",
       value: `${summary.overtimeHours} hrs`,
       icon: <Clock className="w-6 h-6 text-blue-600" />,
@@ -159,21 +147,39 @@ const SummaryCards = () => {
     return <p className="text-center text-gray-500">Loading summary...</p>;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {summaryData.map((item, idx) => (
-        <div
-          key={idx}
-          className={`p-4 rounded-xl shadow-sm ${item.bg} flex items-center gap-4`}
-        >
-          <div className="p-2 rounded-full bg-white shadow cursor-pointer">
-            {item.icon}
-          </div>
-          <div>
-            <div className="text-sm text-gray-500">{item.label}</div>
-            <div className="text-lg font-bold">{item.value}</div>
-          </div>
+    <div className="bg-white rounded-xl shadow p-4">
+      {/* Month Selector */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-3">
+          <button onClick={handlePrevMonth}>
+            <ChevronLeft className="w-5 h-5 text-gray-700 hover:text-black cursor-pointer" />
+          </button>
+
+          <h2 className="text-lg font-bold">
+            {format(currentMonth, "MMM yyyy")}
+          </h2>
+
+          <button onClick={handleNextMonth}>
+            <ChevronRight className="w-5 h-5 text-gray-700 hover:text-black cursor-pointer" />
+          </button>
         </div>
-      ))}
+      </div>
+
+      {/* Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {summaryData.map((item, idx) => (
+          <div
+            key={idx}
+            className={`p-4 rounded-xl shadow-sm ${item.bg} flex items-center gap-4`}
+          >
+            <div className="p-2 rounded-full bg-white shadow">{item.icon}</div>
+            <div>
+              <div className="text-sm text-gray-500">{item.label}</div>
+              <div className="text-lg font-bold">{item.value}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

@@ -131,7 +131,7 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
         )}
       </div>
 
-      <h2 className="text-center text-sm font-semibold border-t border-b py-2 my-2">
+      <h2 className="text-center text-sm font-semibold border-t border-b border-gray-400 py-2 my-2">
         Payslip for the month of {payMonthYear}
       </h2>
 
@@ -189,7 +189,7 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
           )}
         </div>
 
-        <div className="border p-4 flex flex-col items-center justify-center">
+        <div className="border border-gray-400 p-4 flex flex-col items-center justify-center">
           <p className="text-sm text-gray-600">Total Net Pay</p>
           <p className="text-2xl font-bold text-green-700">
             ₹{netPay.toLocaleString("en-IN")}
@@ -221,16 +221,16 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
       </div>
 
       {/* EARNINGS & DEDUCTIONS TABLE */}
-      <div className="mb-4 border border-gray-300">
+      <div className="mb-4">
         <table className="w-full text-sm border-collapse">
-          <thead className="bg-gray-100 border-b">
+          <thead className="bg-gray-100 border-b border-gray-400">
             <tr>
-              <th className="border px-2 py-1 text-left">EARNINGS</th>
-              <th className="border px-2 py-1 text-right">AMOUNT</th>
-              {showYTD && <th className="border px-2 py-1 text-right">YTD</th>}
-              <th className="border px-2 py-1 text-left">DEDUCTIONS</th>
-              <th className="border px-2 py-1 text-right">AMOUNT</th>
-              {showYTD && <th className="border px-2 py-1 text-right">YTD</th>}
+              <th className="border border-gray-400 px-2 py-1 text-left">EARNINGS</th>
+              <th className="border border-gray-400 px-2 py-1 text-right">AMOUNT</th>
+              {showYTD && <th className="border border-gray-400 px-2 py-1 text-right">YTD</th>}
+              <th className="border border-gray-400 px-2 py-1 text-left">DEDUCTIONS</th>
+              <th className="border border-gray-400 px-2 py-1 text-right">AMOUNT</th>
+              {showYTD && <th className="border border-gray-400 px-2 py-1 text-right">YTD</th>}
             </tr>
           </thead>
 
@@ -238,31 +238,31 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
             {/* Earnings rows */}
             {earnings.map((e, index) => (
               <tr key={index}>
-                <td className="border px-2 py-1">{e.label}</td>
-                <td className="border px-2 py-1 text-right">
+                <td className="border border-gray-400 px-2 py-1">{e.label}</td>
+                <td className="border border-gray-400 px-2 py-1 text-right">
                   ₹{Number(e.amount ?? 0).toLocaleString("en-IN")}
                 </td>
-                {showYTD && <td className="border px-2 py-1 text-right">-</td>}
+                {showYTD && <td className="border border-gray-400 px-2 py-1 text-right">-</td>}
 
                 {/* Deduction columns only on FIRST row */}
                 {index === 0 ? (
                   <>
-                    <td className="border px-2 py-1">{deductions[0]?.label}</td>
-                    <td className="border px-2 py-1 text-right">
+                    <td className="border border-gray-400 px-2 py-1">{deductions[0]?.label}</td>
+                    <td className="border border-gray-400 px-2 py-1 text-right">
                       ₹
                       {Number(deductions[0]?.amount ?? 0).toLocaleString(
                         "en-IN",
                       )}
                     </td>
                     {showYTD && (
-                      <td className="border px-2 py-1 text-right">-</td>
+                      <td className="border border-gray-400 px-2 py-1 text-right">-</td>
                     )}
                   </>
                 ) : (
                   <>
-                    <td className="border px-2 py-1"></td>
-                    <td className="border px-2 py-1"></td>
-                    {showYTD && <td className="border px-2 py-1"></td>}
+                    <td className="border border-gray-400 px-2 py-1"></td>
+                    <td className="border border-gray-400 px-2 py-1"></td>
+                    {showYTD && <td className="border border-gray-400 px-2 py-1"></td>}
                   </>
                 )}
               </tr>
@@ -270,14 +270,14 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
 
             {/* Totals row */}
             <tr className="font-semibold bg-gray-50">
-              <td className="border px-2 py-1">Gross Earnings</td>
-              <td className="border px-2 py-1 text-right">
+              <td className="border border-gray-400 px-2 py-1">Gross Earnings</td>
+              <td className="border border-gray-400 px-2 py-1 text-right">
                 ₹{totalEarnings.toLocaleString("en-IN")}
               </td>
-              {showYTD && <td />}
+              {showYTD && <td className="border border-gray-400 px-2 py-1"></td>}
 
-              <td className="border px-2 py-1">Total Deductions</td>
-              <td className="border px-2 py-1 text-right">
+              <td className="border border-gray-400 px-2 py-1">Total Deductions</td>
+              <td className="border border-gray-400 px-2 py-1 text-right">
                 ₹{totalDeductions.toLocaleString("en-IN")}
               </td>
               {showYTD && <td />}

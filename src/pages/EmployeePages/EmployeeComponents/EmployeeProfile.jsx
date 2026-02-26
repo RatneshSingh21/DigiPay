@@ -423,7 +423,7 @@ ${employee.departmentName}
                 <img
                   src={employee.profileImageUrl}
                   alt="Profile"
-                  className="w-24 h-24 rounded-full object-contain border"
+                  className="w-24 h-24 rounded-full object-contain border border-gray-400"
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-xl font-bold">
@@ -452,7 +452,7 @@ ${employee.departmentName}
           </div>
 
           {/* CONTACT INFO */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-gray-50 p-5 rounded-xl border">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-gray-50 p-5 rounded-xl border border-gray-400">
             <div className="flex items-center gap-2">
               <MdEmail className="text-primary" /> {employee.workEmail}
             </div>
@@ -487,9 +487,9 @@ ${employee.departmentName}
 
       {/* PREVIEW MODAL */}
       {showPreview && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white p-5 rounded-xl shadow-2xl w-full max-w-2xl">
-            <div className="flex justify-between items-center border-b pb-3 mb-4">
+            <div className="flex justify-between items-center border-b border-gray-400 pb-3 mb-4">
               <h3 className="text-lg font-semibold">
                 Employee ID Card Preview
               </h3>
@@ -519,7 +519,7 @@ ${employee.departmentName}
               <iframe
                 title="id-preview"
                 src={previewUrl}
-                className="w-full h-96 border rounded-lg shadow"
+                className="w-full h-96 border border-gray-400 rounded-lg shadow"
               />
             ) : (
               <div className="p-6 text-center text-gray-600">

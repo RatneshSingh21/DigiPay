@@ -122,7 +122,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
       {/* 🌐 Language Selector */}
       <div className="max-w-4xl mx-auto mb-3 text-right no-print">
         <select
-          className="border px-2 py-1 rounded text-sm"
+          className="mt-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
         >
@@ -134,7 +134,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
         </select>
       </div>
 
-      <div className="bg-white shadow-lg p-8 border rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
+      <div className="bg-white shadow-lg p-8 border border-gray-200 rounded-md text-sm text-gray-800 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           {showLogo && logo && (
@@ -206,7 +206,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
 
         {/* Net Pay */}
         <div className="flex justify-end my-4">
-          <div className="border p-4 rounded bg-green-50 min-w-[220px] text-right">
+          <div className="border border-green-400 p-4 rounded bg-green-50 min-w-[220px] text-right">
             {/* Total Net Pay */}
             <p>{t.totalNetPay}</p>
             <p className="text-green-600 text-2xl font-bold">
@@ -246,7 +246,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div>
             <h3 className="font-semibold mb-2">{t.earnings}</h3>
-            <table className="w-full border">
+            <table className="w-full border border-gray-400">
               <thead className="bg-gray-100">
                 <tr>
                   <th className="p-1 text-left">{t.component}</th>
@@ -255,7 +255,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
               </thead>
               <tbody>
                 {earnings.map((e) => (
-                  <tr key={e.label} className="border-t">
+                  <tr key={e.label} className="border-t border-gray-400">
                     <td className="p-1">{e.label}</td>
                     <td className="p-1 text-right">
                       ₹{e.amount.toLocaleString("en-IN")}
@@ -268,10 +268,10 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
 
           <div>
             <h3 className="font-semibold mb-2">{t.deductions}</h3>
-            <table className="w-full border">
+            <table className="w-full border border-gray-400">
               <tbody>
                 {deductions.map((d) => (
-                  <tr key={d.label} className="border-t">
+                  <tr key={d.label} className="border-t border-gray-400">
                     <td className="p-1">{d.label}</td>
                     <td className="p-1 text-right">
                       ₹{d.amount.toLocaleString("en-IN")}
@@ -284,7 +284,7 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
         </div>
 
         {/* Footer */}
-        <div className="mt-6 bg-green-100 p-3 border rounded font-semibold">
+        <div className="mt-6 bg-green-100 p-3 border border-green-400 rounded font-semibold">
           {t.totalNetPayable}: ₹{salary.netPay?.toLocaleString("en-IN")} (
           <AmountInWords amount={salary.netPay || 0} currency="Indian Rupee" />)
         </div>

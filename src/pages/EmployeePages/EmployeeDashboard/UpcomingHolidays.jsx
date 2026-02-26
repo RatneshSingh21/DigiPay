@@ -16,7 +16,7 @@ const UpcomingHolidays = () => {
         // Filter upcoming + sort by date + take only first 5
         const sortedUpcoming = (response.data || [])
           .filter((h) => new Date(h.holidayDate) >= today)
-          .sort((a, b) => new Date(a.holidayDate) - new Date(b.holidayDate))
+          .sort((a, b) => new Date(a.holidayDate) - new Date(b.holidayDate));
 
         setHolidays(sortedUpcoming);
       } catch (error) {
