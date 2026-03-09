@@ -56,57 +56,24 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
 
   /* ================= DEDUCTIONS ================= */
 
-  const deductions =
-    salary.deductions > 0
-      ? [{ label: "Total Deductions", amount: salary.deductions }]
-      : [{ label: "Total Deductions", amount: 0 }];
+  const deductions = [
+    { label: "PF", amount: salary.pfEmployee ?? 0 },
+    { label: "ESIC", amount: salary.esicEmployee ?? 0 },
+    { label: "Professional Tax", amount: salary.professionalTax ?? 0 },
+    { label: "TDS", amount: salary.tds ?? 0 },
+    { label: "Loan Repayment", amount: salary.loanRepayment ?? 0 },
+    { label: "Other Deductions", amount: salary.otherDeductions ?? 0 },
+  ].filter((d) => d.amount > 0);
 
   const totalEarnings = salary.earnings ?? 0;
   const totalDeductions = salary.deductions ?? 0;
   const netPay = salary.netPay ?? 0;
 
   useEffect(() => {
-    if (!employee?.id) return;
-
-    const fetchLeaveAllocation = async () => {
-      try {
-        const allocationRes = await axiosInstance.get(
-          `/EmployeeLeaveAllocation/${employee.id}`,
-        );
-
-        const allocations = allocationRes.data?.data || [];
-
-        if (!allocations.length) {
-          setRemainingLeaves([]);
-          return;
-        }
-
-        const leaveTypeRes = await axiosInstance.get("/LeaveType/active");
-        const leaveTypes = leaveTypeRes.data || [];
-
-        const options = allocations
-          .filter((a) => a.isActive)
-          .map((a) => {
-            const lt = leaveTypes.find((l) => l.leaveTypeId === a.leaveTypeId);
-
-            if (!lt) return null;
-
-            return {
-              leaveTypeId: lt.leaveTypeId,
-              leaveName: lt.leaveName,
-              remaining: a.leavesRemaining,
-            };
-          })
-          .filter(Boolean);
-
-        setRemainingLeaves(options);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchLeaveAllocation();
-  }, [employee?.id]);
+    if (data?.leaveBalances) {
+      setRemainingLeaves(data.leaveBalances);
+    }
+  }, [data]);
 
   /* ================= UI (UNCHANGED) ================= */
 
@@ -197,14 +164,9 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
               <strong>Balance Leaves:</strong>
               <div className="mt-1 flex flex-wrap justify-start gap-x-2 gap-y-1">
                 {remainingLeaves.map((leave) => {
-                  const leaveCatalogItem = LEAVE_CATALOG.find(
-                    (lc) => lc.label === leave.leaveName,
-                  );
-                  if (!leaveCatalogItem) return null;
-
                   return (
                     <span key={leave.leaveTypeId} className="whitespace-nowrap">
-                      {leaveCatalogItem.value}: {leave.remaining}
+                      {leave.leaveCode}: {leave.leavesRemaining}
                     </span>
                   );
                 })}
@@ -245,27 +207,21 @@ const EmpPayslipPreview3 = ({ config = {}, data, month, year }) => {
           </thead>
           <tbody>
             {earnings.map((e, i) => {
-              const showDeduction = i === 0; // ✅ only first row
+              const d = deductions[i];
 
               return (
                 <tr key={i} className="border-t border-gray-400">
-                  {/* EARNINGS */}
+                  {/* Earnings */}
                   <td className="p-2">{e.label}</td>
                   <td className="p-2 text-right">
                     ₹{Number(e.amount).toLocaleString("en-IN")}
                   </td>
                   {showYTD && <td className="p-2 text-right">-</td>}
 
-                  {/* DEDUCTIONS (ONLY ONE ROW) */}
-                  <td className="p-2">
-                    {showDeduction ? deductions[0].label : ""}
-                  </td>
+                  {/* Deductions */}
+                  <td className="p-2">{d?.label || ""}</td>
                   <td className="p-2 text-right">
-                    {showDeduction
-                      ? `₹${Number(deductions[0].amount).toLocaleString(
-                          "en-IN",
-                        )}`
-                      : ""}
+                    {d ? `₹${Number(d.amount).toLocaleString("en-IN")}` : ""}
                   </td>
                   {showYTD && <td className="p-2 text-right">-</td>}
                 </tr>

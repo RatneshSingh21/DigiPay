@@ -25,25 +25,24 @@ const monthOptions = [
   { value: 12, label: "December" },
 ];
 
-const GenerateMonthlyModal = ({ show, onClose, employees, onSuccess }) => {
-  const [employee, setEmployee] = useState(null);
+const GenerateMonthlyAllModal = ({ show, onClose, onSuccess }) => {
   const [year, setYear] = useState("");
   const [month, setMonth] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
-    if (!employee || !year || !month) return toast.error("All fields required");
+    if (!year || !month) return toast.error("Year and Month required");
 
     try {
       setLoading(true);
 
-      await axiosInstance.post("/AttendanceRecord/generateMonthlyAttendance", {
-        employeeId: employee.value,
+      await axiosInstance.post("/AttendanceRecord/generate-month-all", {
         year: Number(year),
         month: month.value,
       });
 
-      toast.success("Monthly attendance generated");
+      toast.success("Monthly attendance generated for all employees");
+
       onSuccess();
       onClose();
     } catch (err) {
@@ -57,22 +56,9 @@ const GenerateMonthlyModal = ({ show, onClose, employees, onSuccess }) => {
     <ModalWrapper
       show={show}
       onClose={onClose}
-      title="Generate Monthly Attendance"
+      title="Generate Monthly Attendance (All Employees)"
     >
       <div className="space-y-4">
-        {/* Employee */}
-        <div>
-          <label className={labelClass}>
-            Employee <span className="text-red-500">*</span>
-          </label>
-          <Select
-            options={employees}
-            value={employee}
-            onChange={setEmployee}
-            placeholder="Select employee"
-          />
-        </div>
-
         {/* Month */}
         <div>
           <label className={labelClass}>
@@ -104,13 +90,13 @@ const GenerateMonthlyModal = ({ show, onClose, employees, onSuccess }) => {
         <button
           onClick={handleGenerate}
           disabled={loading}
-          className="w-full bg-primary cursor-pointer hover:bg-secondary text-white py-2 rounded-lg"
+          className="w-full bg-purple-600 cursor-pointer hover:bg-purple-700 text-white py-2 rounded-lg"
         >
-          {loading ? "Processing..." : "Generate"}
+          {loading ? "Processing..." : "Generate For All Employees"}
         </button>
       </div>
     </ModalWrapper>
   );
 };
 
-export default GenerateMonthlyModal;
+export default GenerateMonthlyAllModal;

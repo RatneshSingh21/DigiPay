@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Select from "react-select";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import { FaPlus, FaRegCalendarAlt, FaCalendarDay } from "react-icons/fa";
@@ -8,6 +7,7 @@ import { FaPlus, FaRegCalendarAlt, FaCalendarDay } from "react-icons/fa";
 import AddAttendanceModal from "./AttendanceRecord/AddAttendanceModal";
 import GenerateMonthlyModal from "./AttendanceRecord/GenerateMonthlyModal";
 import GenerateDateModal from "./AttendanceRecord/GenerateDateModal";
+import GenerateMonthlyAllModal from "./AttendanceRecord/GenerateMonthlyAllModal";
 import AttendanceTable from "./AttendanceRecord/AttendanceTable";
 import EmployeeWiseRecord from "./AttendanceRecord/EmployeeWiseRecord";
 
@@ -24,6 +24,7 @@ const AttendanceRecord = () => {
   // Modals
   const [showAdd, setShowAdd] = useState(false);
   const [showMonthly, setShowMonthly] = useState(false);
+  const [showMonthlyAll, setShowMonthlyAll] = useState(false);
   const [showDate, setShowDate] = useState(false);
 
   // Cache employee names
@@ -94,7 +95,7 @@ const AttendanceRecord = () => {
   return (
     <>
       {/* TOP BAR */}
-      <div className="sticky top-14 z-20">
+      <div className="sticky top-14 z-10">
         <div className="px-4 py-3 shadow bg-white flex items-center justify-between">
           <h2 className="font-semibold text-xl">Attendance Records</h2>
           <div className="flex gap-3 text-sm">
@@ -117,6 +118,12 @@ const AttendanceRecord = () => {
               onClick={() => setShowDate(true)}
             >
               <FaCalendarDay /> Generate Date
+            </button>
+            <button
+              className="bg-purple-600 text-white px-4 cursor-pointer py-2 rounded-md flex items-center gap-2"
+              onClick={() => setShowMonthlyAll(true)}
+            >
+              <FaRegCalendarAlt /> Generate Monthly (All)
             </button>
           </div>
         </div>
@@ -177,6 +184,11 @@ const AttendanceRecord = () => {
       <GenerateDateModal
         show={showDate}
         onClose={() => setShowDate(false)}
+        onSuccess={loadRecords}
+      />
+      <GenerateMonthlyAllModal
+        show={showMonthlyAll}
+        onClose={() => setShowMonthlyAll(false)}
         onSuccess={loadRecords}
       />
     </>

@@ -1,27 +1,52 @@
 import { AlertTriangle } from "lucide-react";
 
-const ConfirmModal = ({ title, message, onConfirm, onCancel }) => {
+const ConfirmModal = ({
+  title = "Confirm Action",
+  message = "Are you sure you want to continue?",
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  onConfirm,
+  onCancel,
+  loading = false,
+}) => {
   return (
-    <div className="fixed top-2 left-1/2 -translate-x-1/2 z-50 ">
-      <div className="bg-white p-6 rounded shadow-2xl max-w-sm w-full mx-auto border border-gray-200">
-        <h2 className="text-lg font-semibold flex gap-2">
-          <AlertTriangle className="text-red-600" size={24} />{title || "Are you sure?"}
-        </h2>
-        <p className="text-sm text-gray-600">
-          {message || "Please confirm your action."}
-        </p>
-        <div className="flex justify-end gap-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* BACKDROP */}
+      <div
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        onClick={onCancel}
+      />
+
+      {/* MODAL */}
+      <div className="relative bg-white w-full max-w-md mx-4 rounded-2xl border border-gray-200 shadow-2xl p-6 animate-fadeIn">
+        {/* HEADER */}
+        <div className="flex items-start gap-3 mb-4">
+          <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-red-50 text-red-600">
+            <AlertTriangle size={22} />
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+            <p className="text-sm text-gray-500 mt-1">{message}</p>
+          </div>
+        </div>
+
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onCancel}
-            className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100 cursor-pointer"
+            disabled={loading}
+            className="px-4 py-2 text-sm border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 rounded-lg transition cursor-pointer disabled:opacity-50"
           >
-            Cancel
+            {cancelText}
           </button>
+
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
+            disabled={loading}
+            className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-sm transition cursor-pointer disabled:opacity-50"
           >
-            Confirm
+            {loading ? "Processing..." : confirmText}
           </button>
         </div>
       </div>

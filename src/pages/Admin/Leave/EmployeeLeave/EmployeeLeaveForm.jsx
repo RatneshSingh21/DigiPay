@@ -19,6 +19,8 @@ const EmployeeLeaveForm = ({ onClose }) => {
     fromDate: "",
     toDate: "",
     reason: "",
+    isHalfDay: false,
+    halfDayType: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -125,6 +127,8 @@ const EmployeeLeaveForm = ({ onClose }) => {
         fromDate: new Date(fromDate).toISOString(),
         toDate: new Date(toDate).toISOString(),
         reason,
+        isHalfDay: formData.isHalfDay,
+        halfDayType: formData.isHalfDay ? formData.halfDayType : null,
         customApproverIds: [],
       });
 
@@ -135,6 +139,8 @@ const EmployeeLeaveForm = ({ onClose }) => {
         fromDate: "",
         toDate: "",
         reason: "",
+        isHalfDay: false,
+        halfDayType: "",
       });
       onClose();
     } catch (err) {
@@ -246,6 +252,44 @@ const EmployeeLeaveForm = ({ onClose }) => {
               />
             </div>
           </div>
+
+          {/* Half Day */}
+          <div className="flex items-center gap-2 mt-2">
+            <input
+              id="halfDayLeave"
+              type="checkbox"
+              checked={formData.isHalfDay}
+              onChange={(e) =>
+                setFormData({ ...formData, isHalfDay: e.target.checked })
+              }
+              className="accent-primary cursor-pointer"
+            />
+
+            <label
+              htmlFor="halfDayLeave"
+              className="text-sm text-gray-700 cursor-pointer"
+            >
+              Half Day Leave
+            </label>
+          </div>
+
+          {formData.isHalfDay && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Half Day Type
+              </label>
+              <Select
+                options={[
+                  { label: "First Half", value: "FirstHalf" },
+                  { label: "Second Half", value: "SecondHalf" },
+                ]}
+                onChange={(selected) =>
+                  setFormData({ ...formData, halfDayType: selected.value })
+                }
+                placeholder="Select Half Day Type"
+              />
+            </div>
+          )}
 
           {/* Reason */}
           <div>

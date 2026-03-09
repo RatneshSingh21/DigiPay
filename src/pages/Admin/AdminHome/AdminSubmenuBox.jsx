@@ -45,6 +45,7 @@ import {
   HandCoins,
   LandmarkIcon,
   XCircle,
+  Download,
 } from "lucide-react";
 
 // Label to path mapping
@@ -54,7 +55,6 @@ const labelToPath = {
   "Employee List": "list",
   "Basic Salary": "employee-salary-basic",
   "Employee Salary": "employee-salary-details",
-  "Salary Calculation": "employee-salary-calculation",
   "Emp Category": "emp-category",
   "Employment Type": "emp-employmenttype",
   "Work Type": "emp-worktype",
@@ -64,7 +64,12 @@ const labelToPath = {
   "FullEmployee Data": "fullemployee-data",
 
   //Salary
-  "Salary Policy": "salary-policy",
+  "Salary Configuration": "salary-configuration",
+  "Default SetUp": "default-setup",
+  "Dynamic SetUp": "dynamic-setup",
+  "Company Salary Policy": "company-salary-policy",
+  "Salary Calculation": "salary-calculation",
+  "Download SalarySlip": "download-slip",
 
   //Shifts
   "Add Shift": "add-shift",
@@ -96,7 +101,6 @@ const labelToPath = {
   "Work Locations": "work-locations",
   Permissions: "permissions",
   PaySchedule: "payschedule",
-  "Salary Configuration": "salary",
   "Status Master": "status-master",
   "Salary Calculation Type": "salary-calculation-type",
   "Component Lock": "component-lock",
@@ -168,7 +172,6 @@ const labelToIcon = {
   "Employee List": <List size={16} className="mr-2" />,
   "Basic Salary": <Wallet size={16} className="mr-2" />,
   "Employee Salary": <Wallet size={16} className="mr-2" />,
-  "Salary Calculation": <Calculator size={16} className="mr-2" />,
   "Emp Category": <Users size={16} className="mr-2" />,
   "Employment Type": <Briefcase size={16} className="mr-2" />,
   "Work Type": <Briefcase size={16} className="mr-2" />,
@@ -178,7 +181,13 @@ const labelToIcon = {
   "FullEmployee Data": <FileSpreadsheet size={16} className="mr-2" />,
 
   // Salary
-  "Salary Policy": <LandmarkIcon size={16} className="mr-2" />,
+  // "Salary Policy": <LandmarkIcon size={16} className="mr-2" />,
+  "Salary Configuration": <Wallet size={16} className="mr-2" />,
+  "Default SetUp": <Settings size={16} className="mr-2" />,
+  "Dynamic SetUp": <Settings size={16} className="mr-2" />,
+  "Company Salary Policy": <LandmarkIcon size={16} className="mr-2" />,
+  "Salary Calculation": <Calculator size={16} className="mr-2" />,
+  "Download SalarySlip": <Download size={16} className="mr-2" />,
 
   // Shifts
   "Add Shift": <CalendarDays size={16} className="mr-2" />,
@@ -216,7 +225,7 @@ const labelToIcon = {
   "Work Locations": <MapPin size={16} className="mr-2" />,
   Permissions: <ShieldCheck size={16} className="mr-2" />,
   PaySchedule: <CalendarDays size={16} className="mr-2" />,
-  "Salary Configuration": <Wallet size={16} className="mr-2" />,
+
   "Status Master": <TrendingUp size={16} className="mr-2" />,
   "LetterField Master": <FileSignature size={16} className="mr-2" />,
   "Salary Calculation Type": <Calculator size={16} className="mr-2" />,

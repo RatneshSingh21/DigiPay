@@ -50,7 +50,7 @@ const CreateAdminFromEmployee = () => {
     return employees.filter(
       (emp) =>
         emp.fullName.toLowerCase().includes(s) &&
-        emp.portalAccessEnabled === true
+        emp.portalAccessEnabled === true,
     );
   }, [search, employees]);
 
@@ -101,7 +101,7 @@ const CreateAdminFromEmployee = () => {
         {
           employeeId: Number(selectedEmployee),
           role,
-        }
+        },
       );
 
       if (res.data?.success) {
@@ -121,21 +121,21 @@ const CreateAdminFromEmployee = () => {
   };
 
   const selectedEmployeeDetails = employees.find(
-    (e) => e.id === Number(selectedEmployee)
+    (e) => e.id === Number(selectedEmployee),
   );
   const [selectedDeptName, setSelectedDeptName] = useState("");
 
   useEffect(() => {
     if (selectedEmployeeDetails?.departmentId) {
       getDepartmentName(selectedEmployeeDetails.departmentId).then((name) =>
-        setSelectedDeptName(name)
+        setSelectedDeptName(name),
       );
     }
   }, [selectedEmployeeDetails]);
 
   const employeesWithRoles = useMemo(() => {
     return employees.filter((emp) =>
-      roleMappings.some((r) => r.employeeId === emp.id)
+      roleMappings.some((r) => r.employeeId === emp.id),
     );
   }, [employees, roleMappings]);
 
@@ -145,7 +145,7 @@ const CreateAdminFromEmployee = () => {
     employeesWithRoles.forEach((emp) => {
       if (emp.departmentId && !tableDeptNames[emp.departmentId]) {
         getDepartmentName(emp.departmentId).then((name) =>
-          setTableDeptNames((prev) => ({ ...prev, [emp.departmentId]: name }))
+          setTableDeptNames((prev) => ({ ...prev, [emp.departmentId]: name })),
         );
       }
     });
@@ -184,7 +184,7 @@ const CreateAdminFromEmployee = () => {
                 value={
                   selectedEmployee
                     ? employeeOptions.find(
-                        (opt) => opt.value === selectedEmployee
+                        (opt) => opt.value === selectedEmployee,
                       )
                     : null
                 }
@@ -198,7 +198,7 @@ const CreateAdminFromEmployee = () => {
                   setSelectedEmployee(selected.value);
 
                   const mapping = roleMappings.find(
-                    (r) => r.employeeId === selected.value
+                    (r) => r.employeeId === selected.value,
                   );
 
                   setRole(mapping ? mapping.roleName : "");
@@ -286,7 +286,7 @@ const CreateAdminFromEmployee = () => {
             ) : (
               <div className="overflow-x-auto w-full">
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
-                  <thead className="bg-gray-100 text-gray-700 text-center sticky top-0 z-10">
+                  <thead className="bg-gray-100 text-gray-700 text-center sticky top-0">
                     <tr>
                       <th className="px-4 py-3 font-semibold">Name</th>
                       <th className="px-4 py-3 font-semibold">Email</th>
@@ -298,7 +298,7 @@ const CreateAdminFromEmployee = () => {
                   <tbody className="divide-y divide-gray-200 text-center">
                     {employeesWithRoles.map((emp) => {
                       const mapping = roleMappings.find(
-                        (r) => r.employeeId === emp.id
+                        (r) => r.employeeId === emp.id,
                       );
                       const deptName =
                         tableDeptNames[emp.departmentId] || "N/A";

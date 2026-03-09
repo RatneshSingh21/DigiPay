@@ -58,25 +58,25 @@ const DepartmentAuthorityModal = ({
 
   /* ===================== LOAD ===================== */
   useEffect(() => {
-    if (isOpen) {
-      fetchEmployees();
-      fetchDepartments();
-      fetchRoleMappings();
+    if (!isOpen) return;
 
-      if (editData) {
-        setForm({
-          id: editData.id,
-          departmentId: editData.departmentId,
-          employeeId: editData.employeeId,
-          roleId: editData.roleId,
-          roleName: editData.roleName,
-          isPrimary: editData.isPrimary,
-        });
-      } else {
-        resetForm();
-      }
+    fetchEmployees();
+    fetchDepartments();
+    fetchRoleMappings();
+
+    if (editData) {
+      setForm({
+        id: editData.id,
+        departmentId: editData.departmentId,
+        employeeId: editData.employeeId,
+        roleId: editData.roleId,
+        roleName: editData.roleName,
+        isPrimary: editData.isPrimary,
+      });
+    } else {
+      resetForm();
     }
-  }, [isOpen, editData]);
+  }, [isOpen]);
 
   const resetForm = () => {
     setForm({
@@ -87,6 +87,11 @@ const DepartmentAuthorityModal = ({
       roleName: "",
       isPrimary: true,
     });
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   /* ===================== FETCH ===================== */
@@ -160,7 +165,7 @@ const DepartmentAuthorityModal = ({
       }
 
       onSuccess();
-      onClose();
+      handleClose();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to save");
     }
@@ -178,7 +183,7 @@ const DepartmentAuthorityModal = ({
           </h2>
 
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="rounded-full p-1 text-gray-500 hover:bg-gray-100 cursor-pointer hover:text-red-500"
           >
             <FiX size={18} />
@@ -282,7 +287,7 @@ const DepartmentAuthorityModal = ({
           <div className="flex justify-end gap-3 border-t border-gray-200 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="rounded-lg border px-4 py-1.5 text-sm cursor-pointer hover:bg-gray-200"
             >
               Cancel

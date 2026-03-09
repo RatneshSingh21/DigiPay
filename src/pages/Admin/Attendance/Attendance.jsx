@@ -8,6 +8,7 @@ import EditAttendanceModal from "./components/EditAttendanceModal";
 import EditHistoryModal from "./components/EditHistoryModal";
 import useAuthStore from "../../../store/authStore";
 import EmployeeWiseAttendance from "./components/EmployeeWiseAttendance";
+import AttendanceVerificationModal from "./AttendanceVerificationModal/AttendanceVerificationModal";
 // import ExportMonthlyAttendancePdfModal from "./ExportMonthlyAttendancePdf/ExportMonthlyAttendancePdf";
 
 const Attendance = () => {
@@ -28,6 +29,7 @@ const Attendance = () => {
   const [historyData, setHistoryData] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const [historyPage, setHistoryPage] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(5);
@@ -209,6 +211,7 @@ const Attendance = () => {
         onOpenHistory={fetchAllEditHistory}
         viewMode={viewMode}
         setViewMode={setViewMode}
+        onOpenVerification={() => setIsVerificationModalOpen(true)}
         // onOpenExport={() => setIsExportOpen(true)}
       />
 
@@ -257,6 +260,11 @@ const Attendance = () => {
         saving={saving}
         onClose={() => setIsEditOpen(false)}
         onSave={handleUpdateAttendance}
+      />
+
+      <AttendanceVerificationModal
+        isOpen={isVerificationModalOpen}
+        onClose={() => setIsVerificationModalOpen(false)}
       />
 
       {/* <ExportMonthlyAttendancePdfModal

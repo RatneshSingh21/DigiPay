@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AmountInWords from "../../../components/AmountInWords";
 import { payslipTranslations } from "./payslipTranslations";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
-import { LEAVE_CATALOG } from "../../Admin/Leave/LeaveType/leaveCatalog";
 
 const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
   const [language, setLanguage] = useState("en");
@@ -71,51 +69,28 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
   ];
 
   const deductions = [
-    { label: t.totalDeductions, amount: salary.deductions ?? 0 },
-  ];
+    { label: t.deductionLabels.pf, amount: salary.pfEmployee ?? 0 },
+    { label: t.deductionLabels.esic, amount: salary.esicEmployee ?? 0 },
+    {
+      label: t.deductionLabels.professionalTax,
+      amount: salary.professionalTax ?? 0,
+    },
+    { label: t.deductionLabels.tds, amount: salary.tds ?? 0 },
+    {
+      label: t.deductionLabels.loanRepayment,
+      amount: salary.loanRepayment ?? 0,
+    },
+    {
+      label: t.deductionLabels.otherDeductions,
+      amount: salary.otherDeductions ?? 0,
+    },
+  ].filter((d) => d.amount > 0);
 
   useEffect(() => {
-    if (!employee?.id) return;
-
-    const fetchLeaveAllocation = async () => {
-      try {
-        const allocationRes = await axiosInstance.get(
-          `/EmployeeLeaveAllocation/${employee.id}`,
-        );
-
-        const allocations = allocationRes.data?.data || [];
-
-        if (!allocations.length) {
-          setRemainingLeaves([]);
-          return;
-        }
-
-        const leaveTypeRes = await axiosInstance.get("/LeaveType/active");
-        const leaveTypes = leaveTypeRes.data || [];
-
-        const options = allocations
-          .filter((a) => a.isActive)
-          .map((a) => {
-            const lt = leaveTypes.find((l) => l.leaveTypeId === a.leaveTypeId);
-
-            if (!lt) return null;
-
-            return {
-              leaveTypeId: lt.leaveTypeId,
-              leaveName: lt.leaveName,
-              remaining: a.leavesRemaining,
-            };
-          })
-          .filter(Boolean);
-
-        setRemainingLeaves(options);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchLeaveAllocation();
-  }, [employee?.id]);
+    if (data?.leaveBalances) {
+      setRemainingLeaves(data.leaveBalances);
+    }
+  }, [data]);
 
   return (
     <>
@@ -222,17 +197,12 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
                 <strong>{t.balanceLeaves}:</strong>
                 <div className="mt-1 flex flex-wrap justify-end gap-x-2 gap-y-1">
                   {remainingLeaves.map((leave) => {
-                    const leaveCatalogItem = LEAVE_CATALOG.find(
-                      (lc) => lc.label === leave.leaveName,
-                    );
-                    if (!leaveCatalogItem) return null;
-
                     return (
                       <span
                         key={leave.leaveTypeId}
                         className="whitespace-nowrap"
                       >
-                        {leaveCatalogItem.value}: {leave.remaining}
+                        {leave.leaveCode}: {leave.leavesRemaining}
                       </span>
                     );
                   })}
@@ -269,6 +239,12 @@ const EmpPayslipPreview = ({ config = {}, data, month, year }) => {
           <div>
             <h3 className="font-semibold mb-2">{t.deductions}</h3>
             <table className="w-full border border-gray-400">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-1 text-left">{t.component}</th>
+                  <th className="p-1 text-right">{t.amount}</th>
+                </tr>
+              </thead>
               <tbody>
                 {deductions.map((d) => (
                   <tr key={d.label} className="border-t border-gray-400">

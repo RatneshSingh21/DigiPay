@@ -7,6 +7,7 @@ const AttendanceHeader = ({
   onOpenHistory,
   viewMode,
   setViewMode,
+  onOpenVerification,
   // onOpenExport,
 }) => (
   <div className="px-4 py-3 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
@@ -43,6 +44,13 @@ const AttendanceHeader = ({
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
+
+      <button
+        onClick={onOpenVerification}
+        className="px-3 py-2 bg-indigo-500 cursor-pointer hover:bg-indigo-600 text-white rounded-lg text-sm"
+      >
+        Send_Attendance
+      </button>
 
       {/* <button
         onClick={onOpenExport}

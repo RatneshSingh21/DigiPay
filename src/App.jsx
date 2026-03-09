@@ -38,7 +38,6 @@ import EmployeeList from "./pages/Admin/Employees/EmployeeList";
 import AddEmployee from "./pages/Admin/Employees/AddEmployee";
 import EmpBasicSalary from "./pages/Admin/Employees/EmpBasicSalary";
 import EmpSalaryDetails from "./pages/Admin/Employees/EmpSalaryDetails";
-import SalaryCalculate from "./pages/Admin/Employees/SalaryCalculate/SalaryCalculate";
 import EmpCategory from "./pages/Admin/Employees/EmpCategory";
 import EmpEmploymentType from "./pages/Admin/Employees/EmpEmploymentType";
 import EmpWorkType from "./pages/Admin/Employees/EmpWorkType";
@@ -57,7 +56,6 @@ import PaySchedule from "./pages/Admin/PaySchedule/PaySchedule";
 import Permissions from "./pages/Admin/Settings/Permissions";
 import Designation from "./pages/Admin/Settings/Designation";
 import StatusMaster from "./pages/Admin/Settings/StatusMaster";
-import Salary from "./pages/Admin/Settings/Salary";
 import SalaryCalculationType from "./pages/Admin/Settings/SalaryCalculationType/SalaryCalculationType";
 import ComponentLock from "./pages/Admin/Settings/ComponentLock/ComponentLock";
 import EmployeePasswordSetup from "./pages/Admin/Settings/EmployeePasswordSetUp/EmployeePasswordSetup";
@@ -94,7 +92,6 @@ import AttendanceLock from "./pages/Admin/Attendance/AttendanceLock/AttendanceLo
 import AttendanceReport from "./pages/Admin/Reports/AttendanceReport/AttendanceReport";
 import SalaryRegister from "./pages/Admin/Reports/SalaryRegister";
 
-
 //Admin Letter Pages
 import PayslipTemplates from "./pages/Admin/Letters/PayslipTemplates";
 import LetterOfIntent from "./pages/Admin/Letters/PayrollReport/LetterOfIntent";
@@ -108,7 +105,6 @@ import ExperienceCertificateEditor from "./pages/Admin/Letters/PayrollReport/Exp
 import FullFinalStatement from "./pages/Admin/Letters/PayrollReport/FullFinalStatement";
 import JobPosting from "./pages/Admin/Letters/PayrollReport/JobPosting";
 import AdminReports from "./pages/Admin/Letters/AdminReports";
-
 
 //Admin Leave Pages
 import Leave from "./pages/Admin/Leave/LeaveType/Leave";
@@ -160,9 +156,12 @@ import EmpApprovals from "./pages/EmployeePages/EmployeeComponents/EmpApprovals"
 
 //Admin Salary Pages
 import SalaryPolicy from "./pages/NEWSALARYLOGIC/SalaryPolicy";
-
-
-
+import SalaryCalculate from "./pages/Admin/Employees/SalaryCalculate/SalaryCalculate";
+import SalaryConfig from "./pages/Admin/Salary/SalaryConfig";
+import CompanySalaryPolicyPage from "./pages/NEWSALARYLOGIC/CompanySalaryPolicy/CompanySalaryPolicyPage";
+import DefaultSalaryPolicyPage from "./pages/NEWSALARYLOGIC/DefaultSalaryPolicy/DefaultSalaryPolicyPage";
+import DynamicSalaryPolicyPage from "./pages/NEWSALARYLOGIC/DynamicSalaryPolicy/DynamicSalaryPolicyPage";
+import DownloadSlip from "./pages/NEWSALARYLOGIC/DownloadSlip";
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -239,10 +238,7 @@ const App = () => {
                       path="employee-salary-details"
                       element={<EmpSalaryDetails />}
                     />
-                    <Route
-                      path="employee-salary-calculation"
-                      element={<SalaryCalculate />}
-                    />
+
                     <Route path="emp-category" element={<EmpCategory />} />
                     <Route
                       path="emp-employmenttype"
@@ -271,11 +267,32 @@ const App = () => {
                   <Route path="salary/*" element={<AdminContentBox />}>
                     <Route
                       index
-                      element={<Navigate to="salary-policy" />}
+                      element={<Navigate to="salary-configuration" />}
+                    />
+                    <Route path="salary-policy" element={<SalaryPolicy />} />
+                    <Route
+                      path="salary-configuration"
+                      element={<SalaryConfig />}
                     />
                     <Route
-                      path="salary-policy"
-                      element={<SalaryPolicy />}
+                      path="default-setup"
+                      element={<DefaultSalaryPolicyPage />}
+                    />
+                    <Route
+                      path="dynamic-setup"
+                      element={<DynamicSalaryPolicyPage />}
+                    />
+                    <Route
+                      path="company-salary-policy"
+                      element={<CompanySalaryPolicyPage />}
+                    />
+                    <Route
+                      path="salary-calculation"
+                      element={<SalaryCalculate />}
+                    />
+                    <Route
+                      path="download-slip"
+                      element={<DownloadSlip />}
                     />
                     
                   </Route>
@@ -299,7 +316,6 @@ const App = () => {
                     <Route path="work-locations" element={<WorkLocations />} />
                     <Route path="permissions" element={<Permissions />} />
                     <Route path="designation" element={<Designation />} />
-                    <Route path="salary" element={<Salary />} />
                     <Route path="status-master" element={<StatusMaster />} />
                     <Route
                       path="salary-calculation-type"
@@ -317,8 +333,11 @@ const App = () => {
                     <Route index element={<Navigate to="role-master" />} />
                     <Route path="role-master" element={<RoleMaster />} />
                     <Route path="approval-rules" element={<ApprovalRules />} />
-                    <Route path="approval-rule-roles" element={<ApprovalRuleRoles />} />
-                    
+                    <Route
+                      path="approval-rule-roles"
+                      element={<ApprovalRuleRoles />}
+                    />
+
                     <Route
                       path="emp-role-mapping"
                       element={<EmpRoleMapping />}
@@ -335,25 +354,37 @@ const App = () => {
                   </Route>
 
                   {/* Shift SubRoutes */}
-                  <Route path="payschedule-shifts/*" element={<AdminContentBox />}>
+                  <Route
+                    path="payschedule-shifts/*"
+                    element={<AdminContentBox />}
+                  >
                     <Route index element={<Navigate to="payschedule" />} />
                     <Route path="payschedule" element={<PaySchedule />} />
                     <Route path="add-shift" element={<Shifts />} />
                     <Route path="mapp-shift" element={<ShiftMapping />} />
-                    <Route path="shift-patterns" element={<ShiftPatternPage />} />
+                    <Route
+                      path="shift-patterns"
+                      element={<ShiftPatternPage />}
+                    />
                   </Route>
 
                   {/* Attendance SubRoutes */}
                   <Route path="attendance/*" element={<AdminContentBox />}>
                     <Route index element={<Navigate to="attendance" />} />
                     <Route path="attendance" element={<Attendance />} />
-                    <Route path="attendance-punches" element={<AttendanceAllPunches />} />
+                    <Route
+                      path="attendance-punches"
+                      element={<AttendanceAllPunches />}
+                    />
                     <Route path="add-attendance" element={<AttendanceForm />} />
                     <Route
                       path="manual-attendance"
                       element={<ManualAttendance />}
                     />
-                    <Route path="rejected-punches" element={<AttendanceRejectedPunches />} />
+                    <Route
+                      path="rejected-punches"
+                      element={<AttendanceRejectedPunches />}
+                    />
                     <Route path="punch" element={<AttendancePunch />} />
                     <Route path="atten-policy" element={<AttendancePolicy />} />
                     <Route path="atten-record" element={<AttendanceRecord />} />
@@ -432,7 +463,6 @@ const App = () => {
                     <Route path="all-reports" element={<AdminReports />} />
                   </Route>
 
-
                   <Route path="reports/*" element={<AdminContentBox />}>
                     <Route
                       index
@@ -442,7 +472,6 @@ const App = () => {
                       path="attendance-report"
                       element={<AttendanceReport />}
                     />
-                    
                   </Route>
 
                   {/* Documents SubRoutes */}

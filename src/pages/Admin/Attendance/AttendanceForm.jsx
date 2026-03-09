@@ -158,9 +158,7 @@ const AttendanceForm = () => {
         isManual: true,
         verificationMode: "ADMIN",
       },
-      latitude: 0,
-      longitude: 0,
-      accuracyMeters: 0,
+      
       source: "ADMIN_PANEL",
       deviceInfo: navigator.userAgent,
       capturedAt: `${attendanceDate}T${

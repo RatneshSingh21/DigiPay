@@ -5,7 +5,6 @@ import ApprovalHistoryCell from "../../../../../components/ApprovalHistoryCell";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
 
-
 const LeaveTable = ({ leaves }) => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -57,14 +56,14 @@ const LeaveTable = ({ leaves }) => {
       <table className="min-w-full text-sm text-gray-700">
         <thead className="bg-gray-50 text-xs">
           <tr className="uppercase text-gray-500 text-center">
-            <th className="px-4 py-3">S.No</th>
-            <th className="px-4 py-3">Employee</th>
-            <th className="px-4 py-3">Leave</th>
-            <th className="px-4 py-3">From</th>
-            <th className="px-4 py-3">To</th>
-            <th className="px-4 py-3">Reason</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Applied_On</th>
+            <th className="px-2 py-2">S.No</th>
+            <th className="px-2 py-2">Employee</th>
+            <th className="px-2 py-2">Leave / Duration</th>
+            <th className="px-2 py-2">From</th>
+            <th className="px-2 py-2">To</th>
+            <th className="px-2 py-2">Reason</th>
+            <th className="px-2 py-2">Status</th>
+            <th className="px-2 py-2">Applied_On</th>
           </tr>
         </thead>
 
@@ -74,31 +73,43 @@ const LeaveTable = ({ leaves }) => {
               key={leave.applyLeaveId}
               className="hover:bg-gray-50 border-t border-gray-200 transition text-center"
             >
-              <td className="px-4 py-3">
+              <td className="px-2 py-2">
                 {(page - 1) * pageSize + index + 1}.
               </td>
-              <td className="px-4 py-3 font-medium">{leave.employeeDisplay}</td>
-              <td className="px-4 py-3">
-                <div className="font-medium">{leave.leaveName}</div>
-                <div className="text-xs text-gray-500">{leave.leaveCode}</div>
+              <td className="px-2 py-2 font-medium">{leave.employeeDisplay}</td>
+              <td className="px-2 py-2">
+                <div className="font-medium">
+                  {leave.leaveName} (
+                  <span className="text-xs text-gray-500">
+                    {leave.leaveCode}
+                  </span>
+                  )
+                </div>
+
+                <div className="text-xs text-primary font-medium">
+                  {leave.leaveDuration}
+                </div>
               </td>
-              <td className="px-4 py-3">
+              <td className="px-2 py-2">
                 {format(new Date(leave.fromDate), "dd MMM yyyy")}
               </td>
-              <td className="px-4 py-3">
+              <td className="px-2 py-2">
                 {format(new Date(leave.toDate), "dd MMM yyyy")}
               </td>
-              <td className="px-4 py-3 max-w-xs truncate">
+              <td className="px-2 py-2 max-w-xs truncate">
                 {leave.reason || "-"}
               </td>
-              {/* <td className="px-4 py-3">{getStatusBadge(leave)}</td> */}
+              {/* <td className="px-2 py-2">{getStatusBadge(leave)}</td> */}
               {leave.approvalHistory && leave.approvalHistory.length > 0 ? (
-                <td className="px-4 py-3">
-                  <ApprovalHistoryCell approvalHistory={leave.approvalHistory} />
-              </td>):(
-                <td className="px-4 py-3">{getStatusBadge(leave)}</td>
-              )}  
-              <td className="px-4 py-3">
+                <td className="px-2 py-2">
+                  <ApprovalHistoryCell
+                    approvalHistory={leave.approvalHistory}
+                  />
+                </td>
+              ) : (
+                <td className="px-2 py-2">{getStatusBadge(leave)}</td>
+              )}
+              <td className="px-2 py-2">
                 {format(new Date(leave.createdOn), "dd MMM yyyy")}
               </td>
             </tr>

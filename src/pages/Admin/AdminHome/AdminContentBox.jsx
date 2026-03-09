@@ -7,7 +7,7 @@ const submenuMap = {
     "Employee List",
     "Basic Salary",
     "Employee Salary",
-    "Salary Calculation",
+    // "Salary Calculation",
     "Emp Category",
     "Employment Type",
     "Work Nature",
@@ -98,7 +98,12 @@ const submenuMap = {
     "Travel Details",
   ],
 
-  "Payschedule-Shifts": ["PaySchedule", "Add Shift", "Shift Mapping","Shift Patterns"],
+  "Payschedule-Shifts": [
+    "PaySchedule",
+    "Add Shift",
+    "Shift Mapping",
+    "Shift Patterns",
+  ],
 
   Settings: [
     "Organisation Profile",
@@ -108,14 +113,21 @@ const submenuMap = {
     "Designation",
     "Work Locations",
     "Permissions",
-    "Salary Configuration",
+    // "Salary Configuration",
     "Salary Calculation Type",
     "Status Master",
     // "Component Lock",
     "Employee Password Setup",
   ],
 
-  Salary: ["Salary Policy"],
+  Salary: [
+    "Salary Configuration",
+    // "Default SetUp",
+    "Dynamic SetUp",
+    "Company Salary Policy",
+    "Salary Calculation",
+    "Download SalarySlip"
+  ],
 };
 
 const getMenuFromPath = (pathname) => {

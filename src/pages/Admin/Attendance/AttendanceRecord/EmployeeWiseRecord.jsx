@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { FiEye } from "react-icons/fi";
 import { XIcon } from "lucide-react";
+import Select from "react-select";
+
 import PerDayAttendanceRecords from "./PerDayAttendanceRecords";
 
 const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [searchEmployee, setSearchEmployee] = useState(null);
 
   const today = new Date();
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
@@ -20,6 +23,7 @@ const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
       )
       .map((r) => ({
         date: r.attendanceDate,
+        dayStatus: r.dayStatus,
         inTime: r.inTime,
         outTime: r.outTime,
         totalHoursWorked: r.totalHoursWorked,
@@ -32,7 +36,19 @@ const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
 
   return (
     <div className="mx-4 mt-6 space-y-4">
-      {employees.map((emp) => (
+      <div className="bg-white p-4 rounded-lg shadow">
+        <Select
+          placeholder="Search Employee..."
+          options={employees}
+          value={searchEmployee}
+          onChange={(val) => setSearchEmployee(val)}
+          isClearable
+        />
+      </div>
+      {(searchEmployee
+        ? employees.filter((e) => e.value === searchEmployee.value)
+        : employees
+      ).map((emp) => (
         <div
           key={emp.value}
           className="bg-white shadow rounded-lg p-4 flex justify-between items-center"
@@ -72,19 +88,19 @@ const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(Number(e.target.value))}
                     className="
-        appearance-none
-        bg-white
-        border border-gray-300
-        rounded-lg
-        px-4 pr-10 py-2
-        text-sm font-medium text-gray-700
-        shadow-sm
-        focus:outline-none
-        focus:ring-2 focus:ring-indigo-500
-        focus:border-indigo-500
-        transition
-        cursor-pointer
-      "
+                      appearance-none
+                      bg-white
+                      border border-gray-300
+                      rounded-lg
+                      px-4 pr-10 py-2
+                      text-sm font-medium text-gray-700
+                      shadow-sm
+                      focus:outline-none
+                      focus:ring-2 focus:ring-indigo-500
+                      focus:border-indigo-500
+                      transition
+                      cursor-pointer
+                    "
                   >
                     {Array.from({ length: 12 }).map((_, index) => (
                       <option key={index} value={index}>
@@ -107,19 +123,19 @@ const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(Number(e.target.value))}
                     className="
-        appearance-none
-        bg-white
-        border border-gray-300
-        rounded-lg
-        px-4 pr-10 py-2
-        text-sm font-medium text-gray-700
-        shadow-sm
-        focus:outline-none
-        focus:ring-2 focus:ring-indigo-500
-        focus:border-indigo-500
-        transition
-        cursor-pointer
-      "
+                      appearance-none
+                      bg-white
+                      border border-gray-300
+                      rounded-lg
+                      px-4 pr-10 py-2
+                      text-sm font-medium text-gray-700
+                      shadow-sm
+                      focus:outline-none
+                      focus:ring-2 focus:ring-indigo-500
+                      focus:border-indigo-500
+                      transition
+                      cursor-pointer
+                    "
                   >
                     {Array.from({ length: 5 }).map((_, index) => {
                       const year = today.getFullYear() - 2 + index;

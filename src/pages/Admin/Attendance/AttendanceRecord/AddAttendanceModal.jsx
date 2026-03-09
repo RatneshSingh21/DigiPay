@@ -7,6 +7,8 @@ import ModalWrapper from "./ModalWrapper";
 const inputClass =
   "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
+const labelClass = "block text-sm font-medium text-gray-700";
+
 const AddAttendanceModal = ({ show, onClose, employees, onSuccess }) => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [attendanceDate, setAttendanceDate] = useState("");
@@ -19,6 +21,7 @@ const AddAttendanceModal = ({ show, onClose, employees, onSuccess }) => {
 
     try {
       setLoading(true);
+
       await axiosInstance.post("/AttendanceRecord/create", {
         employeeId: selectedEmployee.value,
         attendanceDate: new Date(attendanceDate).toISOString(),
@@ -26,8 +29,8 @@ const AddAttendanceModal = ({ show, onClose, employees, onSuccess }) => {
       });
 
       toast.success("Attendance created");
-      onSuccess(); // reload list
-      onClose(); // close modal
+      onSuccess();
+      onClose();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed");
     } finally {
@@ -38,26 +41,41 @@ const AddAttendanceModal = ({ show, onClose, employees, onSuccess }) => {
   return (
     <ModalWrapper show={show} onClose={onClose} title="Add Attendance">
       <div className="space-y-4">
-        <Select
-          options={employees}
-          value={selectedEmployee}
-          onChange={setSelectedEmployee}
-        />
+        
+        {/* Employee */}
+        <div>
+          <label className={labelClass}>Employee</label>
+          <Select
+            options={employees}
+            value={selectedEmployee}
+            onChange={setSelectedEmployee}
+            placeholder="Select employee"
+          />
+        </div>
 
-        <input
-          type="datetime-local"
-          value={attendanceDate}
-          onChange={(e) => setAttendanceDate(e.target.value)}
-          className={inputClass}
-        />
+        {/* Attendance Date */}
+        <div>
+          <label className={labelClass}>Attendance Date & Time</label>
+          <input
+            type="datetime-local"
+            value={attendanceDate}
+            onChange={(e) => setAttendanceDate(e.target.value)}
+            className={inputClass}
+          />
+        </div>
 
-        <input
-          value={remarks}
-          onChange={(e) => setRemarks(e.target.value)}
-          className={inputClass}
-          placeholder="Remarks"
-        />
+        {/* Remarks */}
+        <div>
+          <label className={labelClass}>Remarks</label>
+          <input
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            className={inputClass}
+            placeholder="Enter remarks"
+          />
+        </div>
 
+        {/* Button */}
         <button
           onClick={handleCreate}
           disabled={loading}
@@ -65,6 +83,7 @@ const AddAttendanceModal = ({ show, onClose, employees, onSuccess }) => {
         >
           {loading ? "Saving..." : "Submit"}
         </button>
+
       </div>
     </ModalWrapper>
   );

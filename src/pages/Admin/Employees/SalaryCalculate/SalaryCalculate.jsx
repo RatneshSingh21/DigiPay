@@ -5,6 +5,7 @@ import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import SalaryCalculateForm from "./SalaryCalculateForm";
 import ManualSalaryCalculateForm from "./ManualSalaryCalculateForm";
 import SalaryCalculateGenerateAllForm from "./SalaryCalculateGenerateAllForm";
+import SalaryExportForm from "./SalaryExportForm";
 
 const months = [
   { label: "All Months", value: "" },
@@ -32,6 +33,7 @@ const SalaryCalculate = () => {
   const [showGenerateAllForm, setShowGenerateAllForm] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
+  const [showExportForm, setShowExportForm] = useState(false);
 
   /* ================= FILTERED DATA ================= */
   const filteredSalaries = [...salaries]
@@ -51,7 +53,7 @@ const SalaryCalculate = () => {
       (a.employeeCode || "").localeCompare(b.employeeCode || "", undefined, {
         numeric: true,
         sensitivity: "base",
-      })
+      }),
     );
 
   /* ================= TOTALS ================= */
@@ -99,7 +101,7 @@ const SalaryCalculate = () => {
         deductions: 0,
         net: 0,
         ctc: 0,
-      }
+      },
     );
   }, [filteredSalaries]);
 
@@ -124,7 +126,7 @@ const SalaryCalculate = () => {
   return (
     <div>
       {/* Header */}
-      <div className="px-4 py-2 shadow mb-5 sticky top-14 bg-white z-10 flex justify-between items-center">
+      <div className="px-4 py-2 shadow mb-2 sticky top-14 bg-white z-10 flex justify-between items-center">
         <h2 className="font-semibold text-xl">Calculated Salaries</h2>
 
         <div className="flex gap-2 items-center">
@@ -139,7 +141,7 @@ const SalaryCalculate = () => {
             <Select
               options={months}
               value={months.find(
-                (m) => String(m.value) === String(selectedMonth)
+                (m) => String(m.value) === String(selectedMonth),
               )}
               onChange={(opt) => setSelectedMonth(opt?.value ?? "")}
               isClearable={false}
@@ -185,6 +187,14 @@ const SalaryCalculate = () => {
           </button>
         </div>
       </div>
+      <div className="flex justify-end mb-2 mr-2">
+        <button
+          onClick={() => setShowExportForm(true)}
+          className="flex items-center cursor-pointer gap-2 bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-md text-sm"
+        >
+          Export Excel
+        </button>
+      </div>
 
       <div className="border mx-auto max-w-xl md:max-w-5xl xl:min-w-5xl 2xl:min-w-full overflow-auto border-gray-200 rounded-lg max-h-[75vh]">
         <table className="divide-y divide-gray-200 text-xs text-center">
@@ -215,6 +225,8 @@ const SalaryCalculate = () => {
               <th className="p-2 border-r border-gray-200">Deductions</th>
               <th className="p-2 border-r border-gray-200">Net Salary</th>
               <th className="p-2 border-r border-gray-200">CTC</th>
+              <th className="p-2 border-r border-gray-200">Working Days</th>
+              <th className="p-2 border-r border-gray-200">Absent</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 text-center">
@@ -244,6 +256,7 @@ const SalaryCalculate = () => {
                   <td className="px-2 py-2 border-r border-gray-200">
                     {s.year}
                   </td>
+
                   <td className="px-2 py-2 border-r border-gray-200">
                     {round(s.basicSalary)}
                   </td>
@@ -307,6 +320,12 @@ const SalaryCalculate = () => {
                   <td className="px-2 py-2 border-r border-gray-200">
                     {round(s.ctc)}
                   </td>
+                  <td className="px-2 py-2 border-r border-gray-200">
+                    {s.totalWorkingDays}
+                  </td>
+                  <td className="px-2 py-2 border-r border-gray-200">
+                    {s.absentDays}
+                  </td>
                 </tr>
               ))
             ) : search !== "" ? (
@@ -326,7 +345,9 @@ const SalaryCalculate = () => {
 
           <tfoot className="sticky bottom-0 bg-gray-200 font-semibold text-xs">
             <tr>
-              <td className="p-2 border-r border-gray-200"  colSpan={4}>TOTAL</td>
+              <td className="p-2 border-r border-gray-200" colSpan={4}>
+                TOTAL
+              </td>
               <td className="p-2 border-r border-gray-200">
                 ₹{round(totals.basic)}
               </td>
@@ -384,6 +405,9 @@ const SalaryCalculate = () => {
                 ₹{round(totals.net)}
               </td>
               <td className="p-2">₹{round(totals.ctc)}</td>
+              {/* NEW CELLS */}
+              <td className="p-2 border-r border-gray-200">-</td>
+              <td className="p-2">-</td>
             </tr>
           </tfoot>
         </table>
@@ -409,6 +433,10 @@ const SalaryCalculate = () => {
           onClose={() => setShowGenerateAllForm(false)}
           onSuccess={fetchSalaries}
         />
+      )}
+
+      {showExportForm && (
+        <SalaryExportForm onClose={() => setShowExportForm(false)} />
       )}
     </div>
   );

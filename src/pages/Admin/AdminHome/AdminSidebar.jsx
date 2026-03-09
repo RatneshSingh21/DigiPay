@@ -32,12 +32,12 @@ const menuItems = [
     to: "/admin-dashboard/employees",
     collapseOnClick: true,
   },
-  // {
-  //   label: "Salary",
-  //   icon: <IndianRupee size={15} />,
-  //   to: "/admin-dashboard/salary",
-  //   collapseOnClick: true,
-  // },
+  {
+    label: "Salary",
+    icon: <IndianRupee size={15} />,
+    to: "/admin-dashboard/salary",
+    collapseOnClick: true,
+  },
   {
     label: "Payschedule & Shifts",
     icon: <CalendarDays size={15} />,

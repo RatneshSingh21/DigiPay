@@ -123,103 +123,107 @@ const SalaryConfigForm = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid grid-cols-1 md:grid-cols-2 text-sm gap-4 bg-white p-4 rounded shadow"
+      className="grid grid-cols-1 md:grid-cols-2 gap-8"
     >
+      {/* Component */}
       <div>
-        <label className="block mb-1">Component Name</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Component Name
+        </label>
         <Select
           options={filteredSalaryComponentOptions}
           value={formData.componentName}
           onChange={(option) =>
             setFormData({ ...formData, componentName: option })
           }
-          placeholder="Select Component"
-          isSearchable
-          autoFocus
+          placeholder="Select component"
+          className="text-sm"
         />
       </div>
 
+      {/* Calculation Type */}
       <div>
-        <label className="block mb-1">Calculation Type</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Calculation Type
+        </label>
         <Select
           options={calculationTypeOptions}
           value={formData.calculationType}
           onChange={(option) =>
             setFormData({ ...formData, calculationType: option })
           }
-          placeholder="Select Type"
+          placeholder="Select calculation type"
+          className="text-sm"
         />
       </div>
 
-      {formData.calculationType?.value === 1 ? (
-        <div>
-          <label>Percentage Value (%)</label>
-          <input
-            type="text"
-            min={0}
-            value={formData.percentageValue}
-            onChange={(e) =>
-              setFormData({ ...formData, percentageValue: e.target.value })
-            }
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
-        </div>
-      ) : (
-        <div>
-          <label>Fixed Amount</label>
-          <input
-            type="text"
-            min={0}
-            value={formData.fixedAmount}
-            onChange={(e) =>
-              setFormData({ ...formData, fixedAmount: e.target.value })
-            }
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter Amount"
-            required
-          />
-        </div>
-      )}
+      {/* Value */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {formData.calculationType?.value === 1
+            ? "Percentage Value (%)"
+            : "Fixed Amount"}
+        </label>
+        <input
+          type="number"
+          value={
+            formData.calculationType?.value === 1
+              ? formData.percentageValue
+              : formData.fixedAmount
+          }
+          onChange={(e) =>
+            formData.calculationType?.value === 1
+              ? setFormData({ ...formData, percentageValue: e.target.value })
+              : setFormData({ ...formData, fixedAmount: e.target.value })
+          }
+          className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-sm"
+          required
+        />
+      </div>
 
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium">Status</label>
+      {/* Status */}
+      <div className="flex items-center gap-4 mt-6">
+        <label className="text-sm font-medium text-gray-700">Status</label>
+
         <button
           type="button"
-          className={`relative inline-flex items-center cursor-pointer h-6 rounded-full w-11 transition-colors duration-300 ${
-            formData.isEnabled ? "bg-green-500" : "bg-gray-300"
-          }`}
           onClick={() =>
             setFormData({ ...formData, isEnabled: !formData.isEnabled })
           }
+          className={`relative inline-flex h-6 w-12 items-center cursor-pointer rounded-full transition ${
+            formData.isEnabled ? "bg-green-500" : "bg-gray-300"
+          }`}
         >
           <span
-            className={`inline-block w-4 h-4 transform cursor-pointer bg-white rounded-full transition-transform duration-300 ${
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
               formData.isEnabled ? "translate-x-6" : "translate-x-1"
             }`}
           />
         </button>
-        <span className="text-sm">
+
+        <span className="text-sm text-gray-600">
           {formData.isEnabled ? "Active" : "Inactive"}
         </span>
       </div>
 
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          className="bg-primary text-white cursor-pointer px-4 py-2 rounded hover:bg-secondary"
-        >
-          {editId ? "Update" : "Add"} Component
-        </button>
+      {/* Buttons */}
+      <div className="md:col-span-2 pt-6 border-t border-gray-200 flex justify-end gap-4">
         {editId && (
           <button
             type="button"
             onClick={resetForm}
-            className="bg-gray-300 text-black cursor-pointer px-4 py-2 rounded hover:bg-gray-400"
+            className="px-5 py-2 text-sm border cursor-pointer border-gray-300 rounded-md hover:bg-gray-100 transition"
           >
             Cancel
           </button>
         )}
+
+        <button
+          type="submit"
+          className="px-6 py-2 text-sm cursor-pointer bg-primary text-white rounded-md hover:bg-secondary transition font-medium"
+        >
+          {editId ? "Update Component" : "Add Component"}
+        </button>
       </div>
     </form>
   );

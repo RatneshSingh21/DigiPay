@@ -58,6 +58,9 @@ const EmployeeLeave = () => {
           ? `${emp.fullName} (${emp.employeeCode})`
           : `Employee #${l.employeeId}`,
         statusDisplay: statusObj?.statusName ?? "Unknown",
+        leaveDuration: l.isHalfDay
+          ? `Half Day (${l.halfDayType})`
+          : `${l.leaveDays} Day(s)`,
       };
     });
   }, [leaves, employees, statuses]);

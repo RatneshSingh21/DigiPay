@@ -34,6 +34,14 @@ export const payslipTranslations = {
       overtime: "Overtime",
       arrears: "Arrears",
     },
+    deductionLabels: {
+      pf: "Provident Fund (PF)",
+      esic: "ESIC",
+      professionalTax: "Professional Tax",
+      tds: "TDS",
+      loanRepayment: "Loan Repayment",
+      otherDeductions: "Other Deductions",
+    },
   },
   hi: {
     payslipFor: "माह की वेतन पर्ची",
@@ -69,6 +77,14 @@ export const payslipTranslations = {
       leaveEncashment: "अवकाश नकदीकरण",
       overtime: "ओवरटाइम",
       arrears: "बकाया",
+    },
+    deductionLabels: {
+      pf: "भविष्य निधि (PF)",
+      esic: "ईएसआईसी",
+      professionalTax: "व्यावसायिक कर",
+      tds: "टीडीएस",
+      loanRepayment: "ऋण भुगतान",
+      otherDeductions: "अन्य कटौतियाँ",
     },
   },
   gu: {
@@ -106,6 +122,14 @@ export const payslipTranslations = {
       overtime: "ઓવરટાઈમ",
       arrears: "બાકી રકમ",
     },
+    deductionLabels: {
+      pf: "ભવિષ્ય નિધિ (PF)",
+      esic: "ઈએસઆઈસી",
+      professionalTax: "વ્યવસાયિક કર",
+      tds: "ટીડીએસ",
+      loanRepayment: "લોન ચુકવણી",
+      otherDeductions: "અન્ય કપાત",
+    },
   },
   mr: {
     payslipFor: "महिन्याची पगार पावती",
@@ -142,6 +166,14 @@ export const payslipTranslations = {
       overtime: "ओव्हरटाइम",
       arrears: "थकबाकी",
     },
+    deductionLabels: {
+      pf: "भविष्य निर्वाह निधी (PF)",
+      esic: "ईएसआयसी",
+      professionalTax: "व्यावसायिक कर",
+      tds: "टीडीएस",
+      loanRepayment: "कर्ज परतफेड",
+      otherDeductions: "इतर कपात",
+    },
   },
   ml: {
     payslipFor: "മാസത്തെ ശമ്പള സ്ലിപ്പ്",
@@ -177,6 +209,14 @@ export const payslipTranslations = {
       leaveEncashment: "അവധി നാണ്യമാക്കൽ",
       overtime: "ഓവർടൈം",
       arrears: "ബാക്കി തുക",
+    },
+    deductionLabels: {
+      pf: "പ്രൊവിഡന്റ് ഫണ്ട് (PF)",
+      esic: "ഇഎസ്‌ഐസി",
+      professionalTax: "പ്രൊഫഷണൽ നികുതി",
+      tds: "ടിഡിഎസ്",
+      loanRepayment: "ലോൺ തിരിച്ചടവ്",
+      otherDeductions: "മറ്റ് കുറവുകൾ",
     },
   },
 };

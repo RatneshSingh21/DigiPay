@@ -30,20 +30,28 @@ const PerDayAttendanceRecords = ({
   };
 
   const getStatusColor = (day) => {
-    // No record
-    if (!day.inTime && !day.outTime && !day.isAbsent && !day.isHalfDay)
-      return "bg-gray-100 border-gray-200";
+    switch (day.dayStatus) {
+      case 1: // Present
+        return "bg-green-50 border-green-200";
 
-    // Absent
-    if (day.isAbsent) return "bg-red-50 border-red-200";
+      case 2: // Absent
+        return "bg-red-50 border-red-200";
 
-    // Half Day
-    if (day.isHalfDay) return "bg-yellow-50 border-yellow-200";
+      case 3: // Holiday
+        return "bg-blue-50 border-blue-200";
 
-    // Present (In/Out available)
-    if (day.inTime || day.outTime) return "bg-green-50 border-green-200";
+      case 4: // Weekend
+        return "bg-gray-200 border-gray-300";
 
-    return "bg-gray-100 border-gray-200";
+      case 5: // Leave
+        return "bg-purple-50 border-purple-200";
+
+      case 6: // Half Day
+        return "bg-yellow-50 border-yellow-200";
+
+      default:
+        return "bg-gray-100 border-gray-200";
+    }
   };
 
   const formatMinutes = (minutes) => {
@@ -63,9 +71,7 @@ const PerDayAttendanceRecords = ({
             year: "numeric",
           })}
         </h3>
-        <p className="text-sm text-gray-500 mt-1">
-          Monthly Attendance Records
-        </p>
+        <p className="text-sm text-gray-500 mt-1">Monthly Attendance Records</p>
       </div>
 
       {/* Weekday Headers */}
@@ -91,9 +97,21 @@ const PerDayAttendanceRecords = ({
                 hover:shadow-md
               `}
             >
-              {/* Date */}
-              <div className="text-sm font-semibold text-gray-800">
-                {new Date(day.date).getDate()}
+              <div className="flex justify-between">
+                {/* Date */}
+                <div className="text-sm font-semibold text-gray-800">
+                  {new Date(day.date).getDate()}
+                </div>
+
+                {/* Status Text */}
+                <div className="text-[10px] font-semibold text-gray-600">
+                  {day.dayStatus === 1 && "Present"}
+                  {day.dayStatus === 2 && "Absent"}
+                  {day.dayStatus === 3 && "Holiday"}
+                  {day.dayStatus === 4 && "Weekend"}
+                  {day.dayStatus === 5 && "Leave"}
+                  {day.dayStatus === 6 && "Half Day"}
+                </div>
               </div>
 
               {/* Attendance Info */}
@@ -167,8 +185,30 @@ const PerDayAttendanceRecords = ({
                   )} */}
                 </div>
               ) : (
-                <div className="mt-3 text-center text-gray-400 text-[11px]">
-                  No Record
+                <div className="mt-3 text-center text-[11px] font-medium">
+                  {day.dayStatus === 2 && (
+                    <span className="text-red-600">Absent</span>
+                  )}
+
+                  {day.dayStatus === 3 && (
+                    <span className="text-blue-600">Holiday</span>
+                  )}
+
+                  {day.dayStatus === 4 && (
+                    <span className="text-gray-600">Weekend</span>
+                  )}
+
+                  {day.dayStatus === 5 && (
+                    <span className="text-purple-600">Leave</span>
+                  )}
+
+                  {day.dayStatus === 6 && (
+                    <span className="text-yellow-600">Half Day</span>
+                  )}
+
+                  {!day.dayStatus && (
+                    <span className="text-gray-400">No Record</span>
+                  )}
                 </div>
               )}
             </div>
@@ -177,7 +217,7 @@ const PerDayAttendanceRecords = ({
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center gap-6 mt-6 text-xs">
+      <div className="flex justify-center gap-6 mt-6 text-xs flex-wrap">
         <div className="flex items-center gap-1">
           <span className="w-3 h-3 bg-green-400 rounded-full" />
           <span>Present</span>
@@ -191,6 +231,21 @@ const PerDayAttendanceRecords = ({
         <div className="flex items-center gap-1">
           <span className="w-3 h-3 bg-red-400 rounded-full" />
           <span>Absent</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="w-3 h-3 bg-blue-400 rounded-full" />
+          <span>Holiday</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="w-3 h-3 bg-gray-400 rounded-full" />
+          <span>Weekend</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="w-3 h-3 bg-purple-400 rounded-full" />
+          <span>Leave</span>
         </div>
       </div>
     </div>

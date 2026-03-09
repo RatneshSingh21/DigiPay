@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import AmountInWords from "../../../components/AmountInWords";
-import axiosInstance from "../../../axiosInstance/axiosInstance";
-import { LEAVE_CATALOG } from "../../Admin/Leave/LeaveType/leaveCatalog";
 
 const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
   const [remainingLeaves, setRemainingLeaves] = useState([]);
@@ -57,55 +55,23 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
   /* ================= DEDUCTIONS ================= */
 
   const deductions = [
-    { label: "Total Deductions", amount: salary.deductions ?? 0 },
-  ];
+    { label: "PF", amount: salary.pfEmployee ?? 0 },
+    { label: "ESIC", amount: salary.esicEmployee ?? 0 },
+    { label: "Professional Tax", amount: salary.professionalTax ?? 0 },
+    { label: "TDS", amount: salary.tds ?? 0 },
+    { label: "Loan Repayment", amount: salary.loanRepayment ?? 0 },
+    { label: "Other Deductions", amount: salary.otherDeductions ?? 0 },
+  ].filter((d) => d.amount > 0);
 
   const totalEarnings = salary.earnings ?? 0;
   const totalDeductions = salary.deductions ?? 0;
   const netPay = salary.netPay ?? 0;
 
   useEffect(() => {
-    if (!employee?.id) return;
-
-    const fetchLeaveAllocation = async () => {
-      try {
-        const allocationRes = await axiosInstance.get(
-          `/EmployeeLeaveAllocation/${employee.id}`,
-        );
-
-        const allocations = allocationRes.data?.data || [];
-
-        if (!allocations.length) {
-          setRemainingLeaves([]);
-          return;
-        }
-
-        const leaveTypeRes = await axiosInstance.get("/LeaveType/active");
-        const leaveTypes = leaveTypeRes.data || [];
-
-        const options = allocations
-          .filter((a) => a.isActive)
-          .map((a) => {
-            const lt = leaveTypes.find((l) => l.leaveTypeId === a.leaveTypeId);
-
-            if (!lt) return null;
-
-            return {
-              leaveTypeId: lt.leaveTypeId,
-              leaveName: lt.leaveName,
-              remaining: a.leavesRemaining,
-            };
-          })
-          .filter(Boolean);
-
-        setRemainingLeaves(options);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchLeaveAllocation();
-  }, [employee?.id]);
+    if (data?.leaveBalances) {
+      setRemainingLeaves(data.leaveBalances);
+    }
+  }, [data]);
 
   /* ================= UI ================= */
 
@@ -203,14 +169,9 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
               <strong>Balance Leaves:</strong>
               <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1">
                 {remainingLeaves.map((leave) => {
-                  const leaveCatalogItem = LEAVE_CATALOG.find(
-                    (lc) => lc.label === leave.leaveName,
-                  );
-                  if (!leaveCatalogItem) return null;
-
                   return (
                     <span key={leave.leaveTypeId} className="whitespace-nowrap">
-                      {leaveCatalogItem.value}: {leave.remaining}
+                      {leave.leaveCode}: {leave.leavesRemaining}
                     </span>
                   );
                 })}
@@ -225,58 +186,81 @@ const EmpPayslipPreview4 = ({ config = {}, data, month, year }) => {
         <table className="w-full text-sm border-collapse">
           <thead className="bg-gray-100 border-b border-gray-400">
             <tr>
-              <th className="border border-gray-400 px-2 py-1 text-left">EARNINGS</th>
-              <th className="border border-gray-400 px-2 py-1 text-right">AMOUNT</th>
-              {showYTD && <th className="border border-gray-400 px-2 py-1 text-right">YTD</th>}
-              <th className="border border-gray-400 px-2 py-1 text-left">DEDUCTIONS</th>
-              <th className="border border-gray-400 px-2 py-1 text-right">AMOUNT</th>
-              {showYTD && <th className="border border-gray-400 px-2 py-1 text-right">YTD</th>}
+              <th className="border border-gray-400 px-2 py-1 text-left">
+                EARNINGS
+              </th>
+              <th className="border border-gray-400 px-2 py-1 text-right">
+                AMOUNT
+              </th>
+              {showYTD && (
+                <th className="border border-gray-400 px-2 py-1 text-right">
+                  YTD
+                </th>
+              )}
+              <th className="border border-gray-400 px-2 py-1 text-left">
+                DEDUCTIONS
+              </th>
+              <th className="border border-gray-400 px-2 py-1 text-right">
+                AMOUNT
+              </th>
+              {showYTD && (
+                <th className="border border-gray-400 px-2 py-1 text-right">
+                  YTD
+                </th>
+              )}
             </tr>
           </thead>
 
           <tbody>
-            {/* Earnings rows */}
-            {earnings.map((e, index) => (
-              <tr key={index}>
-                <td className="border border-gray-400 px-2 py-1">{e.label}</td>
-                <td className="border border-gray-400 px-2 py-1 text-right">
-                  ₹{Number(e.amount ?? 0).toLocaleString("en-IN")}
-                </td>
-                {showYTD && <td className="border border-gray-400 px-2 py-1 text-right">-</td>}
+            {earnings.map((e, index) => {
+              const d = deductions[index];
 
-                {/* Deduction columns only on FIRST row */}
-                {index === 0 ? (
-                  <>
-                    <td className="border border-gray-400 px-2 py-1">{deductions[0]?.label}</td>
+              return (
+                <tr key={index}>
+                  {/* Earnings */}
+                  <td className="border border-gray-400 px-2 py-1">
+                    {e.label}
+                  </td>
+                  <td className="border border-gray-400 px-2 py-1 text-right">
+                    ₹{Number(e.amount ?? 0).toLocaleString("en-IN")}
+                  </td>
+                  {showYTD && (
                     <td className="border border-gray-400 px-2 py-1 text-right">
-                      ₹
-                      {Number(deductions[0]?.amount ?? 0).toLocaleString(
-                        "en-IN",
-                      )}
+                      -
                     </td>
-                    {showYTD && (
-                      <td className="border border-gray-400 px-2 py-1 text-right">-</td>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <td className="border border-gray-400 px-2 py-1"></td>
-                    <td className="border border-gray-400 px-2 py-1"></td>
-                    {showYTD && <td className="border border-gray-400 px-2 py-1"></td>}
-                  </>
-                )}
-              </tr>
-            ))}
+                  )}
+
+                  {/* Deductions */}
+                  <td className="border border-gray-400 px-2 py-1">
+                    {d?.label || ""}
+                  </td>
+                  <td className="border border-gray-400 px-2 py-1 text-right">
+                    {d ? `₹${Number(d.amount).toLocaleString("en-IN")}` : ""}
+                  </td>
+                  {showYTD && (
+                    <td className="border border-gray-400 px-2 py-1 text-right">
+                      -
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
 
             {/* Totals row */}
             <tr className="font-semibold bg-gray-50">
-              <td className="border border-gray-400 px-2 py-1">Gross Earnings</td>
+              <td className="border border-gray-400 px-2 py-1">
+                Gross Earnings
+              </td>
               <td className="border border-gray-400 px-2 py-1 text-right">
                 ₹{totalEarnings.toLocaleString("en-IN")}
               </td>
-              {showYTD && <td className="border border-gray-400 px-2 py-1"></td>}
+              {showYTD && (
+                <td className="border border-gray-400 px-2 py-1"></td>
+              )}
 
-              <td className="border border-gray-400 px-2 py-1">Total Deductions</td>
+              <td className="border border-gray-400 px-2 py-1">
+                Total Deductions
+              </td>
               <td className="border border-gray-400 px-2 py-1 text-right">
                 ₹{totalDeductions.toLocaleString("en-IN")}
               </td>
