@@ -37,6 +37,7 @@ export default function UpdateBasicDetails({ employeeId, onLocalUpdate }) {
     payScheduleId: "",
     portalAccessEnabled: true,
     aadhaarCardNumber: "",
+    uan: ""
   });
 
   const [loading, setLoading] = useState(true);
@@ -97,6 +98,7 @@ export default function UpdateBasicDetails({ employeeId, onLocalUpdate }) {
         payScheduleId: emp.payScheduleId ? Number(emp.payScheduleId) : "",
         portalAccessEnabled: emp.portalAccessEnabled ?? true,
         aadhaarCardNumber: emp.aadhaarCardNumber || "",
+        uan: emp.uan || ""
       });
       setBasicDetailsExists(true);
     } catch (err) {
@@ -224,6 +226,19 @@ export default function UpdateBasicDetails({ employeeId, onLocalUpdate }) {
             label="Aadhaar Number"
             name="aadhaarCardNumber"
             value={form.aadhaarCardNumber}
+            onChange={onChange}
+            size="small"
+            fullWidth
+            inputProps={{ maxLength: 12 }}
+          />
+        </Grid>
+
+        {/* UAN */}
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="UAN Number"
+            name="uan"
+            value={form.uan}
             onChange={onChange}
             size="small"
             fullWidth

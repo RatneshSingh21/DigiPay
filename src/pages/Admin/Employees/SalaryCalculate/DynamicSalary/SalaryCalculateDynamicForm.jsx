@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import { FiX } from "react-icons/fi";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 
 const inputClass =
   "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
@@ -22,7 +22,7 @@ const monthOptions = [
   { value: 12, label: "December" },
 ];
 
-const SalaryCalculateForm = ({ onClose, onSuccess }) => {
+const SalaryCalculateDynamicForm = ({ onClose, onSuccess }) => {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
@@ -153,7 +153,7 @@ const SalaryCalculateForm = ({ onClose, onSuccess }) => {
         "0",
       )}-01`;
 
-      await axiosInstance.post(
+      const res = await axiosInstance.post(
         `/DynamicSalaryEngine/process`,
         {},
         {
@@ -167,10 +167,9 @@ const SalaryCalculateForm = ({ onClose, onSuccess }) => {
 
       toast.success("Salary calculated successfully");
 
-      onSuccess();
+      onSuccess(res.data.data); // pass result to parent
       onClose();
     } catch (err) {
-      console.error(err);
       toast.error(err?.response?.data?.message || "Failed to calculate salary");
     }
   };
@@ -188,7 +187,7 @@ const SalaryCalculateForm = ({ onClose, onSuccess }) => {
 
         {/* TITLE */}
         <h2 className="text-lg font-semibold mb-5 text-gray-800 text-center">
-          Generate Salary
+          Generate Salary (Dynamic)
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-2">
@@ -274,4 +273,4 @@ const SalaryCalculateForm = ({ onClose, onSuccess }) => {
   );
 };
 
-export default SalaryCalculateForm;
+export default SalaryCalculateDynamicForm;

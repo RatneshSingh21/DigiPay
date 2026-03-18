@@ -119,9 +119,8 @@ const BasicDetails = () => {
 
     const payload = {
       employeeCode: form.employeeId,
-      fullName: `${form.firstName || ""} ${form.middleName || ""} ${
-        form.lastName || ""
-      }`.trim(),
+      fullName: `${form.firstName || ""} ${form.middleName || ""} ${form.lastName || ""
+        }`.trim(),
       dateOfJoining: form.dateOfJoining,
       workEmail: form.workEmail,
       mobileNumber: form.mobileNumber,
@@ -132,7 +131,8 @@ const BasicDetails = () => {
       workLocationId: form.workLocation?.value || 0,
       payScheduleId: form.payschedule?.value || 0,
       portalAccessEnabled: portalAccess,
-      aadhaarCardNumber: form.aadhaarCardNumber
+      aadhaarCardNumber: form.aadhaarCardNumber,
+      uan: form.uan || ""
     };
 
     try {
@@ -206,11 +206,10 @@ const BasicDetails = () => {
               type="text"
               onChange={handleChange}
               disabled={employeeId}
-              className={`w-full px-4 py-2 border rounded-md ${
-                errors.employeeId
+              className={`w-full px-4 py-2 border rounded-md ${errors.employeeId
                   ? "border-red-500 focus:outline-none focus:ring-2 focus:ring-red-400"
                   : "border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              } ${employeeId ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                } ${employeeId ? "bg-gray-100 cursor-not-allowed" : ""}`}
             />
 
             {errors.employeeId && (
@@ -327,8 +326,8 @@ const BasicDetails = () => {
             value={form.payschedule || null}
             onChange={handleChange}
             options={payschedule}
-            // allowAddOption
-            // onAddNewOption={() => setOpenModalField("payschedule")}
+          // allowAddOption
+          // onAddNewOption={() => setOpenModalField("payschedule")}
           />
           <div>
             <label className="block font-medium mb-1">
@@ -345,8 +344,22 @@ const BasicDetails = () => {
               className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
+          <div>
+            <label className="block font-medium mb-1">
+              UAN Number
+            </label>
+            <input
+              placeholder="UAN Number"
+              name="uan"
+              value={form.uan || ""}
+              onChange={handleChange}
+              type="text"
+              maxLength={12}
+              className="w-full px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
         </div>
-        
+
 
         <div className="mb-4">
           <label className="inline-flex items-start">

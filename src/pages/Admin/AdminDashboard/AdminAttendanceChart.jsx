@@ -19,9 +19,14 @@ const AdminAttendanceChart = () => {
   const fetchAttendance = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get("/DailyAttendanceStatus", {
-        params: { date },
-      });
+
+      const res = await axiosInstance.get(
+        "/DailyAttendanceStatus/date",
+        {
+          params: { date },
+        }
+      );
+
       setData(res.data?.data || []);
     } catch (err) {
       console.error(err);
@@ -61,20 +66,29 @@ const AdminAttendanceChart = () => {
       ];
     }
 
-    const filtered = data.filter(
-      (r) => r.attendanceDate.split("T")[0] === date,
-    );
-
     let present = 0;
     let absent = 0;
     let missingIn = 0;
     let missingOut = 0;
 
-    filtered.forEach((r) => {
-      if (r.hasInPunch && r.hasOutPunch) present++;
-      else if (!r.hasInPunch && !r.hasOutPunch) absent++;
-      else if (!r.hasInPunch) missingIn++;
-      else if (!r.hasOutPunch) missingOut++;
+    data.forEach((r) => {
+      if (r.isHoliday || r.isWeekend || r.isOnLeave) return;
+
+      if (r.isAbsent) {
+        absent++;
+      }
+      else if (r.hasInPunch && r.hasOutPunch) {
+        present++;
+      }
+      else if (!r.hasInPunch && r.hasOutPunch) {
+        missingIn++;
+      }
+      else if (r.hasInPunch && !r.hasOutPunch) {
+        missingOut++;
+      }
+      else {
+        absent++;
+      }
     });
 
     return [
@@ -83,7 +97,7 @@ const AdminAttendanceChart = () => {
       { name: "Missing IN", value: missingIn },
       { name: "Missing OUT", value: missingOut },
     ];
-  }, [data, date]);
+  }, [data]);
 
   const total = chartData.reduce((acc, cur) => acc + cur.value, 0);
 

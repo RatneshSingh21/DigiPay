@@ -67,9 +67,17 @@ const labelToPath = {
   "Salary Configuration": "salary-configuration",
   "Default SetUp": "default-setup",
   "Dynamic SetUp": "dynamic-setup",
+  "Compliance Policy": "complaince-setup",
   "Company Salary Policy": "company-salary-policy",
+  "Actual Salary": "actual-salary",
+  "Compliance Salary": "complaince-salary",
+  "Difference Salary": "difference-salary",
+  "Add Advance": "add-advance",
   "Salary Calculation": "salary-calculation",
   "Download SalarySlip": "download-slip",
+
+
+
 
   //Shifts
   "Add Shift": "add-shift",
@@ -181,13 +189,21 @@ const labelToIcon = {
   "FullEmployee Data": <FileSpreadsheet size={16} className="mr-2" />,
 
   // Salary
-  // "Salary Policy": <LandmarkIcon size={16} className="mr-2" />,
   "Salary Configuration": <Wallet size={16} className="mr-2" />,
   "Default SetUp": <Settings size={16} className="mr-2" />,
   "Dynamic SetUp": <Settings size={16} className="mr-2" />,
+  "Compliance Policy": <Settings size={16} className="mr-2" />,
   "Company Salary Policy": <LandmarkIcon size={16} className="mr-2" />,
+  "Actual Salary": <LandmarkIcon size={16} className="mr-2" />,
+  "Compliance Salary": <LandmarkIcon size={16} className="mr-2" />,
+  "Difference Salary": <LandmarkIcon size={16} className="mr-2" />,
+  "Add Advance": <Wallet size={16} className="mr-2" />,
   "Salary Calculation": <Calculator size={16} className="mr-2" />,
   "Download SalarySlip": <Download size={16} className="mr-2" />,
+
+
+
+
 
   // Shifts
   "Add Shift": <CalendarDays size={16} className="mr-2" />,
@@ -296,9 +312,8 @@ const AdminSubmenuBox = ({ items, selectedMenu }) => {
       </h3>
       <ul className="space-y-2 text-sm">
         {items.map((item, idx) => {
-          const path = `${base}/${
-            labelToPath[item] || item.toLowerCase().replace(/\s+/g, "-")
-          }`;
+          const path = `${base}/${labelToPath[item] || item.toLowerCase().replace(/\s+/g, "-")
+            }`;
           const isActive = location.pathname === path;
           const icon = labelToIcon[item] || null;
 
@@ -306,11 +321,10 @@ const AdminSubmenuBox = ({ items, selectedMenu }) => {
             <li key={idx}>
               <Link
                 to={path}
-                className={`flex items-center p-2 text-xs rounded transition-all duration-200 ${
-                  isActive
-                    ? "bg-primary text-white"
-                    : "hover:bg-primary hover:text-white text-gray-700"
-                }`}
+                className={`flex items-center p-2 text-xs rounded transition-all duration-200 ${isActive
+                  ? "bg-primary text-white"
+                  : "hover:bg-primary hover:text-white text-gray-700"
+                  }`}
               >
                 {icon}
                 {item}

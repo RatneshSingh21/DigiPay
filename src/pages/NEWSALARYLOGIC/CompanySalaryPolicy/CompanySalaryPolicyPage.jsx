@@ -36,26 +36,41 @@ export default function CompanySalaryPolicyPage() {
   /* ================= FETCH MASTER DATA ================= */
 
   useEffect(() => {
-    const fetchPolicies = async () => {
-      const [defaultRes, dynamicRes] = await Promise.all([
-        axiosInstance.get("/DefaultSalaryPolicy/all"),
-        axiosInstance.get("/DynamicSalaryPolicy/company"),
-      ]);
-
-      setDefaultPolicies(defaultRes.data?.data || []);
-      setDynamicPolicies(dynamicRes.data?.data || []);
+    const fetchDefaultPolicies = async () => {
+      try {
+        const res = await axiosInstance.get("/DefaultSalaryPolicy/all");
+        setDefaultPolicies(res.data?.data || []);
+      } catch (error) {
+        console.log("Default policy fetch failed", error);
+        setDefaultPolicies([]);
+      }
     };
 
-    fetchPolicies();
+    const fetchDynamicPolicies = async () => {
+      try {
+        const res = await axiosInstance.get("/DynamicSalaryPolicy/company");
+        setDynamicPolicies(res.data?.data || []);
+      } catch (error) {
+        console.log("Dynamic policy fetch failed", error);
+        setDynamicPolicies([]);
+      }
+    };
+
+    fetchDefaultPolicies();
+    fetchDynamicPolicies();
   }, []);
 
   /* ================= HELPERS ================= */
 
   const getDefaultPolicyName = (id) => {
-    const policy = defaultPolicies.find((p) => p.id === id);
-    return policy ? `${policy.policyName} (v${policy.version})` : "-";
-  };
+    if (!id) return "-";
 
+    const policy = defaultPolicies.find((p) => p.id === id);
+
+    if (!policy) return `Policy #${id}`;
+
+    return `${policy.policyName} (v${policy.version})`;
+  };
   const getDynamicPolicyName = (id) => {
     const policy = dynamicPolicies.find((p) => p.id === id);
     return policy ? `${policy.policyName} (v${policy.version})` : "-";
@@ -185,11 +200,10 @@ export default function CompanySalaryPolicyPage() {
               return (
                 <div
                   key={policy.id}
-                  className={`bg-white rounded-xl shadow-sm transition-all duration-300 border p-6 ${
-                    isActive
-                      ? "border-green-500 ring-2 ring-green-100"
-                      : "border-gray-200 hover:shadow-md"
-                  }`}
+                  className={`bg-white rounded-xl shadow-sm transition-all duration-300 border p-6 ${isActive
+                    ? "border-green-500 ring-2 ring-green-100"
+                    : "border-gray-200 hover:shadow-md"
+                    }`}
                 >
                   {/* BADGES */}
                   <div className="flex flex-wrap items-center gap-3 mb-4">
@@ -198,13 +212,12 @@ export default function CompanySalaryPolicyPage() {
                     </span>
 
                     <span
-                      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                        policy.policyMode === "Default"
-                          ? "bg-blue-100 text-blue-700"
-                          : policy.policyMode === "Dynamic"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-orange-100 text-orange-700"
-                      }`}
+                      className={`px-3 py-1 text-xs font-semibold rounded-full ${policy.policyMode === "Default"
+                        ? "bg-blue-100 text-blue-700"
+                        : policy.policyMode === "Dynamic"
+                          ? "bg-purple-100 text-purple-700"
+                          : "bg-orange-100 text-orange-700"
+                        }`}
                     >
                       {policy.policyMode}
                     </span>
@@ -223,7 +236,9 @@ export default function CompanySalaryPolicyPage() {
                         <span className="font-medium text-gray-800">
                           Default Policy:
                         </span>{" "}
-                        {getDefaultPolicyName(policy.defaultPolicyId)}
+                        {defaultPolicies.length
+                          ? getDefaultPolicyName(policy.defaultPolicyId)
+                          : "Loading..."}
                       </div>
                     )}
 

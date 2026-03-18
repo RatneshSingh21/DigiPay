@@ -43,8 +43,14 @@ const TimesheetCalendar = () => {
         setLoading(true);
 
         const res = await axiosInstance.get(
-          `/AttendanceRecord/employee/${user.userId}/month`,
-          { params: { month, year } },
+          `/AttendanceRecord/employee-month-record-nopage`,
+          {
+            params: {
+              employeeId: user.userId,
+              month,
+              year,
+            },
+          }
         );
 
         const apiData = res.data?.data || [];
@@ -64,31 +70,50 @@ const TimesheetCalendar = () => {
 
           let status = "Absent";
 
-          switch (item.dayStatus) {
-            case 1:
-              status = "Present";
-              break;
-            case 2:
-              status = "Absent";
-              break;
-            case 3:
-              status = "Holiday";
-              break;
-            case 4:
-              status = "Week Off";
-              break;
-            case 5:
-              status = "Leave";
-              break;
-            default:
-              status = "Absent";
-          }
+          // ✅ Priority-based logic (same as SQL thinking)
 
+          if (item.isHoliday || item.dayStatus === 3) {
+            status = "Holiday";
+          }
+          else if (item.isWeekend) {
+            // Weekend-based overrides
+            if (item.dayStatus === 7) {
+              status = "Sandwich Leave";
+            }
+            else if (item.dayStatus === 8) {
+              status = "Extra Day";
+            }
+            else {
+              status = "Week Off";
+            }
+          }
+          else {
+            // Normal working days
+            switch (item.dayStatus) {
+              case 1:
+                status = "Present";
+                break;
+              case 2:
+                status = "Absent";
+                break;
+              case 5:
+                status = "Leave";
+                break;
+              case 6:
+                status = "Half Day";
+                break;
+              default:
+                status = "Absent";
+            }
+          }
           mapped[key] = {
             inTime: item.inTime,
             outTime: item.outTime,
             hours: item.totalHoursWorked || 0,
             status,
+            isWeekend: item.isWeekend,
+            isHoliday: item.isHoliday,
+            remarks: item.remarks,
           };
         });
 
@@ -112,11 +137,7 @@ const TimesheetCalendar = () => {
 
   const firstDayIndex = getDay(startOfMonth(currentMonth));
 
-  // Month-wise total hours
-  const monthlyTotalHours = Object.values(records).reduce(
-    (sum, day) => sum + (day.hours || 0),
-    0,
-  );
+
 
   if (loading)
     return <p className="text-center text-gray-500">Loading attendance...</p>;
@@ -148,8 +169,7 @@ const TimesheetCalendar = () => {
           <div>
             Total Hours:{" "}
             <span className="font-semibold text-green-600">
-              {formatHours(monthlyTotalHours)}
-            </span>
+              {formatHours(summary?.totalHoursWorked)}            </span>
           </div>
           <div>
             OT Minutes:{" "}

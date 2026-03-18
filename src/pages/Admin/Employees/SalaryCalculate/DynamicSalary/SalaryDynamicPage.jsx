@@ -9,14 +9,10 @@ import SalaryExportForm from "./SalaryExportForm";
 import ManualSalaryCalculateForm from "./ManualSalary/ManualSalaryCalculateForm";
 
 // Dynamic
-import SalaryCalculateDynamicForm from "./DynamicSalary/SalaryCalculateDynamicForm";
-import SalaryCalculationResultModalDynamic from "./DynamicSalary/SalaryCalculationResultModalDynamic";
-import SalaryCalculateGenerateAllDynamicForm from "./DynamicSalary/SalaryCalculateGenerateAllDynamicForm";
+import SalaryCalculateDynamicForm from "./SalaryCalculateDynamicForm";
+import SalaryCalculationResultModalDynamic from "./SalaryCalculationResultModalDynamic";
+import SalaryCalculateGenerateAllDynamicForm from "./SalaryCalculateGenerateAllDynamicForm";
 
-// Default
-import SalaryCalculateGenerateAllDefaultForm from "./DefaultSalary/SalaryCalculateGenerateAllDefaultForm"
-import SalaryGenerateDefaultForm from "./DefaultSalary/SalaryGenerateDefaultForm";
-import SalaryCalculationResultModalDefault from "./DefaultSalary/SalaryCalculationResultModalDefault";
 
 const inputClass =
   "mt-1 w-64 rounded-md border border-gray-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
@@ -39,7 +35,7 @@ const months = [
 
 const round = (value) => Math.round(Number(value || 0));
 
-const SalaryCalculate = () => {
+const SalaryDynamicPage = () => {
   const [salaries, setSalaries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -174,18 +170,7 @@ const SalaryCalculate = () => {
       setLoading(false);
     }
   };
-  // const fetchSalaries = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const res = await axiosInstance.get("/CalculatedSalary");
-  //     setSalaries(res.data.data || []);
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to fetch salaries");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+
 
   useEffect(() => {
     fetchSalaries();
@@ -655,7 +640,7 @@ const SalaryCalculate = () => {
               <td className="p-2 border-r border-gray-200">
                 ₹{round(totals.bonus)}
               </td>
-              <td className="p-2 border-r border-gray-200">
+              <td className="p-2 border-r border-gray-200"> 
                 ₹{round(totals.arrears)}
               </td>
               <td className="p-2 border-r border-gray-200">
@@ -724,33 +709,8 @@ const SalaryCalculate = () => {
 
 
       {/* Form Dynamic Popup */}
-      {/* {showForm && (
-        <SalaryCalculateDynamicForm
-          onClose={() => setShowForm(false)}
-          onSuccess={(data) => {
-            setSalaryResult(data);
-            fetchSalaries();
-          }}
-        />
-      )} */}
-
-      {/* {salaryResult && (
-        <SalaryCalculationResultModalDynamic
-          data={salaryResult}
-          onClose={() => setSalaryResult(null)}
-        />
-      )} */}
-
-      {/* {showGenerateAllForm && (
-        <SalaryCalculateGenerateAllDynamicForm
-          onClose={() => setShowGenerateAllForm(false)}
-          onSuccess={fetchSalaries}
-        />
-      )} */}
-
-      {/* Form Default Popup */}
       {showForm && (
-        <SalaryGenerateDefaultForm
+        <SalaryCalculateDynamicForm
           onClose={() => setShowForm(false)}
           onSuccess={(data) => {
             setSalaryResult(data);
@@ -760,21 +720,22 @@ const SalaryCalculate = () => {
       )}
 
       {salaryResult && (
-        <SalaryCalculationResultModalDefault
+        <SalaryCalculationResultModalDynamic
           data={salaryResult}
           onClose={() => setSalaryResult(null)}
         />
       )}
 
       {showGenerateAllForm && (
-        <SalaryCalculateGenerateAllDefaultForm
+        <SalaryCalculateGenerateAllDynamicForm
           onClose={() => setShowGenerateAllForm(false)}
           onSuccess={fetchSalaries}
         />
       )}
 
+
     </div>
   );
 };
 
-export default SalaryCalculate;
+export default SalaryDynamicPage;

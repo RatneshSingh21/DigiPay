@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import Select from "react-select";
+import { FiX } from "react-icons/fi";
+
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
 const ManualSalaryCalculateForm = ({ onClose, onSuccess }) => {
   const [month, setMonth] = useState(null);
@@ -34,7 +38,7 @@ const ManualSalaryCalculateForm = ({ onClose, onSuccess }) => {
     setLoading(true);
     try {
       await axiosInstance.post(
-        `/CalculatedSalary/CalculateFromAttendance?month=${month.value}&year=${year}`
+        `/CalculatedSalary/CalculateFromAttendance?month=${month.value}&year=${year}`,
       );
       toast.success("Salary calculated successfully from attendance!");
       onSuccess();
@@ -56,9 +60,9 @@ const ManualSalaryCalculateForm = ({ onClose, onSuccess }) => {
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-600 cursor-pointer hover:text-black text-lg"
+            className="text-gray-600 cursor-pointer hover:text-red-500 text-lg"
           >
-            ✕
+            <FiX size={20} />
           </button>
         </div>
 
@@ -81,7 +85,7 @@ const ManualSalaryCalculateForm = ({ onClose, onSuccess }) => {
             <label className="text-sm font-medium">Year</label>
             <input
               type="number"
-              className="border px-2 py-2 rounded w-full text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+              className={inputClass}
               value={year}
               onChange={(e) => setYear(e.target.value)}
               placeholder="Enter Year"
@@ -94,7 +98,7 @@ const ManualSalaryCalculateForm = ({ onClose, onSuccess }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border cursor-pointer rounded-lg"
+              className="px-4 py-2 border border-gray-200 cursor-pointer rounded-lg"
               disabled={loading}
             >
               Cancel

@@ -6,24 +6,35 @@ const inputClass =
   "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
 
-const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
+const WeekendRuleCard = ({ index, rule, onChange, onRemove }) => {
   const [employees, setEmployees] = useState([]);
+  const [shifts, setShifts] = useState([]);
 
   const workDayOptions = [
-    { value: "Sunday", label: "Sunday" },
-    { value: "Saturday", label: "Saturday" },
+    { value: 0, label: "Sunday" },
+    { value: 6, label: "Saturday" }
   ];
 
   const compensationOptions = [
-    { value: "Salary", label: "Salary" },
-    { value: "CompOff", label: "Comp-Off" },
-    { value: "None", label: "Attendance Only" },
+    { value: 1, label: "Salary (Counts as Working Day)" },
+    { value: 2, label: "Comp-Off (Leave Credit)" },
+    { value: 3, label: "Attendance Only" }
   ];
 
-  const shiftOptions = [
-    { value: 7, label: "Night Shift" },
-    { value: 8, label: "Morning Shift" },
-  ];
+
+
+  useEffect(() => {
+    const fetchShifts = async () => {
+      const res = await axiosInstance.get("/Shift");
+      setShifts(res.data || []);
+    };
+    fetchShifts();
+  }, []);
+
+  const shiftOptions = shifts.map(s => ({
+    value: s.id,
+    label: s.shiftName
+  }));
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -65,10 +76,10 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
           <label className="flex items-center gap-2 text-sm">
             <input
               type="radio"
-              name={`targetType-${rule.workDay}`}
-              checked={rule.targetType === "Shift"}
+              name={`targetType-${index}`}
+              checked={rule.targetType === 2}
               onChange={() =>
-                onChange({ ...rule, targetType: "Shift", targetId: "" })
+                onChange({ ...rule, targetType: 2, targetId: 0 })
               }
             />
             Shift
@@ -77,10 +88,10 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
           <label className="flex items-center gap-2 text-sm">
             <input
               type="radio"
-              name={`targetType-${rule.workDay}`}
-              checked={rule.targetType === "Employee"}
+              name={`targetType-${index}`}
+              checked={rule.targetType === 1}
               onChange={() =>
-                onChange({ ...rule, targetType: "Employee", targetId: "" })
+                onChange({ ...rule, targetType: 1, targetId: 0 })
               }
             />
             Employee
@@ -89,7 +100,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
       </div>
 
       {/* Shift Section */}
-      {rule.targetType === "Shift" && (
+      {rule.targetType === 2 && (
         <div className="space-y-3">
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Shift</label>
@@ -98,7 +109,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
                 shiftOptions.find((o) => o.value === rule.targetId) || null
               }
               onChange={(opt) =>
-                onChange({ ...rule, targetId: opt?.value || "" })
+                onChange({ ...rule, targetId: opt?.value || 0 })
               }
               options={shiftOptions}
               placeholder="Select Shift"
@@ -119,7 +130,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
       )}
 
       {/* Employee Section */}
-      {rule.targetType === "Employee" && (
+      {rule.targetType === 1 && (
         <div className="space-y-3">
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">
@@ -133,7 +144,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
                 null
               }
               onChange={(opt) =>
-                onChange({ ...rule, targetId: opt?.value || "" })
+                onChange({ ...rule, targetId: opt?.value || 0 })
               }
               placeholder="Select Employee"
               isClearable
@@ -148,6 +159,7 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
               <label className="text-xs text-gray-600">Start Time</label>
               <input
                 type="time"
+                disabled={rule.useShiftTiming}
                 value={rule.startTime || ""}
                 onChange={(e) =>
                   onChange({ ...rule, startTime: e.target.value })
@@ -190,6 +202,8 @@ const WeekendRuleCard = ({ rule, onChange, onRemove }) => {
         </label>
         <input
           type="number"
+          min="0"
+          max="1"
           step="0.5"
           value={rule.workingDayCredit}
           onChange={(e) =>

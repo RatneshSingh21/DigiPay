@@ -36,7 +36,7 @@ const SalaryExportForm = ({ onClose }) => {
     try {
       setLoading(true);
 
-      const response = await axiosInstance.get(`/CalculatedSalary/export`, {
+      const response = await axiosInstance.get(`/CalculatedSalary/export-monthly-payroll`, {
         params: {
           month: month.value,
           year: year,

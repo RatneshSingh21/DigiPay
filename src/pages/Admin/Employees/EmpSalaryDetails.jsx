@@ -8,7 +8,6 @@ import assets from "../../../assets/assets";
 const inputClass =
   "w-full rounded-md border border-gray-300 px-3 ml-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
-
 const StatusPill = ({ enabled }) => (
   <span
     className={`text-xs font-semibold px-2 py-1 rounded-full ${
@@ -51,6 +50,7 @@ const EmpSalaryDetails = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeMap, setEmployeeMap] = useState({});
+  const [selectedRowId, setSelectedRowId] = useState(null);
 
   /* 🔹 Fetch Salaries */
   const fetchSalaries = async () => {
@@ -64,7 +64,7 @@ const EmpSalaryDetails = () => {
       setSalaries(response.data?.data || []);
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Error fetching salary data"
+        error?.response?.data?.message || "Error fetching salary data",
       );
     } finally {
       setLoading(false);
@@ -114,7 +114,7 @@ const EmpSalaryDetails = () => {
     } catch (error) {
       console.error(error);
       toast.error(
-        error?.response?.data?.message || "Failed to export salary data"
+        error?.response?.data?.message || "Failed to export salary data",
       );
     }
   };
@@ -142,7 +142,7 @@ const EmpSalaryDetails = () => {
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
       result = result.filter((s) =>
-        employeeMap[s.employeeId]?.name?.toLowerCase().includes(lower)
+        employeeMap[s.employeeId]?.name?.toLowerCase().includes(lower),
       );
     }
 
@@ -211,7 +211,7 @@ const EmpSalaryDetails = () => {
         ctc: 0,
         working: 0,
         absent: 0,
-      }
+      },
     );
   }, [filteredSalaries]);
 
@@ -338,9 +338,17 @@ const EmpSalaryDetails = () => {
                 return (
                   <tr
                     key={s.salaryId}
-                    className={`border-b text-center ${
-                      idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    } hover:bg-gray-100 transition-all`}
+                    onClick={() => setSelectedRowId(s.salaryId)}
+                    className={`cursor-pointer transition-all
+                        ${
+                          selectedRowId === s.salaryId
+                            ? "bg-yellow-200"
+                            : idx % 2 === 0
+                              ? "bg-white"
+                              : "bg-gray-50"
+                        }
+                        hover:bg-yellow-100
+                      `}
                   >
                     <td className="p-2 border-r border-gray-200">{idx + 1}.</td>
                     <td className="p-2 border-r border-gray-200">
@@ -377,7 +385,7 @@ const EmpSalaryDetails = () => {
                       {s.overtimeRate}
                     </td>
                     <td className="p-2 border-r border-gray-200">
-                 {round(s.overtimeAmount)}
+                      {round(s.overtimeAmount)}
                     </td>
                     <td className="p-2 border-r border-gray-200">
                       {round(s.pfEmployee)}
@@ -453,9 +461,7 @@ const EmpSalaryDetails = () => {
                   ₹{round(totals.bonus)}
                 </td>
 
-                <td className="p-2 border-r border-gray-200">
-                  {totals.otHours}
-                </td>
+                <td className="p-2 border-r border-gray-200">—</td>
                 <td className="p-2 border-r border-gray-200">—</td>
                 <td className="p-2 border-r border-gray-200">
                   ₹{round(totals.otAmount)}

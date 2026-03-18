@@ -16,7 +16,7 @@ const LeaveMapping = () => {
   return (
     <div className="p-6 bg-white rounded-xl shadow-lg">
       {/* Tabs */}
-      <div className="flex border-b mb-4 gap-2 ">
+      <div className="flex border-b border-gray-200 mb-4 gap-2 ">
         {tabs.map((t) => (
           <button
             key={t.id}

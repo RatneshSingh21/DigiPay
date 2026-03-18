@@ -60,7 +60,7 @@ const SalaryConfig = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
+      <div>
         {/* HEADER */}
 
         <div className="bg-white border-b p-4 border-gray-200 flex justify-between items-center">
@@ -127,11 +127,10 @@ const SalaryConfig = () => {
                     </td>
                     <td className="px-4 py-2">
                       <span
-                        className={`px-3 py-1 text-xs rounded-full font-medium ${
-                          item.isEnabled
+                        className={`px-3 py-1 text-xs rounded-full font-medium ${item.isEnabled
                             ? "bg-green-100 text-green-700"
                             : "bg-red-100 text-red-600"
-                        }`}
+                          }`}
                       >
                         {item.isEnabled ? "Active" : "Inactive"}
                       </span>

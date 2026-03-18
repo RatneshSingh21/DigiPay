@@ -16,6 +16,12 @@ const DownloadSlip = () => {
 
   /* ================= Fetch Employees ================= */
 
+  const resetForm = () => {
+    setSelectedEmployee(null);
+    setMonth(null);
+    setYear(new Date().getFullYear());
+  };
+
   const fetchEmployees = async () => {
     try {
       const res = await axiosInstance.get("/Employee");
@@ -69,12 +75,8 @@ const DownloadSlip = () => {
       link.remove();
 
       toast.success("Salary slip downloaded successfully");
-
       /* ===== Clear Form ===== */
-
-      setSelectedEmployee(null);
-      setMonth("");
-      setYear(new Date().getFullYear());
+      resetForm();
     } catch (error) {
       toast.error("Failed to download salary slip");
     } finally {
@@ -137,7 +139,7 @@ const DownloadSlip = () => {
 
               <Select
                 options={monthOptions}
-                value={monthOptions.find((m) => m.value === month)}
+                value={monthOptions.find((m) => m.value === month) || null}
                 onChange={(e) => setMonth(e.value)}
                 placeholder="Select month"
               />

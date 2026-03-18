@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiEye } from "react-icons/fi";
 import { XIcon } from "lucide-react";
 import Select from "react-select";
 
 import PerDayAttendanceRecords from "./PerDayAttendanceRecords";
+import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import { toast } from "react-toastify";
 
 const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -13,26 +15,74 @@ const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
 
-  const getEmployeeMonthlyData = (employeeId) => {
-    return records
-      .filter(
-        (r) =>
-          r.employeeId === employeeId &&
-          new Date(r.attendanceDate).getMonth() === selectedMonth &&
-          new Date(r.attendanceDate).getFullYear() === selectedYear,
-      )
-      .map((r) => ({
-        date: r.attendanceDate,
-        dayStatus: r.dayStatus,
-        inTime: r.inTime,
-        outTime: r.outTime,
-        totalHoursWorked: r.totalHoursWorked,
-        otMinutes: r.shiftSegments?.[0]?.otMinutes || 0,
-        lateMinutes: r.shiftSegments?.[0]?.lateMinutes || 0,
-        earlyLeaveMinutes: r.shiftSegments?.[0]?.earlyLeaveMinutes || 0,
-        remarks: r.remarks,
-      }));
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const loadEmployeeMonthlyAttendance = async (employeeId, month, year) => {
+    try {
+      setLoading(true);
+
+      // CLEAR OLD DATA
+      setAttendanceData([]);
+      setSummary(null);
+
+      const res = await axiosInstance.get(
+        "/AttendanceRecord/employee-month-record-nopage",
+        {
+          params: {
+            employeeId,
+            month: month + 1,
+            year,
+          },
+        }
+      );
+
+      const response = res?.data;
+
+      if (!response) {
+        throw new Error("Invalid server response");
+      }
+
+      setAttendanceData(response?.data ?? []);
+      setSummary(response?.summary ?? null);
+
+    } catch (error) {
+      console.error("Attendance API Error:", error);
+
+      let message = "Failed to load employee attendance";
+
+      // Axios error handling
+      if (error.response) {
+        // Server responded with error
+        message =
+          error.response.data?.message ||
+          `Server Error (${error.response.status})`;
+      } else if (error.request) {
+        // Request made but no response
+        message = "Network error. Please check your internet connection.";
+      } else if (error.message) {
+        // Other errors
+        message = error.message;
+      }
+
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+
+
+  useEffect(() => {
+    if (!selectedEmployee) return;
+
+    loadEmployeeMonthlyAttendance(
+      selectedEmployee.value,
+      selectedMonth,
+      selectedYear
+    );
+  }, [selectedEmployee, selectedMonth, selectedYear]);
 
   return (
     <div className="mx-4 mt-6 space-y-4">
@@ -56,7 +106,10 @@ const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
           <div className="font-medium text-sm text-gray-800">{emp.label}</div>
 
           <button
-            onClick={() => setSelectedEmployee(emp)}
+            onClick={() => {
+              setSelectedEmployee(emp);
+              loadEmployeeMonthlyAttendance(emp.value, selectedMonth, selectedYear);
+            }}
             className="flex items-center gap-2 bg-indigo-100 text-primary font-bold cursor-pointer px-3 py-2 rounded-md text-sm hover:bg-indigo-200"
           >
             <FiEye />
@@ -80,6 +133,8 @@ const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
               <h3 className="text-lg font-semibold">
                 {selectedEmployee.label} - Monthly Records
               </h3>
+
+
 
               <div className="flex items-center gap-3 pr-4">
                 {/* Month Selector */}
@@ -154,11 +209,17 @@ const EmployeeWiseRecord = ({ records, employees, employeeCache }) => {
               </div>
             </div>
 
-            <PerDayAttendanceRecords
-              perDayDetails={getEmployeeMonthlyData(selectedEmployee.value)}
-              selectedMonth={selectedMonth}
-              selectedYear={selectedYear}
-            />
+            {loading ? (
+              <div className="text-center py-10 text-gray-500">
+                Loading attendance...
+              </div>
+            ) : (
+              <PerDayAttendanceRecords
+                perDayDetails={attendanceData}
+                selectedMonth={selectedMonth}
+                selectedYear={selectedYear}
+              />
+            )}
           </div>
         </div>
       )}

@@ -19,9 +19,8 @@ const StatusBadge = ({ status }) => {
 
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-        map[status] || "bg-gray-100 text-gray-600"
-      }`}
+      className={`px-3 py-1 rounded-full text-xs font-semibold ${map[status] || "bg-gray-100 text-gray-600"
+        }`}
     >
       {status || "Unknown"}
     </span>
@@ -32,9 +31,9 @@ const StatusBadge = ({ status }) => {
 const formatTime = (iso) =>
   iso
     ? new Date(iso).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+      hour: "2-digit",
+      minute: "2-digit",
+    })
     : "--";
 
 const calcHours = (inTime, outTime) => {
@@ -186,7 +185,7 @@ const AttendanceMachineData = () => {
 
         <button
           onClick={loadAttendanceData}
-          className="flex items-center gap-2 border cursor-pointer px-4 py-2 rounded text-sm hover:bg-gray-50"
+          className="flex items-center gap-2 border border-gray-400 cursor-pointer px-4 py-2 rounded text-sm hover:bg-gray-50"
         >
           <Users size={16} />
           View Attendance

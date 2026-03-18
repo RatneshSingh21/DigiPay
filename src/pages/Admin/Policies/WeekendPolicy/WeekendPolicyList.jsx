@@ -114,12 +114,13 @@ const WeekendPolicyList = ({
           key={policy.weekendPolicyId}
           className="bg-white border border-gray-200 rounded-md shadow-sm"
         >
-          {/* ================= HEADER ================= */}
-          <div className="flex justify-between items-center px-4 py-3 border-b border-gray-400">
+          {/* HEADER */}
+          <div className="flex justify-between items-center px-4 py-3 border-b border-gray-300">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-gray-800">
                 {policy.policyName}
               </h3>
+
               <Pill
                 label={policy.isActive ? "Active" : "Inactive"}
                 color={policy.isActive ? "green" : "red"}
@@ -137,6 +138,7 @@ const WeekendPolicyList = ({
               >
                 <FiEdit2 size={12} /> Edit
               </button>
+
               <button
                 onClick={() => setConfirmDeleteId(policy.weekendPolicyId)}
                 className="flex items-center gap-1 px-2.5 py-1 cursor-pointer bg-red-100 hover:bg-red-200 text-red-600 rounded text-xs"
@@ -146,36 +148,43 @@ const WeekendPolicyList = ({
             </div>
           </div>
 
-          {/* ================= BODY ================= */}
+          {/* BODY */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 text-xs">
-            {/* -------- LEFT COLUMN -------- */}
-            <div className="space-y-3">
-              {/* Weekend Off */}
+            {/* LEFT COLUMN */}
+            <div className="space-y-4">
+
+              {/* WEEKEND OFF */}
               <div>
                 <p className="text-gray-500 font-medium mb-1">
                   Weekend Off Days
                 </p>
+
                 <div className="flex flex-wrap gap-1.5">
-                  {offDays(policy).length ? (
-                    offDays(policy).map((day) => (
+                  {DAYS.filter((day) => policy[`${day.toLowerCase()}Off`]).length ?
+                    DAYS.filter((day) => policy[`${day.toLowerCase()}Off`]).map((day) => (
                       <Pill key={day} label={day} color="blue" />
                     ))
-                  ) : (
-                    <span className="text-gray-400">None</span>
-                  )}
+                    :
+                    <Pill label="No Weekend Off" />
+                  }
                 </div>
               </div>
 
-              {/* Half Day */}
+              {/* HALF DAY */}
               <div>
                 <p className="text-gray-500 font-medium mb-1">
                   Half Day Configuration
                 </p>
+
                 {policy.isHalfDayApplicable ? (
                   <div className="flex flex-wrap gap-1.5">
-                    <Pill label={`Yes (${policy.halfDayOn})`} color="yellow" />
+                    <Pill label={`Half Day On ${policy.halfDayOn || "-"}`} color="yellow" />
                     <Pill
-                      label={`${policy.halfDayStartTime} – ${policy.halfDayEndTime}`}
+                      label={
+                        policy.halfDayStartTime && policy.halfDayEndTime
+                          ? `${policy.halfDayStartTime} – ${policy.halfDayEndTime}`
+                          : "Time Not Defined"
+                      }
                     />
                   </div>
                 ) : (
@@ -183,29 +192,40 @@ const WeekendPolicyList = ({
                 )}
               </div>
 
-              {/* Overrides */}
+              {/* OVERRIDES */}
               <div>
                 <p className="text-gray-500 font-medium mb-1">
                   Overrides Allowed
                 </p>
+
                 <div className="flex flex-wrap gap-1.5">
-                  {overrides(policy).length ? (
-                    overrides(policy).map((o) => (
-                      <Pill key={o} label={o} color="purple" />
-                    ))
-                  ) : (
-                    <span className="text-gray-400">No overrides</span>
+                  {policy.allowWeekendOverride && (
+                    <Pill label="Weekend" color="purple" />
                   )}
+
+                  {policy.allowShiftOverride && (
+                    <Pill label="Shift" color="purple" />
+                  )}
+
+                  {policy.allowEmployeeOverride && (
+                    <Pill label="Employee" color="purple" />
+                  )}
+
+                  {!policy.allowWeekendOverride &&
+                    !policy.allowShiftOverride &&
+                    !policy.allowEmployeeOverride && (
+                      <span className="text-gray-400">No overrides</span>
+                    )}
                 </div>
               </div>
 
-              {/* Saturday Configuration */}
+              {/* SATURDAY CONFIG */}
               <div>
                 <p className="text-gray-500 font-medium mb-1">
                   Saturday Off Configuration
                 </p>
 
-                <div className="flex flex-wrap gap-1.5 mb-1">
+                <div className="flex flex-wrap gap-1.5 mb-2">
                   <Pill
                     label={
                       policy.isAlternateSaturdayOff
@@ -217,75 +237,112 @@ const WeekendPolicyList = ({
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
-                  {saturdayOffs(policy).length ? (
-                    saturdayOffs(policy).map((sat) => (
+                  {[
+                    policy.firstSaturdayOff && "1st Sat",
+                    policy.secondSaturdayOff && "2nd Sat",
+                    policy.thirdSaturdayOff && "3rd Sat",
+                    policy.fourthSaturdayOff && "4th Sat",
+                    policy.fifthSaturdayOff && "5th Sat",
+                  ]
+                    .filter(Boolean)
+                    .map((sat) => (
                       <Pill key={sat} label={sat} color="blue" />
-                    ))
-                  ) : (
-                    <span className="text-gray-400">No Saturday off</span>
-                  )}
+                    ))}
+
+                  {!policy.firstSaturdayOff &&
+                    !policy.secondSaturdayOff &&
+                    !policy.thirdSaturdayOff &&
+                    !policy.fourthSaturdayOff &&
+                    !policy.fifthSaturdayOff && (
+                      <span className="text-gray-400">No Saturday off</span>
+                    )}
                 </div>
               </div>
             </div>
 
-            {/* -------- RIGHT COLUMN -------- */}
+            {/* RIGHT COLUMN */}
             <div>
               <p className="text-gray-500 font-medium mb-2">
                 Weekend Work Rules
               </p>
 
-              {policy.weekendWorkRules.length === 0 ? (
+              {!policy.weekendWorkRules?.length ? (
                 <p className="text-gray-400">No rules defined</p>
               ) : (
                 <div className="space-y-2">
                   {policy.weekendWorkRules.map((rule) => (
                     <div
                       key={rule.weekendWorkRuleId}
-                      className="bg-gray-50 border rounded p-3"
+                      className="bg-gray-50 border border-gray-200 rounded p-3"
                     >
                       <div className="flex flex-wrap gap-1.5 mb-2">
+
                         <Pill label={rule.workDay} color="blue" />
-                        <Pill label={`Target: ${rule.targetType}`} />
+
                         <Pill
-                          label={rule.isActive ? "Active" : "Inactive"}
-                          color={rule.isActive ? "green" : "red"}
+                          label={
+                            rule.targetType === "Shift"
+                              ? "Shift Rule"
+                              : "Employee Rule"
+                          }
+                          color="purple"
                         />
+
+                        <Pill
+                          label={rule.compensationType}
+                          color="yellow"
+                        />
+
                         <Pill
                           label={
                             rule.isGovernmentApproved
                               ? "Govt Approved"
-                              : "Not Govt Approved"
+                              : "Not Approved"
                           }
                           color={rule.isGovernmentApproved ? "green" : "red"}
+                        />
+
+                        <Pill
+                          label={rule.isActive ? "Active" : "Inactive"}
+                          color={rule.isActive ? "green" : "red"}
                         />
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-gray-700">
+
                         <p>
                           <span className="font-medium">Target ID:</span>{" "}
                           {rule.targetId}
                         </p>
+
                         <p>
                           <span className="font-medium">Uses Shift:</span>{" "}
                           {rule.useShiftTiming ? "Yes" : "No"}
                         </p>
+
                         <p>
                           <span className="font-medium">Working Time:</span>{" "}
                           {rule.useShiftTiming
-                            ? "As per shift"
-                            : `${rule.startTime} – ${rule.endTime}`}
+                            ? "As per shift timing"
+                            : rule.startTime && rule.endTime
+                              ? `${rule.startTime} – ${rule.endTime}`
+                              : "Not defined"}
                         </p>
+
                         <p>
                           <span className="font-medium">Credit:</span>{" "}
-                          {rule.workingDayCredit}
+                          {rule.workingDayCredit === 1
+                            ? "1 Day"
+                            : rule.workingDayCredit === 0.5
+                              ? "Half Day"
+                              : rule.workingDayCredit}
                         </p>
-                        <p>
-                          <span className="font-medium">Compensation:</span>{" "}
-                          {rule.compensationType}
-                        </p>
+
                         <p>
                           <span className="font-medium">Effective:</span>{" "}
-                          {new Date(rule.effectiveFrom).toLocaleDateString()}
+                          {rule.effectiveFrom
+                            ? new Date(rule.effectiveFrom).toLocaleDateString()
+                            : "—"}
                         </p>
                       </div>
                     </div>

@@ -38,52 +38,70 @@ export default function CompanySalaryPolicyFormModal({
       try {
         setLoadingPolicies(true);
 
-        const [defaultRes, dynamicRes, activeDynamicRes] = await Promise.all([
-          axiosInstance.get("/DefaultSalaryPolicy/all"),
-          axiosInstance.get("/DynamicSalaryPolicy/company"),
-          axiosInstance.get("/DynamicSalaryPolicy/active"),
-        ]);
+        if (formData.policyMode === 1) {
+          // DEFAULT POLICY API
+          const res = await axiosInstance.get("/DefaultSalaryPolicy/all");
 
-        /* ===== DEFAULT POLICIES ===== */
-        const defaultOptions =
-          defaultRes.data?.data?.map((p) => ({
-            value: p.id,
-            label: `${p.policyName} (v${p.version})`,
-            isActive: p.isActive,
-          })) || [];
+          const options =
+            res.data?.data?.map((p) => ({
+              value: p.id,
+              label: `${p.policyName} (v${p.version})`,
+              isActive: p.isActive,
+            })) || [];
 
-        setDefaultPolicies(defaultOptions);
+          setDefaultPolicies(options);
 
-        /* ===== DYNAMIC POLICIES ===== */
-        const dynamicOptions =
-          dynamicRes.data?.data?.map((p) => ({
-            value: p.id,
-            label: `${p.policyName} (v${p.version})`,
-            isActive: p.isActive,
-          })) || [];
-
-        setDynamicPolicies(dynamicOptions);
-
-        /* ===== AUTO SELECT ACTIVE (CREATE MODE ONLY) ===== */
-        if (!initialData) {
-          const activeDefault = defaultOptions.find((p) => p.isActive);
-          const activeDynamic = activeDynamicRes.data?.data;
+          const active = options.find((p) => p.isActive);
 
           setFormData((prev) => ({
             ...prev,
-            defaultPolicyId: activeDefault?.value || null,
-            dynamicPolicyId: activeDynamic?.id || null,
+            defaultPolicyId: active?.value || null,
+            dynamicPolicyId: null,
+          }));
+        }
+
+        if (formData.policyMode === 2) {
+          // DYNAMIC POLICY API
+          const res = await axiosInstance.get("/DynamicSalaryPolicy/company");
+
+          const options =
+            res.data?.data?.map((p) => ({
+              value: p.id,
+              label: `${p.policyName} (v${p.version})`,
+              isActive: p.isActive,
+            })) || [];
+
+          setDynamicPolicies(options);
+
+          const active = options.find((p) => p.isActive);
+
+          setFormData((prev) => ({
+            ...prev,
+            dynamicPolicyId: active?.value || null,
+            defaultPolicyId: null,
           }));
         }
       } catch (err) {
-        toast.error("Failed to fetch salary policies");
+        if (err.response?.status === 404) {
+          // ✅ No data case (NOT an error)
+          if (formData.policyMode === 1) {
+            setDefaultPolicies([]);
+          }
+          if (formData.policyMode === 2) {
+            setDynamicPolicies([]);
+          }
+
+          toast.info(err.response?.data?.message || "No policies found");
+        } else {
+          toast.error("Failed to fetch salary policies");
+        }
       } finally {
         setLoadingPolicies(false);
       }
     };
 
     fetchPolicies();
-  }, [isOpen, initialData]);
+  }, [isOpen, formData.policyMode]);
 
   /* ================= INITIAL DATA ================= */
 
@@ -169,14 +187,16 @@ export default function CompanySalaryPolicyFormModal({
               value={policyModeOptions.find(
                 (o) => o.value === formData.policyMode,
               )}
-              onChange={(selected) =>
+              onChange={(selected) => {
+                const selectedMode = selected.value;
+
                 setFormData({
                   ...formData,
-                  policyMode: selected.value,
+                  policyMode: selectedMode,
                   defaultPolicyId: null,
                   dynamicPolicyId: null,
-                })
-              }
+                });
+              }}
               className="text-sm"
             />
           </div>
@@ -200,6 +220,9 @@ export default function CompanySalaryPolicyFormModal({
                   })
                 }
                 placeholder="Choose default policy..."
+                noOptionsMessage={() =>
+                  loadingPolicies ? "Loading..." : "No default policies found"
+                }
                 menuPortalTarget={document.body}
                 menuPosition="fixed"
                 styles={{
@@ -236,6 +259,11 @@ export default function CompanySalaryPolicyFormModal({
                     ...formData,
                     dynamicPolicyId: selected?.value || null,
                   })
+                }
+
+                placeholder="Choose dynamic policy..."
+                noOptionsMessage={() =>
+                  loadingPolicies ? "Loading..." : "No dynamic policies found"
                 }
                 menuPortalTarget={document.body}
                 menuPosition="fixed"

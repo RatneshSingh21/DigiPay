@@ -245,22 +245,22 @@ export default function AddLatePolicy({
           priority: i + 1,
           isActive: r.isActive ?? true,
         })) || [
-          {
-            fromLateMinutes: "",
-            toLateMinutes: "",
-            fromOccurrence: "",
-            toOccurrence: "",
-            useOccurrence: false,
-            cutoffTime: "",
-            resolutionType: "Ignore",
-            amount: "",
-            amountType: "",
-          
-            leaveType: "",
-            priority: 1,
-            isActive: true,
-          },
-        ],
+            {
+              fromLateMinutes: "",
+              toLateMinutes: "",
+              fromOccurrence: "",
+              toOccurrence: "",
+              useOccurrence: false,
+              cutoffTime: "",
+              resolutionType: "Ignore",
+              amount: "",
+              amountType: "",
+
+              leaveType: "",
+              priority: 1,
+              isActive: true,
+            },
+          ],
 
         workTypeIds: initialData.workTypeIds || [],
         shiftIds: initialData.shiftIds || [],
@@ -297,8 +297,8 @@ export default function AddLatePolicy({
         resolutionRules: form.resolutionRules.map((r, i) => ({
           fromLateMinutes: Number(r.fromLateMinutes),
           toLateMinutes: Number(r.toLateMinutes),
-          fromOccurrence: Number(r.fromOccurrence),
-          toOccurrence: Number(r.toOccurrence),
+          fromOccurrence: r.useOccurrence ? Number(r.fromOccurrence) : 0,
+          toOccurrence: r.useOccurrence ? Number(r.toOccurrence) : 0,
           cutoffTime: r.cutoffTime || "00:00",
           resolutionType: RESOLUTION_TYPE_MAP[r.resolutionType] ?? 0,
           amount: Number(r.amount || 0),
@@ -360,8 +360,8 @@ export default function AddLatePolicy({
     }));
   };
 
-const inputClass =
-  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+  const inputClass =
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
 
   /* ================= UI ================= */
@@ -384,11 +384,10 @@ const inputClass =
           {["Policy", "Applicability", "Rules"].map((t, i) => (
             <div
               key={i}
-              className={`flex-1 text-center py-1 border-b-2 ${
-                step === i + 1
-                  ? "border-blue-500 font-semibold"
-                  : "border-gray-200 text-gray-400"
-              }`}
+              className={`flex-1 text-center py-1 border-b-2 ${step === i + 1
+                ? "border-blue-500 font-semibold"
+                : "border-gray-200 text-gray-400"
+                }`}
             >
               {i + 1}. {t}
             </div>
@@ -548,12 +547,12 @@ const inputClass =
               <strong>Policy applies to:</strong>{" "}
               {[
                 form.workTypeIds.length &&
-                  `${form.workTypeIds.length} work types`,
+                `${form.workTypeIds.length} work types`,
                 form.shiftIds.length && `${form.shiftIds.length} shifts`,
                 form.departmentIds.length &&
-                  `${form.departmentIds.length} departments`,
+                `${form.departmentIds.length} departments`,
                 form.locationIds.length &&
-                  `${form.locationIds.length} locations`,
+                `${form.locationIds.length} locations`,
               ]
                 .filter(Boolean)
                 .join(" · ") || "All employees"}
@@ -569,9 +568,9 @@ const inputClass =
                 <div className="text-[10px] text-gray-500">
                   {form.workTypeIds.length
                     ? `Selected: ${workTypeOptions
-                        .filter((o) => form.workTypeIds.includes(o.value))
-                        .map((o) => o.label)
-                        .join(", ")}`
+                      .filter((o) => form.workTypeIds.includes(o.value))
+                      .map((o) => o.label)
+                      .join(", ")}`
                     : "Applies to all work types"}
                 </div>
                 <div className="text-[10px] text-gray-400 italic">
@@ -600,9 +599,9 @@ const inputClass =
                 <div className="text-[10px] text-gray-500">
                   {form.shiftIds.length
                     ? `Selected: ${shiftOptions
-                        .filter((o) => form.shiftIds.includes(o.value))
-                        .map((o) => o.label)
-                        .join(", ")}`
+                      .filter((o) => form.shiftIds.includes(o.value))
+                      .map((o) => o.label)
+                      .join(", ")}`
                     : "Applies to all shifts"}
                 </div>
                 <div className="text-[10px] text-gray-400 italic">
@@ -630,9 +629,9 @@ const inputClass =
                 <div className="text-[10px] text-gray-500">
                   {form.departmentIds.length
                     ? `Selected: ${departmentOptions
-                        .filter((o) => form.departmentIds.includes(o.value))
-                        .map((o) => o.label)
-                        .join(", ")}`
+                      .filter((o) => form.departmentIds.includes(o.value))
+                      .map((o) => o.label)
+                      .join(", ")}`
                     : "Applies to all departments"}
                 </div>
                 <div className="text-[10px] text-gray-400 italic">
@@ -660,9 +659,9 @@ const inputClass =
                 <div className="text-[10px] text-gray-500">
                   {form.locationIds.length
                     ? `Selected: ${locationOptions
-                        .filter((o) => form.locationIds.includes(o.value))
-                        .map((o) => o.label)
-                        .join(", ")}`
+                      .filter((o) => form.locationIds.includes(o.value))
+                      .map((o) => o.label)
+                      .join(", ")}`
                     : "Applies to all locations"}
                 </div>
                 <div className="text-[10px] text-gray-400 italic">
@@ -748,7 +747,51 @@ const inputClass =
                         }
                       />
                     </div>
+
                   </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={rule.useOccurrence}
+                      onChange={(e) => updateRule(i, "useOccurrence", e.target.checked)}
+                    />
+                    <label className="text-[10px] text-gray-600">
+                      Apply occurrence condition
+                    </label>
+                  </div>
+                  {/* OCCURRENCE RANGE */}
+                  {rule.useOccurrence && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-gray-600">
+                          From Occurrence
+                        </label>
+                        <input
+                          className={inputClass}
+                          placeholder="e.g. 1"
+                          value={rule.fromOccurrence}
+                          onChange={(e) =>
+                            updateRule(i, "fromOccurrence", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] text-gray-600">
+                          To Occurrence
+                        </label>
+                        <input
+                          className={inputClass}
+                          placeholder="e.g. 8"
+                          value={rule.toOccurrence}
+                          onChange={(e) =>
+                            updateRule(i, "toOccurrence", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   {/* ACTION */}
                   <div>

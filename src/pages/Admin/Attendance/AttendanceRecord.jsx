@@ -26,6 +26,11 @@ const AttendanceRecord = () => {
   const [showMonthly, setShowMonthly] = useState(false);
   const [showMonthlyAll, setShowMonthlyAll] = useState(false);
   const [showDate, setShowDate] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize] = useState(20);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   // Cache employee names
   const [employeeCache, setEmployeeCache] = useState({});
@@ -46,22 +51,39 @@ const AttendanceRecord = () => {
   };
 
   // Fetch attendance records
-  const loadRecords = async () => {
+  const loadRecords = async (page = 1, date = selectedDate) => {
     try {
       setLoading(true);
+
+      const formattedDate = date.toISOString().split("T")[0];
+
       const res = await axiosInstance.get(
-        "/AttendanceRecord/getAttendancerecord/all",
+        `/AttendanceRecord/date-record?date=${formattedDate}&pageNumber=${page}&pageSize=${pageSize}`
       );
-      const list = res.data.data || [];
+
+      const response = res.data;
+
+      const list = response.data || [];
 
       setRecords(list);
       setFilteredRecords(list);
 
-      // load employee names
+      setPageNumber(response.pageNumber);
+      setTotalPages(response.totalPages);
+      setTotalRecords(response.totalRecords);
+
       list.forEach((r) => fetchEmployeeById(r.employeeId));
+
     } catch (err) {
       console.log(err);
-      // toast.error("Failed loading records");
+
+      if (err.response?.status === 404) {
+        toast.warning("No attendance records found for this date.");
+        setFilteredRecords([]);
+      } else {
+        toast.error("Failed loading records");
+      }
+
     } finally {
       setLoading(false);
     }
@@ -89,7 +111,7 @@ const AttendanceRecord = () => {
 
   useEffect(() => {
     loadEmployees();
-    loadRecords();
+    loadRecords(1);
   }, []);
 
   return (
@@ -132,26 +154,40 @@ const AttendanceRecord = () => {
       <div className="flex gap-2 px-4 mt-4">
         <button
           onClick={() => setViewMode("date")}
-          className={`px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition ${
-            viewMode === "date"
-              ? "bg-primary text-white"
-              : "bg-gray-200 text-gray-700"
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition ${viewMode === "date"
+            ? "bg-primary text-white"
+            : "bg-gray-200 text-gray-700"
+            }`}
         >
           Date_Wise
         </button>
 
         <button
           onClick={() => setViewMode("employee")}
-          className={`px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition ${
-            viewMode === "employee"
-              ? "bg-primary text-white"
-              : "bg-gray-200 text-gray-700"
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition ${viewMode === "employee"
+            ? "bg-primary text-white"
+            : "bg-gray-200 text-gray-700"
+            }`}
         >
           Employee_Wise
         </button>
       </div>
+
+      {viewMode === "date" && (
+        <div className="flex justify-center mt-3">
+          <input
+            type="date"
+            value={selectedDate.toISOString().split("T")[0]}
+            onChange={(e) => {
+              const newDate = new Date(e.target.value);
+              setSelectedDate(newDate);
+              setPageNumber(1);
+              loadRecords(1, newDate);
+            }}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      )}
 
       {/* RECORDS TABLE (SEPARATE COMPONENT) */}
       {viewMode === "date" ? (
@@ -162,11 +198,43 @@ const AttendanceRecord = () => {
         />
       ) : (
         <EmployeeWiseRecord
-          records={filteredRecords}
           employees={employees}
           employeeCache={employeeCache}
         />
       )}
+
+      {viewMode === "date" && (
+        <>
+          <div className="flex justify-center items-center gap-4 mt-6">
+
+            <button
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50 cursor-pointer"
+              disabled={pageNumber === 1}
+              onClick={() => loadRecords(pageNumber - 1)}
+            >
+              Prev
+            </button>
+
+            <span className="text-sm font-medium">
+              Page {pageNumber} of {totalPages}
+            </span>
+
+            <button
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50 cursor-pointer"
+              disabled={pageNumber === totalPages}
+              onClick={() => loadRecords(pageNumber + 1)}
+            >
+              Next
+            </button>
+
+          </div>
+
+          <div className="text-center text-xs text-gray-500 mt-2">
+            {totalRecords} attendance records
+          </div>
+        </>
+      )}
+
 
       {/* MODALS */}
       <AddAttendanceModal

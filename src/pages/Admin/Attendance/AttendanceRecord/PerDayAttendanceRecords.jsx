@@ -6,7 +6,7 @@ const PerDayAttendanceRecords = ({
   selectedYear,
 }) => {
   const sortedDays = [...perDayDetails].sort(
-    (a, b) => new Date(a.date) - new Date(b.date),
+    (a, b) => new Date(a.attendanceDate) - new Date(b.attendanceDate)
   );
 
   const year = selectedYear;
@@ -18,19 +18,30 @@ const PerDayAttendanceRecords = ({
 
   for (let i = 0; i < firstDayOfWeek; i++) calendar.push(null);
 
+  const dayMap = Object.fromEntries(
+    sortedDays.map(d => [new Date(d.attendanceDate).getDate(), d])
+  );
+
   for (let day = 1; day <= daysInMonth; day++) {
-    const dayData = sortedDays.find((d) => new Date(d.date).getDate() === day);
+    const dayData = dayMap[day];
 
     calendar.push(dayData || { date: new Date(year, month, day) });
   }
 
-  const isWeekend = (date) => {
-    const d = new Date(date);
+  const isWeekend = (day) => {
+    if (Number(day.dayStatus) === 8) return false; // Extra Day Present should not look like weekend
+
+    if (day.isWeekend) return true;
+
+    const d = new Date(day.attendanceDate || day.date);
     return d.getDay() === 0 || d.getDay() === 6;
   };
 
   const getStatusColor = (day) => {
-    switch (day.dayStatus) {
+    const status = Number(day.dayStatus);
+
+    if (status === 8) return "bg-emerald-100 border-emerald-400";
+    switch (status) {
       case 1: // Present
         return "bg-green-50 border-green-200";
 
@@ -49,6 +60,12 @@ const PerDayAttendanceRecords = ({
       case 6: // Half Day
         return "bg-yellow-50 border-yellow-200";
 
+      case 7: // Sandwich Leave
+        return "bg-orange-50 border-orange-200";
+
+      case 8: // Extra Day Present
+        return "bg-emerald-50 border-emerald-200";
+
       default:
         return "bg-gray-100 border-gray-200";
     }
@@ -59,6 +76,19 @@ const PerDayAttendanceRecords = ({
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+  };
+
+  const getShiftData = (day) => {
+    if (!day.shiftSegments || day.shiftSegments.length === 0)
+      return { late: 0, early: 0, ot: 0 };
+
+    const seg = day.shiftSegments[0];
+
+    return {
+      late: seg.lateMinutes || 0,
+      early: seg.earlyLeaveMinutes || 0,
+      ot: seg.otMinutes || 0
+    };
   };
 
   return (
@@ -86,21 +116,22 @@ const PerDayAttendanceRecords = ({
         {calendar.map((day, idx) => {
           if (!day) return <div key={idx} className="h-24" />;
 
-          const hasData = day.inTime || day.outTime;
+          const hasData = day.inTime || day.outTime || day.shiftSegments?.length;
+          const shift = getShiftData(day);
 
           return (
             <div
               key={idx}
               className={`
                 min-h-[110px] max-h-32 p-2 rounded-xl border shadow-sm transition-all flex flex-col
-               ${getStatusColor(day)} ${isWeekend(day.date) ? "opacity-90" : ""}
+               ${getStatusColor(day)} ${isWeekend(day) ? "opacity-90" : ""}
                 hover:shadow-md
               `}
             >
               <div className="flex justify-between">
                 {/* Date */}
                 <div className="text-sm font-semibold text-gray-800">
-                  {new Date(day.date).getDate()}
+                  {new Date(day.attendanceDate || day.date).getDate()}
                 </div>
 
                 {/* Status Text */}
@@ -111,6 +142,8 @@ const PerDayAttendanceRecords = ({
                   {day.dayStatus === 4 && "Weekend"}
                   {day.dayStatus === 5 && "Leave"}
                   {day.dayStatus === 6 && "Half Day"}
+                  {day.dayStatus === 7 && "Sandwich"}
+                  {day.dayStatus === 8 && "Extra Day"}
                 </div>
               </div>
 
@@ -123,9 +156,9 @@ const PerDayAttendanceRecords = ({
                     <span className="font-medium text-gray-800">
                       {day.inTime
                         ? new Date(day.inTime).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
                         : "-"}
                     </span>
                   </div>
@@ -135,9 +168,9 @@ const PerDayAttendanceRecords = ({
                     <span className="font-medium text-gray-800">
                       {day.outTime
                         ? new Date(day.outTime).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
                         : "-"}
                     </span>
                   </div>
@@ -156,7 +189,7 @@ const PerDayAttendanceRecords = ({
                   <div className="flex justify-between">
                     <span className="text-gray-500">OT</span>
                     <span className="text-green-600 font-medium">
-                      {formatMinutes(day.otMinutes)}
+                      {formatMinutes(shift.ot)}
                     </span>
                   </div>
 
@@ -165,7 +198,7 @@ const PerDayAttendanceRecords = ({
                     <div className="flex justify-between gap-2">
                       <span className="text-gray-500">Late : </span>
                       <span className="text-yellow-600 font-medium">
-                        {formatMinutes(day.lateMinutes)}
+                        {formatMinutes(shift.late)}
                       </span>
                     </div>
 
@@ -173,7 +206,7 @@ const PerDayAttendanceRecords = ({
                     <div className="flex justify-between gap-2">
                       <span className="text-gray-500">Early</span>
                       <span className="text-red-600 font-medium">
-                        {formatMinutes(day.earlyLeaveMinutes)}
+                        {formatMinutes(shift.early)}
                       </span>
                     </div>
                   </div>
@@ -204,6 +237,14 @@ const PerDayAttendanceRecords = ({
 
                   {day.dayStatus === 6 && (
                     <span className="text-yellow-600">Half Day</span>
+                  )}
+
+                  {day.dayStatus === 7 && (
+                    <span className="text-orange-600">Sandwich Leave</span>
+                  )}
+
+                  {day.dayStatus === 8 && (
+                    <span className="text-emerald-600">Extra Day Present</span>
                   )}
 
                   {!day.dayStatus && (
@@ -246,6 +287,16 @@ const PerDayAttendanceRecords = ({
         <div className="flex items-center gap-1">
           <span className="w-3 h-3 bg-purple-400 rounded-full" />
           <span>Leave</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="w-3 h-3 bg-orange-400 rounded-full" />
+          <span>Sandwich Leave</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="w-3 h-3 bg-emerald-400 rounded-full" />
+          <span>Extra Day Present</span>
         </div>
       </div>
     </div>

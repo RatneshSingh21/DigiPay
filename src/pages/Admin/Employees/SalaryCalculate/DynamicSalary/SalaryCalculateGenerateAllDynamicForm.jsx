@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { FiX } from "react-icons/fi";
-import axiosInstance from "../../../../axiosInstance/axiosInstance";
+import axiosInstance from "../../../../../axiosInstance/axiosInstance";
 
-const SalaryCalculateGenerateAllForm = ({ onClose, onSuccess }) => {
+const inputClass =
+  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+
+const SalaryCalculateGenerateAllDynamicForm = ({ onClose, onSuccess }) => {
   const [form, setForm] = useState({
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
@@ -21,7 +24,7 @@ const SalaryCalculateGenerateAllForm = ({ onClose, onSuccess }) => {
       await axiosInstance.post(
         "/CalculatedSalary/GenerateAll",
         {},
-        { params: form }
+        { params: form },
       );
 
       toast.success("All salaries generated successfully!");
@@ -44,7 +47,7 @@ const SalaryCalculateGenerateAllForm = ({ onClose, onSuccess }) => {
         </button>
 
         <h2 className="text-lg font-semibold mb-5 text-center text-gray-800">
-          Generate All Salaries
+          Generate All Salaries(Dynamic)
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -58,7 +61,7 @@ const SalaryCalculateGenerateAllForm = ({ onClose, onSuccess }) => {
               value={form.month}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className={inputClass}
             />
           </div>
 
@@ -70,11 +73,11 @@ const SalaryCalculateGenerateAllForm = ({ onClose, onSuccess }) => {
               value={form.year}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className={inputClass}
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
@@ -96,4 +99,4 @@ const SalaryCalculateGenerateAllForm = ({ onClose, onSuccess }) => {
   );
 };
 
-export default SalaryCalculateGenerateAllForm;
+export default SalaryCalculateGenerateAllDynamicForm;

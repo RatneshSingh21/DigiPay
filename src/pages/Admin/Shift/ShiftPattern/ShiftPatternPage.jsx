@@ -13,8 +13,17 @@ const ShiftPatternPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [shifts, setShifts] = useState([]);
   const [employees, setEmployees] = useState([]);
+
+  const fetchShifts = async () => {
+    try {
+      const res = await axiosInstance.get("/shift");
+      setShifts(res.data || []);
+    } catch (error) {
+      console.error("Failed to fetch shifts");
+    }
+  };
 
   const fetchPatterns = async () => {
     try {
@@ -37,9 +46,15 @@ const ShiftPatternPage = () => {
     }
   };
 
+  const getShiftName = (shiftId) => {
+    const shift = shifts.find((s) => s.id === shiftId);
+    return shift ? shift.shiftName : `Shift ${shiftId}`;
+  };
+
   useEffect(() => {
     fetchPatterns();
     fetchEmployees();
+    fetchShifts();
   }, []);
 
   const getEmployeeName = (employeeId) => {
@@ -55,7 +70,7 @@ const ShiftPatternPage = () => {
     if (pattern.cycleLength === 1) {
       return `From ${new Date(pattern.patternStartDate).toLocaleDateString(
         "en-Gb",
-      )} onward works Shift ${pattern.days[0].shiftId} daily`;
+      )} onward works ${getShiftName(pattern.days[0].shiftId)} daily`;
     }
 
     return `${pattern.cycleLength}-day rotating schedule starting ${new Date(

@@ -9,9 +9,8 @@ import WeekendRuleCard from "./WeekendRuleCard";
 /* ===================== TOGGLE CARD ===================== */
 const SettingCard = ({ title, description, children, warning }) => (
   <div
-    className={`rounded-lg border border-gray-200 p-4 space-y-3 ${
-      warning ? "bg-yellow-50 border-yellow-300" : "bg-gray-50"
-    }`}
+    className={`rounded-lg border border-gray-200 p-4 space-y-3 ${warning ? "bg-yellow-50 border-yellow-300" : "bg-gray-50"
+      }`}
   >
     <div className="space-y-1">
       <h3 className="font-semibold text-gray-800 flex items-center gap-2">
@@ -33,14 +32,12 @@ const Toggle = ({ label, value, onChange, hint }) => (
     <Switch
       checked={value}
       onChange={onChange}
-      className={`${
-        value ? "bg-primary" : "bg-gray-300"
-      } relative inline-flex h-5 w-10 items-center rounded-full`}
+      className={`${value ? "bg-primary" : "bg-gray-300"
+        } relative inline-flex h-5 w-10 items-center rounded-full`}
     >
       <span
-        className={`${
-          value ? "translate-x-5" : "translate-x-1"
-        } inline-block h-4 w-4 transform bg-white rounded-full`}
+        className={`${value ? "translate-x-5" : "translate-x-1"
+          } inline-block h-4 w-4 transform bg-white rounded-full`}
       />
     </Switch>
   </div>
@@ -77,17 +74,19 @@ const AddWeekendPolicy = ({ onClose, onSuccess, isEdit, initialData }) => {
     setRules((r) => [
       ...r,
       {
-        workDay: "Sunday",
-        targetType: policy.allowEmployeeOverride ? "Employee" : "Shift",
+        workDay: 0,
+        targetType: policy.allowEmployeeOverride ? 1 : 2,
         targetId: 0,
         useShiftTiming: true,
-        compensationType: "Salary",
+        startTime: "",
+        endTime: "",
+        compensationType: 1,
         workingDayCredit: 1,
         isGovernmentApproved: govtApproved,
         effectiveFrom: new Date().toISOString(),
         effectiveTo: null,
-        isActive: true,
-      },
+        isActive: true
+      }
     ]);
   };
 
@@ -138,37 +137,45 @@ const AddWeekendPolicy = ({ onClose, onSuccess, isEdit, initialData }) => {
 
   useEffect(() => {
     if (isEdit === "Edit" && initialData) {
+
       setPolicy({
         policyName: initialData.policyName || "",
-        sundayOff: initialData.sundayOff,
-        mondayOff: initialData.mondayOff,
-        tuesdayOff: initialData.tuesdayOff,
-        wednesdayOff: initialData.wednesdayOff,
-        thursdayOff: initialData.thursdayOff,
-        fridayOff: initialData.fridayOff,
-        saturdayOff: initialData.saturdayOff,
-        isHalfDayApplicable: initialData.isHalfDayApplicable,
-        allowWeekendOverride: initialData.allowWeekendOverride,
-        allowShiftOverride: initialData.allowShiftOverride,
-        allowEmployeeOverride: initialData.allowEmployeeOverride,
-        isActive: initialData.isActive,
+        sundayOff: initialData.sundayOff ?? false,
+        mondayOff: initialData.mondayOff ?? false,
+        tuesdayOff: initialData.tuesdayOff ?? false,
+        wednesdayOff: initialData.wednesdayOff ?? false,
+        thursdayOff: initialData.thursdayOff ?? false,
+        fridayOff: initialData.fridayOff ?? false,
+        saturdayOff: initialData.saturdayOff ?? false,
+        isHalfDayApplicable: initialData.isHalfDayApplicable ?? false,
+        allowWeekendOverride: initialData.allowWeekendOverride ?? false,
+        allowShiftOverride: initialData.allowShiftOverride ?? false,
+        allowEmployeeOverride: initialData.allowEmployeeOverride ?? false,
+        isActive: initialData.isActive ?? true,
       });
 
-      setRules(initialData.weekendWorkRules || []);
+      const formattedRules =
+        initialData.weekendWorkRules?.map((r) => ({
+          ...r,
+          targetId: Number(r.targetId) || 0,
+          startTime: r.startTime || "",
+          endTime: r.endTime || "",
+          workingDayCredit: Number(r.workingDayCredit) || 1,
+        })) || [];
 
-      // restore half-day credit safely
-      const credit = initialData.weekendWorkRules?.[0]?.workingDayCredit;
-      if (credit) setHalfDayCredit(credit);
+      setRules(formattedRules);
 
-      setGovtApproved(
-        initialData.weekendWorkRules?.some((r) => r.isGovernmentApproved) ||
-          false
-      );
+      if (formattedRules.length > 0) {
+        setHalfDayCredit(formattedRules[0].workingDayCredit);
+        setGovtApproved(
+          formattedRules.some((x) => x.isGovernmentApproved)
+        );
+      }
     }
   }, [isEdit, initialData]);
 
   const inputClass =
-  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
+    "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
 
   return (
@@ -318,7 +325,8 @@ const AddWeekendPolicy = ({ onClose, onSuccess, isEdit, initialData }) => {
 
                 {rules.map((rule, idx) => (
                   <WeekendRuleCard
-                    key={idx}
+                    key={`rule-${idx}`}
+                    index={idx}
                     rule={rule}
                     onChange={(r) =>
                       setRules((all) => all.map((x, i) => (i === idx ? r : x)))

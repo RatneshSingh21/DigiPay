@@ -162,6 +162,10 @@ import CompanySalaryPolicyPage from "./pages/NEWSALARYLOGIC/CompanySalaryPolicy/
 import DefaultSalaryPolicyPage from "./pages/NEWSALARYLOGIC/DefaultSalaryPolicy/DefaultSalaryPolicyPage";
 import DynamicSalaryPolicyPage from "./pages/NEWSALARYLOGIC/DynamicSalaryPolicy/DynamicSalaryPolicyPage";
 import DownloadSlip from "./pages/NEWSALARYLOGIC/DownloadSlip";
+import AdvanceLoanMonthly from "./pages/NEWSALARYLOGIC/ADVANCENEW/AdvanceLoanMonthly";
+import SalaryCalculateRich from "./pages/Admin/Employees/SalaryCalculate/SalaryCalculateRich";
+import ComplianceSalaryPolicy from "./pages/NEWSALARYLOGIC/ComplianceSalaryPolicy/ComplianceSalaryPolicy";
+import EmployeeActualSalary from "./pages/ComplainceSalaryPages/ActualSalary/EmployeeActualSalary";
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -283,12 +287,32 @@ const App = () => {
                       element={<DynamicSalaryPolicyPage />}
                     />
                     <Route
+                      path="complaince-setup"
+                      element={<ComplianceSalaryPolicy />}
+                    />
+                    <Route
                       path="company-salary-policy"
                       element={<CompanySalaryPolicyPage />}
                     />
                     <Route
+                      path="complaince-setup"
+                      element={<ComplianceSalaryPolicy />}
+                    />
+                    <Route
+                      path="actual-salary"
+                      element={<EmployeeActualSalary />}
+                    />
+                    <Route
+                      path="complaince-setup"
+                      element={<ComplianceSalaryPolicy />}
+                    />
+                    <Route
+                      path="add-advance"
+                      element={<AdvanceLoanMonthly />}
+                    />
+                    <Route
                       path="salary-calculation"
-                      element={<SalaryCalculate />}
+                      element={<SalaryCalculateRich />}
                     />
                     <Route
                       path="download-slip"

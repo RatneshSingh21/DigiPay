@@ -157,11 +157,10 @@ const AttendanceList = ({
 
                           <td className="py-2 px-3">
                             <span
-                              className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                item.isManual
-                                  ? "bg-orange-100 text-orange-700"
-                                  : "bg-gray-100 text-gray-600"
-                              }`}
+                              className={`px-2 py-1 rounded-full text-xs font-semibold ${item.isManual
+                                ? "bg-orange-100 text-orange-700"
+                                : "bg-gray-100 text-gray-600"
+                                }`}
                             >
                               {item.isManual ? "Manual" : "Auto"}
                             </span>

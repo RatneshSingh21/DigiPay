@@ -6,7 +6,9 @@ const items = [
   { label: "Leave", color: "bg-orange-400" },
   { label: "Holiday", color: "bg-blue-600" },
   { label: "Week Off", color: "bg-gray-300" },
-  { label: "HalfDay", color: "bg-purple-400" },
+  { label: "Half Day", color: "bg-yellow-400" },
+  { label: "Sandwich Leave", color: "bg-purple-500" },
+  { label: "Extra Day", color: "bg-teal-500" },
 ];
 
 const Legend = () => (

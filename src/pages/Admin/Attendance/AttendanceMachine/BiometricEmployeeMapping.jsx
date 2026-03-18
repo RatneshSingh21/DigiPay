@@ -8,9 +8,8 @@ import MapEmployeeModal from "./MapEmployeeModal";
 /* ================= STATUS BADGE ================= */
 const StatusBadge = ({ active }) => (
   <span
-    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-      active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-    }`}
+    className={`px-2 py-0.5 rounded-full text-xs font-medium ${active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+      }`}
   >
     {active ? "Active" : "Inactive"}
   </span>
@@ -114,7 +113,7 @@ const BiometricEmployeeMapping = () => {
 
         {/* DEVICE INFO */}
         {deviceInfo && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border rounded-lg p-4">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-200 rounded-lg p-4">
             <div className="flex justify-between items-center">
               <div>
                 <div className="text-sm text-gray-500">Device</div>
@@ -136,7 +135,7 @@ const BiometricEmployeeMapping = () => {
         {/* SEARCH */}
         {mappings.length > 0 && (
           <input
-            className="border px-3 py-2 rounded w-full max-w-sm text-sm"
+            className="w-full max-w-sm rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Search employee by name or code..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}

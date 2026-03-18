@@ -4,28 +4,36 @@ import { FiDownload } from "react-icons/fi";
 import ExportDailyAttendancePdfModel from "./ExportAttendancePdf/ExportDailyAttendancePdfModel";
 import ExportMonthlyAttendancePdfModal from "./ExportAttendancePdf/ExportMonthlyAttendancePdf";
 import ExportMonthlyAttendanceEmployeewisePdfModal from "./ExportAttendancePdf/ExportMonthlyAttendanceEmployeewisePdfModal";
+import ExportMonthlyAttendancePdfAll from "./ExportAttendancePdf/ExportMonthlyAttendancePdfAll";
 
 const dummyTemplates = [
   {
     id: 1,
-    name: "Daily Attendance Employee Wise",
+    name: "Daily Attendance Employee Wise Month In-Out punches.",
     description: "Download employee-wise daily attendance.",
     imageUrl: "https://placehold.co/400x200?text=Employee+Daily+PDF",
     type: "employee-daily-pdf",
   },
   {
     id: 2,
-    name: "Employee Monthly Attendance Record PDF",
+    name: "Employee-Wise Monthly Attendance Record PDF.",
     description: "Download month-wise attendance PDF for a single employee.",
     imageUrl: "https://placehold.co/400x200?text=Employee+PDF",
     type: "employee-pdf",
   },
   {
     id: 3,
-    name: "Company Wise Monthly Attendance PDF",
+    name: "All Employee Attendance Record In-Out PDF.",
     description: "Download month-wise attendance PDF for all employees.",
-    imageUrl: "https://placehold.co/400x200?text=Company+PDF",
+    imageUrl: "https://placehold.co/400x200?text=Attendance+Record+In-Out",
     type: "company-pdf",
+  },
+  {
+    id: 4,
+    name: "All Employee Attendance Record Monthly PDF.",
+    description: "Download month-wise attendance PDF for all employees.",
+    imageUrl: "https://placehold.co/400x200?text=Attendance+Record+Counts+PDF",
+    type: "all-employee-pdf",
   },
 ];
 
@@ -35,6 +43,7 @@ const AttendanceReport = () => {
   const [showCompanyPdfModal, setShowCompanyPdfModal] = useState(false);
   const [showEmployeeWisePdfModal, setShowEmployeeWisePdfModal] =
     useState(false);
+  const [showAllAttendanceRecord, setShowAllAttendanceRecord] = useState(false);
 
   const handleAction = (template) => {
     switch (template.type) {
@@ -52,6 +61,10 @@ const AttendanceReport = () => {
 
       case "company-pdf":
         setShowCompanyPdfModal(true);
+        break;
+
+      case "all-employee-pdf":
+        setShowAllAttendanceRecord(true);
         break;
 
       default:
@@ -126,6 +139,13 @@ const AttendanceReport = () => {
         <ExportMonthlyAttendancePdfModal
           isOpen={showCompanyPdfModal}
           onClose={() => setShowCompanyPdfModal(false)}
+        />
+      )}
+
+      {showAllAttendanceRecord && (
+        <ExportMonthlyAttendancePdfAll
+          isOpen={showAllAttendanceRecord}
+          onClose={() => setShowAllAttendanceRecord(false)}
         />
       )}
     </>

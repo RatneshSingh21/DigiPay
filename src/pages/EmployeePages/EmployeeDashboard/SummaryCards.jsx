@@ -22,6 +22,8 @@ const SummaryCards = () => {
     presentDays: 0,
     absentDays: 0,
     leavesTaken: 0,
+    halfDays: 0,
+    sandwichDays: 0,
     weekendDays: 0,
     holidayDays: 0,
     overtimeHours: 0,
@@ -42,8 +44,14 @@ const SummaryCards = () => {
         setLoading(true);
 
         const res = await axiosInstance.get(
-          `/AttendanceRecord/employee/${user.userId}/month`,
-          { params: { month, year } },
+          `/AttendanceRecord/employee-month-record-nopage`,
+          {
+            params: {
+              employeeId: user.userId,
+              month,
+              year,
+            },
+          }
         );
 
         const apiData = res.data?.data || [];
@@ -54,29 +62,66 @@ const SummaryCards = () => {
         let leavesTaken = 0;
         let weekendDays = 0;
         let holidayDays = 0;
+        let halfDays = 0;
+        let sandwichDays = 0;
 
         apiData.forEach((item) => {
-          switch (item.dayStatus) {
-            case 1: // Present
+          let status = "Absent";
+
+          if (item.isHoliday || item.dayStatus === 3) {
+            status = "Holiday";
+          } else if (item.isWeekend) {
+            if (item.dayStatus === 7) {
+              status = "Sandwich Leave";
+            } else if (item.dayStatus === 8 || item.dayStatus === 1) {
+              status = "Extra Day";
+            } else {
+              status = "Week Off";
+            }
+          } else {
+            switch (item.dayStatus) {
+              case 1:
+                status = "Present";
+                break;
+              case 2:
+                status = "Absent";
+                break;
+              case 5:
+                status = "Leave";
+                break;
+              case 6:
+                status = "Half Day";
+                break;
+              default:
+                status = "Absent";
+            }
+          }
+
+          switch (status) {
+            case "Present":
+            case "Extra Day":
               presentDays += 1;
               break;
-
-            case 2: // Absent
+            case "Absent":
               absentDays += 1;
               break;
-
-            case 3: // Holiday
-              holidayDays += 1;
-              break;
-
-            case 4: // Weekend
-              weekendDays += 1;
-              break;
-
-            case 5: // Leave
+            case "Leave":
               leavesTaken += 1;
               break;
 
+            case "Half Day":
+              halfDays += 1;
+              break;
+
+            case "Sandwich Leave":
+              sandwichDays += 1;
+              break;
+            case "Week Off":
+              weekendDays += 1;
+              break;
+            case "Holiday":
+              holidayDays += 1;
+              break;
             default:
               break;
           }
@@ -86,6 +131,8 @@ const SummaryCards = () => {
           presentDays,
           absentDays,
           leavesTaken,
+          halfDays,
+          sandwichDays,
           weekendDays,
           holidayDays,
           overtimeHours: apiSummary
@@ -103,6 +150,7 @@ const SummaryCards = () => {
       fetchSummary();
     }
   }, [user, month, year]);
+
 
   const summaryData = [
     {
@@ -124,11 +172,25 @@ const SummaryCards = () => {
       bg: "bg-yellow-50",
     },
     {
+      label: "Sandwich Leaves",
+      value: summary.sandwichDays,
+      icon: <Briefcase className="w-6 h-6 text-indigo-600" />,
+      bg: "bg-indigo-50",
+    },
+    {
+      label: "Half Days",
+      value: summary.halfDays,
+      icon: <Clock className="w-6 h-6 text-orange-600" />,
+      bg: "bg-orange-50",
+    },
+    {
       label: "Weekend Days",
       value: summary.weekendDays,
       icon: <CalendarCheck className="w-6 h-6 text-purple-600" />,
       bg: "bg-purple-50",
     },
+
+
     {
       label: "Holiday Days",
       value: summary.holidayDays,

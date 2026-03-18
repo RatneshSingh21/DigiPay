@@ -123,8 +123,14 @@ const submenuMap = {
   Salary: [
     "Salary Configuration",
     // "Default SetUp",
-    "Dynamic SetUp",
+    // "Dynamic SetUp",
+    "Compliance Policy",
     "Company Salary Policy",
+    "Attendance",
+    "Actual Salary",
+    "Compliance Salary",
+    "Difference Salary",
+    "Add Advance",
     "Salary Calculation",
     "Download SalarySlip"
   ],

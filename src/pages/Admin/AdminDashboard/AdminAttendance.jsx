@@ -19,9 +19,9 @@ const sourceColors = {
 
 const sourceLabels = {
   ESSL: "Device",
-  ADMIN_PANEL: "Admin Panel",
+  ADMIN_PANEL: "AdminPanel",
   EXCEL: "Excel",
-  MobileApp: "Mobile App",
+  MobileApp: "MobileApp",
 };
 
 const FILTER_MAP = {
@@ -204,11 +204,10 @@ const AdminAttendance = () => {
                 setActiveTab(tab);
                 setCurrentPage(1);
               }}
-              className={`px-4 py-1.5 text-xs font-medium rounded-lg cursor-pointer transition-all ${
-                activeTab === tab
-                  ? "bg-white text-primary shadow"
-                  : "text-gray-600 hover:text-primary"
-              }`}
+              className={`px-4 py-1.5 text-xs font-medium rounded-lg cursor-pointer transition-all ${activeTab === tab
+                ? "bg-white text-primary shadow"
+                : "text-gray-600 hover:text-primary"
+                }`}
             >
               {tab}
             </button>
@@ -271,11 +270,10 @@ const AdminAttendance = () => {
                   <td className="px-4 py-3 text-center">
                     {att.inTime ? (
                       <span
-                        className={`flex items-center justify-center gap-2 font-medium ${
-                          att.inLocation
-                            ? "cursor-pointer text-green-600"
-                            : "text-green-400"
-                        }`}
+                        className={`flex items-center justify-center gap-2 font-medium ${att.inLocation
+                          ? "cursor-pointer text-green-600"
+                          : "text-green-400"
+                          }`}
                         onMouseEnter={(e) => {
                           if (!att.inLocation) return;
 
@@ -305,11 +303,10 @@ const AdminAttendance = () => {
                   <td className="px-4 py-3 text-center">
                     {att.outTime ? (
                       <span
-                        className={`flex items-center justify-center gap-2 font-medium ${
-                          att.outLocation
-                            ? "cursor-pointer text-red-600"
-                            : "text-red-400"
-                        }`}
+                        className={`flex items-center justify-center gap-2 font-medium ${att.outLocation
+                          ? "cursor-pointer text-red-600"
+                          : "text-red-400"
+                          }`}
                         onMouseEnter={(e) => {
                           if (!att.outLocation) return;
 
@@ -338,9 +335,8 @@ const AdminAttendance = () => {
                   {/* Source */}
                   <td className="px-4 py-3">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        sourceColors[att.source] || "bg-gray-100 text-gray-700"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${sourceColors[att.source] || "bg-gray-100 text-gray-700"
+                        }`}
                     >
                       {sourceLabels[att.source] || att.source}
                     </span>
@@ -382,9 +378,8 @@ const AdminAttendance = () => {
                   {/* Status */}
                   <td className="px-4 py-3">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        statusColors[att.status] || "bg-gray-100 text-gray-700"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[att.status] || "bg-gray-100 text-gray-700"
+                        }`}
                     >
                       {att.status}
                     </span>

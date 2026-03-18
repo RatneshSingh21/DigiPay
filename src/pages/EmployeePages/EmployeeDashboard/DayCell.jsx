@@ -27,6 +27,21 @@ const statusStyles = {
     border: "border-orange-300",
     dot: "bg-orange-500",
   },
+  "Half Day": {
+    bg: "bg-yellow-50",
+    border: "border-yellow-300",
+    dot: "bg-yellow-500",
+  },
+  "Sandwich Leave": {
+    bg: "bg-purple-50",
+    border: "border-purple-300",
+    dot: "bg-purple-500",
+  },
+  "Extra Day": {
+    bg: "bg-teal-50",
+    border: "border-teal-300",
+    dot: "bg-teal-500",
+  },
 };
 
 const DayCell = ({ date, data }) => {
@@ -41,7 +56,11 @@ const DayCell = ({ date, data }) => {
 
   let formattedTime = "--:--";
 
-  if (status === "Present") {
+  if (
+    status === "Present" ||
+    status === "Half Day" ||
+    status === "Extra Day"
+  ) {
     formattedTime = `${String(hours).padStart(2, "0")}:${String(
       minutes
     ).padStart(2, "0")}`;
@@ -49,7 +68,11 @@ const DayCell = ({ date, data }) => {
 
   let hoursColor = "text-gray-400";
 
-  if (status === "Present") {
+  if (
+    status === "Present" ||
+    status === "Half Day" ||
+    status === "Extra Day"
+  ) {
     hoursColor =
       totalHours >= 8
         ? "text-green-600 font-semibold"

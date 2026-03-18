@@ -162,28 +162,28 @@ const LeaveTypeLocation = () => {
         {loading ? (
           <p className="text-gray-500">Loading...</p>
         ) : (
-          <div className="rounded-lg border">
+          <div className="rounded-lg border border-gray-200">
             <table className="w-full border-collapse">
               <thead className="sticky top-0 bg-gray-200 text-gray-700 ">
                 <tr>
-                  <th className="p-3 border text-center">Leave Name</th>
-                  <th className="p-3 border text-center">Location</th>
-                  <th className="p-3 border text-center">Actions</th>
+                  <th className="p-3 border border-gray-200 text-center">Leave Name</th>
+                  <th className="p-3 border border-gray-200 text-center">Location</th>
+                  <th className="p-3 border border-gray-200 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {data.length > 0 ? (
                   data.map((item) => (
                     <tr key={item.mappingId} className="hover:bg-gray-100 transition">
-                      <td className="p-3 border text-center">
+                      <td className="p-3 border border-gray-200 text-center">
                         {leaveOptions.find((opt) => opt.value === item.leaveTypeId)?.label ||
                           item.leaveTypeId}
                       </td>
-                      <td className="p-3 border text-center">
+                      <td className="p-3 border border-gray-200 text-center">
                         {locationOptions.find((opt) => opt.value === item.workLocationId)?.label ||
                           item.workLocationId}
                       </td>
-                      <td className="p-3 space-x-1.5 border text-center">
+                      <td className="p-3 space-x-1.5 border border-gray-200 text-center">
                         <div className="flex gap-3 items-center justify-center">
                           <button
                             className="flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition cursor-pointer"
@@ -205,7 +205,7 @@ const LeaveTypeLocation = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="3" className="text-center text-gray-500 p-4 border">
+                    <td colSpan="3" className="text-center text-gray-500 p-4 border border-gray-200">
                       No data available
                     </td>
                   </tr>
