@@ -724,33 +724,8 @@ const SalaryCalculate = () => {
 
 
       {/* Form Dynamic Popup */}
-      {/* {showForm && (
-        <SalaryCalculateDynamicForm
-          onClose={() => setShowForm(false)}
-          onSuccess={(data) => {
-            setSalaryResult(data);
-            fetchSalaries();
-          }}
-        />
-      )} */}
-
-      {/* {salaryResult && (
-        <SalaryCalculationResultModalDynamic
-          data={salaryResult}
-          onClose={() => setSalaryResult(null)}
-        />
-      )} */}
-
-      {/* {showGenerateAllForm && (
-        <SalaryCalculateGenerateAllDynamicForm
-          onClose={() => setShowGenerateAllForm(false)}
-          onSuccess={fetchSalaries}
-        />
-      )} */}
-
-      {/* Form Default Popup */}
       {showForm && (
-        <SalaryGenerateDefaultForm
+        <SalaryCalculateDynamicForm
           onClose={() => setShowForm(false)}
           onSuccess={(data) => {
             setSalaryResult(data);
@@ -760,11 +735,36 @@ const SalaryCalculate = () => {
       )}
 
       {salaryResult && (
-        <SalaryCalculationResultModalDefault
+        <SalaryCalculationResultModalDynamic
           data={salaryResult}
           onClose={() => setSalaryResult(null)}
         />
       )}
+
+      {showGenerateAllForm && (
+        <SalaryCalculateGenerateAllDynamicForm
+          onClose={() => setShowGenerateAllForm(false)}
+          onSuccess={fetchSalaries}
+        />
+      )}
+
+      {/* Form Default Popup */}
+      {/* {showForm && (
+        <SalaryGenerateDefaultForm
+          onClose={() => setShowForm(false)}
+          onSuccess={(data) => {
+            setSalaryResult(data);
+            fetchSalaries();
+          }}
+        />
+      )} */}
+
+      {/* {salaryResult && (
+        <SalaryCalculationResultModalDefault
+          data={salaryResult}
+          onClose={() => setSalaryResult(null)}
+        />
+      )} */}
 
       {showGenerateAllForm && (
         <SalaryCalculateGenerateAllDefaultForm

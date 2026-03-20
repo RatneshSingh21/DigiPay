@@ -82,6 +82,7 @@ import AttendancePunch from "./pages/Admin/Attendance/AttendancePunch";
 import AttendanceRejectedPunches from "./pages/Admin/Attendance/AttendanceRejectedPunches/AttendanceRejectedPunches";
 import AttendancePolicy from "./pages/Admin/Attendance/AttendancePolicy";
 import AttendanceRecord from "./pages/Admin/Attendance/AttendanceRecord";
+import MonthlyAttendanceReport from "./pages/Admin/Attendance/MonthlyAttendanceReport/MonthlyAttendanceReport";
 import AttendanceCalculationResult from "./pages/Admin/Attendance/AttendanceCalculationResult/AttendanceCalculationResult";
 import AttendanceMachine from "./pages/Admin/Attendance/AttendanceMachine/AttendanceMachine";
 import BiometricEmployeeMapping from "./pages/Admin/Attendance/AttendanceMachine/BiometricEmployeeMapping";
@@ -310,15 +311,19 @@ const App = () => {
                       path="add-advance"
                       element={<AdvanceLoanMonthly />}
                     />
-                    <Route
+                    {/* <Route
                       path="salary-calculation"
                       element={<SalaryCalculateRich />}
+                    /> */}
+                    <Route
+                      path="salary-calculation"
+                      element={<SalaryCalculate />}
                     />
                     <Route
                       path="download-slip"
                       element={<DownloadSlip />}
                     />
-                    
+
                   </Route>
 
                   {/* Settings SubRoutes */}
@@ -412,6 +417,7 @@ const App = () => {
                     <Route path="punch" element={<AttendancePunch />} />
                     <Route path="atten-policy" element={<AttendancePolicy />} />
                     <Route path="atten-record" element={<AttendanceRecord />} />
+                    <Route path="monthly-attendance-report" element={<MonthlyAttendanceReport />} />
                     <Route
                       path="atten-calculation"
                       element={<AttendanceCalculationResult />}

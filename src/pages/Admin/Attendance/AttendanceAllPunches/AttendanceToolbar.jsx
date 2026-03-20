@@ -4,7 +4,8 @@ import { useEffect } from "react";
 const inputClass =
   "h-10 rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white";
 
-const AttendanceToolbar = ({ selectedDate, setSelectedDate, onSync }) => {
+const AttendanceToolbar = ({ selectedDate, setSelectedDate, onSync, viewMode, setViewMode,
+}) => {
   return (
     <div
       className="
@@ -24,19 +25,47 @@ const AttendanceToolbar = ({ selectedDate, setSelectedDate, onSync }) => {
           Date-wise Employee Punch Records
         </p>
       </div>
-
-      {/* ===== RIGHT CONTROLS ===== */}
+      {/* RIGHT */}
       <div className="flex items-center gap-3">
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className={inputClass}
-        />
 
-        <button
-          onClick={onSync}
-          className="
+        {/* VIEW TOGGLE / Toggle Switch */}
+        <div className="flex bg-gray-100 rounded-lg p-1 text-xs">
+          <button
+            onClick={() => setViewMode("DATE")}
+            className={`px-4 py-1.5 rounded-md font-medium cursor-pointer transition ${viewMode === "DATE"
+                ? "bg-white shadow text-indigo-600"
+                : "text-gray-600"
+              }`}
+          >
+            Date_Wise
+          </button>
+
+          <button
+            onClick={() => setViewMode("EMPLOYEE")}
+            className={`px-4 py-1.5 rounded-md font-medium cursor-pointer transition ${viewMode === "EMPLOYEE"
+                ? "bg-white shadow text-primary"
+                : "text-gray-600"
+              }`}
+          >
+            Employee_Wise
+          </button>
+        </div>
+
+        {/* DATE PICKER (ONLY FOR DATE MODE) */}
+        {viewMode === "DATE" && (
+
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className={inputClass}
+          />
+        )}
+        {/* SYNC BUTTON (ONLY DATE MODE) */}
+        {viewMode === "DATE" && (
+          <button
+            onClick={onSync}
+            className="
             inline-flex items-center gap-2
             h-10 px-4
             rounded-md
@@ -49,10 +78,11 @@ const AttendanceToolbar = ({ selectedDate, setSelectedDate, onSync }) => {
             disabled:opacity-60 disabled:cursor-not-allowed
             active:scale-95
           "
-        >
-          <RefreshCw size={16} />
-          Sync
-        </button>
+          >
+            <RefreshCw size={16} />
+            Sync
+          </button>
+        )}
       </div>
     </div>
   );

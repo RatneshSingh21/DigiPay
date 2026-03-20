@@ -9,6 +9,7 @@ const DailyAttendanceTable = ({ date }) => {
   const [employees, setEmployees] = useState({});
   const [loading, setLoading] = useState(false);
   const [showOnlyMissing, setShowOnlyMissing] = useState(false);
+  const [showAbsentOnly, setShowAbsentOnly] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   // ================= FETCH ATTENDANCE =================
@@ -66,9 +67,18 @@ const DailyAttendanceTable = ({ date }) => {
       emp?.employeeCode?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesMissing =
-      !showOnlyMissing || !r.hasInPunch || !r.hasOutPunch;
+      !showOnlyMissing ||
+      (
+        (Boolean(r.hasInPunch) && !Boolean(r.hasOutPunch)) ||
+        (!Boolean(r.hasInPunch) && Boolean(r.hasOutPunch))
+      );
 
-    return matchesSearch && matchesMissing;
+    // ABSENT LOGIC
+    const matchesAbsent =
+      !showAbsentOnly ||
+      (!r.hasInPunch && !r.hasOutPunch); // no punches = absent
+
+    return matchesSearch && matchesMissing && matchesAbsent;
   });
 
   // ================= LOADING =================
@@ -120,14 +130,31 @@ const DailyAttendanceTable = ({ date }) => {
 
           {/* FILTER */}
           <button
-            onClick={() => setShowOnlyMissing(!showOnlyMissing)}
+            onClick={() => {
+              setShowOnlyMissing(!showOnlyMissing);
+              setShowAbsentOnly(false); // 👈 avoid overlap
+            }}
             className="
-            rounded-md px-4 py-2 text-sm font-medium
-            text-white bg-primary hover:bg-secondary
-            transition shadow-sm cursor-pointer
-            "
+              rounded-md px-4 py-2 text-sm font-medium
+              text-white bg-primary hover:bg-secondary
+              transition shadow-sm cursor-pointer
+              "
           >
             {showOnlyMissing ? "Show All" : "Missing Punches"}
+          </button>
+
+          <button
+            onClick={() => {
+              setShowAbsentOnly(!showAbsentOnly);
+              setShowOnlyMissing(false); // optional: avoid conflict
+            }}
+            className="
+              rounded-md px-4 py-2 text-sm font-medium
+              text-white bg-red-500 hover:bg-red-600
+              transition shadow-sm cursor-pointer
+              "
+          >
+            {showAbsentOnly ? "Show All" : "Absent Employees"}
           </button>
         </div>
       </div>

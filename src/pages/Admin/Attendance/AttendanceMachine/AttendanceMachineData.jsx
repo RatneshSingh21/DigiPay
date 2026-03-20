@@ -38,11 +38,20 @@ const formatTime = (iso) =>
 
 const calcHours = (inTime, outTime) => {
   if (!inTime || !outTime) return "--";
-  const diffMs = new Date(outTime) - new Date(inTime);
+
+  let inDate = new Date(inTime);
+  let outDate = new Date(outTime);
+
+  // Handle night shift (OUT next day)
+  if (outDate < inDate) {
+    outDate.setDate(outDate.getDate() + 1);
+  }
+
+  const diffMs = outDate - inDate;
   const hrs = diffMs / (1000 * 60 * 60);
+
   return hrs > 0 ? `${hrs.toFixed(2)} hrs` : "--";
 };
-
 /* ================= MAIN ================= */
 const AttendanceMachineData = () => {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -276,7 +285,9 @@ const AttendanceMachineData = () => {
                   <td className="px-4 py-3">{formatTime(r.outTime)}</td>
                   <td className="px-4 py-3 flex items-center justify-center gap-1">
                     <Clock size={14} className="text-gray-400" />
-                    {calcHours(r.inTime, r.outTime)}
+                    {r.totalHours
+                      ? `${r.totalHours} hrs`
+                      : calcHours(r.inTime, r.outTime)}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={r.status} />

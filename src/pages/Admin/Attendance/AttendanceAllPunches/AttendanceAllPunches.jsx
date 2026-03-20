@@ -3,11 +3,13 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../../../axiosInstance/axiosInstance";
 import AttendanceToolbar from "./AttendanceToolbar";
 import DailyAttendanceTable from "./DailyAttendanceTable";
+import EmployeeWiseAttendancePunches from "./EmployeeWiseData/EmployeeWiseAttendancePunches";
 
 const AttendanceAllPunches = () => {
   const isFirstRender = useRef(true);
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
+  const [viewMode, setViewMode] = useState("DATE"); // DATE | EMPLOYEE
 
   const handleSync = useCallback(async () => {
     try {
@@ -30,16 +32,22 @@ const AttendanceAllPunches = () => {
   }, [selectedDate]);
 
   return (
-    <div className="min-h-screen space-y-2">
-      <AttendanceToolbar
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-        onSync={handleSync}
-      />
+  <div className="min-h-screen space-y-2">
+    <AttendanceToolbar
+      selectedDate={selectedDate}
+      setSelectedDate={setSelectedDate}
+      onSync={handleSync}
+      viewMode={viewMode}
+      setViewMode={setViewMode}
+    />
 
+    {viewMode === "DATE" ? (
       <DailyAttendanceTable date={selectedDate} />
-    </div>
-  );
+    ) : (
+      <EmployeeWiseAttendancePunches />
+    )}
+  </div>
+);
 };
 
 export default AttendanceAllPunches;
