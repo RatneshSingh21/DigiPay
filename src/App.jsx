@@ -167,6 +167,12 @@ import AdvanceLoanMonthly from "./pages/NEWSALARYLOGIC/ADVANCENEW/AdvanceLoanMon
 import SalaryCalculateRich from "./pages/Admin/Employees/SalaryCalculate/SalaryCalculateRich";
 import ComplianceSalaryPolicy from "./pages/NEWSALARYLOGIC/ComplianceSalaryPolicy/ComplianceSalaryPolicy";
 import EmployeeActualSalary from "./pages/ComplainceSalaryPages/ActualSalary/EmployeeActualSalary";
+import AttendanceManipulation from "./pages/ComplainceSalaryPages/AttendanceManipulation/AttendanceManipulation";
+import AttendanceTestManual from "./pages/ComplainceSalaryPages/AttendanceTestManual/AttendanceTestManual";
+import DigiPayChatbot from "./components/Digipaychatbot";
+import ProcessComplainceSalary from "./pages/ComplainceSalaryPages/ProcessComplainceSalary/ProcessComplainceSalary";
+import ProcessActualSalary from "./pages/ComplainceSalaryPages/ProcessActualSalary/ProcessActualSalary";
+import DifferenceSalary from "./pages/ComplainceSalaryPages/DifferenceSalary/DifferenceSalary";
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -296,6 +302,14 @@ const App = () => {
                       element={<CompanySalaryPolicyPage />}
                     />
                     <Route
+                      path="attendance-manipulation"
+                      element={<AttendanceManipulation />}
+                    />
+                    <Route
+                      path="attendance-testdata"
+                      element={<AttendanceTestManual />}
+                    />
+                    <Route
                       path="complaince-setup"
                       element={<ComplianceSalaryPolicy />}
                     />
@@ -306,6 +320,18 @@ const App = () => {
                     <Route
                       path="complaince-setup"
                       element={<ComplianceSalaryPolicy />}
+                    />
+                    <Route
+                      path="process-actual-salary"
+                      element={<ProcessActualSalary />}
+                    />
+                    <Route
+                      path="process-complaince-salary"
+                      element={<ProcessComplainceSalary />}
+                    />
+                    <Route
+                      path="difference-salary"
+                      element={<DifferenceSalary />}
                     />
                     <Route
                       path="add-advance"
@@ -657,6 +683,7 @@ const App = () => {
             </>
           )}
         </Routes>
+        {token && <DigiPayChatbot />}
       </div>
     </div>
   );

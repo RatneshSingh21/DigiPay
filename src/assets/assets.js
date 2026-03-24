@@ -48,6 +48,7 @@ import NotificationGif from "./NotificationGif.gif";
 import MagnifyGif from "./MagnifyGif.gif";
 import NoData from "./NoData.png";
 import NoSalarySlip from "./NoSalarySlip.png";
+import Chatbot from "./Chatbot.png"
 
 const assets = {
   bg: bg,
@@ -100,6 +101,7 @@ const assets = {
   NotificationGif: NotificationGif,
   NoData: NoData,
   NoSalarySlip: NoSalarySlip,
+  Chatbot:Chatbot,
 };
 
 export default assets;
