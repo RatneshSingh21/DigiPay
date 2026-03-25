@@ -3,7 +3,8 @@ import axiosInstance from "../../../axiosInstance/axiosInstance";
 import { toast } from "react-toastify";
 import ProcessActualSalaryForm from "./ProcessActualSalaryForm";
 import ProcessActualSalaryBulkForm from "./ProcessActualSalaryBulkForm";
-import { Plus, FileMinus, Info } from "lucide-react";
+import { Plus, FileMinus, Info, Upload } from "lucide-react";
+import ActualSalaryImportExportModal from "./ActualSalaryImportExportModal";
 
 const inputClass =
     "w-full md:w-48 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
@@ -18,6 +19,7 @@ const ProcessActualSalary = () => {
     const [employees, setEmployees] = useState([]);
     const [loadingData, setLoadingData] = useState(false);
     const [showForm, setShowForm] = useState(false);
+    const [showImportExport, setShowImportExport] = useState(false);
 
     // Fetch employees once
     useEffect(() => {
@@ -144,6 +146,14 @@ const ProcessActualSalary = () => {
                             className={`bg-green-600 ${buttonClass}`}
                         >
                             <Plus size={16} /> Process Bulk
+                        </button>
+                        <button
+                            onClick={() => setShowImportExport(true)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-secondary cursor-pointer transition"
+                        >
+                            <Upload size={16} />
+                            Export
+                            {/* Import / Export */}
                         </button>
                     </div>
                 </div>
@@ -307,6 +317,9 @@ const ProcessActualSalary = () => {
                         <ProcessActualSalaryBulkForm onClose={() => setShowForm(false)} />
                     )}
                 </div>
+            )}
+            {showImportExport && (
+                <ActualSalaryImportExportModal onClose={() => setShowImportExport(false)} />
             )}
         </div>
     );

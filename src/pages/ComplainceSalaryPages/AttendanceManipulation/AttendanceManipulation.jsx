@@ -59,7 +59,7 @@ const AttendanceManipulation = () => {
 
     const [search, setSearch] = useState("");
     const [selectedRow, setSelectedRow] = useState(null);
-    const [viewType, setViewType] = useState("manipulated"); // values: "actual" | "compliance" | "manipulated"
+    const [viewType, setViewType] = useState("final"); // values: "actual" | "compliance" | "manipulated" or "final"
     const [salaryRunId, setSalaryRunId] = useState(null);
     const [showSalaryModal, setShowSalaryModal] = useState(false);
 
@@ -71,7 +71,7 @@ const AttendanceManipulation = () => {
             url = `/PayrollAttendance/actual/salary-run/${salaryRunId}`;
         } else if (viewType === "compliance" && salaryRunId) {
             url = `/PayrollAttendance/compliance/salary-run/${salaryRunId}`;
-        } else if (viewType === "manipulated") {
+        } else if (viewType === "final") {
             url = `/PayrollAttendance/month?month=${month.value}&year=${year.value}`;
         } else {
             setData([]);
@@ -133,7 +133,7 @@ const AttendanceManipulation = () => {
 
     // 🔹 Fetch attendance whenever month/year (for manipulated) or salaryRunId (for actual/compliance) changes
     useEffect(() => {
-        if (viewType === "manipulated") {
+        if (viewType === "final") {
             fetchData();
         } else if ((viewType === "actual" || viewType === "compliance") && salaryRunId) {
             fetchData();
@@ -205,13 +205,13 @@ const AttendanceManipulation = () => {
                     </button>
 
                     <button
-                        onClick={() => setViewType("manipulated")}
-                        className={`px-4 py-1.5 text-sm rounded-md cursor-pointer font-semibold transition ${viewType === "manipulated"
+                        onClick={() => setViewType("final")}
+                        className={`px-4 py-1.5 text-sm rounded-md cursor-pointer font-semibold transition ${viewType === "final"
                             ? "bg-white shadow text-blue-600"
                             : "text-gray-500"
                             }`}
                     >
-                        Final / Payroll
+                        Final Attendance
                     </button>
 
                 </div>

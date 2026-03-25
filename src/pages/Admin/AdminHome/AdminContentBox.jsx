@@ -132,6 +132,7 @@ const submenuMap = {
     //"Attendance TestData",
     //"Process Actual Salary",
     //"Process Compliance Salary",
+    //"Process Salary Input",
     //"Difference Salary",
     "Add Advance",
     "Salary Calculation",

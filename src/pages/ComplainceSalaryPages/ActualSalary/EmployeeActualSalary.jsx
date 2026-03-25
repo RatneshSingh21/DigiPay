@@ -8,9 +8,11 @@ import {
     ShieldCheck,
     ShieldOff,
     Calendar,
+    Upload,
 } from "lucide-react";
 import axiosInstance from "../../../axiosInstance/axiosInstance";
 import EmployeeActualSalaryModal from "./EmployeeActualSalaryModel";
+import ActualSalaryImportExport from "./ActualSalaryImportExport";
 
 /* REUSABLE PILL */
 const Pill = ({ children, variant = "default" }) => {
@@ -36,6 +38,8 @@ const EmployeeActualSalary = () => {
     const [openModal, setOpenModal] = useState(false);
     const [editData, setEditData] = useState(null);
     const [expandedRow, setExpandedRow] = useState(null);
+    const [showImportExport, setShowImportExport] = useState(false);
+
 
     const fetchSalary = async () => {
         try {
@@ -66,17 +70,26 @@ const EmployeeActualSalary = () => {
                             Manage salary structure, compliance, and working rules
                         </p>
                     </div>
+                    <div className="flex flex-col md:flex-row gap-2 mt-2 md:mt-0">
+                        <button
+                            onClick={() => {
+                                setEditData(null);
+                                setOpenModal(true);
+                            }}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-primary text-sm text-white rounded-lg shadow-sm transition cursor-pointer"
+                        >
+                            <Plus size={18} />
+                            Add Salary
+                        </button>
+                        <button
+                            onClick={() => setShowImportExport(true)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-md bg-secondary text-white font-semibold cursor-pointer transition"
+                        >
+                            <Upload size={16} />
+                            Import / Export
+                        </button>
+                    </div>
 
-                    <button
-                        onClick={() => {
-                            setEditData(null);
-                            setOpenModal(true);
-                        }}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-secondary text-sm text-white rounded-lg shadow-sm transition cursor-pointer"
-                    >
-                        <Plus size={18} />
-                        Add Salary
-                    </button>
                 </div>
             </div>
 
@@ -265,6 +278,10 @@ const EmployeeActualSalary = () => {
                     onSuccess={fetchSalary}
                     editData={editData}
                 />
+            )}
+
+            {showImportExport && (
+                <ActualSalaryImportExport onClose={() => setShowImportExport(false)} />
             )}
         </div>
     );
