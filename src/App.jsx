@@ -173,6 +173,7 @@ import DigiPayChatbot from "./components/Digipaychatbot";
 import ProcessComplainceSalary from "./pages/ComplainceSalaryPages/ProcessComplainceSalary/ProcessComplainceSalary";
 import ProcessActualSalary from "./pages/ComplainceSalaryPages/ProcessActualSalary/ProcessActualSalary";
 import DifferenceSalary from "./pages/ComplainceSalaryPages/DifferenceSalary/DifferenceSalary";
+import SalaryAmountInput from "./pages/ComplainceSalaryPages/SalaryAmountInput/SalaryAmountInput";
 
 const App = () => {
   const token = useAuthStore((state) => state.token);
@@ -328,6 +329,10 @@ const App = () => {
                     <Route
                       path="process-complaince-salary"
                       element={<ProcessComplainceSalary />}
+                    />
+                    <Route
+                      path="process-salary-input"
+                      element={<SalaryAmountInput />}
                     />
                     <Route
                       path="difference-salary"
