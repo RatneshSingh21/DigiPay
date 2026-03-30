@@ -69,6 +69,16 @@ const AttendanceTestManualForm = ({ data, onClose, onRefresh }) => {
         code: emp.employeeCode,
     }));
 
+    useEffect(() => {
+        if (form.month && form.year) {
+            const days = new Date(form.year, form.month, 0).getDate();
+            setForm((prev) => ({
+                ...prev,
+                totalCalendarDays: days,
+            }));
+        }
+    }, [form.month, form.year]);
+
     const handleSubmit = async () => {
         try {
             await axiosInstance.post("/PayrollAttendance/preview/manual", form);
@@ -166,10 +176,11 @@ const AttendanceTestManualForm = ({ data, onClose, onRefresh }) => {
 
                     {/* 📊 Attendance */}
                     <Section title="Attendance Details">
-                        <div className="grid grid-cols-3 gap-4">
-                            <Input label="Working Days" hint="Total present days" value={form.rawWD} onChange={(v) => setForm({ ...form, rawWD: v })} />
-                            <Input label="Week Off" hint="Weekend offs" value={form.weekOffDays} onChange={(v) => setForm({ ...form, weekOffDays: v })} />
-                            <Input label="Machine Days" hint="Biometric days" value={form.machineDays} onChange={(v) => setForm({ ...form, machineDays: v })} />
+                        <div className="grid grid-cols-4 gap-4">
+                            <Input label="Total Days" value={form.totalCalendarDays} onChange={(v) => setForm({ ...form, totalCalendarDays: v })} />
+                            <Input label="Working Days" value={form.rawWD} onChange={(v) => setForm({ ...form, rawWD: v })} />
+                            <Input label="Week Off" value={form.weekOffDays} onChange={(v) => setForm({ ...form, weekOffDays: v })} />
+                            <Input label="Machine Days" value={form.machineDays} onChange={(v) => setForm({ ...form, machineDays: v })} />
                         </div>
                     </Section>
 

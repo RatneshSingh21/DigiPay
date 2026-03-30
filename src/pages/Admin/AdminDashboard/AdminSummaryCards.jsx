@@ -136,18 +136,19 @@ const AdminSummaryCards = () => {
   const cards = [
     {
       label: "Total Employees",
-      value: employees.length,
-      diff: `+${
-        employees.filter((emp) => {
-          if (!emp.dateOfJoining) return false;
-          const d = new Date(emp.dateOfJoining);
-          const now = new Date();
-          return (
-            d.getMonth() === now.getMonth() &&
-            d.getFullYear() === now.getFullYear()
-          );
-        }).length
-      } Joined this month`,
+      value: employees.filter(emp => emp.isActive).length,
+      diff: `+${employees.filter((emp) => {
+        if (!emp.dateOfJoining || !emp.isActive) return false;
+
+        const d = new Date(emp.dateOfJoining);
+        const now = new Date();
+
+        return (
+          d.getMonth() === now.getMonth() &&
+          d.getFullYear() === now.getFullYear()
+        );
+      }).length
+        } Joined this month`,
       icon: <FaUserFriends />,
       color: "from-blue-500 to-blue-600",
     },

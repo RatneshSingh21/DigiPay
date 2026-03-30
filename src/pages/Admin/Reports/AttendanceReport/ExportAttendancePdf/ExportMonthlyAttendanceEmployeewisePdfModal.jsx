@@ -95,6 +95,7 @@ const ExportMonthlyAttendanceEmployeewisePdfModal = ({ isOpen, onClose }) => {
     { value: "today", label: "Today" },
     { value: "week", label: "Last 7 Days" },
     { value: "month", label: "Current Month" },
+    { value: "prevmonth", label: "Previous Month" },
   ];
 
   if (!isOpen) return null;

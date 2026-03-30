@@ -294,7 +294,7 @@ const AttendanceManipulation = () => {
 
                             <th className="p-3">OT</th>
                             <th className="p-3">Excess OT</th>
-                            <th className="p-3">Deduct</th>
+                            <th className="p-3">Deduct_Days</th>
                         </tr>
                     </thead>
 

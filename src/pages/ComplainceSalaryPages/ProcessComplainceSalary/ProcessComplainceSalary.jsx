@@ -61,6 +61,15 @@ const ProcessComplainceSalary = () => {
 
   const format = (num) => (num ? Number(num).toFixed(2) : "0.00");
 
+  const getMonthYear = (month, year) => {
+    const months = [
+      "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+      "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+    ];
+
+    return `${months[month - 1]}-${year}`;
+  };
+
   const totals = enrichedSalaryData.reduce(
     (acc, item) => {
       acc.payableDays += item.payableDays || 0;
@@ -189,81 +198,183 @@ const ProcessComplainceSalary = () => {
       {salaryData.length > 0 && (
         <div className="border mt-5 mx-auto max-w-xl md:max-w-5xl xl:min-w-5xl 2xl:min-w-full overflow-auto border-gray-200 rounded-lg max-h-[80vh]">
           <table className="min-w-full text-xs">
-            <thead className="bg-gray-100 sticky top-0 z-10">
-              <tr className="text-gray-600 uppercase text-xs">
-                <th className="p-3 text-center">S.No</th>
-                <th className="p-3 text-left">Employee Name</th>
-                {/* <th className="p-3">Department</th> */}
-                <th className="p-3 text-center">PF Number</th>
-                <th className="p-3 text-center">ESI Number</th>
-                <th className="p-3 text-center">Month</th>
-                <th className="p-3 text-center">Year</th>
-                <th className="p-3 text-center">Payable Days</th>
-                <th className="p-3 text-center">Prorata Factor</th>
-                <th className="p-3 text-center">OT Hours</th>
-                <th className="p-3 text-center">Excess OT Hours</th>
-                <th className="p-3 text-center">OT Amount</th>
-                <th className="p-3 text-center">Excess OT Amount</th>
-                <th className="p-3 text-center">Display Basic</th>
-                <th className="p-3 text-center">Display HRA</th>
-                <th className="p-3 text-center">Display Total</th>
-                <th className="p-3 text-center">Earn Basic</th>
-                <th className="p-3 text-center">Earn HRA</th>
-                <th className="p-3 text-center">Earn Gross</th>
-                <th className="p-3 text-center">Total Earnings</th>
-                <th className="p-3 text-center">PF Base</th>
-                <th className="p-3 text-center">Employee PF</th>
-                <th className="p-3 text-center">Employer PF</th>
-                <th className="p-3 text-center">ESI Base</th>
-                <th className="p-3 text-center">Employee ESI</th>
-                <th className="p-3 text-center">Employer ESI</th>
-                <th className="p-3 text-center">Loan Deduction</th>
-                <th className="p-3 text-center">Total Deductions</th>
-                <th className="p-3 text-center">Special Allowance</th>
-                <th className="p-3 text-center">Net Salary</th>
-                <th className="p-3 text-center">Min Wage Case</th>
-                <th className="p-3 text-center">ESI Applicable</th>
+            <thead className="bg-gray-50 text-gray-700 text-xs sticky top-0 z-10 border-b-2 border-gray-200">
+              <tr className="text-center">
+                <th className="p-3 min-w-[120px] border-r border-gray-200">S.No / Code</th>
+                <th className="p-3 min-w-[200px] border-r border-gray-200">Employee</th>
+                <th className="p-3 min-w-[140px] border-r border-gray-200">Attendance</th>
+                <th className="p-3 min-w-[160px] border-r border-gray-200">Salary Structure</th>
+                <th className="p-3 min-w-[160px] border-r border-gray-200">Earnings</th>
+                <th className="p-3 min-w-[140px] border-r border-gray-200">OT Details</th>
+                <th className="p-3 min-w-[140px] border-r border-gray-200">Total Earnings</th>
+                <th className="p-3 min-w-[160px] border-r border-gray-200">Deductions</th>
+                <th className="p-3 min-w-[140px]">Net Salary</th>
               </tr>
             </thead>
             <tbody>
               {enrichedSalaryData.map((item, index) => (
-                <tr key={item.id} className="hover:bg-gray-50 text-center">
-                  <td className="p-3">{index + 1}.</td>
-                  <td className="p-3 text-left">{item.employeeName}</td>
-                  {/* <td className="p-3">{item.department || "-"}</td> */}
-                  <td className="p-3">{item.pfNumber || "-"}</td>
-                  <td className="p-3">{item.esiNumber || "-"}</td>
-                  <td className="p-3">{item.month}</td>
-                  <td className="p-3">{item.year}</td>
-                  <td className="p-3 text-center">{item.payableDays}</td>
-                  <td className="p-3 text-center">{item.prorataFactor}</td>
-                  <td className="p-3 text-center">{item.otHours}</td>
-                  <td className="p-3 text-center">{item.excessOTHours}</td>
-                  <td className="p-3 text-center">{item.otAmount}</td>
-                  <td className="p-3 text-center">{item.excessOTAmount}</td>
-                  <td className="p-3 text-center">{item.displayBasic}</td>
-                  <td className="p-3 text-center">{item.displayHRA}</td>
-                  <td className="p-3 text-center">{item.displayTotal}</td>
-                  <td className="p-3 text-center">{item.earnBasic}</td>
-                  <td className="p-3 text-center">{item.earnHRA}</td>
-                  <td className="p-3 text-center">{item.earnGross}</td>
-                  <td className="p-3 text-center">{item.totalEarnings}</td>
-                  <td className="p-3 text-center">{item.pfBase}</td>
-                  <td className="p-3 text-center">{item.employeePF}</td>
-                  <td className="p-3 text-center">{item.employerPF}</td>
-                  <td className="p-3 text-center">{item.esiBase}</td>
-                  <td className="p-3 text-center">{item.employeeESI}</td>
-                  <td className="p-3 text-center">{item.employerESI}</td>
-                  <td className="p-3 text-center">{item.loanDeduction}</td>
-                  <td className="p-3 text-center">{item.totalDeductions}</td>
-                  <td className="p-3 text-center">{item.specialAllowance}</td>
-                  <td className="p-3 text-center">{item.netSalary}</td>
-                  <td className="p-3 text-center">{item.isMinWageCase ? "Yes" : "No"}</td>
-                  <td className="p-3 text-center">{item.isESIApplicable ? "Yes" : "No"}</td>
+                <tr
+                  key={item.id}
+                  className="border-b border-gray-200 text-xs align-top hover:bg-gray-50"
+                >
+
+                  {/* S.NO + CODE */}
+                  <td className="p-3 text-center border-r border-gray-200">
+                    <div className="font-bold">{index + 1}</div>
+
+                    <div className="text-[11px] text-gray-500">
+                      {item.employeeName?.split("(")[1]?.replace(")", "")}
+                    </div>
+
+                    <div className="text-primary text-[11px] font-semibold mt-1">
+                      {getMonthYear(item.month, item.year)}
+                    </div>
+
+                    <div className="text-[10px] text-gray-400">
+                      SalaryRunID: {salaryRunId}
+                    </div>
+                  </td>
+
+                  {/* EMPLOYEE */}
+                  <td className="p-3 border-r border-gray-200">
+                    <div className="font-semibold">{item.employeeName}</div>
+
+                    <div className="mt-2 text-gray-500 text-xs space-y-1">
+                      <div>PF No: {item.pfNumber || "-"}</div>
+                      <div>ESI No: {item.esiNumber || "-"}</div>
+                    </div>
+                  </td>
+
+                  {/* ATTENDANCE */}
+                  <td className="p-3 border-r border-gray-200">
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span>Payable Days</span>
+                        <b>{item.payableDays}</b>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span>Prorata</span>
+                        <span>{item.prorataFactor}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span>Min Wage</span>
+                        <span>{item.isMinWageCase ? "Yes" : "No"}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* SALARY STRUCTURE */}
+                  <td className="p-3 border-r border-gray-200">
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span>Basic</span>
+                        <span>₹ {format(item.displayBasic)}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span>HRA</span>
+                        <span>₹ {format(item.displayHRA)}</span>
+                      </div>
+
+                      <div className="flex justify-between font-semibold border-t border-gray-400 pt-1">
+                        <span>Total</span>
+                        <span>₹ {format(item.displayTotal)}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* EARNINGS */}
+                  <td className="p-3 border-r border-gray-200">
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span>Basic</span>
+                        <span>₹ {format(item.earnBasic)}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span>HRA</span>
+                        <span>₹ {format(item.earnHRA)}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span>Gross</span>
+                        <span>₹ {format(item.earnGross)}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* OT DETAILS */}
+                  <td className="p-3 border-r border-gray-200">
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span>Hours</span>
+                        <span>{item.otHours}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span>OT Amt</span>
+                        <span>₹ {format(item.otAmount)}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span>Excess OT</span>
+                        <span>₹ {format(item.excessOTAmount)}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* TOTAL EARNINGS */}
+                  <td className="p-3 border-r border-gray-200 text-center">
+                    <div className="font-semibold text-blue-600">
+                      ₹ {format(item.totalEarnings)}
+                    </div>
+
+                    <div className="text-[10px] text-gray-400">
+                      ESI Base: ₹ {format(item.esiBase)}
+                    </div>
+                  </td>
+
+                  {/* DEDUCTIONS */}
+                  <td className="p-3 border-r border-gray-200">
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span>PF</span>
+                        <span>₹ {format(item.employeePF)}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span>ESI</span>
+                        <span>₹ {format(item.employeeESI)}</span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span>Loan</span>
+                        <span>₹ {format(item.loanDeduction)}</span>
+                      </div>
+
+                      <div className="flex justify-between font-semibold border-t pt-1 text-red-600">
+                        <span>Total</span>
+                        <span>₹ {format(item.totalDeductions)}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* NET SALARY */}
+                  <td className="p-3 text-center">
+                    <div className="font-bold text-green-600 text-base">
+                      ₹ {format(item.netSalary)}
+                    </div>
+
+                    <div className="text-[10px] text-gray-400">
+                      {item.isESIApplicable ? "ESI Applicable" : "No ESI"}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
-            <tfoot className="bg-gray-100 sticky bottom-0 font-semibold text-xs">
+            {/* <tfoot className="bg-gray-100 sticky bottom-0 font-semibold text-xs">
               <tr className="text-center">
                 <td className="p-3"></td>
                 <td className="p-3 text-left">TOTAL</td>
@@ -306,7 +417,7 @@ const ProcessComplainceSalary = () => {
                 <td className="p-3"></td>
                 <td className="p-3"></td>
               </tr>
-            </tfoot>
+            </tfoot> */}
           </table>
         </div>
       )}
